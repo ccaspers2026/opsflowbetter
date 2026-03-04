@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2M Pipeline — Product to Market</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0d1117;
+            color: #e6edf3;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ================================================================
+           NAVIGATION
+        ================================================================ */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #21262d;
+            padding: 14px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-size: 18px;
+            font-weight: 700;
+            color: #58a6ff;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-brand span { color: #8b949e; font-weight: 400; }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: #e6edf3; }
+
+        .nav-cta {
+            background: #1F4E79 !important;
+            color: #fff !important;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.2s !important;
+        }
+
+        .nav-cta:hover { background: #2a6ba6 !important; }
+
+        /* ================================================================
+           HERO SECTION
+        ================================================================ */
+        .hero {
+            padding: 140px 40px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(31, 78, 121, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border: 1px solid #30363d;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-badge strong { color: #58a6ff; }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #e6edf3 0%, #8b949e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero h1 em {
+            font-style: normal;
+            background: linear-gradient(135deg, #58a6ff 0%, #1F4E79 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 20px;
+            color: #8b949e;
+            max-width: 640px;
+            margin: 0 auto 40px;
+            line-height: 1.5;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #1F4E79;
+            color: #fff;
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary:hover { background: #2a6ba6; transform: translateY(-1px); }
+
+        .btn-secondary {
+            background: transparent;
+            color: #e6edf3;
+            padding: 14px 32px;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover { border-color: #58a6ff; color: #58a6ff; }
+
+        /* ================================================================
+           STATS BAR
+        ================================================================ */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 40px;
+            margin: 0 40px;
+            border-top: 1px solid #21262d;
+            border-bottom: 1px solid #21262d;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #58a6ff;
+            letter-spacing: -1px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #8b949e;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ================================================================
+           SECTION SHARED
+        ================================================================ */
+        section {
+            padding: 80px 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 12px;
+            color: #58a6ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 16px;
+            color: #8b949e;
+            max-width: 600px;
+            margin-bottom: 48px;
+            line-height: 1.6;
+        }
+
+        /* ================================================================
+           PROBLEM / SOLUTION
+        ================================================================ */
+        .problem-solution {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        .ps-card {
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid #21262d;
+        }
+
+        .ps-card.problem {
+            background: linear-gradient(135deg, rgba(248, 81, 73, 0.05) 0%, rgba(13, 17, 23, 1) 100%);
+            border-color: rgba(248, 81, 73, 0.2);
+        }
+
+        .ps-card.solution {
+            background: linear-gradient(135deg, rgba(63, 185, 80, 0.05) 0%, rgba(13, 17, 23, 1) 100%);
+            border-color: rgba(63, 185, 80, 0.2);
+        }
+
+        .ps-card h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .ps-card.problem h3 { color: #f85149; }
+        .ps-card.solution h3 { color: #3fb950; }
+
+        .ps-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .ps-card li {
+            padding: 8px 0;
+            color: #8b949e;
+            font-size: 14px;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .ps-card li:last-child { border-bottom: none; }
+
+        .ps-card li::before {
+            margin-right: 8px;
+            font-size: 12px;
+        }
+
+        .ps-card.problem li::before { content: '\2717'; color: #f85149; }
+        .ps-card.solution li::before { content: '\2713'; color: #3fb950; }
+
+        /* ================================================================
+           PHASES GRID
+        ================================================================ */
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .phase-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 10px;
+            padding: 24px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phase-card:hover {
+            border-color: #30363d;
+            transform: translateY(-2px);
+        }
+
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .phase-card[data-phase="1"]::before { background: #2563eb; }
+        .phase-card[data-phase="2"]::before { background: #7c3aed; }
+        .phase-card[data-phase="3"]::before { background: #059669; }
+        .phase-card[data-phase="4"]::before { background: #d97706; }
+        .phase-card[data-phase="5"]::before { background: #dc2626; }
+        .phase-card[data-phase="6"]::before { background: #db2777; }
+        .phase-card[data-phase="7"]::before { background: #4f46e5; }
+
+        .phase-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .phase-card h4 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .phase-card p {
+            font-size: 13px;
+            color: #8b949e;
+            line-height: 1.5;
+        }
+
+        .phase-steps {
+            margin-top: 12px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .phase-step-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: #8b949e;
+            border: 1px solid #21262d;
+        }
+
+        /* ================================================================
+           LED LEGEND
+        ================================================================ */
+        .led-demo {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            padding: 40px;
+            background: #161b22;
+            border-radius: 12px;
+            border: 1px solid #21262d;
+            margin-top: 48px;
+            flex-wrap: wrap;
+        }
+
+        .led-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .led-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .led-dot.red { background: #f85149; color: #f85149; }
+        .led-dot.yellow { background: #d29922; color: #d29922; }
+        .led-dot.green { background: #3fb950; color: #3fb950; }
+
+        .led-label {
+            font-size: 14px;
+            color: #8b949e;
+        }
+
+        .led-label strong { color: #e6edf3; }
+
+        /* ================================================================
+           FEATURES
+        ================================================================ */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 10px;
+            padding: 28px;
+            transition: border-color 0.2s;
+        }
+
+        .feature-card:hover { border-color: #30363d; }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(31, 78, 121, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h4 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: #8b949e;
+            line-height: 1.5;
+        }
+
+        /* ================================================================
+           BUILT FOR / AUDIENCE
+        ================================================================ */
+        .audience-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .audience-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 10px;
+            padding: 28px;
+            text-align: center;
+        }
+
+        .audience-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .audience-card h4 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .audience-card p {
+            font-size: 14px;
+            color: #8b949e;
+            line-height: 1.5;
+        }
+
+        /* ================================================================
+           ROADMAP TEASER
+        ================================================================ */
+        .roadmap-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .roadmap-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #1F4E79, #30363d);
+        }
+
+        .roadmap-item {
+            position: relative;
+            margin-bottom: 32px;
+            padding-left: 20px;
+        }
+
+        .roadmap-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #1F4E79;
+            background: #0d1117;
+        }
+
+        .roadmap-item.active::before {
+            background: #1F4E79;
+            box-shadow: 0 0 8px rgba(31, 78, 121, 0.5);
+        }
+
+        .roadmap-phase {
+            font-size: 12px;
+            color: #58a6ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .roadmap-item h4 {
+            font-size: 16px;
+            margin: 4px 0;
+        }
+
+        .roadmap-item p {
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        /* ================================================================
+           CTA SECTION
+        ================================================================ */
+        .cta-section {
+            text-align: center;
+            padding: 80px 40px;
+            background: linear-gradient(180deg, transparent 0%, rgba(31, 78, 121, 0.1) 100%);
+            border-top: 1px solid #21262d;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: #8b949e;
+            margin-bottom: 32px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ================================================================
+           FOOTER
+        ================================================================ */
+        footer {
+            text-align: center;
+            padding: 32px 40px;
+            border-top: 1px solid #21262d;
+            color: #484f58;
+            font-size: 13px;
+        }
+
+        footer a { color: #58a6ff; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* ================================================================
+           RESPONSIVE
+        ================================================================ */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 36px; }
+            .hero-sub { font-size: 16px; }
+            .problem-solution { grid-template-columns: 1fr; }
+            .stats-bar { gap: 30px; }
+            nav { padding: 12px 20px; }
+            section { padding: 60px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+         NAVIGATION
+    ============================================================ -->
+    <nav>
+        <a href="P2M_Welcome.html" class="nav-brand">P2M <span>Pipeline</span></a>
+        <div class="nav-links">
+            <a href="#phases">Phases</a>
+            <a href="#features">Features</a>
+            <a href="#built-for">Built For</a>
+            <a href="#roadmap">Roadmap</a>
+            <a href="P2M_Changelog.html">Changelog</a>
+            <a href="P2M_Pipeline.html" class="nav-cta">Open Pipeline</a>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+         HERO
+    ============================================================ -->
+    <section class="hero">
+        <div class="hero-badge">Built by makers, for makers &mdash; <strong>Caspers Creations</strong></div>
+        <h1>From idea to income.<br>One <em>pipeline</em> at a time.</h1>
+        <p class="hero-sub">P2M Pipeline is a structured, repeatable system that takes a physical product from napkin sketch to revenue-generating Amazon listing &mdash; with every decision documented and every step validated.</p>
+        <div class="hero-ctas">
+            <a href="P2M_Pipeline.html" class="btn-primary">Open Pipeline</a>
+            <a href="#phases" class="btn-secondary">See How It Works</a>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         STATS BAR
+    ============================================================ -->
+    <div class="stats-bar">
+        <div class="stat">
+            <div class="stat-number">7</div>
+            <div class="stat-label">Phases</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">28</div>
+            <div class="stat-label">Guided Steps</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Go/No-Go Gates</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">4</div>
+            <div class="stat-label">Data Layers Deep</div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         PROBLEM / SOLUTION
+    ============================================================ -->
+    <section>
+        <div class="section-label">The Problem</div>
+        <div class="section-title">Launching products shouldn't feel like guessing.</div>
+        <div class="section-desc">Most makers build first and sell later. P2M flips that. Every step is validated before the next one starts.</div>
+
+        <div class="problem-solution">
+            <div class="ps-card problem">
+                <h3>Without a system</h3>
+                <ul>
+                    <li>Skip market research, discover no demand after investing weeks</li>
+                    <li>Price based on gut feel, leave money on the table</li>
+                    <li>No documentation &mdash; can't replicate success on the next product</li>
+                    <li>Launch, cross fingers, hope for sales</li>
+                    <li>Forget what worked and what didn't</li>
+                </ul>
+            </div>
+            <div class="ps-card solution">
+                <h3>With P2M Pipeline</h3>
+                <ul>
+                    <li>Validate demand with real data before committing time or money</li>
+                    <li>Price based on competitive analysis and margin math</li>
+                    <li>Every decision documented with evidence behind it</li>
+                    <li>Launch with confidence &mdash; every variable accounted for</li>
+                    <li>Repeat the process for your next product in half the time</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         7 PHASES
+    ============================================================ -->
+    <section id="phases">
+        <div class="section-label">The System</div>
+        <div class="section-title">7 phases from idea to income.</div>
+        <div class="section-desc">Each phase has specific steps, checklists, and a clear output. Complete them in order. Go/No-Go gates prevent bad ideas from wasting your time and money.</div>
+
+        <div class="phases-grid">
+            <div class="phase-card" data-phase="1">
+                <div class="phase-num">Phase 1 &mdash; Day 1</div>
+                <h4>Ideation &amp; Validation</h4>
+                <p>Define the product, research the market, score the opportunity, and do the income math. Pass the Go/No-Go gate before spending a dime on design.</p>
+                <div class="phase-steps">
+                    <span class="phase-step-tag">Product Idea</span>
+                    <span class="phase-step-tag">Market Research</span>
+                    <span class="phase-step-tag">Competitive Analysis</span>
+                    <span class="phase-step-tag">Niche Score</span>
+                    <span class="phase-step-tag">Income Math</span>
+                    <span class="phase-step-tag">GO / NO-GO</span>
+                </div>
+            </div>
+
+            <div class="phase-card" data-phase="2">
+                <div class="phase-num">Phase 2 &mdash; Days 1-3</div>
+                <h4>Design &amp; Engineering</h4>
+                <p>CAD model, prototype iterations, and locked print settings. You don't move forward until the physical product meets your quality bar.</p>
+                <div class="phase-steps">
+                    <span class="phase-step-tag">CAD Design</span>
+                    <span class="phase-step-tag">Prototype &amp; Iterate</span>
+                    <span class="phase-step-tag">Lock Print Settings</span>
+                </div>
+            </div>
+
+            <div class="phase-card" data-phase="3">
+                <div class="phase-num">Phase 3 &mdash; Days 3-4</div>
+                <h4>Cost Model &amp; Pricing</h4>
+                <p>True COGS calculation, FBA fee stacking, margin validation, and price positioning. Know your numbers before you list.</p>
+                <div class="phase-steps">
+                    <span class="phase-step-tag">COGS Breakdown</span>
+                    <span class="phase-step-tag">Fee Stack &amp; Margin</span>
+                    <span class="phase-step-tag">Break-even</span>
+                    <span class="phase-step-tag">Price Lock</span>
+                </div>
+            </div>
+
+            <div class="phase-card" data-phase="4">
+                <div class="phase-num">Phase 4 &mdash; Days 4-5</div>
+                <h4>Packaging &amp; Fulfillment</h4>
+                <p>Packaging design, UPC/FNSKU setup, and FBA shipment prep. Get shelf-ready and warehouse-ready at the same time.</p>
+                <div class="phase-steps">
+                    <span class="phase-step-tag">Packaging Design</span>
+                    <span class="phase-step-tag">UPC &amp; FNSKU</span>
+                    <span class="phase-step-tag">FBA Prep</span>
+                </div>
+            </div>
+
+            <div class="phase-card" data-phase="5">
+                <div class="phase-num">Phase 5 &mdash; Days 5-7</div>
+                <h4>Listing &amp; Launch</h4>
+                <p>Keyword-optimized listing, photography, A+ content, and launch strategy. Another Go/No-Go gate before you go live.</p>
+                <div class="phase-steps">
+                    <span class="phase-step-tag">Listing Copy</span>
+                    <span class="phase-step-tag">Photography</span>
+                    <span class="phase-step-tag">A+ Content</span>
+                    <span class="phase-step-tag">Launch Plan</span>
+                    <span class="phase-step-tag">GO / NO-GO</span>
+                </div>
+            </div>
+
+            <div class="phase-card" data-phase="6">
+                <div class="phase-num">Phase 6 &mdash; Days 7-30+</div>
+                <h4>Marketing &amp; Growth</h4>
+                <p>PPC campaigns, review strategy, social media, and organic ranking. This is where consistent effort compounds into sales.</p>
+                <div class="phase-steps">
+                    <span class="phase-step-tag">PPC Setup</span>
+                    <span class="phase-step-tag">Review Strategy</span>
+                    <span class="phase-step-tag">Social / External</span>
+                    <span class="phase-step-tag">Rank Tracking</span>
+                </div>
+            </div>
+
+            <div class="phase-card" data-phase="7">
+                <div class="phase-num">Phase 7 &mdash; Continuous</div>
+                <h4>Ongoing Operations</h4>
+                <p>Inventory management, customer service, performance monitoring, and iteration. The product is live &mdash; now optimize and scale.</p>
+                <div class="phase-steps">
+                    <span class="phase-step-tag">Inventory</span>
+                    <span class="phase-step-tag">Customer Service</span>
+                    <span class="phase-step-tag">Performance</span>
+                    <span class="phase-step-tag">Iterate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- LED Legend -->
+        <div class="led-demo">
+            <div class="led-item">
+                <div class="led-dot red"></div>
+                <div class="led-label"><strong>Red</strong> &mdash; Not started</div>
+            </div>
+            <div class="led-item">
+                <div class="led-dot yellow"></div>
+                <div class="led-label"><strong>Yellow</strong> &mdash; In progress</div>
+            </div>
+            <div class="led-item">
+                <div class="led-dot green"></div>
+                <div class="led-label"><strong>Green</strong> &mdash; Completed &amp; validated</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         FEATURES
+    ============================================================ -->
+    <section id="features">
+        <div class="section-label">What's Inside</div>
+        <div class="section-title">Every tool a maker-seller needs.</div>
+        <div class="section-desc">P2M isn't just a checklist. It's a data-driven system with layered detail behind every decision.</div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">&#9632;</div>
+                <h4>Visual Pipeline</h4>
+                <p>See every product's progress at a glance. Color-coded phases, LED status indicators, and progress bars show exactly where you stand.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#9776;</div>
+                <h4>Three-Layer Data Model</h4>
+                <p>Every step has a Summary (quick-glance fields), Analysis (conclusions from data), and Evidence (raw supporting data). Nothing is a guess.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#9881;</div>
+                <h4>Automation Roadmap</h4>
+                <p>Each step documents what can be automated, what APIs exist, and what P2M will handle for you in the future. Gaps become features.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#9745;</div>
+                <h4>Step Checklists</h4>
+                <p>Actionable checklists for every step ensure nothing gets skipped. Check them off as you go &mdash; your progress is saved.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#63;</div>
+                <h4>Smart Glossary</h4>
+                <p>Industry terms like BSR, ASIN, FBA, and ACoS have hover tooltips everywhere they appear. No Googling required.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#9998;</div>
+                <h4>Multi-Product Support</h4>
+                <p>Run multiple products through the pipeline simultaneously. Each product has its own LED states, data, and checklists &mdash; completely isolated.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         BUILT FOR
+    ============================================================ -->
+    <section id="built-for">
+        <div class="section-label">Built For</div>
+        <div class="section-title">Makers who want to sell, not just make.</div>
+        <div class="section-desc">Whether you're launching your first product or your fiftieth, P2M adapts to your pace.</div>
+
+        <div class="audience-cards">
+            <div class="audience-card">
+                <div class="audience-icon">&#9881;</div>
+                <h4>3D Print Entrepreneurs</h4>
+                <p>You already know how to make things. P2M teaches you how to sell them &mdash; with real market data, not guesswork.</p>
+            </div>
+            <div class="audience-card">
+                <div class="audience-icon">&#9733;</div>
+                <h4>Amazon FBA Sellers</h4>
+                <p>Validate before you invest. P2M's structured approach prevents the #1 seller mistake: launching a product nobody's searching for.</p>
+            </div>
+            <div class="audience-card">
+                <div class="audience-icon">&#9878;</div>
+                <h4>Small-Batch Makers</h4>
+                <p>CNC, laser, resin, injection mold &mdash; the pipeline works for any physical product. The steps are the same; only the manufacturing details change.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PRODUCT ROADMAP
+    ============================================================ -->
+    <section id="roadmap">
+        <div class="section-label">Where We're Headed</div>
+        <div class="section-title">From prototype to platform.</div>
+        <div class="section-desc">P2M is being built in public, one feature at a time. Here's what's coming.</div>
+
+        <div class="roadmap-timeline">
+            <div class="roadmap-item active">
+                <div class="roadmap-phase">Now</div>
+                <h4>Interactive HTML Prototype</h4>
+                <p>Full 7-phase pipeline with multi-product support, three-layer data model, glossary tooltips, automation roadmap, and version-tracked changelog. This is where we are.</p>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-phase">Next</div>
+                <h4>Data Persistence &amp; Export</h4>
+                <p>Save your pipeline state locally. Export product plans as professional documents. Import data from tools like Helium 10 and Keepa.</p>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-phase">Soon</div>
+                <h4>API Integrations</h4>
+                <p>Automated market research via Keepa API, Canopy API, Google Trends, and marketplace APIs. Enter a search term, get competitive analysis back automatically.</p>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-phase">Future</div>
+                <h4>Full SaaS Platform</h4>
+                <p>Multi-user accounts, team collaboration, AI-assisted analysis, and a marketplace of P2M templates. Hosted at p2m.opsflowbetter.com.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         CTA
+    ============================================================ -->
+    <div class="cta-section">
+        <h2>Ready to build something that sells?</h2>
+        <p>Open the pipeline and start validating your next product idea. Every step is guided. Every decision is backed by data.</p>
+        <a href="P2M_Pipeline.html" class="btn-primary">Open P2M Pipeline</a>
+    </div>
+
+    <!-- ============================================================
+         FOOTER
+    ============================================================ -->
+    <footer>
+        <p>P2M Pipeline v0.9.0 &mdash; Built by <a href="#">Caspers Creations</a> &mdash; High Point, NC</p>
+        <p style="margin-top: 8px;"><a href="P2M_Pipeline.html">Pipeline</a> &nbsp;&middot;&nbsp; <a href="P2M_Changelog.html">Changelog</a> &nbsp;&middot;&nbsp; <a href="P2M_Welcome.html">About P2M</a></p>
+    </footer>
+
+</body>
+</html>

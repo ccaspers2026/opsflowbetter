@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2M Pipeline - Version History</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            padding: 40px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            border-bottom: 2px solid #21262d;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        .header .back-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #58a6ff;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .header .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .current-version {
+            background: linear-gradient(135deg, #161b22, #1a2332);
+            border: 1px solid #58a6ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .current-version .version-badge {
+            display: inline-block;
+            background-color: #58a6ff;
+            color: #0d1117;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .current-version h2 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .current-version p {
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0 30px;
+            padding: 15px 20px;
+            background-color: #161b22;
+            border-radius: 6px;
+            border: 1px solid #21262d;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #58a6ff;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #58a6ff, #21262d);
+        }
+
+        .version-entry {
+            position: relative;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+        }
+
+        .version-entry:hover {
+            border-color: #30363d;
+        }
+
+        .version-entry::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 24px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            border: 2px solid #0d1117;
+        }
+
+        .version-entry.major::before {
+            background-color: #a371f7;
+            width: 14px;
+            height: 14px;
+            left: -27px;
+        }
+
+        .version-entry.minor::before {
+            background-color: #2ea44f;
+        }
+
+        .version-entry.patch::before {
+            background-color: #8b949e;
+            width: 10px;
+            height: 10px;
+            left: -25px;
+        }
+
+        .version-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .version-number {
+            font-weight: 700;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .version-date {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .version-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-major { background-color: #2d1b4e; color: #a371f7; }
+        .tag-feature { background-color: #0c2d6b; color: #58a6ff; }
+        .tag-fix { background-color: #1a3a1a; color: #2ea44f; }
+        .tag-data { background-color: #3b2e1a; color: #d29922; }
+
+        .version-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .change-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .change-list li {
+            font-size: 12px;
+            color: #c9d1d9;
+            padding: 4px 0 4px 20px;
+            position: relative;
+        }
+
+        .change-list li::before {
+            position: absolute;
+            left: 0;
+            font-size: 11px;
+        }
+
+        .change-list li.added::before { content: '+'; color: #2ea44f; font-weight: 700; }
+        .change-list li.changed::before { content: '~'; color: #d29922; font-weight: 700; }
+        .change-list li.fixed::before { content: '#'; color: #f85149; font-weight: 700; }
+        .change-list li.removed::before { content: '-'; color: #8b949e; font-weight: 700; }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #21262d;
+            font-size: 11px;
+            color: #484f58;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>P2M Pipeline - Version History</h1>
+            <p>Caspers Creations - Product to Market - Idea to Revenue</p>
+            <a class="back-link" href="P2M_Pipeline.html">&larr; Back to P2M Pipeline</a>
+        </div>
+
+        <div class="current-version">
+            <span class="version-badge">CURRENT</span>
+            <h2>Version 0.9.0 - Four-Layer Intelligence</h2>
+            <p>Released March 4, 2026 &mdash; The detail panel now supports Summary, Analysis, Evidence, and Automation Roadmap layers with product-scoped data isolation.</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Versions</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Products</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">2,142</div>
+                <div class="stat-label">Lines of Code</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">7</div>
+                <div class="stat-label">Pipeline Phases</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">16</div>
+                <div class="stat-label">Glossary Terms</div>
+            </div>
+        </div>
+
+        <div class="timeline">
+
+            <!-- v0.9.0 -->
+            <div class="version-entry major">
+                <div class="version-header">
+                    <span class="version-number">v0.9.0</span>
+                    <span class="version-date">March 4, 2026</span>
+                    <span class="version-tag tag-major">MAJOR</span>
+                </div>
+                <div class="version-title">Four-Layer Intelligence + Demo Product</div>
+                <ul class="change-list">
+                    <li class="added">Automation Roadmap (4th collapsible layer) with expert attribution, gap cards, priority badges, and API automation paths</li>
+                    <li class="added">"My Widget" demo product - Hitchhiker's Guide-inspired Infinite Improbability Fidget Spinner with full data through Phase 3</li>
+                    <li class="added">Glossary tooltip system - 16 industry terms (BSR, ASIN, COGS, FBA, etc.) with floating popups that auto-detect in all content</li>
+                    <li class="fixed">Tooltip popups no longer clipped by scrollable panel - switched from CSS-only to body-level floating positioning</li>
+                    <li class="added">Product data isolation - each product has its own detail content; template serves as blank fallback</li>
+                    <li class="changed">Step 1.2 (Market Research) flipped to GREEN for 45 RPM Adaptor after full review</li>
+                    <li class="added">Version history page (this page)</li>
+                </ul>
+            </div>
+
+            <!-- v0.8.0 -->
+            <div class="version-entry major">
+                <div class="version-header">
+                    <span class="version-number">v0.8.0</span>
+                    <span class="version-date">March 3, 2026</span>
+                    <span class="version-tag tag-major">MAJOR</span>
+                </div>
+                <div class="version-title">Three-Layer Data Model</div>
+                <ul class="change-list">
+                    <li class="added">Three-layer detail panel architecture: Summary (blue), Analysis (gold), Evidence (gray)</li>
+                    <li class="added">Collapsible layer sections with click-to-expand headers and arrow indicators</li>
+                    <li class="added">Step 1.2 populated with real Helium 10 Xray data (39 ASINs, $13k market, 626 searches/mo)</li>
+                    <li class="added">Market Analysis layer with 7 sections: market share, concentration, review barriers, price tiers, competitive gaps, duplicate listings, pierceability verdict</li>
+                    <li class="added">Evidence layer with Xray summary table, top 5 competitor detail table, all 39 ASINs table, data source notes</li>
+                    <li class="added">Helium 10 CSV export folder created (Products/45-RPM-Adapters/Research/Helium10-Exports/)</li>
+                </ul>
+            </div>
+
+            <!-- v0.7.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.7.0</span>
+                    <span class="version-date">March 3, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">P2M Pipeline Naming + Service Model</div>
+                <ul class="change-list">
+                    <li class="changed">Renamed from "Product Pipeline Flowchart" to "P2M Pipeline" (Product-to-Market)</li>
+                    <li class="changed">HTML file renamed from Product_Pipeline_Flowchart.html to P2M_Pipeline.html</li>
+                    <li class="changed">Header updated: "P2M Pipeline &mdash; Product to Market &mdash; Idea to Revenue"</li>
+                    <li class="changed">URL locked in: p2m.opsflowbetter.com</li>
+                    <li class="added">SaaS Vision Notes updated with P2M service model (7 phases = 7 service offerings)</li>
+                    <li class="added">Step ownership model captured: Provider / Client-Provided / N-A / Collaborative</li>
+                    <li class="added">Architecture insight documented: flowchart IS the app, document is output</li>
+                </ul>
+            </div>
+
+            <!-- v0.6.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.6.0</span>
+                    <span class="version-date">March 3, 2026</span>
+                    <span class="version-tag tag-data">DATA</span>
+                </div>
+                <div class="version-title">Step 1.1 Walkthrough + LED Reset</div>
+                <ul class="change-list">
+                    <li class="changed">All 45 RPM Adaptor LEDs reset to red for structured walkthrough</li>
+                    <li class="added">Step 1.1 detail panel populated with real 45 RPM product data (name, category, problem, customer, unique angle)</li>
+                    <li class="changed">Step 1.1 LED flipped to green after validation</li>
+                    <li class="added">P2M walkthrough process established: review data &rarr; validate &rarr; update detail panel &rarr; flip LED</li>
+                </ul>
+            </div>
+
+            <!-- v0.5.1 -->
+            <div class="version-entry patch">
+                <div class="version-header">
+                    <span class="version-number">v0.5.1</span>
+                    <span class="version-date">March 3, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">Category Field Update</div>
+                <ul class="change-list">
+                    <li class="changed">Updated category field: "Home & Kitchen / Music Accessories (confirm from Amazon browse nodes -- see Section 5.2)"</li>
+                </ul>
+            </div>
+
+            <!-- v0.5.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.5.0</span>
+                    <span class="version-date">March 2, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Detail Panel System</div>
+                <ul class="change-list">
+                    <li class="added">Full detail panel with purpose, key questions, data table, checklist, tips, and output sections</li>
+                    <li class="added">Interactive checklists with per-product, per-step state tracking</li>
+                    <li class="added">LED click-to-cycle (red &rarr; yellow &rarr; green) in detail panel header</li>
+                    <li class="added">Detail panel content for all 30+ steps across 7 phases</li>
+                    <li class="added">Phase-colored table headers in detail panel</li>
+                    <li class="added">Tips section with lightbulb styling</li>
+                    <li class="added">Output section with green checkmark styling</li>
+                </ul>
+            </div>
+
+            <!-- v0.4.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.4.0</span>
+                    <span class="version-date">March 2, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Product Tracker + Progress Bar</div>
+                <ul class="change-list">
+                    <li class="added">Overall progress bar showing completion percentage per product</li>
+                    <li class="added">Product Tracker table showing phase-by-phase status across all products</li>
+                    <li class="added">Color-coded tracker cells (green = complete, partial counts, red = not started)</li>
+                    <li class="added">"RC Plane Hangar" added as second product with Phase 2 green (design already done)</li>
+                </ul>
+            </div>
+
+            <!-- v0.3.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.3.0</span>
+                    <span class="version-date">March 1, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Multi-Product Tabs + Decision Gates</div>
+                <ul class="change-list">
+                    <li class="added">Product tab bar with active state highlighting</li>
+                    <li class="added">"+ Add Product" button with modal dialog</li>
+                    <li class="added">Decision gate cards (diamond icon) between phases</li>
+                    <li class="added">Per-product LED state tracking (independent status per product per step)</li>
+                    <li class="added">Step cards show step number, title, description, and output indicator</li>
+                </ul>
+            </div>
+
+            <!-- v0.2.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.2.0</span>
+                    <span class="version-date">March 1, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">7-Phase Swim Lane Layout</div>
+                <ul class="change-list">
+                    <li class="added">7 swim lane columns: Ideation, Design, Cost Model, Packaging, Listing, Marketing, Operations</li>
+                    <li class="added">Phase-colored headers with timeline indicators</li>
+                    <li class="added">LED status indicators (red/yellow/green) on each step card</li>
+                    <li class="added">Hover tooltips on pipeline step cards</li>
+                    <li class="added">Horizontal scrollable pipeline view</li>
+                    <li class="added">Phase legend in footer</li>
+                </ul>
+            </div>
+
+            <!-- v0.1.0 -->
+            <div class="version-entry major">
+                <div class="version-header">
+                    <span class="version-number">v0.1.0</span>
+                    <span class="version-date">February 28, 2026</span>
+                    <span class="version-tag tag-major">INITIAL</span>
+                </div>
+                <div class="version-title">Initial Prototype - Product Pipeline Flowchart</div>
+                <ul class="change-list">
+                    <li class="added">Initial HTML prototype created as "Product Pipeline Flowchart"</li>
+                    <li class="added">Dark theme UI (GitHub-inspired color scheme)</li>
+                    <li class="added">Basic step definitions for all 7 phases of the product launch workflow</li>
+                    <li class="added">45 RPM Vinyl Record Adaptor set as first test product</li>
+                    <li class="added">Caspers Creations branding in header</li>
+                    <li class="added">Single-page application architecture (no backend required)</li>
+                </ul>
+            </div>
+
+            <!-- v0.0.1 -->
+            <div class="version-entry patch">
+                <div class="version-header">
+                    <span class="version-number">v0.0.1</span>
+                    <span class="version-date">February 27, 2026</span>
+                    <span class="version-tag tag-data">CONCEPT</span>
+                </div>
+                <div class="version-title">Product Launch System Concept</div>
+                <ul class="change-list">
+                    <li class="added">Initial concept: duplicatable product launch system for 3D-printed products</li>
+                    <li class="added">7-phase framework defined: Ideation, Design, Cost, Packaging, Listing, Marketing, Operations</li>
+                    <li class="added">45 RPM Vinyl Record Adaptor selected as first case study</li>
+                    <li class="added">Workshop Operations Plan created as foundation document</li>
+                    <li class="added">Product Master Plan JavaScript generator built (v2.js)</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            P2M Pipeline &mdash; Caspers Creations &mdash; Version history auto-generated from development sessions<br>
+            Engine: Claude AI &mdash; Platform prototype for p2m.opsflowbetter.com
+        </div>
+    </div>
+</body>
+</html>

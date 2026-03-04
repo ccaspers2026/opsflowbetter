@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caspers Creations - P2M Pipeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d1117;
+            color: #e0e0e0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Main container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+            gap: 15px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #21262d;
+            padding-bottom: 15px;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+
+        .header-left p {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .phase-legend {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            max-width: 300px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #8b949e;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Product bar */
+        .product-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: #161b22;
+            border-radius: 6px;
+            border: 1px solid #21262d;
+            flex-wrap: wrap;
+        }
+
+        .product-bar label {
+            font-weight: 600;
+            color: #e0e0e0;
+            font-size: 13px;
+        }
+
+        .product-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .product-tab {
+            padding: 6px 12px;
+            border: 1px solid #30363d;
+            border-radius: 20px;
+            background-color: #0d1117;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            color: #8b949e;
+        }
+
+        .product-tab:hover {
+            border-color: #1F4E79;
+            color: #e0e0e0;
+        }
+
+        .product-tab.active {
+            background-color: #1F4E79;
+            color: #fff;
+            border-color: #1F4E79;
+        }
+
+        .product-tab .edit-product-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0 0 0 6px;
+            font-size: 10px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            vertical-align: middle;
+        }
+
+        .product-tab:hover .edit-product-btn,
+        .product-tab.active .edit-product-btn {
+            display: inline;
+        }
+
+        .product-tab .edit-product-btn:hover {
+            opacity: 1;
+        }
+
+        .product-tab-editing {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border: 1px solid #58a6ff;
+            border-radius: 20px;
+            background-color: #161b22;
+        }
+
+        .product-tab-editing input {
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            font-size: 12px;
+            outline: none;
+            width: 140px;
+            font-family: inherit;
+        }
+
+        .product-tab-editing .edit-save-btn,
+        .product-tab-editing .edit-cancel-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0 2px;
+        }
+
+        .product-tab-editing .edit-save-btn { color: #3fb950; }
+        .product-tab-editing .edit-cancel-btn { color: #f85149; }
+
+        .add-product-btn {
+            padding: 6px 12px;
+            border: 1px dashed #30363d;
+            border-radius: 20px;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 12px;
+            color: #8b949e;
+            transition: all 0.2s;
+        }
+
+        .add-product-btn:hover {
+            border-color: #1F4E79;
+            color: #1F4E79;
+        }
+
+        .led-legend {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+            color: #8b949e;
+            white-space: nowrap;
+        }
+
+        /* Pipeline */
+        .pipeline-wrapper {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            background-color: #161b22;
+            padding: 20px;
+        }
+
+        .pipeline {
+            display: flex;
+            gap: 20px;
+            min-width: fit-content;
+            padding-right: 20px;
+        }
+
+        /* Phase column */
+        .phase-column {
+            flex: 0 0 280px;
+            border-top: 4px solid;
+            border-radius: 8px;
+            background-color: #0d1117;
+            padding: 16px;
+            min-height: 500px;
+        }
+
+        .phase-column.phase-1 { border-top-color: #2563eb; }
+        .phase-column.phase-2 { border-top-color: #7c3aed; }
+        .phase-column.phase-3 { border-top-color: #059669; }
+        .phase-column.phase-4 { border-top-color: #d97706; }
+        .phase-column.phase-5 { border-top-color: #dc2626; }
+        .phase-column.phase-6 { border-top-color: #db2777; }
+        .phase-column.phase-7 { border-top-color: #4f46e5; }
+
+        .phase-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .phase-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .phase-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .phase-days {
+            font-size: 11px;
+            color: #8b949e;
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .phase-progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: #21262d;
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .phase-progress-fill {
+            height: 100%;
+            background-color: #58a6ff;
+            transition: width 0.3s;
+        }
+
+        .phase-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        /* Step card */
+        .step-card {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-left: 3px solid;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            border-left-color: transparent;
+        }
+
+        .step-card:hover {
+            border-color: #58a6ff;
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .step-card.led-green {
+            border-left-color: #2ea44f;
+        }
+
+        .step-card.led-yellow {
+            border-left-color: #c99a1d;
+        }
+
+        .step-card.led-red {
+            border-left-color: transparent;
+        }
+
+        .step-card.active-card {
+            background-color: #1e2a3a;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 1px #58a6ff, 0 4px 12px rgba(88, 166, 255, 0.25);
+        }
+
+        .decision-gate.active-card {
+            background-color: #2a2210;
+            box-shadow: 0 0 0 1px #c99a1d, 0 4px 12px rgba(201, 154, 29, 0.25);
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .step-number {
+            font-size: 12px;
+            font-weight: bold;
+            color: #8b949e;
+        }
+
+        .step-led {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .step-led::after {
+            content: '';
+            width: 60%;
+            height: 60%;
+            border-radius: 50%;
+            background-color: inherit;
+            opacity: 0.5;
+        }
+
+        .step-led.led-red {
+            background-color: #6b2020;
+            border-color: #9b3333;
+        }
+
+        .step-led.led-yellow {
+            background-color: #8b6914;
+            border-color: #c99a1d;
+            box-shadow: 0 0 8px rgba(201, 154, 29, 0.4);
+            animation: pulse-yellow 2s infinite;
+        }
+
+        .step-led.led-green {
+            background-color: #1a7a33;
+            border-color: #2ea44f;
+        }
+
+        @keyframes pulse-yellow {
+            0%, 100% { box-shadow: 0 0 8px rgba(201, 154, 29, 0.4); }
+            50% { box-shadow: 0 0 16px rgba(201, 154, 29, 0.6); }
+        }
+
+        .step-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 4px;
+        }
+
+        .step-description {
+            font-size: 11px;
+            color: #8b949e;
+            line-height: 1.3;
+            margin-bottom: 6px;
+        }
+
+        .step-output {
+            font-size: 11px;
+            color: #58a6ff;
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px solid #21262d;
+        }
+
+        .step-output::before {
+            content: '✓ ';
+            color: #2ea44f;
+            font-weight: bold;
+        }
+
+        /* Decision gate */
+        .decision-gate {
+            background-color: #161b22;
+            border: 1px solid #c99a1d;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .decision-gate:hover {
+            box-shadow: 0 4px 12px rgba(201, 154, 29, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .gate-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .gate-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #c99a1d;
+            margin-bottom: 4px;
+        }
+
+        .gate-options {
+            font-size: 10px;
+            color: #8b949e;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .gate-led {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Arrow separator */
+        .arrow-separator {
+            flex: 0 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Progress bar section */
+        .progress-section {
+            padding: 12px;
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 24px;
+            background-color: #0d1117;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #21262d;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #7c3aed, #059669, #d97706, #dc2626, #db2777, #4f46e5);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-bar-text {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Tracker grid */
+        .tracker-section {
+            padding: 12px;
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .tracker-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+
+        .tracker-table {
+            width: 100%;
+            font-size: 11px;
+            border-collapse: collapse;
+        }
+
+        .tracker-table th {
+            background-color: #0d1117;
+            color: #8b949e;
+            padding: 6px 4px;
+            text-align: left;
+            border-bottom: 1px solid #21262d;
+            font-weight: 600;
+        }
+
+        .tracker-table td {
+            padding: 6px 4px;
+            border-bottom: 1px solid #21262d;
+            color: #e0e0e0;
+        }
+
+        .tracker-table tr:hover {
+            background-color: #161b22;
+        }
+
+        .tracker-phase {
+            text-align: center;
+            min-width: 30px;
+        }
+
+        .tracker-status {
+            color: #2ea44f;
+            font-weight: bold;
+        }
+
+        .tracker-partial {
+            color: #c99a1d;
+        }
+
+        .tracker-none {
+            color: #8b949e;
+        }
+
+        /* Future vision callout */
+        .vision-section {
+            padding: 12px;
+            background-color: #161b22;
+            border: 2px solid #d97706;
+            border-radius: 6px;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #c9c3a0;
+        }
+
+        .vision-title {
+            font-weight: 600;
+            color: #d97706;
+            margin-bottom: 4px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 24px;
+            min-width: 350px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 12px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 13px;
+            margin-bottom: 16px;
+            font-family: inherit;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #1F4E79;
+            box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .modal-btn-cancel {
+            background-color: transparent;
+            border-color: #30363d;
+            color: #8b949e;
+        }
+
+        .modal-btn-cancel:hover {
+            background-color: #0d1117;
+            border-color: #21262d;
+        }
+
+        .modal-btn-add {
+            background-color: #1F4E79;
+            border-color: #1F4E79;
+            color: #fff;
+        }
+
+        .modal-btn-add:hover {
+            background-color: #2a5fa8;
+            border-color: #2a5fa8;
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 60%;
+            background-color: #0d1117;
+            border-left: 2px solid;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.5);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .detail-panel.active {
+            transform: translateX(0);
+        }
+
+        .detail-header {
+            padding: 20px;
+            border-bottom: 1px solid #21262d;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .detail-back-btn {
+            background-color: transparent;
+            border: none;
+            color: #58a6ff;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        .detail-back-btn:hover {
+            color: #79c0ff;
+        }
+
+        .detail-title-section {
+            flex: 1;
+        }
+
+        .detail-step-info {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 4px;
+        }
+
+        .detail-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .detail-phase-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .detail-phase-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .detail-led-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+        }
+
+        .detail-led-status.led-red {
+            background-color: #6b2020;
+            border-color: #9b3333;
+        }
+
+        .detail-led-status.led-yellow {
+            background-color: #8b6914;
+            border-color: #c99a1d;
+            box-shadow: 0 0 8px rgba(201, 154, 29, 0.4);
+            animation: pulse-yellow 2s infinite;
+        }
+
+        .detail-led-status.led-green {
+            background-color: #1a7a33;
+            border-color: #2ea44f;
+        }
+
+        .detail-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 6px;
+        }
+
+        .detail-purpose {
+            font-size: 12px;
+            color: #c9d1d9;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: #161b22;
+            border-left: 2px solid #58a6ff;
+            border-radius: 4px;
+        }
+
+        .detail-questions {
+            margin-bottom: 16px;
+        }
+
+        .detail-questions-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8b949e;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .detail-questions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .detail-questions li {
+            font-size: 12px;
+            color: #c9d1d9;
+            margin-bottom: 4px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .detail-questions li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #58a6ff;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            font-size: 11px;
+        }
+
+        .detail-table th {
+            background-color: #1F4E79;
+            color: #fff;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #21262d;
+        }
+
+        .detail-table td {
+            padding: 10px 12px;
+            border: 1px solid #21262d;
+            color: #c9d1d9;
+        }
+
+        .detail-table tr:nth-child(even) {
+            background-color: #1a2030;
+        }
+
+        .detail-table tr:nth-child(odd) {
+            background-color: #161b22;
+        }
+
+        .detail-checklist {
+            margin-bottom: 16px;
+        }
+
+        .detail-checklist-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8b949e;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #c9d1d9;
+        }
+
+        .checkbox-input {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            accent-color: #1F4E79;
+        }
+
+        .detail-tips {
+            background-color: #1a2030;
+            border-left: 3px solid #c99a1d;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #c9d1d9;
+        }
+
+        .detail-tips::before {
+            content: '💡 ';
+            margin-right: 6px;
+        }
+
+        .detail-output {
+            background-color: #1a3a1a;
+            border-left: 3px solid #2ea44f;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5a9d5d;
+        }
+
+        .detail-output::before {
+            content: '✓ ';
+            color: #2ea44f;
+            margin-right: 4px;
+        }
+
+        /* Collapsible detail layers */
+        .detail-layer {
+            border: 1px solid #21262d;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .detail-layer-header {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            cursor: pointer;
+            background-color: #0d1117;
+            border-left: 4px solid #21262d;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        .detail-layer-header:hover {
+            background-color: #161b22;
+        }
+
+        .detail-layer-header .arrow {
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 10px;
+            transition: transform 0.2s;
+            color: #8b949e;
+        }
+
+        .detail-layer-header .layer-title {
+            font-weight: 600;
+            color: #c9d1d9;
+            flex: 1;
+        }
+
+        .detail-layer-content {
+            display: none;
+            padding: 12px;
+            background-color: #0d1117;
+            border-top: 1px solid #21262d;
+        }
+
+        .detail-layer.expanded .detail-layer-content {
+            display: block;
+        }
+
+        .detail-layer.expanded .arrow {
+            transform: rotate(90deg);
+        }
+
+        /* Layer-specific header colors */
+        .detail-layer.summary-layer .detail-layer-header {
+            border-left-color: #58a6ff;
+        }
+
+        .detail-layer.analysis-layer .detail-layer-header {
+            border-left-color: #c99a1d;
+        }
+
+        .detail-layer.evidence-layer .detail-layer-header {
+            border-left-color: #8b949e;
+        }
+
+        .detail-layer.automation-layer .detail-layer-header {
+            border-left-color: #a371f7;
+        }
+
+        .detail-layer .automation-attribution {
+            font-size: 12px;
+            color: #c9d1d9;
+            line-height: 1.5;
+            padding: 10px 12px;
+            background-color: #1a1a2e;
+            border-left: 2px solid #a371f7;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .detail-layer .automation-card {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .detail-layer .automation-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-layer .automation-card-title {
+            font-weight: 600;
+            color: #a371f7;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .detail-layer .automation-card-row {
+            display: flex;
+            font-size: 11px;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .detail-layer .automation-card-label {
+            color: #8b949e;
+            min-width: 130px;
+            flex-shrink: 0;
+        }
+
+        .detail-layer .automation-card-value {
+            color: #c9d1d9;
+        }
+
+        .detail-layer .automation-priority {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .detail-layer .automation-priority.high {
+            background-color: #3b1a1a;
+            color: #f85149;
+        }
+
+        .detail-layer .automation-priority.medium {
+            background-color: #3b2e1a;
+            color: #d29922;
+        }
+
+        .detail-layer .automation-priority.low {
+            background-color: #1a2b1a;
+            color: #56d364;
+        }
+
+        .detail-layer-content .detail-subsection {
+            margin-bottom: 16px;
+        }
+
+        .detail-layer-content .detail-subsection:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-layer-content .detail-subsection-heading {
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .detail-layer-content .detail-subsection-content {
+            color: #c9d1d9;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #c9d1d9;
+            z-index: 500;
+            display: none;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #21262d;
+        }
+
+        .step-card:hover .tooltip {
+            display: block;
+        }
+
+        /* Glossary Tooltip (? icon) */
+        .glossary-tip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: #21262d;
+            color: #8b949e;
+            font-size: 9px;
+            font-weight: 700;
+            cursor: help;
+            margin-left: 5px;
+            position: relative;
+            vertical-align: middle;
+            flex-shrink: 0;
+            border: 1px solid #30363d;
+            transition: all 0.15s ease;
+        }
+
+        .glossary-tip:hover {
+            background-color: #58a6ff;
+            color: #fff;
+            border-color: #58a6ff;
+        }
+
+        /* Floating glossary popup — attached to body, never clipped */
+        #glossaryFloater {
+            display: none;
+            position: fixed;
+            background-color: #1c2333;
+            border: 1px solid #58a6ff;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: 400;
+            color: #c9d1d9;
+            white-space: normal;
+            width: 280px;
+            line-height: 1.5;
+            z-index: 10000;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        #glossaryFloater .glossary-term {
+            color: #58a6ff;
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        #glossaryFloater::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #58a6ff;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #21262d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>CASPERS CREATIONS</h1>
+                <p>P2M Pipeline — Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="P2M_Welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="P2M_Changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">v0.9.0 Changelog</a></p>
+            </div>
+            <div class="header-right">
+                <div class="phase-legend" id="phaseLegend"></div>
+            </div>
+        </div>
+
+        <!-- Product Bar -->
+        <div class="product-bar">
+            <label>Product:</label>
+            <div class="product-tabs" id="productTabs"></div>
+            <button class="add-product-btn" id="addProductBtn">+ Add Product</button>
+            <div class="led-legend">
+                🔴 Not Started | 🟡 In Progress | 🟢 Complete (click LED to cycle)
+            </div>
+        </div>
+
+        <!-- Pipeline -->
+        <div class="pipeline-wrapper">
+            <div class="pipeline" id="pipeline"></div>
+        </div>
+
+        <!-- Progress & Tracker -->
+        <div style="display: flex; gap: 15px; flex: 0 0 auto;">
+            <div class="progress-section" style="flex: 1;">
+                <div class="progress-label">Overall Progress — <span id="progressLabel">45 RPM Adaptor</span></div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBarFill" style="width: 35%;">
+                        <div class="progress-bar-text" id="progressText">35%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tracker-section" style="flex: 1;">
+                <div class="tracker-label">Product Tracker</div>
+                <table class="tracker-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="tracker-phase">1</th>
+                            <th class="tracker-phase">2</th>
+                            <th class="tracker-phase">3</th>
+                            <th class="tracker-phase">4</th>
+                            <th class="tracker-phase">5</th>
+                            <th class="tracker-phase">6</th>
+                            <th class="tracker-phase">7</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trackerBody"></tbody>
+                </table>
+            </div>
+            <div class="vision-section" style="flex: 0.8;">
+                <div class="vision-title">Future Vision</div>
+                <p>This pipeline is the backbone of Caspers Creations' duplicatable product model. Soon, this will be packaged as SaaS courseware to help makers worldwide scale from idea to $2k/month revenue in 6-10 days.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal" id="addProductModal">
+        <div class="modal-content">
+            <div class="modal-title">Add New Product</div>
+            <input type="text" class="modal-input" id="productNameInput" placeholder="Product name...">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">Cancel</button>
+                <button class="modal-btn modal-btn-add" id="modalAddBtn">Add Product</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+            <button class="detail-back-btn" id="detailBackBtn">←</button>
+            <div class="detail-title-section">
+                <div class="detail-step-info" id="detailStepInfo"></div>
+                <div class="detail-title" id="detailTitle"></div>
+                <div class="detail-phase-info">
+                    <div class="detail-phase-dot" id="detailPhaseDot"></div>
+                    <span id="detailPhaseName"></span>
+                </div>
+            </div>
+            <div class="detail-led-status led-red" id="detailLedStatus"></div>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // STATE MANAGEMENT
+        // ============================================================================
+        let state = {
+            products: {
+                '45 RPM Adaptor': {
+                    '1.1': 'green', '1.2': 'green', '1.3': 'red', '1.4': 'red', '1.5': 'red', 'g1': 'red',
+                    '2.1': 'red', '2.2': 'red', '2.3': 'red', 'g2': 'red',
+                    '3.1': 'red', '3.2': 'red', '3.3': 'red', '3.4': 'red',
+                    '4.1': 'red', '4.2': 'red', '4.3': 'red',
+                    '5.1': 'red', '5.2': 'red', '5.3': 'red', '5.4': 'red', '5.5': 'red', 'g5': 'red',
+                    '6.1': 'red', '6.2': 'red', '6.3': 'red', '6.4': 'red',
+                    '7.1': 'red', '7.2': 'red', '7.3': 'red', '7.4': 'red'
+                },
+                'RC Plane Hangar': {
+                    '1.1': 'red', '1.2': 'red', '1.3': 'red', '1.4': 'red', '1.5': 'red', 'g1': 'red',
+                    '2.1': 'green', '2.2': 'green', '2.3': 'green', 'g2': 'green',
+                    '3.1': 'red', '3.2': 'red', '3.3': 'red', '3.4': 'red',
+                    '4.1': 'red', '4.2': 'red', '4.3': 'red',
+                    '5.1': 'red', '5.2': 'red', '5.3': 'red', '5.4': 'red', '5.5': 'red', 'g5': 'red',
+                    '6.1': 'red', '6.2': 'red', '6.3': 'red', '6.4': 'red',
+                    '7.1': 'red', '7.2': 'red', '7.3': 'red', '7.4': 'red'
+                },
+                'Improbability Spinner': {
+                    '1.1': 'green', '1.2': 'green', '1.3': 'green', '1.4': 'green', '1.5': 'green', 'g1': 'green',
+                    '2.1': 'green', '2.2': 'green', '2.3': 'green', 'g2': 'green',
+                    '3.1': 'green', '3.2': 'green', '3.3': 'yellow', '3.4': 'red',
+                    '4.1': 'red', '4.2': 'red', '4.3': 'red',
+                    '5.1': 'red', '5.2': 'red', '5.3': 'red', '5.4': 'red', '5.5': 'red', 'g5': 'red',
+                    '6.1': 'red', '6.2': 'red', '6.3': 'red', '6.4': 'red',
+                    '7.1': 'red', '7.2': 'red', '7.3': 'red', '7.4': 'red'
+                }
+            },
+            checklists: {
+                '45 RPM Adaptor': {
+                    '1.1': { 0: true, 1: true, 2: true, 3: true },
+                    '1.2': { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true }
+                },
+                'RC Plane Hangar': {},
+                'Improbability Spinner': {
+                    '1.1': { 0: true, 1: true, 2: true, 3: true },
+                    '1.2': { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true },
+                    '1.3': { 0: true, 1: true, 2: true, 3: true, 4: true },
+                    '1.4': { 0: true, 1: true, 2: true, 3: true },
+                    '1.5': { 0: true, 1: true, 2: true, 3: true, 4: true },
+                    '2.1': { 0: true, 1: true, 2: true, 3: true, 4: true },
+                    '2.2': { 0: true, 1: true, 2: true, 3: true, 4: true },
+                    '2.3': { 0: true, 1: true, 2: true, 3: true, 4: true },
+                    '3.1': { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true },
+                    '3.2': { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }
+                }
+            },
+            activeProduct: '45 RPM Adaptor'
+        };
+
+        const phaseColors = {
+            1: '#2563eb',
+            2: '#7c3aed',
+            3: '#059669',
+            4: '#d97706',
+            5: '#dc2626',
+            6: '#db2777',
+            7: '#4f46e5'
+        };
+
+        const phaseNames = {
+            1: 'Ideation & Validation',
+            2: 'Design & Engineering',
+            3: 'Cost Model & Pricing',
+            4: 'Packaging & Fulfillment',
+            5: 'Listing & Launch',
+            6: 'Marketing & Growth',
+            7: 'Ongoing Operations'
+        };
+
+        const phaseDays = {
+            1: 'Day 1',
+            2: 'Days 1-3',
+            3: 'Days 3-4',
+            4: 'Days 4-5',
+            5: 'Days 5-7',
+            6: 'Days 7-30+',
+            7: 'Continuous'
+        };
+
+        // ============================================================================
+        // STEP DEFINITIONS & DETAIL CONTENT
+        // ============================================================================
+        const stepDefinitions = {
+            '1.1': { phase: 1, number: '1.1', title: 'Product Idea', description: 'Define the product, target customer, and unique angle', output: 'Product concept document' },
+            '1.2': { phase: 1, number: '1.2', title: 'Market Research', description: 'Search terms, competitor count, price range, review complaints', output: 'Market research summary' },
+            '1.3': { phase: 1, number: '1.3', title: 'Competitive Analysis', description: 'Top 3-5 competitors, strengths, weaknesses', output: 'Competitive positioning' },
+            '1.4': { phase: 1, number: '1.4', title: 'Niche Viability Score', description: '6-factor scoring (min 18/30 to proceed)', output: 'Viability score ≥ 18/30' },
+            '1.5': { phase: 1, number: '1.5', title: 'Income Target Math', description: '$2k/month backward calculation', output: 'Units/day and printer requirements' },
+            'g1': { phase: 1, number: 'G1', title: 'GO / NO-GO Gate', description: 'Pass → Phase 2 | Fail → Archive idea', isGate: true, output: 'GO / NO-GO decision' },
+            '2.1': { phase: 2, number: '2.1', title: 'CAD Design', description: 'Model in chosen software, document key dimensions', output: 'CAD model file' },
+            '2.2': { phase: 2, number: '2.2', title: 'Prototype & Iterate', description: 'Print, test, refine until satisfied', output: 'Tested prototypes' },
+            '2.3': { phase: 2, number: '2.3', title: 'Lock Print Settings', description: 'Finalize slicer profile for production', output: 'Locked slicer profile' },
+            'g2': { phase: 2, number: 'G2', title: 'DESIGN LOCK Gate', description: 'Signed off → Phase 3', isGate: true, output: 'Design locked' },
+            '3.1': { phase: 3, number: '3.1', title: 'Per-Unit COGS', description: 'Material, machine time, labor, packaging, QC', output: 'COGS calculation' },
+            '3.2': { phase: 3, number: '3.2', title: 'Pricing Strategy', description: 'All-in cost + margin target = sell price', output: 'Final selling price' },
+            '3.3': { phase: 3, number: '3.3', title: 'Variation Pricing', description: 'Price each model/size if applicable', output: 'Pricing per variation' },
+            '3.4': { phase: 3, number: '3.4', title: 'Break-Even Analysis', description: 'How many units to recover startup costs?', output: 'Break-even timeline' },
+            '4.1': { phase: 4, number: '4.1', title: 'Packaging Design', description: 'Box, insert, labels, poly bag, FNSKU', output: 'Packaging prototype' },
+            '4.2': { phase: 4, number: '4.2', title: 'FBA Prep Checklist', description: 'Amazon requirements, size tier, labels', output: 'FBA compliance' },
+            '4.3': { phase: 4, number: '4.3', title: 'Prep & Ship Workflow', description: '8-step batch process documented', output: 'Batch SOP' },
+            '5.1': { phase: 5, number: '5.1', title: 'UPC / GTIN Codes', description: 'Purchase and assign barcodes', output: 'Barcode assignment' },
+            '5.2': { phase: 5, number: '5.2', title: 'Amazon Listing Content', description: 'Title, bullets, description, keywords', output: 'Listing content' },
+            '5.3': { phase: 5, number: '5.3', title: 'Product Photography', description: '7 images: main, lifestyle, features, scale', output: '7 product images' },
+            '5.4': { phase: 5, number: '5.4', title: 'Variations Setup', description: 'Parent/child listings if multiple models', output: 'Variations configured' },
+            '5.5': { phase: 5, number: '5.5', title: 'Launch Checklist', description: '10-step go-live sequence', output: 'Go-live checklist' },
+            'g5': { phase: 5, number: 'G5', title: 'PRODUCT LIVE Gate', description: 'Listing active → Phase 6', isGate: true, output: 'Product live' },
+            '6.1': { phase: 6, number: '6.1', title: 'Launch Strategy', description: 'PPC, social, F&F, communities', output: 'Marketing plan' },
+            '6.2': { phase: 6, number: '6.2', title: 'PPC Campaigns', description: 'Auto, exact, broad, product targeting', output: 'Active campaigns' },
+            '6.3': { phase: 6, number: '6.3', title: 'Review Generation', description: 'Build social proof to 25+ reviews', output: '25+ reviews' },
+            '6.4': { phase: 6, number: '6.4', title: 'Growth Milestones', description: 'Track toward $2k/month target', output: '$2k/month revenue' },
+            '7.1': { phase: 7, number: '7.1', title: 'Inventory Management', description: 'Reorder points, batch sizing, safety stock', output: 'Inventory policy' },
+            '7.2': { phase: 7, number: '7.2', title: 'Monthly P&L', description: 'Revenue, costs, net profit tracking', output: 'P&L tracking' },
+            '7.3': { phase: 7, number: '7.3', title: 'Continuous Optimization', description: 'PPC, listing, pricing, cost reduction', output: 'Optimization log' },
+            '7.4': { phase: 7, number: '7.4', title: 'Product Iteration', description: 'When and why to update the product', output: 'Sustained $2k+/month' }
+        };
+
+        // ============================================================================
+        // DETAIL CONTENT DATA
+        // ============================================================================
+        const templateDetailContent = {
+            '1.1': { purpose: 'Define what you\'re building, who it\'s for, and why they\'d buy it over alternatives.', questions: ['What is it?', 'What problem does it solve?', 'Who is the target customer?', 'What\'s the unique angle?'], table: { headers: ['Field', 'Value'], rows: [['Product Name', ''], ['Category', ''], ['Problem Solved', ''], ['Target Customer', ''], ['Unique Angle', '']] }, checklist: ['Product concept defined', 'Target customer identified', 'Unique angle articulated', 'Quick sketch or mockup created'], tips: 'Start with a problem you\'ve personally encountered. The best niche products solve specific pain points that mass-market products ignore.', output: 'Product concept document' },
+            '1.2': { purpose: 'Validate that people are already looking for this product and the market isn\'t saturated.', questions: ['What are people searching for?', 'How many competitors exist?', 'What price range?', 'What do reviews complain about?'], table: { headers: ['Field', 'Value'], rows: [['Amazon search terms used', ''], ['Existing competitors (count)', ''], ['Price range of existing products', ''], ['Average review rating', ''], ['Common complaints in reviews', ''], ['Search volume', ''], ['Total market revenue', ''], ['Niche score', ''], ['Seasonality', ''], ['Data collected', '']] }, checklist: ['Amazon search completed (3-5 terms)', 'Helium 10 Xray data collected', 'Competitor count documented', 'Price range documented', 'Review complaints cataloged', 'Search volume confirmed', 'Total market revenue sized', 'Market pierceability assessed', 'Niche score evaluated', 'Automation roadmap documented'], tips: 'Read the 1-3 star reviews on competitor products. That\'s where your opportunity lives. Every complaint is a feature request.', output: 'Market research summary' },
+            '1.3': { purpose: 'Know your competitors — their strengths tell you the bar, their weaknesses tell you the opportunity.', questions: ['Who are the top sellers?', 'What do they charge?', 'Where do they fall short?'], table: { headers: ['Competitor', 'Price', 'Rating', 'Reviews', 'Strengths', 'Weaknesses/Opportunity'], rows: [['Competitor 1', '$XX', '4.5★', '500', '', ''], ['Competitor 2', '$XX', '4.2★', '300', '', ''], ['Competitor 3', '$XX', '3.8★', '150', '', '']] }, checklist: ['Top 3-5 competitors identified', 'Pricing documented', 'Ratings analyzed', 'Weakness/opportunities listed', 'Differentiation strategy clear'], tips: 'We don\'t compete with large companies. We fill niche gaps where quality, customization, or availability is lacking.', output: 'Competitive positioning' },
+            '1.4': { purpose: 'Score the opportunity objectively before committing time and money.', questions: ['Is there enough demand?', 'Can we differentiate?', 'Is it printable?', 'Does the price point work?'], table: { headers: ['Factor', 'Score (1-5)', 'Notes'], rows: [['Market Demand', '', ''], ['Competition Gap', '', ''], ['3D Print Feasibility', '', ''], ['Price Point Viability ($15-50)', '', ''], ['Shipping Friendliness', '', ''], ['Passion/Interest', '', '']] }, checklist: ['All 6 factors scored', 'Total calculated', 'Score ≥ 18/30 to proceed', 'Any deal-breaker factors identified'], tips: 'Minimum viable score: 18/30. Below that, either pivot the concept or shelve it. Don\'t force a bad niche.', output: 'Total Score: [XX] / 30' },
+            '1.5': { purpose: 'Work backwards from $2k/month to see if the math actually works before investing in design.', questions: ['How many units per month?', 'Per day?', 'How much print time?', 'How many printers dedicated?'], table: { headers: ['Metric', 'Value', 'Calculation'], rows: [['Monthly revenue target', '$2,000', ''], ['Estimated selling price', '$XX', ''], ['Estimated profit per unit', '$XX', ''], ['Units needed per month', 'XX', ''], ['Units needed per day', 'XX', ''], ['Print time per unit', 'XX hrs', ''], ['Printers needed (dedicated)', 'XX', ''], ['Feasible with current fleet?', 'Y/N', '']] }, checklist: ['Selling price estimated from market research', 'Per-unit profit calculated', 'Daily production requirement calculated', 'Printer capacity checked', 'Math validated as feasible'], tips: 'If you need more printers than you have, factor the cost of new printers into your break-even calculation.', output: 'Units/day and printer requirements' },
+            'g1': { purpose: 'This is the most important gate. Most ideas should be killed here — that\'s a feature, not a bug.', questions: ['Did the niche score pass?', 'Does the income math work?', 'Can we produce it?', 'Is the market open?'], table: { headers: ['Criteria', 'Pass Y/N', 'Notes'], rows: [['Niche score ≥ 18/30', '', ''], ['Income math works', '', ''], ['Can produce with fleet', '', ''], ['No dominant competitor', '', ''], ['Product is printable', '', '']] }, checklist: ['All criteria evaluated', 'Decision made', 'If NO-GO, reason documented', 'Decision documented with date'], tips: 'A NO-GO is valuable — it prevents wasting weeks on a doomed product. Document WHY so you don\'t revisit dead ends.', output: 'DECISION: GO / NO-GO / REVISIT LATER' },
+            '2.1': { purpose: 'Create the 3D model that will become your product. Document everything for reproducibility.', questions: ['What software?', 'Key dimensions?', 'Print orientation?', 'Supports needed?', 'File locations?'], table: { headers: ['Field', 'Value'], rows: [['CAD Software', ''], ['Design File Location', ''], ['Export Format', ''], ['Key Dimensions', ''], ['Print Orientation', ''], ['Support Required?', ''], ['Design Variants', '']] }, checklist: ['CAD model created', 'Dimensions documented', 'File saved and backed up', 'Export format confirmed', 'Print orientation decided'], tips: 'Save source files (not just STL) so you can modify later. Version your filenames.', output: 'CAD model file' },
+            '2.2': { purpose: 'Print, test, and refine until the product meets your quality standard.', questions: ['What changed between versions?', 'What improved?', 'What\'s still wrong?', 'Ready for lock?'], table: { headers: ['Prototype #', 'Date', 'Changes Made', 'Result', 'Print Time', 'Material Used'], rows: [['v1', '', '', '', '', ''], ['v2', '', '', '', '', ''], ['v3', '', '', '', '', '']] }, checklist: ['First prototype printed', 'Fit and finish evaluated', 'Changes documented', 'At least 2 iterations completed', 'Final version meets quality bar'], tips: 'Track every iteration. This history is gold for future products and for the SaaS courseware.', output: 'Tested prototypes' },
+            '2.3': { purpose: 'Freeze the slicer profile so every production unit is identical.', questions: ['Layer height?', 'Infill?', 'Material?', 'Temps?', 'Estimated time and material per unit?'], table: { headers: ['Setting', 'Value'], rows: [['Slicer Software', ''], ['Layer Height', ''], ['Infill %', ''], ['Infill Pattern', ''], ['Wall Count', ''], ['Top/Bottom Layers', ''], ['Print Speed', ''], ['Nozzle Temp', ''], ['Bed Temp', ''], ['Material', ''], ['Material Color(s)', ''], ['Support Type', ''], ['Estimated Print Time', ''], ['Estimated Material (g)', ''], ['Plate Type', '']] }, checklist: ['All settings documented', 'Test print with locked settings successful', 'Print time confirmed', 'Material weight confirmed', 'Settings saved as named profile in slicer'], tips: 'Changes after design lock require a formal version bump and re-testing. This prevents scope creep.', output: 'Locked slicer profile' },
+            'g2': { purpose: 'Sign off that the design is production-ready. No more tweaking.', questions: [], table: { headers: ['Field', 'Value'], rows: [['Design Lock Date', ''], ['Locked Version', ''], ['Locked File Hash/Name', ''], ['Approved By', ''], ['Notes', '']] }, checklist: ['Final prototype approved', 'Print settings locked', 'Files versioned and saved', 'Sign-off recorded'], tips: 'After design lock, resist the urge to "just one more tweak." Ship it, learn from sales data, then iterate.', output: 'Design locked' },
+            '3.1': { purpose: 'Know your true cost per unit. Pull workshop rates from the Workshop Operations Plan.', questions: ['Material cost?', 'Machine time?', 'Labor?', 'Packaging?', 'QC allowance?'], table: { headers: ['Component', 'Amount', 'Source/Calculation'], rows: [['Material cost', '$', ''], ['Machine time cost', '$', ''], ['Post-processing labor', '$', ''], ['Packaging materials', '$', ''], ['Packaging labor', '$', ''], ['Quality check/reject allowance', '$', ''], ['SUBTOTAL: COGS', '$', '']] }, checklist: ['Material weight measured from slicer', 'Workshop hourly rate pulled', 'Labor time estimated', 'Packaging costs sourced', 'Reject allowance included', 'COGS total calculated'], tips: 'Don\'t forget the reject allowance. Even a 3-5% failure rate affects your real cost.', output: 'COGS calculation' },
+            '3.2': { purpose: 'Stack ALL costs — not just COGS — to find your true breakeven and set a profitable price.', questions: [], table: { headers: ['Element', 'Amount', 'Notes'], rows: [['COGS per unit', '$', ''], ['Amazon FBA fee', '$', ''], ['Amazon referral fee (15%)', '$', ''], ['Inbound shipping to FBA', '$', ''], ['Advertising budget per unit', '$', ''], ['Total cost per unit', '$', ''], ['Target selling price', '$', ''], ['Gross profit per unit', '$', ''], ['Gross margin %', '%', '']] }, checklist: ['Amazon Revenue Calculator used', 'FBA fees estimated', 'Referral fee calculated', 'Ad budget allocated', 'Selling price set', 'Margin ≥ 30% confirmed'], tips: 'Target minimum 30% gross margin after ALL costs including advertising. Below 25%, revisit pricing or cost reduction.', output: 'Final selling price' },
+            '3.3': { purpose: 'If offering multiple models or sizes, price each variation independently.', questions: [], table: { headers: ['Model/Variation', 'COGS', 'FBA Fees', 'Ad Budget', 'Total Cost', 'Sell Price', 'Margin %'], rows: [['Variation 1', '$', '$', '$', '$', '$', ''], ['Variation 2', '$', '$', '$', '$', '$', ''], ['Variation 3', '$', '$', '$', '$', '$', '']] }, checklist: ['Each variation costed separately', 'Price points set per variation', 'All margins validated', 'Variation strategy documented'], tips: 'Different sizes/models can have different margins. A premium model might carry the line.', output: 'Pricing per variation' },
+            '3.4': { purpose: 'How many units until you\'ve recovered your startup investment?', questions: [], table: { headers: ['Metric', 'Value'], rows: [['Fixed startup costs', '$'], ['Profit per unit', '$'], ['Break-even units', 'XX'], ['Break-even timeline', 'XX days']] }, checklist: ['All startup costs tallied', 'Profit per unit confirmed', 'Break-even units calculated', 'Timeline estimated'], tips: 'Include UPC costs, photography, sample packaging, and any test inventory in your startup costs.', output: 'Break-even timeline' },
+            '4.1': { purpose: 'Design packaging that protects the product, meets FBA requirements, and looks professional.', questions: [], table: { headers: ['Component', 'Details', 'Cost per Unit'], rows: [['Primary packaging', '', '$'], ['Inner protection', '', '$'], ['Product label', '', '$'], ['Instruction insert', '', '$'], ['Poly bag', '', '$'], ['FNSKU label', '', '$'], ['Total packaging cost', '', '$']] }, checklist: ['Packaging type selected', 'Materials sourced', 'Labels designed', 'Cost per unit calculated', 'Prototype packaging created'], tips: 'Your packaging is the first physical touchpoint with the customer. It doesn\'t need to be fancy, but it needs to feel intentional.', output: 'Packaging prototype' },
+            '4.2': { purpose: 'Make sure your product meets all Amazon FBA requirements before shipping.', questions: [], table: { headers: ['Requirement', 'Status', 'Notes'], rows: [['Product dimensions (packaged)', '', ''], ['FBA size tier', '', ''], ['Poly bagging required?', '', ''], ['Suffocation warning?', '', ''], ['FNSKU label applied?', '', ''], ['Expiration date required?', '', ''], ['Special prep needed?', '', '']] }, checklist: ['Packaged dimensions measured', 'Size tier confirmed', 'Poly bag sourced with warning', 'FNSKU labels printed', 'All FBA requirements met'], tips: 'Getting this wrong means Amazon rejects your shipment or charges you prep fees. Double-check everything.', output: 'FBA compliance' },
+            '4.3': { purpose: 'Document the exact process for preparing a batch so it\'s repeatable and efficient.', questions: [], table: { headers: ['Step', 'Task', 'Time (min)', 'Notes'], rows: [['1', 'QC check', '', ''], ['2', 'Post-processing', '', ''], ['3', 'Insert into packaging', '', ''], ['4', 'Apply FNSKU', '', ''], ['5', 'Poly bag and seal', '', ''], ['6', 'Pack into shipping box', '', ''], ['7', 'Apply shipping labels', '', ''], ['8', 'Schedule carrier', '', '']] }, checklist: ['Workflow documented', 'Time per unit measured', 'Batch size determined', 'First batch completed', 'Workflow optimized'], tips: 'Time yourself on the first batch. You\'ll find efficiencies by the third batch.', output: 'Batch SOP' },
+            '5.1': { purpose: 'Every product variation needs a unique barcode for Amazon.', questions: [], table: { headers: ['Item', 'Details'], rows: [['UPC Source', ''], ['UPC Code(s)', ''], ['ASIN (after listing)', ''], ['FNSKU (after FBA enrollment)', '']] }, checklist: ['UPC source selected (GS1 or reseller)', 'UPCs purchased (one per variation)', 'UPCs recorded', 'Mapped to variations'], tips: 'GS1 is the "official" source but costs more. Nationwide Barcode and similar resellers work fine for Amazon.', output: 'Barcode assignment' },
+            '5.2': { purpose: 'Write the listing that converts browsers into buyers.', questions: [], table: { headers: ['Element', 'Content'], rows: [['Product Title (200 char max)', ''], ['Brand Name', ''], ['Bullet Point 1', ''], ['Bullet Point 2', ''], ['Bullet Point 3', ''], ['Bullet Point 4', ''], ['Bullet Point 5', ''], ['Product Description (2000 char)', ''], ['Backend Keywords', ''], ['Search Terms', '']] }, checklist: ['Title written (under 200 chars)', '5 bullet points crafted', 'Description written', 'Backend keywords added', 'All content reviewed for accuracy'], tips: 'Bullet 1 = primary benefit. Bullet 2 = key feature. Bullet 3 = quality. Bullet 4 = ease of use. Bullet 5 = guarantee.', output: 'Listing content' },
+            '5.3': { purpose: 'Images sell the product. Amazon requires specific formats and sizes.', questions: [], table: { headers: ['Slot', 'Content', 'Status'], rows: [['Main Image', 'White BG product', ''], ['Image 2', 'Lifestyle/in-use', ''], ['Image 3', 'Dimensions/scale', ''], ['Image 4', 'Feature callouts', ''], ['Image 5', 'Material close-up', ''], ['Image 6', 'Packaging/what\'s in box', ''], ['Image 7', 'Comparison/lifestyle', '']] }, checklist: ['White background setup ready', 'Main image shot (2000x2000px min)', 'All 7 slots filled', 'Images meet Amazon requirements', 'Infographic/callout images created'], tips: 'Main image MUST be pure white background (RGB 255,255,255). All images 2000x2000px minimum for zoom.', output: '7 product images' },
+            '5.4': { purpose: 'Set up parent/child ASIN relationships for different colors, sizes, or models.', questions: [], table: { headers: ['Variation', 'UPC', 'Price', 'Color/Size', 'Status'], rows: [['Variation 1', '', '$', '', ''], ['Variation 2', '', '$', '', ''], ['Variation 3', '', '$', '', '']] }, checklist: ['Variation theme selected (color, size, style)', 'Parent listing created', 'Child listings added', 'Each variation has unique UPC', 'Pricing set per variation'], tips: 'Variations share reviews, which is a huge advantage. Group related models under one parent listing.', output: 'Variations configured' },
+            '5.5': { purpose: 'The final 10-step sequence to go live.', questions: [], table: { headers: ['#', 'Task', 'Status', 'Date'], rows: [['1', 'UPC codes purchased', '', ''], ['2', 'Product listing created (draft)', '', ''], ['3', 'All 7 images uploaded', '', ''], ['4', 'FBA shipment plan created', '', ''], ['5', 'First batch printed & packaged', '', ''], ['6', 'First shipment sent to FBA', '', ''], ['7', 'Listing set to Active', '', ''], ['8', 'PPC campaign created', '', ''], ['9', 'Test purchase placed & verified', '', ''], ['10', 'Product live and discoverable', '', '']] }, checklist: ['All 10 items complete', 'Test purchase verified', 'Listing discoverable in search', 'PPC campaign active'], tips: 'Do a test purchase yourself once live. Verify the listing looks right, packaging arrives intact, and the product is as expected.', output: 'PRODUCT IS LIVE ON AMAZON' },
+            'g5': { purpose: 'Confirm the listing is active and discoverable.', questions: [], table: { headers: [], rows: [] }, checklist: ['Listing shows as Active in Seller Central', 'Product appears in search results', 'FBA inventory received and available', 'First PPC impressions appearing'], tips: 'It can take 24-48 hours after activation for the listing to be fully indexed and discoverable.', output: 'Product live' },
+            '6.1': { purpose: 'Plan your first 2 weeks of marketing to build momentum.', questions: [], table: { headers: ['Tactic', 'Details', 'Budget', 'Timeline'], rows: [['Amazon PPC', '', '$', ''], ['Launch price discount', '', '$', ''], ['Social media posts', '', '$', ''], ['Friends & family orders', '', '$', ''], ['Niche community outreach', '', '$', '']] }, checklist: ['PPC budget set', 'Launch discount decided', 'Social posts scheduled', 'F&F outreach done', 'Community posts planned'], tips: 'The first 2 weeks are critical. Amazon\'s algorithm gives new listings a "honeymoon" boost — don\'t waste it.', output: 'Marketing plan' },
+            '6.2': { purpose: 'Set up advertising campaigns to drive initial traffic and sales.', questions: [], table: { headers: ['Campaign Type', 'Targeting', 'Daily Budget', 'Target ACoS'], rows: [['Auto Campaign', '', '$', ''], ['Manual Exact Match', '', '$', ''], ['Manual Broad Match', '', '$', ''], ['Product Targeting', '', '$', '']] }, checklist: ['Auto campaign created', 'Manual campaigns created', 'Budgets set', 'Target ACoS defined', 'Negative keywords added'], tips: 'Target ACoS should be below your gross margin %. If margin is 35%, aim for 25% ACoS, leaving 10% net.', output: 'Active campaigns' },
+            '6.3': { purpose: 'Build social proof. Reviews are the #1 factor in Amazon conversion.', questions: [], table: { headers: ['Method', 'Details', 'Expected Reviews'], rows: [['Amazon "Request a Review" button', '', 'XX'], ['Product insert card', '', 'XX'], ['Amazon Vine', '', 'XX'], ['Friends & family', '', 'XX']] }, checklist: ['Review request process established', 'Insert card designed', 'Vine evaluated', 'First 5 reviews obtained', 'Working toward 25 reviews'], tips: 'Click "Request a Review" for EVERY order. It\'s free and takes 2 seconds per order.', output: '25+ reviews' },
+            '6.4': { purpose: 'Track your progress toward the $2k/month target.', questions: [], table: { headers: ['Milestone', 'Target', 'Actual', 'Date'], rows: [['First sale', '48hrs', '', ''], ['10 reviews', '30d', '', ''], ['25 reviews', '60d', '', ''], ['Organic page 1', '90d', '', ''], ['$500/month', '60d', '', ''], ['$1,000/month', '90d', '', ''], ['$2,000/month', '120d', '', ''], ['Break-even on startup', '', '', '']] }, checklist: ['Milestones defined', 'Tracking method in place', 'Weekly check-in scheduled', 'Revenue trend positive'], tips: 'If you\'re not at $500/month by day 60, something needs to change — usually PPC strategy or listing content.', output: '$2,000/month revenue target achieved' },
+            '7.1': { purpose: 'Never stock out. Amazon penalizes listings that go out of stock.', questions: [], table: { headers: ['Metric', 'Value', 'Notes'], rows: [['Reorder point', '', ''], ['Production batch size', '', ''], ['Production lead time', '', ''], ['FBA receiving time', '', ''], ['Safety stock buffer', '', ''], ['Reorder frequency', '', '']] }, checklist: ['Reorder point calculated', 'Batch size set', 'Lead time documented', 'Safety stock buffer established', 'Reorder calendar set'], tips: 'A stockout resets your organic ranking. It can take weeks to recover. Always maintain a safety buffer.', output: 'Inventory policy' },
+            '7.2': { purpose: 'Track whether you\'re actually making money month over month.', questions: [], table: { headers: ['Line Item', 'Month 1', 'Month 2', 'Month 3+'], rows: [['Units Sold', '', '', ''], ['Gross Revenue', '', '', ''], ['Amazon Fees', '', '', ''], ['COGS', '', '', ''], ['Advertising Spend', '', '', ''], ['Net Profit', '', '', ''], ['Margin %', '', '', ''], ['Cumulative Profit', '', '', '']] }, checklist: ['Monthly P&L template created', 'Data pulled from Seller Central', 'Trends analyzed', 'Adjustments identified'], tips: 'Positive net profit by Month 3 is a good target. If you\'re still negative by Month 6, reevaluate the product.', output: 'P&L tracking' },
+            '7.3': { purpose: 'Always be improving. Small optimizations compound over time.', questions: [], table: { headers: ['Area', 'Review Frequency', 'Action Items'], rows: [['PPC performance', 'Weekly', ''], ['Listing conversion', 'Monthly', ''], ['Customer feedback', 'Weekly', ''], ['Pricing', 'Monthly', ''], ['Inventory levels', 'Weekly', ''], ['New keywords', 'Monthly', ''], ['Cost reduction', 'Quarterly', '']] }, checklist: ['Weekly review schedule set', 'PPC optimized regularly', 'Listing A/B tests running', 'Customer feedback monitored', 'Cost reduction opportunities explored'], tips: 'Set a 30-minute weekly review. Check PPC, reviews, and inventory. That\'s all it takes to stay on top.', output: 'Optimization log' },
+            '7.4': { purpose: 'Know when to update the product design or listing based on real data.', questions: [], table: { headers: ['Trigger', 'Action', 'Priority'], rows: [['Recurring complaint (3+ reviews)', 'Evaluate design change', ''], ['Competitor launches improved version', 'Assess gap', ''], ['New material available', 'Test and validate', ''], ['Print failure rate > 5%', 'Revisit settings', ''], ['Seasonal opportunity', 'Limited edition', ''], ['Price war', 'Focus on value-add', '']] }, checklist: ['Trigger criteria defined', 'Review monitoring active', 'Competitor watching', 'Iteration process documented'], tips: 'Don\'t change the product based on one review. Wait for patterns. Three similar complaints = action required.', output: 'Sustained $2k+/month with continuous improvement' }
+        };
+
+        // ============================================================================
+        // PRODUCT-SPECIFIC DETAIL CONTENT
+        // ============================================================================
+        const productDetailContent = {
+            '45 RPM Adaptor': {
+                '1.1': { purpose: 'Define what you\'re building, who it\'s for, and why they\'d buy it over alternatives.', questions: ['What is it?', 'What problem does it solve?', 'Who is the target customer?', 'What\'s the unique angle?'], table: { headers: ['Field', 'Value'], rows: [['Product Name', '45 RPM Vinyl Record Adaptor'], ['Category', 'Home & Kitchen / Music Accessories'], ['Problem Solved', 'Standard 45 RPM records have large center holes (~1.5 in) requiring an adaptor for standard turntable spindles (~0.2-0.3 in)'], ['Target Customer', 'Vinyl record collectors, turntable owners, music enthusiasts who collect and play 45 RPM singles'], ['Unique Angle', '3D printed in premium PETG-HF, three models targeting different user needs: entry, mid-market, and premium accessibility']] }, checklist: ['Product concept defined', 'Target customer identified', 'Unique angle articulated', 'Quick sketch or mockup created'], tips: 'Start with a problem you\'ve personally encountered. The best niche products solve specific pain points that mass-market products ignore.', output: 'Product concept document' },
+                '1.2': { purpose: 'Validate that people are already looking for this product and the market isn\'t saturated.', questions: ['What are people searching for?', 'How many competitors exist?', 'What price range?', 'What do reviews complain about?'], table: { headers: ['Field', 'Value'], rows: [['Amazon search terms used', '\"45 RPM adapter\", \"45 record adapter\", \"vinyl record adapter\", \"turntable 45 adapter\"'], ['Existing competitors (count)', '39 ASINs found (Helium 10 Xray). Key brands: DIGITNOW, Frienda, bark and lindy, HZLSBL, RIXUGIT'], ['Price range of existing products', '$5.25 - $20.99 (Average: $10.00)'], ['Average review rating', '4.6 stars average across market (Min: 4.4, Max: 4.9)'], ['Common complaints in reviews', 'Too tight/loose on spindle, cheap plastic cracks, compatibility issues, wobble/vibration'], ['Search volume (Helium 10)', '626 searches/month for \"45 rpm adapter\"'], ['Total market revenue', '$13,026/month across 39 ASINs'], ['Niche score (Helium 10)', '9 - Great Niche'], ['Seasonality', 'Year-round with holiday uptick (turntable gifts). Vinyl sales growing since 2010s revival.'], ['Data collected', 'March 3, 2026 via Helium 10 Xray free tier']] }, analysis: { title: 'Market Analysis', sections: [{ heading: 'Market Share Assessment', content: 'Total addressable market: $13,026/month across 39 listings. To hit $2,000/month revenue target requires approximately 15% market share. This is aggressive but achievable given the fragmented competition.' }, { heading: 'Market Concentration', content: 'Only 1 of the top 10 products generates over $5,000/month in revenue (DIGITNOW at $4,592/month with 641 units). The remaining market is highly fragmented with most sellers under $500/month. No dominant player locks out new entrants.' }, { heading: 'Review Barrier', content: '7 of the top 10 products have fewer than 75 reviews. This is unusually low and means a new entrant can reach competitive review counts within 60-90 days. Average reviews across market: 179.' }, { heading: 'Price Tier Segmentation', content: 'Budget tier ($5-7): Cheap plastic/basic metal, high volume, low margin. Dominated by DIGITNOW and bark and lindy. Mid tier ($8-15): Aluminum singles and small packs. This is the sweet spot for a quality 3D printed product. Premium tier ($16-21): Multi-packs and specialty items. Less competition, higher margins.' }, { heading: 'Competitive Gap Analysis', content: 'Top customer complaints (cracking, wobble, fit issues) directly align with the advantages of PETG-HF 3D printing: superior durability, precise tolerances, no wobble. The market is asking for what we make. Additionally, zero competitors offer an accessibility-focused design for users with dexterity issues.' }, { heading: 'Duplicate Listing Observations', content: 'Multiple sellers list the same product under different ASINs (Frienda appears 5+ times, HZLSBL 3+ times, RIXUGIT 3+ times). This inflates the apparent competition. Unique actual products are likely 15-20, not 39.' }, { heading: 'Pierceability Verdict', content: 'FAVORABLE. Low review barriers, fragmented competition, clear quality gap, and no dominant player make this market highly pierceable. Best entry strategy: target the mid-to-premium tier ($12-15) where margins support 3D printing costs and the quality story justifies the price premium over injection-molded competitors.' }] }, evidence: { title: 'Supporting Data & Evidence', sections: [{ heading: 'Helium 10 Xray Summary (March 3, 2026)', table: { headers: ['Metric', 'Value'], rows: [['Search term', '45 rpm adapter'], ['Search Volume', '626/month'], ['Total Revenue (all listings)', '$13,026/month'], ['Average Revenue per listing', '$482/month'], ['Average Price', '$10.00'], ['Average BSR', '36,427'], ['Average Reviews', '179'], ['Total ASINs found', '39'], ['Avg Title Character Count', '124'], ['Top 10 with Revenue > $5k', '1 of 10'], ['Top 10 with < 75 Reviews', '7 of 10'], ['Niche Score', '9 (Great Niche)']] } }, { heading: 'Top 5 Competitors (Full Xray Data)', table: { headers: ['#', 'Product', 'Brand', 'Price', 'Recent Purchases', 'ASIN Sales', 'Revenue', 'BSR'], rows: [['1', '5-Pack 45 RPM Record Adapter', 'RIXUGIT', '$16.71', 'N/A', 'N/A', 'N/A', '#53,683'], ['2', '45 Record Adapter for Turntable', 'Frienda', '$9.49', '200+', 'N/A', 'N/A', '#7,282'], ['3', 'DIGITNOW 45 RPM Adapter 7 Inch', 'DIGITNOW', '$6.99', '300+', '641', '$4,592.57', '#5,452'], ['4', '45 RPM Record Adapter Insert Vinyl', 'bark and lindy', '$5.25', '300+', '374', '$1,965.83', '#8,827'], ['5', '45 RPM Adapter for 7 Inch Vinyl', 'HZLSBL', '$6.99', 'N/A', 'N/A', 'N/A', '#27,795']] } }, { heading: 'All 39 ASINs - Price & Brand Summary', table: { headers: ['#', 'Product (truncated)', 'Brand', 'Price', 'BSR'], rows: [['1', '5-Pack 45 RPM Record Adapter -...', 'RIXUGIT', '$16.71', '#53,683'], ['2', '45 Record Adapter for Turntable RP...', 'Frienda', '$9.49', '#7,282'], ['3', 'DIGITNOW 45 RPM Adapter, for 7 Inch...', 'DIGITNOW', '$6.99', '#5,452'], ['4', '45 RPM Record Adapter Insert, Vinyl...', 'bark and lindy', '$5.25', '#8,827'], ['5', '45 RPM Adapter for 7 Inch Vinyl...', 'HZLSBL', '$6.99', '#27,795'], ['6', '45 RPM Adapter, Solid Aluminum...', 'HZLSBL', '$6.64', 'N/A'], ['7', 'Retro Music Lovers 45 RPM Record...', 'Leyland Designs', '$5.95', 'N/A'], ['8', 'Lace Heart 45 RPM Record Adapter...', 'Generic', '$20.00', 'N/A'], ['9', 'Disc Adapter 45 RPM Speed Record...', 'Generic', '$5.39', 'N/A'], ['10', 'FILFEEL 45 RPM Aluminum Turntable...', 'FILFEEL', '$9.39', 'N/A'], ['11', 'FILFEEL 45 RPM Aluminum Turntable...', 'FILFEEL', '$9.39', 'N/A'], ['12', 'Turntable Adapter, Solid Aluminum...', 'Kelawoly', '$10.69', 'N/A'], ['13', 'Turntable Adapter, Solid Aluminum...', 'Kelawoly', '$10.69', 'N/A'], ['14', 'Dj 45 RPM Adapter licenses Plate...', 'BDKPADKS', '$12.99', 'N/A'], ['15', 'Dj 45 RPM Adapter licenses Plate...', 'BDKPADKS', '$12.99', 'N/A'], ['16', '45 Record Adapter for Turntable...', 'Frienda', '$9.49', 'N/A'], ['17', '(10) Flat Plastic Record Adapters...', 'Square Deal Rec.', '$8.99', '#22,923'], ['18', 'Facmogu 30 Pack 45 RPM Record...', 'Facmogu', '$12.50', '#689*'], ['19', '45 RPM Adapter for 7 Inch Vinyl...', 'HZLSBL', '$6.99', '#27,795'], ['20', '(100) Flat Plastic Record Adapters...', 'Square Deal Rec.', '$20.99', '#59,822'], ['21', '45 Record Adapter Aluminum 45 RPM...', 'menesia', '$5.99', 'N/A'], ['22', '45 Record Adapter for Turntable RPM...', 'Frienda', '$9.49', 'N/A'], ['23', '5-Pack 45 RPM Record Adapter Black...', 'RIXUGIT', '$16.71', '#53,683'], ['24', '45 RPM Adapter, Solid Aluminum...', 'HZLSBL', '$6.64', 'N/A'], ['25', '45 Record Adapter for Turntable RPM...', 'Frienda', '$9.49', 'N/A'], ['26', 'DEWHEL 45 RPM Aluminum Record...', 'DEWHEL', '$9.99', 'N/A'], ['27', '45 RPM Record Adapter Insert, Vinyl...', 'bark and lindy', '$5.97', 'N/A'], ['28', '45 Record Adapter Aluminum 45 RPM...', 'menesia', '$5.99', 'N/A'], ['29', '10 Pack 45 RPM Record Adapters...', 'Generic', '$12.34', '#85,341'], ['30', 'DEWHEL Aluminum 45 RPM Adapter...', 'DEWHEL', '$12.00', '#106,295'], ['31', '45 RPM Adapter Solid Aluminum...', 'Record-Happy', '$14.97', '#75,326'], ['32', '45 Adapter for Turntables Record...', 'Fuzdaycu', '$5.99', '#34,262'], ['33', '45 RPM Vinyl Record Adapters 7 Inch...', 'bark and lindy', '$6.97', '#109,890'], ['34', '45 Record Adapter for Turntable RP...', 'Frienda', '$9.49', '#7,282'], ['35', '5-Pack 45 RPM Record Adapter -...', 'RIXUGIT', '$16.71', '#53,683'], ['36', '45 Record Adapter for Turntable RP...', 'Frienda', '$9.49', '#7,282'], ['37', 'Lovermusic Black 7 Inch 45 RPM...', 'Lovermusic', '$7.99', '#160,594'], ['38', '45 RPM Adapter Solid Aluminum...', 'Dufray', '$15.90', '#129,460'], ['39', '10 Pack 45 RPM Record Adapters...', 'Generic', '$12.34', '#85,341']] } }, { heading: 'Data Source Notes', content: 'Data collected via Helium 10 Xray Chrome Extension (free tier). Free tier limits: full data for top 5 ASINs only, remaining 34 ASINs show price, brand, title character count, and BSR only. Sales volume, revenue, and review data for ASINs 6-39 are behind the Platinum paywall. Category for most listings: Electronics. One listing (Facmogu #18) categorized under Audio & Video Connectors & Adapters. BSR marked N/A indicates data was not visible in free tier for that row.' }] }, automationRoadmap: { title: 'Automation Roadmap', attribution: 'Reviewed by Market Research Guru perspective. The Summary, Analysis, and Evidence layers above cover Amazon quantitative data thoroughly (Helium 10 Xray, pricing, competitor counts, niche scoring). However, a complete market research phase should also validate demand across multiple platforms, confirm trend direction, expand keyword coverage, deep-dive customer reviews for feature requests, build buyer personas, and check community sentiment. These gaps are documented below with their automation paths for the P2M app. API STRATEGY UPDATE (March 4, 2026): Helium 10 has NO public API below Enterprise tier -- not viable for P2M SaaS integration. Amazon PA-API is being deprecated April 30, 2026 (migrating to Creators API). Recommended P2M stack: Keepa API ($21/mo) for price history + BSR tracking, Canopy API (free-$400/mo) for product details + reviews, SerpApi/PyTrends for Google Trends, plus platform-native APIs (Etsy, eBay, Reddit) for multi-channel. Amazon SP-API available but now $1,400/year + per-call fees -- only justified if P2M users are active sellers needing inventory/order data.', sections: [{ gap: 'Multi-Platform Market Check', current: 'Amazon only (Helium 10 Xray)', needed: 'Etsy, eBay, Walmart Marketplace presence and pricing', manualWorkaround: 'Search each platform manually, screenshot results', automationTool: 'Etsy API (free), eBay Browse API (free tier), Walmart Affiliate API', priority: 'Medium', appFeature: 'P2M auto-scans all major marketplaces when user enters search terms and returns consolidated competitor view' }, { gap: 'Search Trend Validation', current: 'Seasonality noted anecdotally', needed: 'Google Trends data confirming demand trajectory (rising, flat, declining)', manualWorkaround: 'Visit trends.google.com, compare terms, screenshot', automationTool: 'SerpApi Google Trends endpoint or PyTrends library', priority: 'High', appFeature: 'P2M pulls 12-month and 5-year trend lines for all search terms, flags declining niches automatically' }, { gap: 'Keyword Expansion', current: '4 search terms tested', needed: '15-20+ related terms with individual search volumes', manualWorkaround: 'Helium 10 Cerebro/Magnet tool or Amazon autocomplete', automationTool: 'Keepa API ($21/mo - has keyword data), DataForSEO keyword API, or Amazon autocomplete scraping. NOTE: Helium 10 API is Enterprise-only ($500+/mo) -- not viable for P2M SaaS. Amazon PA-API deprecated April 30, 2026 -- migrating to Creators API.', priority: 'High', appFeature: 'P2M auto-generates keyword clusters from seed terms, ranks by volume and competition' }, { gap: 'Review Deep-Dive (1-3 Star)', current: 'Complaint categories listed (general)', needed: 'Specific review quotes, feature request extraction, sentiment scoring', manualWorkaround: 'Read 50+ negative reviews on Amazon, copy key quotes', automationTool: 'Canopy API (free tier: 100 req/mo, paid: up to $400/mo) for review data + Claude API for AI sentiment analysis. NOTE: Amazon PA-API never provided review text -- third-party APIs like Canopy are the path.', priority: 'High', appFeature: 'P2M scrapes reviews via API, runs AI analysis to extract complaints, feature requests, and sentiment scores per competitor' }, { gap: 'Customer Persona Development', current: 'Generic "vinyl collectors"', needed: 'Segmented personas: audiophile, casual listener, accessibility-needs, gift buyer', manualWorkaround: 'Infer from review language and Amazon Q&A sections', automationTool: 'AI-generated from review corpus + Amazon demographic data', priority: 'Medium', appFeature: 'P2M generates buyer personas from aggregated review and Q&A data using AI clustering' }, { gap: 'Community/Social Validation', current: 'Not assessed', needed: 'Reddit, Facebook group sentiment - are people asking about this product?', manualWorkaround: 'Search Reddit r/vinyl, r/turntables, Facebook vinyl groups', automationTool: 'Reddit API (free) + social listening tools (Brand24, Mention)', priority: 'Low', appFeature: 'P2M monitors relevant subreddits and forums for product mentions and unmet needs' }] }, checklist: ['Amazon search completed (3-5 terms)', 'Helium 10 Xray data collected', 'Competitor count documented', 'Price range documented', 'Review complaints cataloged', 'Search volume confirmed (626/mo)', 'Total market revenue sized ($13k/mo)', 'Market pierceability assessed', 'Niche score evaluated (9/10)', 'Automation roadmap documented'], tips: 'Read the 1-3 star reviews on competitor products. That\'s where your opportunity lives. Every complaint is a feature request.', output: 'Market research summary with Helium 10 data' }
+            },
+            'RC Plane Hangar': {
+                // empty for now — will be filled as we walk through this product
+            },
+            'Improbability Spinner': {
+                '1.1': { purpose: 'Define what you\'re building, who it\'s for, and why they\'d buy it over alternatives.', questions: ['What is it?', 'What problem does it solve?', 'Who is the target customer?', 'What\'s the unique angle?'], table: { headers: ['Field', 'Value'], rows: [['Product Name', 'The Infinite Improbability Fidget Spinner - DON\'T PANIC Edition'], ['Category', 'Toys & Games / Desk Toys / Sci-Fi Collectibles'], ['Problem Solved', 'Space travelers and office workers alike lack a calming tactile device that reminds them not to panic. Current fidget spinners are boring, Earth-centric, and completely devoid of interstellar charm.'], ['Target Customer', 'Sci-fi fans, Douglas Adams enthusiasts, office desk toy collectors, anxious hitchhikers who forgot their towel'], ['Unique Angle', '3D printed in galaxy-swirl PETG-HF with embedded glow-in-the-dark filament. Features "DON\'T PANIC" text, a tiny 42 engraved in the center hub, and three arms shaped like the Heart of Gold spaceship. Comes with a miniature printed towel clip.']] }, checklist: ['Product concept defined', 'Target customer identified', 'Unique angle articulated', 'Quick sketch or mockup created'], tips: 'Start with a problem you\'ve personally encountered. The best niche products solve specific pain points that mass-market products ignore.', output: 'Product concept document' },
+                '1.2': { purpose: 'Validate that people are already looking for this product and the market isn\'t saturated.', questions: ['What are people searching for?', 'How many competitors exist?', 'What price range?', 'What do reviews complain about?'], table: { headers: ['Field', 'Value'], rows: [['Amazon search terms used', '"sci-fi fidget spinner", "hitchhikers guide gift", "space fidget toy", "dont panic desk toy", "42 spinner"'], ['Existing competitors (count)', '23 ASINs found. Key brands: ThinkGeek (legacy), Loot Crate knockoffs, Generic imports from Magrathea'], ['Price range of existing products', '$4.99 - $34.99 (Average: $14.42). Custom/licensed items command $25+'], ['Average review rating', '3.8 stars average -- surprisingly low. Fans are passionate but products are cheap quality.'], ['Common complaints in reviews', 'Cheap plastic feels like Vogon poetry, paint chips after 42 spins, bearings seize up faster than the Nutrimatic drinks dispenser, text is illegible'], ['Search volume (Helium 10)', '1,842 searches/month for sci-fi desk toys cluster. "Hitchhikers guide gift" spikes 340% in Nov-Dec.'], ['Total market revenue', '$28,400/month across sci-fi desk toy niche'], ['Niche score (Helium 10)', '8 - Very Good Niche'], ['Seasonality', 'Massive holiday spike (Oct-Dec gift season). Secondary bump around Towel Day (May 25). Steady baseline from convention season (spring/summer).'], ['Data collected', 'March 2026 via Helium 10 Xray + manual research']] }, analysis: { title: 'Market Analysis', sections: [{ heading: 'Market Share Assessment', content: 'Total addressable market: $28,400/month across 23 listings in the sci-fi desk toy niche. To hit $2,000/month revenue target requires approximately 7% market share. This is highly achievable -- much easier than the 15% needed for the 45 RPM adapter market. The sci-fi gifting niche is larger and less saturated.' }, { heading: 'The Answer to Market Concentration', content: 'No single seller dominates. The top seller (a generic "Galaxy Spinner") does $4,200/month but has only 3.6 stars and 89 reviews. The market is begging for quality. It is, as they say, mostly harmless.' }, { heading: 'Review Barrier', content: '9 of the top 10 products have fewer than 100 reviews. Most have 20-50. A well-launched product could reach competitive review counts in 30-45 days. The existing products are so mediocre that even a moderately good product would stand out like a Babel fish in a swimming pool.' }, { heading: 'Price Tier Segmentation', content: 'Budget tier ($5-10): Mass-produced imports, generic "space" themes, no real franchise connection. Mid tier ($12-20): Better quality, some licensed properties, this is our sweet spot. Premium tier ($25-35): Custom/artisan pieces, limited editions. Our 3D printed approach lives naturally in the mid-to-premium range.' }, { heading: 'Competitive Gap (The Bistromathic Drive of Opportunity)', content: 'Current products fail on three fronts: 1) Material quality is atrocious (cheap ABS that cracks), 2) Design is generic "space" rather than authentic fan-service, 3) No customization options. A PETG-HF spinner with genuine Hitchhiker\'s references, glow-in-dark features, and a towel clip? That\'s the Infinite Improbability Drive of product differentiation.' }, { heading: 'Pierceability Verdict', content: 'HIGHLY FAVORABLE. Low review barriers, no dominant seller, passionate but underserved fanbase, and a clear quality gap. The answer to "should we enter this market?" is, of course, 42.' }] }, evidence: { title: 'Supporting Data & Evidence', sections: [{ heading: 'Helium 10 Xray Summary (Demo Data)', table: { headers: ['Metric', 'Value'], rows: [['Search term cluster', 'sci-fi desk toy / hitchhikers guide gift'], ['Combined Search Volume', '1,842/month'], ['Total Revenue (niche)', '$28,400/month'], ['Average Revenue per listing', '$1,235/month'], ['Average Price', '$14.42'], ['Average BSR', '52,300'], ['Average Reviews', '42 (no, seriously)'], ['Total ASINs found', '23'], ['Top 10 with Revenue > $5k', '0 of 10'], ['Top 10 with < 75 Reviews', '9 of 10'], ['Niche Score', '8 (Very Good)']] } }, { heading: 'Top 5 Competitors', table: { headers: ['#', 'Product', 'Brand', 'Price', 'Rating', 'Reviews', 'BSR'], rows: [['1', 'Galaxy Nebula Fidget Spinner', 'CosmicToys', '$9.99', '3.6', '89', '#34,200'], ['2', 'Space Station Desk Spinner Pro', 'OrbitGadgets', '$16.99', '4.1', '67', '#41,500'], ['3', 'Sci-Fi Collector Spinner Set (3pk)', 'Generic', '$24.99', '3.4', '23', '#58,700'], ['4', 'Glow Galaxy Hand Spinner', 'NeonSpin', '$7.99', '3.9', '156', '#28,900'], ['5', 'Deep Space Explorer Fidget', 'StarForge', '$19.99', '4.3', '31', '#67,200']] } }, { heading: 'Data Source Notes', content: 'DEMO DATA -- This is a fictional product created to demonstrate P2M Pipeline capabilities. All market data is illustrative. No actual Vogons were harmed in the making of this research. If you are a Vogon, please do not read your poetry to us.' }] }, checklist: ['Amazon search completed (3-5 terms)', 'Helium 10 Xray data collected', 'Competitor count documented', 'Price range documented', 'Review complaints cataloged', 'Search volume confirmed (1,842/mo)', 'Total market revenue sized ($28.4k/mo)', 'Market pierceability assessed', 'Niche score evaluated (8/10)', 'Automation roadmap documented'], tips: 'Read the 1-3 star reviews on competitor products. That\'s where your opportunity lives. Every complaint is a feature request.', output: 'Market research summary with Helium 10 data' },
+                '1.3': { purpose: 'Know your competitors -- their strengths tell you the bar, their weaknesses tell you the opportunity.', questions: ['Who are the top sellers?', 'What do they charge?', 'Where do they fall short?'], table: { headers: ['Competitor', 'Price', 'Rating', 'Reviews', 'Strengths', 'Weaknesses / Opportunity'], rows: [['CosmicToys Galaxy Spinner', '$9.99', '3.6', '89', 'Low price, decent BSR, visible in search', 'Cheap ABS plastic, generic space theme, no fan-service, breaks after 42 days (ironic)'], ['OrbitGadgets Space Station Pro', '$16.99', '4.1', '67', 'Better quality, nice packaging, good reviews', 'Still injection molded, no customization, boring design, no glow feature'], ['NeonSpin Glow Galaxy', '$7.99', '3.9', '156', 'Most reviews in niche, glow feature, impulse price', 'Glow fades fast, bearing quality poor, purely generic -- no IP connection'], ['StarForge Deep Space Explorer', '$19.99', '4.3', '31', 'Best quality in niche, premium feel, loyal fans', 'Low visibility, only 31 reviews, limited designs, no 3D print customization'], ['Generic Sci-Fi Set (3pk)', '$24.99', '3.4', '23', 'Bundle value, gift-ready packaging', 'All three are mediocre quality, no cohesive theme, feels like clearance bin at Milliways']] }, checklist: ['Top 3-5 competitors identified', 'Pricing documented', 'Ratings analyzed', 'Weakness/opportunities listed', 'Differentiation strategy clear'], tips: 'We don\'t compete with large companies. We fill niche gaps where quality, customization, or availability is lacking.', output: 'Competitive positioning' },
+                '1.4': { purpose: 'Score the opportunity objectively before committing time and money.', questions: ['Is there enough demand?', 'Can we differentiate?', 'Is it printable?', 'Does the price point work?'], table: { headers: ['Factor', 'Score (1-5)', 'Notes'], rows: [['Market Demand', '4', '1,842 searches/month + massive holiday spike. Not huge but passionate buyers.'], ['Competition Gap', '5', 'Every competitor is mediocre quality. Nobody does authentic fan-service with premium materials.'], ['3D Print Feasibility', '4', 'Spinner body prints well in PETG-HF. Bearing insert is standard 608. Glow filament tested. Only concern: multi-color requires filament swap or painting.'], ['Price Point Viability ($15-50)', '4', 'Sweet spot at $18.99-$24.99. Well within the mid-premium tier. Fans will pay for quality.'], ['Shipping Friendliness', '5', 'Tiny, lightweight, nearly indestructible. FBA small standard size tier. Shipping cost: minimal.'], ['Passion/Interest', '5', 'We love Hitchhiker\'s Guide. This product would be fun to make, fun to sell, and fun to market. Enthusiasm score: 42 out of 5.']] }, checklist: ['All 6 factors scored', 'Total calculated', 'Score >= 18/30 to proceed', 'Any deal-breaker factors identified'], tips: 'Minimum viable score: 18/30. Below that, either pivot the concept or shelve it. Don\'t force a bad niche.', output: 'Total Score: 27 / 30 -- STRONG GO' },
+                '1.5': { purpose: 'Work backwards from $2k/month to see if the math actually works before investing in design.', questions: ['How many units per month?', 'Per day?', 'How much print time?', 'How many printers dedicated?'], table: { headers: ['Metric', 'Value', 'Calculation'], rows: [['Monthly revenue target', '$2,000', 'Standard P2M target'], ['Estimated selling price', '$19.99', 'Mid-premium tier based on competitor analysis'], ['Estimated profit per unit', '$8.50', 'After COGS ($4.20) + FBA fees ($4.50) + ad budget ($2.79)'], ['Units needed per month', '106', '$2,000 / $19.99 = 100 units for revenue, 106 accounting for returns'], ['Units needed per day', '3.5', '106 / 30 days'], ['Print time per unit', '1.8 hrs', 'Spinner body (1.2hr) + towel clip (0.4hr) + hub detail (0.2hr)'], ['Printers needed (dedicated)', '1', '3.5 units x 1.8hrs = 6.3 print hours/day. One printer running 8hrs handles it with margin.'], ['Feasible with current fleet?', 'YES', 'Easily handled by a single Bambu X1C. Could batch on build plate (4 per plate).']] }, checklist: ['Selling price estimated from market research', 'Per-unit profit calculated', 'Daily production requirement calculated', 'Printer capacity checked', 'Math validated as feasible'], tips: 'If you need more printers than you have, factor the cost of new printers into your break-even calculation.', output: 'Units/day: 3.5 | Printers needed: 1 | FEASIBLE' },
+                '2.1': { purpose: 'Create the 3D model that will become your product. Document everything for reproducibility.', questions: ['What software?', 'Key dimensions?', 'Print orientation?', 'Supports needed?', 'File locations?'], table: { headers: ['Field', 'Value'], rows: [['CAD Software', 'Fusion 360 + ZBrush (for Heart of Gold arm sculpting)'], ['Design File Location', 'CaspersCreations/Products/MyWidget/CAD/'], ['Export Format', 'STL + 3MF (for multi-color data)'], ['Key Dimensions', '75mm diameter x 12mm thick, standard 608 bearing pocket (22mm OD x 7mm deep)'], ['Print Orientation', 'Flat on bed, text side up for best surface quality on DON\'T PANIC engraving'], ['Support Required?', 'No -- designed with 45-degree overhangs max. Self-supporting geometry.'], ['Design Variants', 'v1: Standard (single color), v2: Galaxy Swirl (dual color), v3: Glow Edition (glow-in-dark PETG)']] }, checklist: ['CAD model created', 'Dimensions documented', 'File saved and backed up', 'Export format confirmed', 'Print orientation decided'], tips: 'Save source files (not just STL) so you can modify later. Version your filenames.', output: 'CAD model file' },
+                '2.2': { purpose: 'Print, test, and refine until the product meets your quality standard.', questions: ['What changed between versions?', 'What improved?', 'What\'s still wrong?', 'Ready for lock?'], table: { headers: ['Prototype #', 'Date', 'Changes Made', 'Result', 'Print Time', 'Material Used'], rows: [['v1', '2026-02-10', 'Initial design -- single arm too thick, bearing too tight', 'Wobbled like a drunk Zaphod', '2.1 hrs', '18g PETG-HF'], ['v2', '2026-02-12', 'Thinned arms, widened bearing pocket by 0.15mm, added 42 engraving', 'Smooth spin! But DON\'T PANIC text too small to read', '1.9 hrs', '17g PETG-HF'], ['v3', '2026-02-14', 'Enlarged text, added Heart of Gold arm profile, optimized wall thickness', 'Nearly perfect. Spin time: 2min 42sec. Text crisp.', '1.8 hrs', '16g PETG-HF'], ['v4 (final)', '2026-02-16', 'Minor chamfer on edges, tested glow filament, added towel clip', 'Production ready. So good it would impress even Slartibartfast.', '1.8 hrs', '16g PETG-HF + 3g glow']] }, checklist: ['First prototype printed', 'Fit and finish evaluated', 'Changes documented', 'At least 2 iterations completed', 'Final version meets quality bar'], tips: 'Track every iteration. This history is gold for future products and for the SaaS courseware.', output: 'Tested prototypes' },
+                '2.3': { purpose: 'Freeze the slicer profile so every production unit is identical.', questions: ['Layer height?', 'Infill?', 'Material?', 'Temps?', 'Estimated time and material per unit?'], table: { headers: ['Setting', 'Value'], rows: [['Slicer Software', 'Bambu Studio 2.1'], ['Layer Height', '0.16mm (quality/speed balance)'], ['Infill %', '20% (gyroid -- for that improbability aesthetic)'], ['Infill Pattern', 'Gyroid'], ['Wall Count', '3'], ['Top/Bottom Layers', '4 / 4'], ['Print Speed', '180mm/s (Bambu X1C optimized)'], ['Nozzle Temp', '245C (PETG-HF sweet spot)'], ['Bed Temp', '80C'], ['Material', 'PETG-HF Galaxy Swirl + Glow-in-Dark PETG for hub'], ['Material Color(s)', 'Deep Space Blue / Nebula Purple / Glow Green (hub)'], ['Support Type', 'None required (self-supporting design)'], ['Estimated Print Time', '1 hr 48 min per unit'], ['Estimated Material (g)', '16g body + 3g glow hub = 19g total'], ['Plate Type', 'Textured PEI (perfect adhesion, easy release)']] }, checklist: ['All settings documented', 'Test print with locked settings successful', 'Print time confirmed', 'Material weight confirmed', 'Settings saved as named profile in slicer'], tips: 'Changes after design lock require a formal version bump and re-testing. This prevents scope creep.', output: 'Locked slicer profile' },
+                '3.1': { purpose: 'Know your true cost per unit. Pull workshop rates from the Workshop Operations Plan.', questions: ['Material cost?', 'Machine time?', 'Labor?', 'Packaging?', 'QC allowance?'], table: { headers: ['Component', 'Amount', 'Source/Calculation'], rows: [['Material cost (19g PETG-HF)', '$0.57', '19g x $0.03/g (PETG-HF bulk rate)'], ['Glow filament premium', '$0.15', '3g at $0.05/g premium over standard'], ['608 bearing', '$0.35', 'Bulk pack of 100 = $35'], ['Machine time cost', '$0.62', '1.8hrs x $0.34/hr blended rate'], ['Post-processing labor', '$0.40', '2 min QC + bearing press + deburr @ $12/hr'], ['Packaging materials', '$0.85', 'Custom galaxy box ($0.60) + foam insert ($0.15) + sticker ($0.10)'], ['Packaging labor', '$0.30', '1.5 min @ $12/hr'], ['Quality check/reject allowance', '$0.16', '5% reject rate on $3.24 subtotal'], ['SUBTOTAL: COGS', '$3.40', 'Total cost to produce one Infinite Improbability Spinner']] }, checklist: ['Material weight measured from slicer', 'Workshop hourly rate pulled', 'Labor time estimated', 'Packaging costs sourced', 'Reject allowance included', 'COGS total calculated'], tips: 'Don\'t forget the reject allowance. Even a 3-5% failure rate affects your real cost.', output: 'COGS: $3.40 per unit' },
+                '3.2': { purpose: 'Stack ALL costs -- not just COGS -- to find your true breakeven and set a profitable price.', questions: [], table: { headers: ['Element', 'Amount', 'Notes'], rows: [['COGS per unit', '$3.40', 'From step 3.1'], ['Amazon FBA fee', '$3.68', 'Small standard size, 4oz weight'], ['Amazon referral fee (15%)', '$3.00', '15% of $19.99'], ['Inbound shipping to FBA', '$0.45', 'Estimated per unit in bulk shipment'], ['Advertising budget per unit', '$2.00', 'Target ACoS of 10% at $19.99 price'], ['Total cost per unit', '$12.53', 'Sum of all costs'], ['Target selling price', '$19.99', 'Mid-premium positioning'], ['Gross profit per unit', '$7.46', '$19.99 - $12.53'], ['Gross Margin %', '37.3%', 'Above our 30% minimum -- looking good!']] }, checklist: ['Amazon Revenue Calculator used', 'FBA fees estimated', 'Referral fee calculated', 'Ad budget allocated', 'Selling price set', 'Margin >= 30% confirmed'], tips: 'Target minimum 30% gross margin after ALL costs including advertising. Below 25%, revisit pricing or cost reduction.', output: 'Final selling price: $19.99 | Margin: 37.3%' }
+            }
+        };
+
+        // ============================================================================
+        // GLOSSARY — hover tooltips for industry jargon
+        // ============================================================================
+        const glossary = {
+            'BSR': 'Best Seller Rank. Amazon\'s ranking of how well a product sells relative to others in its category. Lower number = more sales. Updated hourly.',
+            'ASIN': 'Amazon Standard Identification Number. A unique 10-character alphanumeric code assigned by Amazon to every product in its catalog.',
+            'COGS': 'Cost of Goods Sold. The direct costs of producing your product: materials, machine time, labor, packaging. Does not include marketing or Amazon fees.',
+            'FBA': 'Fulfillment by Amazon. You ship inventory to Amazon\'s warehouse, they handle storage, packing, shipping, and customer service. Costs include storage and fulfillment fees.',
+            'FNSKU': 'Fulfillment Network Stock Keeping Unit. Amazon\'s internal barcode label applied to each unit in FBA inventory. Unique to your seller account.',
+            'UPC': 'Universal Product Code. A 12-digit barcode required to list products on Amazon. Can be purchased from GS1 (official) or resellers like Nationwide Barcode.',
+            'PPC': 'Pay Per Click. Amazon\'s advertising model where you bid on keywords and pay each time a shopper clicks your ad. Primary driver of early sales velocity.',
+            'ACoS': 'Advertising Cost of Sale. The percentage of ad spend relative to ad revenue. Formula: (Ad Spend / Ad Revenue) x 100. Lower is better — target below your gross margin %.',
+            'Niche Score': 'A Helium 10 metric (1-10) that rates market opportunity based on demand, competition, and revenue potential. 7+ is considered favorable, 9-10 is excellent.',
+            'Search Volume': 'The estimated number of times per month that shoppers search for a specific keyword on Amazon. Higher volume = more potential customers seeing your listing.',
+            'Gross Margin': 'The percentage of revenue remaining after subtracting all direct costs (COGS + Amazon fees + shipping). Formula: ((Revenue - Total Costs) / Revenue) x 100. Target: 30%+.',
+            'FBA Size Tier': 'Amazon\'s classification of your product by packaged dimensions and weight. Determines fulfillment fees. Smaller tiers = lower fees. Standard Size is most cost-effective.',
+            'Referral Fee': 'Amazon\'s commission on each sale, typically 15% of the selling price. Varies slightly by category. This is separate from FBA fulfillment fees.',
+            'Break-even': 'The point where total revenue equals total costs invested. After break-even, every additional sale generates pure profit.',
+            'Organic Rank': 'Where your product appears in Amazon search results without paid advertising. Driven by sales velocity, relevance, reviews, and listing optimization.',
+            'PETG-HF': 'Polyethylene Terephthalate Glycol - High Flow. A 3D printing filament known for durability, chemical resistance, and smooth finish. Stronger than PLA, easier to print than ABS.'
+        };
+
+        // Creates a glossary ? icon — popup is handled by the floating #glossaryFloater
+        function glossaryIcon(term) {
+            const def = glossary[term];
+            if (!def) return '';
+            const escaped = def.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+            return `<span class="glossary-tip" data-term="${term}" data-def="${escaped}">?</span>`;
+        }
+
+        // Scans text and appends glossary icons after matching terms
+        function addGlossaryToText(text) {
+            let result = text;
+            for (const term of Object.keys(glossary)) {
+                // Match the term as a whole word (case-insensitive), but only add icon on first occurrence
+                const regex = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                const match = result.match(regex);
+                if (match) {
+                    result = result.replace(regex, match[0] + glossaryIcon(term));
+                }
+            }
+            return result;
+        }
+
+        // Initialize the floating glossary tooltip (attached to body, never clipped)
+        function initGlossaryFloater() {
+            const floater = document.createElement('div');
+            floater.id = 'glossaryFloater';
+            document.body.appendChild(floater);
+
+            document.addEventListener('mouseover', (e) => {
+                const tip = e.target.closest('.glossary-tip');
+                if (!tip) return;
+                const term = tip.getAttribute('data-term');
+                const def = tip.getAttribute('data-def');
+                if (!term || !def) return;
+
+                floater.innerHTML = `<span class="glossary-term">${term}</span>${def}`;
+                floater.style.display = 'block';
+
+                // Position above the ? icon, centered
+                const rect = tip.getBoundingClientRect();
+                const floaterRect = floater.getBoundingClientRect();
+                let left = rect.left + (rect.width / 2) - (floaterRect.width / 2);
+                let top = rect.top - floaterRect.height - 10;
+
+                // Keep within viewport horizontally
+                if (left < 8) left = 8;
+                if (left + floaterRect.width > window.innerWidth - 8) {
+                    left = window.innerWidth - floaterRect.width - 8;
+                }
+                // If no room above, show below
+                if (top < 8) {
+                    top = rect.bottom + 10;
+                    floater.style.setProperty('--arrow-position', 'top');
+                }
+
+                floater.style.left = left + 'px';
+                floater.style.top = top + 'px';
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                const tip = e.target.closest('.glossary-tip');
+                if (!tip) return;
+                floater.style.display = 'none';
+            });
+        }
+
+        // ============================================================================
+        // RENDERING FUNCTIONS
+        // ============================================================================
+        function renderPhaseLegend() {
+            const legend = document.getElementById('phaseLegend');
+            legend.innerHTML = '';
+            for (let p = 1; p <= 7; p++) {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-dot" style="background-color: ${phaseColors[p]};"></div>
+                    <span>Phase ${p}</span>
+                `;
+                legend.appendChild(item);
+            }
+        }
+
+        function renderProductTabs() {
+            const tabs = document.getElementById('productTabs');
+            tabs.innerHTML = '';
+            for (const productName of Object.keys(state.products)) {
+                const tab = document.createElement('button');
+                tab.className = 'product-tab';
+                if (productName === state.activeProduct) {
+                    tab.classList.add('active');
+                }
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = productName;
+                tab.appendChild(nameSpan);
+
+                const editBtn = document.createElement('span');
+                editBtn.className = 'edit-product-btn';
+                editBtn.innerHTML = '&#9998;'; // pencil icon
+                editBtn.title = 'Rename product';
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    startEditProductName(productName, tab);
+                });
+                tab.appendChild(editBtn);
+
+                tab.addEventListener('click', () => {
+                    state.activeProduct = productName;
+                    render();
+                });
+                tabs.appendChild(tab);
+            }
+        }
+
+        function startEditProductName(oldName, tabElement) {
+            const container = document.createElement('span');
+            container.className = 'product-tab-editing';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = oldName;
+            input.maxLength = 40;
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'edit-save-btn';
+            saveBtn.innerHTML = '&#10003;'; // checkmark
+            saveBtn.title = 'Save';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'edit-cancel-btn';
+            cancelBtn.innerHTML = '&#10005;'; // X
+            cancelBtn.title = 'Cancel';
+
+            container.appendChild(input);
+            container.appendChild(saveBtn);
+            container.appendChild(cancelBtn);
+
+            tabElement.replaceWith(container);
+            input.focus();
+            input.select();
+
+            function save() {
+                const newName = input.value.trim();
+                if (newName && newName !== oldName && !state.products[newName]) {
+                    renameProduct(oldName, newName);
+                } else if (!newName || state.products[newName]) {
+                    render(); // revert on invalid/duplicate
+                } else {
+                    render(); // same name, just re-render
+                }
+            }
+
+            saveBtn.addEventListener('click', save);
+            cancelBtn.addEventListener('click', () => render());
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') save();
+                if (e.key === 'Escape') render();
+            });
+        }
+
+        function renameProduct(oldName, newName) {
+            // Migrate all state references from oldName to newName
+            const newProducts = {};
+            for (const [key, val] of Object.entries(state.products)) {
+                newProducts[key === oldName ? newName : key] = val;
+            }
+            state.products = newProducts;
+
+            const newChecklists = {};
+            for (const [key, val] of Object.entries(state.checklists)) {
+                newChecklists[key === oldName ? newName : key] = val;
+            }
+            state.checklists = newChecklists;
+
+            if (productDetailContent[oldName]) {
+                productDetailContent[newName] = productDetailContent[oldName];
+                delete productDetailContent[oldName];
+            }
+
+            if (state.activeProduct === oldName) {
+                state.activeProduct = newName;
+            }
+
+            render();
+        }
+
+        function renderPipeline() {
+            const pipeline = document.getElementById('pipeline');
+            pipeline.innerHTML = '';
+
+            const phases = [
+                { num: 1, steps: ['1.1', '1.2', '1.3', '1.4', '1.5', 'g1'] },
+                { num: 2, steps: ['2.1', '2.2', '2.3', 'g2'] },
+                { num: 3, steps: ['3.1', '3.2', '3.3', '3.4'] },
+                { num: 4, steps: ['4.1', '4.2', '4.3'] },
+                { num: 5, steps: ['5.1', '5.2', '5.3', '5.4', '5.5', 'g5'] },
+                { num: 6, steps: ['6.1', '6.2', '6.3', '6.4'] },
+                { num: 7, steps: ['7.1', '7.2', '7.3', '7.4'] }
+            ];
+
+            phases.forEach((phase, idx) => {
+                const col = document.createElement('div');
+                col.className = `phase-column phase-${phase.num}`;
+
+                const header = document.createElement('div');
+                header.className = 'phase-header';
+                header.innerHTML = `
+                    <span class="phase-number">${phase.num}</span>
+                    <span class="phase-name">${phaseNames[phase.num]}</span>
+                    <span class="phase-days">${phaseDays[phase.num]}</span>
+                `;
+                col.appendChild(header);
+
+                const progressBar = document.createElement('div');
+                progressBar.className = 'phase-progress-bar';
+                const fill = document.createElement('div');
+                fill.className = 'phase-progress-fill';
+                const progress = calculatePhaseProgress(phase.num);
+                fill.style.width = progress + '%';
+                progressBar.appendChild(fill);
+                col.appendChild(progressBar);
+
+                const content = document.createElement('div');
+                content.className = 'phase-content';
+                phase.steps.forEach(stepId => {
+                    const step = stepDefinitions[stepId];
+                    const status = state.products[state.activeProduct][stepId];
+
+                    if (step.isGate) {
+                        const gate = document.createElement('div');
+                        gate.className = 'decision-gate';
+                        gate.innerHTML = `
+                            <div class="gate-icon">◇</div>
+                            <div class="gate-label">${step.title}</div>
+                            <div class="gate-options">${step.description}</div>
+                            <div class="gate-led led-${status}"></div>
+                        `;
+                        gate.addEventListener('click', () => openDetailPanel(stepId));
+                        const led = gate.querySelector('.gate-led');
+                        led.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            cycleLED(stepId);
+                        });
+                        content.appendChild(gate);
+                    } else {
+                        const card = document.createElement('div');
+                        card.className = `step-card led-${status}`;
+                        card.innerHTML = `
+                            <div class="step-header">
+                                <span class="step-number">${step.number}</span>
+                                <div class="step-led led-${status}"></div>
+                            </div>
+                            <div class="step-title">${step.title}</div>
+                            <div class="step-description">${step.description}</div>
+                            ${step.output ? `<div class="step-output">${step.output}</div>` : ''}
+                            <div class="tooltip">${step.number}: ${step.title}</div>
+                        `;
+                        card.addEventListener('click', () => openDetailPanel(stepId));
+                        const led = card.querySelector('.step-led');
+                        led.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            cycleLED(stepId);
+                        });
+                        content.appendChild(card);
+                    }
+                });
+                col.appendChild(content);
+                pipeline.appendChild(col);
+
+                if (idx < phases.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'arrow-separator';
+                    arrow.innerHTML = '→';
+                    arrow.style.color = '#30363d';
+                    pipeline.appendChild(arrow);
+                }
+            });
+        }
+
+        function calculatePhaseProgress(phaseNum) {
+            const phases = [
+                { num: 1, steps: ['1.1', '1.2', '1.3', '1.4', '1.5', 'g1'] },
+                { num: 2, steps: ['2.1', '2.2', '2.3', 'g2'] },
+                { num: 3, steps: ['3.1', '3.2', '3.3', '3.4'] },
+                { num: 4, steps: ['4.1', '4.2', '4.3'] },
+                { num: 5, steps: ['5.1', '5.2', '5.3', '5.4', '5.5', 'g5'] },
+                { num: 6, steps: ['6.1', '6.2', '6.3', '6.4'] },
+                { num: 7, steps: ['7.1', '7.2', '7.3', '7.4'] }
+            ];
+            const phase = phases.find(p => p.num === phaseNum);
+            if (!phase) return 0;
+            const greenCount = phase.steps.filter(s => state.products[state.activeProduct][s] === 'green').length;
+            return (greenCount / phase.steps.length) * 100;
+        }
+
+        function calculateOverallProgress() {
+            const allSteps = Object.keys(state.products[state.activeProduct]);
+            const greenCount = allSteps.filter(s => state.products[state.activeProduct][s] === 'green').length;
+            return Math.round((greenCount / allSteps.length) * 100);
+        }
+
+        function renderProgressAndTracker() {
+            const progress = calculateOverallProgress();
+            document.getElementById('progressLabel').textContent = state.activeProduct;
+            document.getElementById('progressBarFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = progress + '%';
+
+            const trackerBody = document.getElementById('trackerBody');
+            trackerBody.innerHTML = '';
+
+            const phases = [
+                { num: 1, steps: ['1.1', '1.2', '1.3', '1.4', '1.5', 'g1'] },
+                { num: 2, steps: ['2.1', '2.2', '2.3', 'g2'] },
+                { num: 3, steps: ['3.1', '3.2', '3.3', '3.4'] },
+                { num: 4, steps: ['4.1', '4.2', '4.3'] },
+                { num: 5, steps: ['5.1', '5.2', '5.3', '5.4', '5.5', 'g5'] },
+                { num: 6, steps: ['6.1', '6.2', '6.3', '6.4'] },
+                { num: 7, steps: ['7.1', '7.2', '7.3', '7.4'] }
+            ];
+
+            for (const productName of Object.keys(state.products)) {
+                const row = document.createElement('tr');
+                const nameCell = document.createElement('td');
+                nameCell.textContent = productName;
+                nameCell.style.fontWeight = '600';
+                row.appendChild(nameCell);
+
+                phases.forEach(phase => {
+                    const greenCount = phase.steps.filter(s => state.products[productName][s] === 'green').length;
+                    const total = phase.steps.length;
+                    const cell = document.createElement('td');
+                    cell.className = 'tracker-phase';
+
+                    if (greenCount === total) {
+                        cell.innerHTML = '<span class="tracker-status">✓</span>';
+                    } else if (greenCount > 0) {
+                        cell.innerHTML = `<span class="tracker-partial">${greenCount}/${total}</span>`;
+                    } else {
+                        cell.innerHTML = '<span class="tracker-none">•••</span>';
+                    }
+                    row.appendChild(cell);
+                });
+                trackerBody.appendChild(row);
+            }
+        }
+
+        function cycleLED(stepId) {
+            const current = state.products[state.activeProduct][stepId];
+            const cycle = { red: 'yellow', yellow: 'green', green: 'red' };
+            state.products[state.activeProduct][stepId] = cycle[current];
+            render();
+        }
+
+        function render() {
+            renderProductTabs();
+            renderPipeline();
+            renderProgressAndTracker();
+        }
+
+        // ============================================================================
+        // DETAIL PANEL
+        // ============================================================================
+        let activeCardStepId = null;
+
+        function openDetailPanel(stepId) {
+            const step = stepDefinitions[stepId];
+            const content = (productDetailContent[state.activeProduct] && productDetailContent[state.activeProduct][stepId]) || templateDetailContent[stepId];
+            const status = state.products[state.activeProduct][stepId];
+            const phaseNum = step.phase;
+
+            // Highlight the active card in the pipeline
+            document.querySelectorAll('.step-card.active-card, .decision-gate.active-card').forEach(el => el.classList.remove('active-card'));
+            activeCardStepId = stepId;
+            const allCards = document.querySelectorAll('.step-card, .decision-gate');
+            allCards.forEach(card => {
+                const cardLed = card.querySelector('.step-led, .gate-led');
+                if (cardLed) {
+                    // Match by checking the step number text or gate label
+                    const numEl = card.querySelector('.step-number');
+                    const gateEl = card.querySelector('.gate-label');
+                    const cardId = numEl ? numEl.textContent : (gateEl ? 'g' + step.phase : '');
+                    if (cardId === step.number || (step.isGate && gateEl && gateEl.textContent === step.title)) {
+                        card.classList.add('active-card');
+                    }
+                }
+            });
+
+            document.getElementById('detailStepInfo').textContent = `Step ${step.number}`;
+            document.getElementById('detailTitle').textContent = step.title;
+            document.getElementById('detailPhaseName').textContent = phaseNames[phaseNum];
+            document.getElementById('detailPhaseDot').style.backgroundColor = phaseColors[phaseNum];
+            const ledStatus = document.getElementById('detailLedStatus');
+            ledStatus.className = `detail-led-status led-${status}`;
+            ledStatus.onclick = () => {
+                cycleLED(stepId);
+                openDetailPanel(stepId);
+            };
+
+            const body = document.getElementById('detailBody');
+            body.innerHTML = '';
+
+            const detailPanel = document.getElementById('detailPanel');
+            detailPanel.style.borderLeftColor = phaseColors[phaseNum];
+
+            if (content.purpose) {
+                const purposeSection = document.createElement('div');
+                purposeSection.className = 'detail-section';
+                purposeSection.innerHTML = `<div class="detail-purpose">${content.purpose}</div>`;
+                body.appendChild(purposeSection);
+            }
+
+            if (content.questions && content.questions.length > 0) {
+                const qSection = document.createElement('div');
+                qSection.className = 'detail-section';
+                qSection.innerHTML = '<div class="detail-section-title">Key Questions</div>';
+                const ul = document.createElement('ul');
+                ul.className = 'detail-questions';
+                content.questions.forEach(q => {
+                    const li = document.createElement('li');
+                    li.textContent = q;
+                    ul.appendChild(li);
+                });
+                qSection.appendChild(ul);
+                body.appendChild(qSection);
+            }
+
+            if (content.table && content.table.rows.length > 0) {
+                const tableSection = document.createElement('div');
+                tableSection.className = 'detail-section';
+                tableSection.innerHTML = '<div class="detail-section-title">Details</div>';
+                const table = document.createElement('table');
+                table.className = 'detail-table';
+
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                content.table.headers.forEach(h => {
+                    const th = document.createElement('th');
+                    th.style.backgroundColor = phaseColors[phaseNum];
+                    th.innerHTML = addGlossaryToText(h);
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                content.table.rows.forEach((row, idx) => {
+                    const tr = document.createElement('tr');
+                    row.forEach((cell, cellIdx) => {
+                        const td = document.createElement('td');
+                        td.innerHTML = addGlossaryToText(cell);
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+                tableSection.appendChild(table);
+                body.appendChild(tableSection);
+            }
+
+            // Render ANALYSIS layer
+            if (content.analysis && content.analysis.sections && content.analysis.sections.length > 0) {
+                const analysisLayer = document.createElement('div');
+                analysisLayer.className = 'detail-layer analysis-layer';
+
+                const analysisHeader = document.createElement('div');
+                analysisHeader.className = 'detail-layer-header';
+                analysisHeader.innerHTML = '<span class="arrow">▶</span><span class="layer-title">' + content.analysis.title + '</span>';
+                analysisHeader.addEventListener('click', () => {
+                    analysisLayer.classList.toggle('expanded');
+                });
+                analysisLayer.appendChild(analysisHeader);
+
+                const analysisContent = document.createElement('div');
+                analysisContent.className = 'detail-layer-content';
+
+                content.analysis.sections.forEach(section => {
+                    const subsection = document.createElement('div');
+                    subsection.className = 'detail-subsection';
+
+                    const heading = document.createElement('div');
+                    heading.className = 'detail-subsection-heading';
+                    heading.textContent = section.heading;
+                    subsection.appendChild(heading);
+
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'detail-subsection-content';
+                    contentDiv.innerHTML = addGlossaryToText(section.content);
+                    subsection.appendChild(contentDiv);
+
+                    analysisContent.appendChild(subsection);
+                });
+
+                analysisLayer.appendChild(analysisContent);
+                body.appendChild(analysisLayer);
+            }
+
+            // Render EVIDENCE layer
+            if (content.evidence && content.evidence.sections && content.evidence.sections.length > 0) {
+                const evidenceLayer = document.createElement('div');
+                evidenceLayer.className = 'detail-layer evidence-layer';
+
+                const evidenceHeader = document.createElement('div');
+                evidenceHeader.className = 'detail-layer-header';
+                evidenceHeader.innerHTML = '<span class="arrow">▶</span><span class="layer-title">' + content.evidence.title + '</span>';
+                evidenceHeader.addEventListener('click', () => {
+                    evidenceLayer.classList.toggle('expanded');
+                });
+                evidenceLayer.appendChild(evidenceHeader);
+
+                const evidenceContent = document.createElement('div');
+                evidenceContent.className = 'detail-layer-content';
+
+                content.evidence.sections.forEach(section => {
+                    const subsection = document.createElement('div');
+                    subsection.className = 'detail-subsection';
+
+                    const heading = document.createElement('div');
+                    heading.className = 'detail-subsection-heading';
+                    heading.textContent = section.heading;
+                    subsection.appendChild(heading);
+
+                    // Check if this section has a table or content
+                    if (section.table && section.table.rows && section.table.rows.length > 0) {
+                        const table = document.createElement('table');
+                        table.className = 'detail-table';
+
+                        const thead = document.createElement('thead');
+                        const headerRow = document.createElement('tr');
+                        section.table.headers.forEach(h => {
+                            const th = document.createElement('th');
+                            th.style.backgroundColor = phaseColors[phaseNum];
+                            th.innerHTML = addGlossaryToText(h);
+                            headerRow.appendChild(th);
+                        });
+                        thead.appendChild(headerRow);
+                        table.appendChild(thead);
+
+                        const tbody = document.createElement('tbody');
+                        section.table.rows.forEach((row, idx) => {
+                            const tr = document.createElement('tr');
+                            row.forEach(cell => {
+                                const td = document.createElement('td');
+                                td.innerHTML = addGlossaryToText(cell);
+                                tr.appendChild(td);
+                            });
+                            tbody.appendChild(tr);
+                        });
+                        table.appendChild(tbody);
+                        subsection.appendChild(table);
+                    } else if (section.content) {
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'detail-subsection-content';
+                        contentDiv.innerHTML = addGlossaryToText(section.content);
+                        subsection.appendChild(contentDiv);
+                    }
+
+                    evidenceContent.appendChild(subsection);
+                });
+
+                evidenceLayer.appendChild(evidenceContent);
+                body.appendChild(evidenceLayer);
+            }
+
+            // LAYER 4: AUTOMATION ROADMAP
+            if (content.automationRoadmap) {
+                const autoLayer = document.createElement('div');
+                autoLayer.className = 'detail-layer automation-layer';
+
+                const autoHeader = document.createElement('div');
+                autoHeader.className = 'detail-layer-header';
+                autoHeader.innerHTML = `<span class="arrow">&#9654;</span><span class="layer-title">${content.automationRoadmap.title}</span>`;
+                autoHeader.onclick = () => {
+                    autoLayer.classList.toggle('expanded');
+                };
+                autoLayer.appendChild(autoHeader);
+
+                const autoContent = document.createElement('div');
+                autoContent.className = 'detail-layer-content';
+
+                // Attribution paragraph
+                if (content.automationRoadmap.attribution) {
+                    const attr = document.createElement('div');
+                    attr.className = 'automation-attribution';
+                    attr.textContent = content.automationRoadmap.attribution;
+                    autoContent.appendChild(attr);
+                }
+
+                // Render each gap as a card
+                content.automationRoadmap.sections.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'automation-card';
+
+                    const title = document.createElement('div');
+                    title.className = 'automation-card-title';
+                    title.textContent = item.gap;
+                    card.appendChild(title);
+
+                    const fields = [
+                        { label: 'Current State:', value: item.current },
+                        { label: 'What\'s Needed:', value: item.needed },
+                        { label: 'Manual Workaround:', value: item.manualWorkaround },
+                        { label: 'Automation Tool:', value: item.automationTool },
+                        { label: 'P2M App Feature:', value: item.appFeature }
+                    ];
+
+                    fields.forEach(f => {
+                        const row = document.createElement('div');
+                        row.className = 'automation-card-row';
+                        row.innerHTML = `<span class="automation-card-label">${f.label}</span><span class="automation-card-value">${f.value}</span>`;
+                        card.appendChild(row);
+                    });
+
+                    // Priority badge
+                    const priorityRow = document.createElement('div');
+                    priorityRow.className = 'automation-card-row';
+                    priorityRow.style.marginTop = '6px';
+                    const priorityLabel = document.createElement('span');
+                    priorityLabel.className = 'automation-card-label';
+                    priorityLabel.textContent = 'Priority:';
+                    const priorityBadge = document.createElement('span');
+                    priorityBadge.className = `automation-priority ${item.priority.toLowerCase()}`;
+                    priorityBadge.textContent = item.priority;
+                    priorityRow.appendChild(priorityLabel);
+                    priorityRow.appendChild(priorityBadge);
+                    card.appendChild(priorityRow);
+
+                    autoContent.appendChild(card);
+                });
+
+                autoLayer.appendChild(autoContent);
+                body.appendChild(autoLayer);
+            }
+
+            if (content.checklist && content.checklist.length > 0) {
+                const checkSection = document.createElement('div');
+                checkSection.className = 'detail-section';
+                checkSection.innerHTML = '<div class="detail-section-title">Checklist</div>';
+                const checkGroup = document.createElement('div');
+                checkGroup.className = 'checkbox-group';
+
+                if (!state.checklists[state.activeProduct]) {
+                    state.checklists[state.activeProduct] = {};
+                }
+                if (!state.checklists[state.activeProduct][stepId]) {
+                    state.checklists[state.activeProduct][stepId] = {};
+                }
+
+                content.checklist.forEach((item, idx) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'checkbox-item';
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'checkbox-input';
+                    checkbox.id = `check-${stepId}-${idx}`;
+                    checkbox.checked = state.checklists[state.activeProduct][stepId][idx] || false;
+                    checkbox.addEventListener('change', () => {
+                        state.checklists[state.activeProduct][stepId][idx] = checkbox.checked;
+                    });
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.style.cursor = 'pointer';
+                    label.textContent = item;
+                    itemDiv.appendChild(checkbox);
+                    itemDiv.appendChild(label);
+                    checkGroup.appendChild(itemDiv);
+                });
+                checkSection.appendChild(checkGroup);
+                body.appendChild(checkSection);
+            }
+
+            if (content.tips) {
+                const tipsSection = document.createElement('div');
+                tipsSection.className = 'detail-section';
+                const tips = document.createElement('div');
+                tips.className = 'detail-tips';
+                tips.textContent = content.tips;
+                tipsSection.appendChild(tips);
+                body.appendChild(tipsSection);
+            }
+
+            if (content.output) {
+                const outputSection = document.createElement('div');
+                outputSection.className = 'detail-section';
+                const output = document.createElement('div');
+                output.className = 'detail-output';
+                output.textContent = content.output;
+                outputSection.appendChild(output);
+                body.appendChild(outputSection);
+            }
+
+            detailPanel.classList.add('active');
+        }
+
+        function closeDetailPanel() {
+            document.getElementById('detailPanel').classList.remove('active');
+            document.querySelectorAll('.step-card.active-card, .decision-gate.active-card').forEach(el => el.classList.remove('active-card'));
+            activeCardStepId = null;
+        }
+
+        // ============================================================================
+        // MODAL
+        // ============================================================================
+        function openAddProductModal() {
+            document.getElementById('addProductModal').classList.add('active');
+            document.getElementById('productNameInput').value = '';
+            document.getElementById('productNameInput').focus();
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('addProductModal').classList.remove('active');
+        }
+
+        function addProduct() {
+            const name = document.getElementById('productNameInput').value.trim();
+            if (name && !state.products[name]) {
+                const initialState = {};
+                Object.keys(stepDefinitions).forEach(stepId => {
+                    initialState[stepId] = 'red';
+                });
+                state.products[name] = initialState;
+                state.checklists[name] = {};
+                productDetailContent[name] = {};
+                state.activeProduct = name;
+                closeAddProductModal();
+                render();
+            }
+        }
+
+        // ============================================================================
+        // EVENT LISTENERS
+        // ============================================================================
+        document.getElementById('addProductBtn').addEventListener('click', openAddProductModal);
+        document.getElementById('modalCancelBtn').addEventListener('click', closeAddProductModal);
+        document.getElementById('modalAddBtn').addEventListener('click', addProduct);
+        document.getElementById('productNameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addProduct();
+        });
+
+        document.getElementById('detailBackBtn').addEventListener('click', closeDetailPanel);
+
+        document.getElementById('addProductModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('addProductModal')) {
+                closeAddProductModal();
+            }
+        });
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+        renderPhaseLegend();
+        initGlossaryFloater();
+        render();
+    </script>
+</body>
+</html>
