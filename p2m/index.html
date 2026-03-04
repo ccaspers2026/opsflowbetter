@@ -1249,6 +1249,255 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #21262d;
         }
+
+        /* ===== TABLET (max 1024px) ===== */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .phase-column {
+                flex: 0 0 220px;
+                padding: 12px;
+            }
+
+            .detail-panel {
+                width: 75%;
+            }
+        }
+
+        /* ===== MOBILE (max 768px) ===== */
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+            }
+
+            .container {
+                height: auto;
+                min-height: 100vh;
+                padding: 10px;
+                gap: 8px;
+            }
+
+            /* Header — stack vertically */
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding-bottom: 10px;
+            }
+
+            .header-left h1 {
+                font-size: 18px;
+            }
+
+            .header-left p {
+                font-size: 11px;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .phase-legend {
+                max-width: none;
+                gap: 6px;
+                font-size: 9px;
+            }
+
+            .legend-item {
+                font-size: 9px;
+            }
+
+            /* Product bar — stack and scroll */
+            .product-bar {
+                padding: 8px;
+                gap: 8px;
+            }
+
+            .product-bar label {
+                font-size: 12px;
+            }
+
+            .product-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .product-tab {
+                font-size: 11px;
+                padding: 5px 10px;
+                white-space: nowrap;
+            }
+
+            .led-legend {
+                font-size: 9px;
+                white-space: nowrap;
+            }
+
+            /* Pipeline — smaller columns */
+            .pipeline-wrapper {
+                padding: 10px;
+                max-height: none;
+                flex: none;
+            }
+
+            .pipeline {
+                gap: 10px;
+            }
+
+            .phase-column {
+                flex: 0 0 200px;
+                padding: 10px;
+                min-height: 300px;
+            }
+
+            .phase-number {
+                font-size: 14px;
+            }
+
+            .phase-name {
+                font-size: 11px;
+            }
+
+            .phase-days {
+                font-size: 9px;
+            }
+
+            .step-card {
+                padding: 8px;
+            }
+
+            .step-number {
+                font-size: 12px;
+            }
+
+            .step-title {
+                font-size: 11px;
+            }
+
+            .step-desc {
+                font-size: 9px;
+            }
+
+            .step-output {
+                font-size: 9px;
+            }
+
+            /* Detail panel — full screen on mobile */
+            .detail-panel {
+                width: 100%;
+            }
+
+            .detail-header {
+                padding: 12px;
+            }
+
+            .detail-step-title {
+                font-size: 16px;
+            }
+
+            .detail-body {
+                padding: 12px;
+            }
+
+            /* Bottom section — stack vertically */
+            .progress-section,
+            .tracker-section,
+            .vision-section {
+                min-width: 100% !important;
+                flex: 1 1 100% !important;
+            }
+
+            .modal-content {
+                min-width: 280px;
+                margin: 20px;
+            }
+        }
+
+        /* ===== SMALL PHONE (max 480px) ===== */
+        @media (max-width: 480px) {
+            .container {
+                padding: 6px;
+                gap: 6px;
+            }
+
+            .header-left h1 {
+                font-size: 15px;
+            }
+
+            .header-left p {
+                font-size: 10px;
+            }
+
+            .header-left p a {
+                font-size: 9px !important;
+            }
+
+            .phase-legend {
+                display: none;
+            }
+
+            .product-bar {
+                padding: 6px;
+            }
+
+            .product-tab {
+                font-size: 10px;
+                padding: 4px 8px;
+            }
+
+            .led-legend {
+                font-size: 8px;
+            }
+
+            .pipeline-wrapper {
+                padding: 6px;
+            }
+
+            .phase-column {
+                flex: 0 0 180px;
+                padding: 8px;
+                min-height: 250px;
+            }
+
+            .step-card {
+                padding: 6px;
+            }
+
+            .step-number {
+                font-size: 11px;
+            }
+
+            .step-title {
+                font-size: 10px;
+            }
+
+            .step-desc {
+                font-size: 8px;
+            }
+
+            .gate-card {
+                padding: 10px;
+            }
+
+            .detail-panel {
+                width: 100%;
+            }
+
+            .detail-table {
+                font-size: 10px;
+            }
+
+            .detail-table th,
+            .detail-table td {
+                padding: 6px 8px;
+            }
+        }
     </style>
 </head>
 <body>
