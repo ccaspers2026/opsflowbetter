@@ -205,28 +205,45 @@
         /* Pipeline */
         .pipeline-wrapper {
             flex: 1;
-            overflow-x: auto;
+            overflow-x: scroll;
             overflow-y: auto;
             border: 1px solid #21262d;
             border-radius: 8px;
             background-color: #161b22;
             padding: 20px;
+            position: relative;
+        }
+
+        /* Styled scrollbar for visibility */
+        .pipeline-wrapper::-webkit-scrollbar {
+            height: 10px;
+        }
+        .pipeline-wrapper::-webkit-scrollbar-track {
+            background: #161b22;
+            border-radius: 5px;
+        }
+        .pipeline-wrapper::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 5px;
+        }
+        .pipeline-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
         }
 
         .pipeline {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             min-width: fit-content;
             padding-right: 20px;
         }
 
         /* Phase column */
         .phase-column {
-            flex: 0 0 280px;
+            flex: 0 0 240px;
             border-top: 4px solid;
             border-radius: 8px;
             background-color: #0d1117;
-            padding: 16px;
+            padding: 14px;
             min-height: 500px;
         }
 
@@ -1263,7 +1280,7 @@
         </div>
 
         <!-- Progress & Tracker -->
-        <div style="display: flex; gap: 15px; flex: 0 0 auto;">
+        <div style="display: flex; gap: 15px; flex: 0 0 auto; flex-wrap: wrap; min-width: 0;">
             <div class="progress-section" style="flex: 1;">
                 <div class="progress-label">Overall Progress — <span id="progressLabel">45 RPM Adaptor</span></div>
                 <div class="progress-bar-container">
