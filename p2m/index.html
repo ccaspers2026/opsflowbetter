@@ -1032,6 +1032,20 @@
             accent-color: #1F4E79;
         }
 
+        .checkbox-item.auto-locked label {
+            color: #2ea44f;
+        }
+        .checkbox-item.auto-locked .checkbox-input {
+            accent-color: #2ea44f;
+            cursor: default;
+            pointer-events: none;
+        }
+        .checkbox-lock-icon {
+            font-size: 10px;
+            color: #2ea44f;
+            margin-left: 2px;
+        }
+
         .detail-tips {
             background-color: #1a2030;
             border-left: 3px solid #c99a1d;
@@ -1855,7 +1869,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.16.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.17.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2695,6 +2709,55 @@
         let activeCardStepId = null;
 
         // ============================================================================
+        // AUTO-LOCK CHECKLIST LOGIC
+        // ============================================================================
+        // Returns an object keyed by checklist index → true if that item should be auto-locked
+        function getAutoLockedChecklist(stepId, status, productName) {
+            const locked = {};
+
+            // For regular steps: if LED is green, lock ALL checklist items
+            if (!steps[stepId].isGate) {
+                if (status === 'green') {
+                    // Lock every item (we don't know count here, so lock indices 0-20 to cover any list)
+                    for (let i = 0; i < 20; i++) { locked[i] = true; }
+                }
+                return locked;
+            }
+
+            // Gate-specific logic (G1)
+            if (stepId === 'g1') {
+                const prodStates = state.products[productName] || {};
+
+                // Item 0: "All criteria evaluated" — locked when 1.4 AND 1.5 are green
+                if (prodStates['1.4'] === 'green' && prodStates['1.5'] === 'green') {
+                    locked[0] = true;
+                }
+
+                // Item 1: "Decision made" — locked when gate is green or yellow (any decision taken)
+                if (status === 'green' || status === 'yellow') {
+                    locked[1] = true;
+                }
+
+                // Item 2: "If NO-GO, reason documented" — locked when gate is green/yellow (not applicable) or red (reason given via confirm)
+                if (status === 'green' || status === 'yellow' || status === 'red') {
+                    locked[2] = true;
+                }
+
+                // Item 3: "Decision documented with date" — locked when any decision has been made
+                if (status === 'green' || status === 'yellow') {
+                    locked[3] = true;
+                }
+            }
+
+            // For G2, G5 — if gate is green, lock all
+            if ((stepId === 'g2' || stepId === 'g5') && status === 'green') {
+                for (let i = 0; i < 20; i++) { locked[i] = true; }
+            }
+
+            return locked;
+        }
+
+        // ============================================================================
         // G1 GATE AUTO-POPULATION
         // ============================================================================
         function autoPopulateG1(baseContent, productName) {
@@ -3098,28 +3161,55 @@
                     state.checklists[state.activeProduct][stepId] = {};
                 }
 
+                // Determine which items should be auto-locked
+                const autoLocked = getAutoLockedChecklist(stepId, status, state.activeProduct);
+
                 content.checklist.forEach((item, idx) => {
                     const itemDiv = document.createElement('div');
-                    itemDiv.className = 'checkbox-item';
+                    const isLocked = autoLocked[idx] || false;
+
+                    if (isLocked) {
+                        itemDiv.className = 'checkbox-item auto-locked';
+                    } else {
+                        itemDiv.className = 'checkbox-item';
+                    }
+
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.className = 'checkbox-input';
                     checkbox.id = `check-${stepId}-${idx}`;
-                    checkbox.checked = state.checklists[state.activeProduct][stepId][idx] || false;
-                    if (phaseUnlocked) {
-                        checkbox.addEventListener('change', () => {
-                            state.checklists[state.activeProduct][stepId][idx] = checkbox.checked;
-                        });
-                    } else {
+
+                    if (isLocked) {
+                        checkbox.checked = true;
                         checkbox.disabled = true;
-                        checkbox.style.opacity = '0.4';
+                        state.checklists[state.activeProduct][stepId][idx] = true;
+                    } else {
+                        checkbox.checked = state.checklists[state.activeProduct][stepId][idx] || false;
+                        if (phaseUnlocked) {
+                            checkbox.addEventListener('change', () => {
+                                state.checklists[state.activeProduct][stepId][idx] = checkbox.checked;
+                            });
+                        } else {
+                            checkbox.disabled = true;
+                            checkbox.style.opacity = '0.4';
+                        }
                     }
+
                     const label = document.createElement('label');
                     label.htmlFor = checkbox.id;
-                    label.style.cursor = 'pointer';
+                    label.style.cursor = isLocked ? 'default' : 'pointer';
                     label.textContent = item;
+
                     itemDiv.appendChild(checkbox);
                     itemDiv.appendChild(label);
+
+                    if (isLocked) {
+                        const lockIcon = document.createElement('span');
+                        lockIcon.className = 'checkbox-lock-icon';
+                        lockIcon.textContent = '🔒';
+                        itemDiv.appendChild(lockIcon);
+                    }
+
                     checkGroup.appendChild(itemDiv);
                 });
                 checkSection.appendChild(checkGroup);
