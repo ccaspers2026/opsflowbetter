@@ -406,6 +406,12 @@
             font-size: 13px;
             font-weight: 600;
         }
+        .field-row {
+            display: flex;
+            gap: 8px;
+        }
+        .field-row .field-input { flex: 1; }
+        .field-row .field-select { flex: 0 0 120px; }
 
         /* ===== ACTION BUTTONS ===== */
         .btn-verify {
@@ -643,12 +649,15 @@
             phase: 5, number: '5.2', title: 'Additional Labor',
             description: 'Helpers, contractors, future hires',
             output: 'Expanded labor capacity',
-            purpose: 'If you have anyone helping — even occasionally — document them here. Leave empty if you are a solo operation. This card is optional for verification.',
+            purpose: 'Document anyone who helps with workshop operations — even part-time. Machine cleaning, plate clearing, packaging, QC — it all counts as labor cost that should be reflected in your COGS.',
             fields: [
-                { key: 'helper1Name', label: 'Name (if any)', type: 'text', placeholder: '', hint: 'Leave blank if solo operation' },
-                { key: 'helper1Role', label: 'Role', type: 'select', options: ['', 'Operator', 'Post-Processing', 'QC', 'Packaging', 'Other'] },
-                { key: 'helper1Rate', label: 'Hourly Rate ($)', type: 'text', placeholder: '', hint: '' },
-                { key: 'helper1Hours', label: 'Hours per Week', type: 'text', placeholder: '', hint: '' }
+                { key: 'helper1Name', label: 'Name', type: 'text', placeholder: 'Frances', hint: '' },
+                { key: 'helper1Title', label: 'Title', type: 'text', placeholder: 'Additive Manufacturing Assistant', hint: 'What they do in the workshop' },
+                { key: 'helper1Role', label: 'Primary Duties', type: 'select', options: ['', 'Machine Maintenance', 'Post-Processing', 'QC', 'Packaging', 'General Workshop', 'Operator', 'Other'] },
+                { key: 'helper1Rate', label: 'Hourly Rate ($)', type: 'text', placeholder: '20', hint: '' },
+                { key: 'helper1HoursMin', label: 'Min Hours per Week', type: 'text', placeholder: '1', hint: 'Minimum weekly commitment' },
+                { key: 'helper1HoursMax', label: 'Max Hours per Week', type: 'text', placeholder: '5', hint: 'Maximum weekly availability' },
+                { key: 'helper1Tasks', label: 'Typical Tasks', type: 'text', placeholder: 'Machine cleaning, emptying waste, pulling plates', hint: 'What does a typical shift look like?' }
             ],
             optional: true
         }
@@ -670,9 +679,9 @@
     ];
 
     var DEFAULT_SOFTWARE = [
-        { id: 's1', name: 'Bambu Studio', purpose: 'Slicer', version: '2.1', license: 'Free', cost: '0', notes: 'Primary slicer for Bambu fleet' },
-        { id: 's2', name: 'Fusion 360', purpose: 'CAD', version: '2.0', license: 'Personal', cost: '0', notes: 'Product design and modeling' },
-        { id: 's3', name: 'AutoFarm3D', purpose: 'Farm Control', version: 'Beta', license: 'Beta', cost: '0', notes: 'Print farm automation and monitoring' }
+        { id: 's1', name: 'Bambu Studio', purpose: 'Slicer', version: '2.1', license: 'Free', cost: '0', costCycle: 'Free', notes: 'Primary slicer for Bambu fleet' },
+        { id: 's2', name: 'Fusion 360', purpose: 'CAD', version: '2.0', license: 'Personal', cost: '0', costCycle: 'Free', notes: 'Product design and modeling' },
+        { id: 's3', name: 'AutoFarm3D', purpose: 'Farm Control', version: 'Beta', license: 'Beta', cost: '0', costCycle: 'Free', notes: 'Print farm automation and monitoring' }
     ];
 
     // ===================================================================
@@ -931,7 +940,8 @@
             }
             if (p === 6) {
                 state.software.forEach(function(sw) {
-                    content.appendChild(createCard('sw-' + sw.id, sw.name || 'New Tool', sw.purpose || 'Unconfigured', sw.license, 'Tool config', sw.status_led, function(sid) {
+                    var swCostDesc = sw.costCycle === 'Free' ? 'Free' : '$' + (sw.cost || '0') + '/' + (sw.costCycle || 'Free');
+                    content.appendChild(createCard('sw-' + sw.id, sw.name || 'New Tool', sw.purpose || 'Unconfigured', swCostDesc, 'Tool config', sw.status_led, function(sid) {
                         return function() { openSoftwareCard(sid); };
                     }(sw.id)));
                 });
@@ -1294,7 +1304,6 @@
             { key: 'name', label: 'Software Name', placeholder: 'Bambu Studio' },
             { key: 'purpose', label: 'Purpose', placeholder: 'Slicer' },
             { key: 'version', label: 'Version', placeholder: '2.1' },
-            { key: 'cost', label: 'Monthly Cost ($)', placeholder: '0' },
             { key: 'notes', label: 'Notes', placeholder: 'Primary slicer for Bambu fleet' }
         ];
 
@@ -1305,6 +1314,20 @@
                 '<input class="field-input" type="text" data-dyn="software" data-id="' + swId + '" data-field="' + f.key + '" value="' + escHtml(sw[f.key] || '') + '" placeholder="' + escHtml(f.placeholder) + '">';
             fieldsDiv.appendChild(group);
         });
+
+        // Cost + Billing Cycle row
+        var costGroup = document.createElement('div');
+        costGroup.className = 'field-group';
+        var cycleOpts = ['Free', 'Monthly', 'Yearly', 'One-Time'].map(function(o) {
+            return '<option value="' + o + '"' + ((sw.costCycle || 'Free') === o ? ' selected' : '') + '>' + o + '</option>';
+        }).join('');
+        costGroup.innerHTML = '<label class="field-label">Cost ($)</label>' +
+            '<div class="field-row">' +
+            '<input class="field-input" type="text" data-dyn="software" data-id="' + swId + '" data-field="cost" value="' + escHtml(sw.cost || '0') + '" placeholder="0">' +
+            '<select class="field-select" data-dyn="software" data-id="' + swId + '" data-field="costCycle">' + cycleOpts + '</select>' +
+            '</div>' +
+            '<div class="field-hint">Select billing cycle — Free, Monthly, Yearly, or One-Time</div>';
+        fieldsDiv.appendChild(costGroup);
 
         var licGroup = document.createElement('div');
         licGroup.className = 'field-group';
@@ -1420,7 +1443,7 @@
             openMaterialCard(id);
         } else if (phaseNum === 6) {
             var id = 's' + state.nextDynId.software++;
-            state.software.push({ id: id, name: '', purpose: '', version: '', license: 'Free', cost: '0', notes: '', status_led: 'red', verified: false });
+            state.software.push({ id: id, name: '', purpose: '', version: '', license: 'Free', cost: '0', costCycle: 'Free', notes: '', status_led: 'red', verified: false });
             render();
             openSoftwareCard(id);
         }
