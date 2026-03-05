@@ -358,6 +358,73 @@
             border-left-color: #f85149;
         }
 
+        /* Locked state */
+        .step-card.locked {
+            border-left-color: #484f58;
+            opacity: 0.5;
+        }
+
+        .step-card.locked:hover {
+            border-color: #484f58;
+            box-shadow: 0 4px 12px rgba(72, 79, 88, 0.2);
+        }
+
+        .step-card.locked .step-lock-icon {
+            font-size: 10px;
+            margin-left: 4px;
+            color: #6e7681;
+        }
+
+        .step-led.led-locked {
+            background-color: #30363d;
+            border-color: #484f58;
+        }
+
+        .gate-led.led-locked {
+            background-color: #30363d;
+            border-color: #484f58;
+        }
+
+        .decision-gate.locked {
+            border-color: #484f58;
+            opacity: 0.5;
+        }
+
+        .decision-gate.locked:hover {
+            box-shadow: 0 4px 12px rgba(72, 79, 88, 0.2);
+        }
+
+        .decision-gate.locked .gate-label {
+            color: #6e7681;
+        }
+
+        .decision-gate.locked .gate-icon {
+            color: #6e7681;
+        }
+
+        .detail-led-status.led-locked {
+            background-color: #30363d;
+            border-color: #484f58;
+            cursor: default;
+        }
+
+        .detail-lock-banner {
+            background-color: #1c1e24;
+            border: 1px solid #484f58;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        .detail-lock-banner .lock-icon {
+            font-size: 16px;
+        }
+
         .step-card.active-card {
             background-color: #1e2a3a;
             border-color: #58a6ff;
@@ -1451,6 +1518,22 @@
         .mobile-step-led.led-red { background-color: #f85149; box-shadow: 0 0 6px rgba(248,81,73,0.4); }
         .mobile-step-led.led-yellow { background-color: #d29922; box-shadow: 0 0 6px rgba(210,153,34,0.4); }
         .mobile-step-led.led-green { background-color: #2ea44f; box-shadow: 0 0 6px rgba(46,164,79,0.4); }
+        .mobile-step-led.led-locked { background-color: #484f58; box-shadow: none; }
+
+        .mobile-step-card.locked,
+        .mobile-gate-card.locked {
+            opacity: 0.5;
+        }
+
+        .mobile-step-card.locked .mobile-step-lock {
+            font-size: 10px;
+            color: #6e7681;
+            margin-left: 4px;
+        }
+
+        .mobile-gate-card.locked .mobile-gate-title {
+            color: #6e7681;
+        }
 
         .mobile-step-info {
             flex: 1;
@@ -2241,33 +2324,38 @@
 
                 const content = document.createElement('div');
                 content.className = 'phase-content';
+                const phaseUnlocked = isPhaseUnlocked(phase.num);
+
                 phase.steps.forEach(stepId => {
                     const step = stepDefinitions[stepId];
                     const status = state.products[state.activeProduct][stepId];
+                    const ledClass = phaseUnlocked ? `led-${status}` : 'led-locked';
 
                     if (step.isGate) {
                         const gate = document.createElement('div');
-                        gate.className = 'decision-gate';
+                        gate.className = 'decision-gate' + (phaseUnlocked ? '' : ' locked');
                         gate.innerHTML = `
                             <div class="gate-icon">◇</div>
-                            <div class="gate-label">${step.title}</div>
+                            <div class="gate-label">${step.title}${phaseUnlocked ? '' : ' <span style="font-size:10px;">🔒</span>'}</div>
                             <div class="gate-options">${step.description}</div>
-                            <div class="gate-led led-${status}"></div>
+                            <div class="gate-led ${ledClass}"></div>
                         `;
                         gate.addEventListener('click', () => openDetailPanel(stepId));
-                        const led = gate.querySelector('.gate-led');
-                        led.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            cycleLED(stepId);
-                        });
+                        if (phaseUnlocked) {
+                            const led = gate.querySelector('.gate-led');
+                            led.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                cycleLED(stepId);
+                            });
+                        }
                         content.appendChild(gate);
                     } else {
                         const card = document.createElement('div');
-                        card.className = `step-card led-${status}`;
+                        card.className = `step-card ${phaseUnlocked ? 'led-' + status : 'locked'}`;
                         card.innerHTML = `
                             <div class="step-header">
-                                <span class="step-number">${step.number}</span>
-                                <div class="step-led led-${status}"></div>
+                                <span class="step-number">${step.number}${phaseUnlocked ? '' : ' <span class="step-lock-icon">🔒</span>'}</span>
+                                <div class="step-led ${ledClass}"></div>
                             </div>
                             <div class="step-title">${step.title}</div>
                             <div class="step-description">${step.description}</div>
@@ -2275,11 +2363,13 @@
                             <div class="tooltip">${step.number}: ${step.title}</div>
                         `;
                         card.addEventListener('click', () => openDetailPanel(stepId));
-                        const led = card.querySelector('.step-led');
-                        led.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            cycleLED(stepId);
-                        });
+                        if (phaseUnlocked) {
+                            const led = card.querySelector('.step-led');
+                            led.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                cycleLED(stepId);
+                            });
+                        }
                         content.appendChild(card);
                     }
                 });
@@ -2363,6 +2453,34 @@
             }
         }
 
+        function isPhaseUnlocked(phaseNum) {
+            const product = state.products[state.activeProduct];
+            if (phaseNum <= 1) return true;
+            // Phase 2: unlocked when G1 is green
+            if (phaseNum === 2) return product['g1'] === 'green';
+            // Phase 3: unlocked when G2 is green
+            if (phaseNum === 3) return product['g2'] === 'green';
+            // Phase 4: unlocked when all Phase 3 steps are green (no gate)
+            if (phaseNum === 4) return ['3.1','3.2','3.3','3.4'].every(s => product[s] === 'green');
+            // Phase 5: unlocked when all Phase 4 steps are green (no gate)
+            if (phaseNum === 5) return ['4.1','4.2','4.3'].every(s => product[s] === 'green');
+            // Phase 6: unlocked when G5 is green
+            if (phaseNum === 6) return product['g5'] === 'green';
+            // Phase 7: unlocked when all Phase 6 steps are green (no gate)
+            if (phaseNum === 7) return ['6.1','6.2','6.3','6.4'].every(s => product[s] === 'green');
+            return true;
+        }
+
+        function getPhaseUnlockMessage(phaseNum) {
+            if (phaseNum === 2) return 'Complete the G1 GO/NO-GO Gate to unlock Phase 2';
+            if (phaseNum === 3) return 'Complete the G2 Design Lock Gate to unlock Phase 3';
+            if (phaseNum === 4) return 'Complete all Phase 3 steps to unlock Phase 4';
+            if (phaseNum === 5) return 'Complete all Phase 4 steps to unlock Phase 5';
+            if (phaseNum === 6) return 'Complete the G5 Product Live Gate to unlock Phase 6';
+            if (phaseNum === 7) return 'Complete all Phase 6 steps to unlock Phase 7';
+            return '';
+        }
+
         function cycleLED(stepId) {
             const current = state.products[state.activeProduct][stepId];
             const cycle = { red: 'yellow', yellow: 'green', green: 'red' };
@@ -2439,31 +2557,34 @@
                 const stepsContainer = document.createElement('div');
                 stepsContainer.className = 'accordion-steps';
 
+                const mobilePhaseUnlocked = isPhaseUnlocked(phase.num);
+
                 phase.steps.forEach(stepId => {
                     const step = stepDefinitions[stepId];
                     const status = product[stepId] || 'red';
+                    const mobileLedClass = mobilePhaseUnlocked ? `led-${status}` : 'led-locked';
 
                     if (step.isGate) {
                         const gate = document.createElement('div');
-                        gate.className = 'mobile-gate-card';
+                        gate.className = 'mobile-gate-card' + (mobilePhaseUnlocked ? '' : ' locked');
                         gate.innerHTML = `
                             <div class="mobile-gate-icon">◇</div>
                             <div class="mobile-gate-info">
-                                <div class="mobile-gate-title">${step.title}</div>
+                                <div class="mobile-gate-title">${step.title}${mobilePhaseUnlocked ? '' : ' 🔒'}</div>
                                 <div class="mobile-gate-desc">${step.description}</div>
                             </div>
-                            <div class="mobile-step-led led-${status}"></div>
+                            <div class="mobile-step-led ${mobileLedClass}"></div>
                             <div class="mobile-step-arrow">›</div>
                         `;
                         gate.addEventListener('click', () => openDetailPanel(stepId));
                         stepsContainer.appendChild(gate);
                     } else {
                         const card = document.createElement('div');
-                        card.className = 'mobile-step-card';
+                        card.className = 'mobile-step-card' + (mobilePhaseUnlocked ? '' : ' locked');
                         card.innerHTML = `
-                            <div class="mobile-step-led led-${status}"></div>
+                            <div class="mobile-step-led ${mobileLedClass}"></div>
                             <div class="mobile-step-info">
-                                <div class="mobile-step-number">${step.number}</div>
+                                <div class="mobile-step-number">${step.number}${mobilePhaseUnlocked ? '' : ' <span class="mobile-step-lock">🔒</span>'}</div>
                                 <div class="mobile-step-title">${step.title}</div>
                                 ${step.output ? `<div class="mobile-step-output">✓ ${step.output}</div>` : ''}
                             </div>
@@ -2530,18 +2651,33 @@
             document.getElementById('detailTitle').textContent = step.title;
             document.getElementById('detailPhaseName').textContent = phaseNames[phaseNum];
             document.getElementById('detailPhaseDot').style.backgroundColor = phaseColors[phaseNum];
+            const phaseUnlocked = isPhaseUnlocked(phaseNum);
             const ledStatus = document.getElementById('detailLedStatus');
-            ledStatus.className = `detail-led-status led-${status}`;
-            ledStatus.onclick = () => {
-                cycleLED(stepId);
-                openDetailPanel(stepId);
-            };
+            ledStatus.className = phaseUnlocked ? `detail-led-status led-${status}` : 'detail-led-status led-locked';
+            if (phaseUnlocked) {
+                ledStatus.onclick = () => {
+                    cycleLED(stepId);
+                    openDetailPanel(stepId);
+                };
+                ledStatus.style.cursor = 'pointer';
+            } else {
+                ledStatus.onclick = null;
+                ledStatus.style.cursor = 'default';
+            }
 
             const body = document.getElementById('detailBody');
             body.innerHTML = '';
 
             const detailPanel = document.getElementById('detailPanel');
             detailPanel.style.borderLeftColor = phaseColors[phaseNum];
+
+            // Lock banner for locked phases
+            if (!phaseUnlocked) {
+                const lockBanner = document.createElement('div');
+                lockBanner.className = 'detail-lock-banner';
+                lockBanner.innerHTML = `<span class="lock-icon">🔒</span><span>${getPhaseUnlockMessage(phaseNum)}</span>`;
+                body.appendChild(lockBanner);
+            }
 
             if (content.purpose) {
                 const purposeSection = document.createElement('div');
@@ -2800,9 +2936,14 @@
                     checkbox.className = 'checkbox-input';
                     checkbox.id = `check-${stepId}-${idx}`;
                     checkbox.checked = state.checklists[state.activeProduct][stepId][idx] || false;
-                    checkbox.addEventListener('change', () => {
-                        state.checklists[state.activeProduct][stepId][idx] = checkbox.checked;
-                    });
+                    if (phaseUnlocked) {
+                        checkbox.addEventListener('change', () => {
+                            state.checklists[state.activeProduct][stepId][idx] = checkbox.checked;
+                        });
+                    } else {
+                        checkbox.disabled = true;
+                        checkbox.style.opacity = '0.4';
+                    }
                     const label = document.createElement('label');
                     label.htmlFor = checkbox.id;
                     label.style.cursor = 'pointer';
