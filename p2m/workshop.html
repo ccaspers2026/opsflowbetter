@@ -400,11 +400,28 @@
         .field-calculated {
             padding: 8px 10px;
             background-color: #0d1117;
-            border: 1px solid #21262d;
+            border: 1px dashed #30363d;
             border-radius: 4px;
             color: #58a6ff;
             font-size: 13px;
             font-weight: 600;
+            position: relative;
+        }
+        .field-label-calc {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .calc-badge {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #58a6ff;
+            background: rgba(88,166,255,0.1);
+            border: 1px solid rgba(88,166,255,0.25);
+            border-radius: 3px;
+            padding: 1px 5px;
         }
         .field-row {
             display: flex;
@@ -499,6 +516,7 @@
     <header class="workshop-header">
         <div class="header-left">
             <h1>Workshop Setup</h1>
+            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.14.1</p>
             <p>Configure your production capabilities — every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -1007,7 +1025,7 @@
             group.className = 'field-group';
 
             if (field.type === 'calculated' || field.type === 'linked') {
-                group.innerHTML = '<label class="field-label">' + escHtml(field.label) + '</label>' +
+                group.innerHTML = '<label class="field-label field-label-calc">' + escHtml(field.label) + ' <span class="calc-badge">Auto-calculated</span></label>' +
                     '<div class="field-calculated">' + getCalculatedValue(cardId, field.key) + '</div>';
             } else if (field.type === 'select') {
                 var optHtml = (field.options || []).map(function(o) {
@@ -1226,7 +1244,7 @@
         var calcGroup = document.createElement('div');
         calcGroup.className = 'field-group';
         var cpg = mat.costKg ? (parseFloat(mat.costKg) / 1000).toFixed(3) : '—';
-        calcGroup.innerHTML = '<label class="field-label">Cost per Gram ($)</label>' +
+        calcGroup.innerHTML = '<label class="field-label field-label-calc">Cost per Gram ($) <span class="calc-badge">Auto-calculated</span></label>' +
             '<div class="field-calculated">$' + cpg + '</div>';
         fieldsDiv.appendChild(calcGroup);
         body.appendChild(fieldsDiv);
