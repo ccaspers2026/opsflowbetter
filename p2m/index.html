@@ -1045,6 +1045,26 @@
             color: #2ea44f;
             margin-left: 2px;
         }
+        .checkbox-item.auto-disabled label {
+            color: #6e7681;
+            font-style: italic;
+        }
+        .checkbox-item.auto-disabled .checkbox-input {
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+        .checkbox-auto-tag {
+            font-size: 9px;
+            color: #6e7681;
+            background: rgba(110,118,129,0.15);
+            border: 1px solid rgba(110,118,129,0.25);
+            border-radius: 3px;
+            padding: 0 4px;
+            margin-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
         /* Gate signature block */
         .gate-signature {
@@ -1909,7 +1929,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.18.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.18.1</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2769,50 +2789,49 @@
         }
 
         // ============================================================================
-        // Returns an object keyed by checklist index → true if that item should be auto-locked
+        // Returns an object keyed by checklist index:
+        //   'locked'   = auto-checked, disabled, green with lock icon
+        //   'disabled' = unchecked, disabled, greyed out (automation-only field, user can't touch)
+        //   false/undefined = normal user-checkable item
         function getAutoLockedChecklist(stepId, status, productName) {
-            const locked = {};
+            const result = {};
 
             // For regular steps: if LED is green, lock ALL checklist items
             if (!stepDefinitions[stepId].isGate) {
                 if (status === 'green') {
-                    // Lock every item (we don't know count here, so lock indices 0-20 to cover any list)
-                    for (let i = 0; i < 20; i++) { locked[i] = true; }
+                    for (let i = 0; i < 20; i++) { result[i] = 'locked'; }
                 }
-                return locked;
+                return result;
             }
 
             // Gate-specific logic (G1)
             if (stepId === 'g1') {
                 const prodStates = state.products[productName] || {};
+                const hasDecision = (status === 'green' || status === 'yellow');
 
                 // Item 0: "All criteria evaluated" — locked when 1.4 AND 1.5 are green
                 if (prodStates['1.4'] === 'green' && prodStates['1.5'] === 'green') {
-                    locked[0] = true;
+                    result[0] = 'locked';
                 }
 
-                // Item 1: "Decision made" — locked when gate is green or yellow (any decision taken)
-                if (status === 'green' || status === 'yellow') {
-                    locked[1] = true;
-                }
+                // Item 1: "Decision made" — locked when decision taken, disabled otherwise (automation-only)
+                result[1] = hasDecision ? 'locked' : 'disabled';
 
-                // Item 2: "If NO-GO, reason documented" — locked when gate is green/yellow (not applicable) or red (reason given via confirm)
+                // Item 2: "If NO-GO, reason documented" — locked when any decision exists
                 if (status === 'green' || status === 'yellow' || status === 'red') {
-                    locked[2] = true;
+                    result[2] = 'locked';
                 }
 
-                // Item 3: "Decision documented with date" — locked when any decision has been made
-                if (status === 'green' || status === 'yellow') {
-                    locked[3] = true;
-                }
+                // Item 3: "Decision documented with date" — locked when decision taken, disabled otherwise (automation-only)
+                result[3] = hasDecision ? 'locked' : 'disabled';
             }
 
             // For G2, G5 — if gate is green, lock all
             if ((stepId === 'g2' || stepId === 'g5') && status === 'green') {
-                for (let i = 0; i < 20; i++) { locked[i] = true; }
+                for (let i = 0; i < 20; i++) { result[i] = 'locked'; }
             }
 
-            return locked;
+            return result;
         }
 
         // ============================================================================
@@ -3224,10 +3243,12 @@
 
                 content.checklist.forEach((item, idx) => {
                     const itemDiv = document.createElement('div');
-                    const isLocked = autoLocked[idx] || false;
+                    const itemState = autoLocked[idx] || false; // 'locked', 'disabled', or false
 
-                    if (isLocked) {
+                    if (itemState === 'locked') {
                         itemDiv.className = 'checkbox-item auto-locked';
+                    } else if (itemState === 'disabled') {
+                        itemDiv.className = 'checkbox-item auto-disabled';
                     } else {
                         itemDiv.className = 'checkbox-item';
                     }
@@ -3237,10 +3258,13 @@
                     checkbox.className = 'checkbox-input';
                     checkbox.id = `check-${stepId}-${idx}`;
 
-                    if (isLocked) {
+                    if (itemState === 'locked') {
                         checkbox.checked = true;
                         checkbox.disabled = true;
                         state.checklists[state.activeProduct][stepId][idx] = true;
+                    } else if (itemState === 'disabled') {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
                     } else {
                         checkbox.checked = state.checklists[state.activeProduct][stepId][idx] || false;
                         if (phaseUnlocked) {
@@ -3255,17 +3279,22 @@
 
                     const label = document.createElement('label');
                     label.htmlFor = checkbox.id;
-                    label.style.cursor = isLocked ? 'default' : 'pointer';
+                    label.style.cursor = (itemState === 'locked' || itemState === 'disabled') ? 'default' : 'pointer';
                     label.textContent = item;
 
                     itemDiv.appendChild(checkbox);
                     itemDiv.appendChild(label);
 
-                    if (isLocked) {
+                    if (itemState === 'locked') {
                         const lockIcon = document.createElement('span');
                         lockIcon.className = 'checkbox-lock-icon';
                         lockIcon.textContent = '🔒';
                         itemDiv.appendChild(lockIcon);
+                    } else if (itemState === 'disabled') {
+                        const autoTag = document.createElement('span');
+                        autoTag.className = 'checkbox-auto-tag';
+                        autoTag.textContent = 'auto';
+                        itemDiv.appendChild(autoTag);
                     }
 
                     checkGroup.appendChild(itemDiv);
