@@ -1106,6 +1106,20 @@
         .gate-sig-value.revisit { color: #d29f22; }
         .gate-sig-value.nogo { color: #f85149; }
 
+        .gate-revise-link {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 11px;
+            color: #6e7681;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .gate-revise-link:hover {
+            color: #d29f22;
+            text-decoration: underline;
+        }
+
         .detail-tips {
             background-color: #1a2030;
             border-left: 3px solid #c99a1d;
@@ -1929,7 +1943,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.18.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.19.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -3323,69 +3337,80 @@
                 body.appendChild(outputSection);
             }
 
-            // Gate decision buttons — at the bottom of the detail panel
+            // Gate decision — at the bottom of the detail panel
             if (step.isGate && phaseUnlocked) {
                 const gateSection = document.createElement('div');
                 gateSection.className = 'gate-decision-section';
                 gateSection.innerHTML = '<div class="gate-decision-label">Decision</div>';
 
-                const btnGroup = document.createElement('div');
-                btnGroup.className = 'gate-decision-buttons';
+                const sig = (state.gateSignatures[state.activeProduct] || {})[stepId];
 
-                const btnGo = document.createElement('button');
-                btnGo.className = 'gate-btn gate-btn-go' + (status === 'green' ? ' active' : '');
-                btnGo.textContent = 'GO';
-                btnGo.addEventListener('click', () => {
-                    state.products[state.activeProduct][stepId] = 'green';
-                    recordGateSignature(state.activeProduct, stepId, 'GO');
-                    renderPipeline();
-                    openDetailPanel(stepId);
-                });
+                if (!sig) {
+                    // No decision yet — show the three buttons
+                    const btnGroup = document.createElement('div');
+                    btnGroup.className = 'gate-decision-buttons';
 
-                const btnRevisit = document.createElement('button');
-                btnRevisit.className = 'gate-btn gate-btn-revisit' + (status === 'yellow' ? ' active' : '');
-                btnRevisit.textContent = 'Revisit Later';
-                btnRevisit.addEventListener('click', () => {
-                    state.products[state.activeProduct][stepId] = 'yellow';
-                    recordGateSignature(state.activeProduct, stepId, 'REVISIT');
-                    renderPipeline();
-                    openDetailPanel(stepId);
-                });
-
-                const btnNoGo = document.createElement('button');
-                btnNoGo.className = 'gate-btn gate-btn-nogo' + (status === 'red' ? ' active' : '');
-                btnNoGo.textContent = 'NO-GO';
-                btnNoGo.addEventListener('click', () => {
-                    if (confirm('Mark this product as NO-GO? This sets the gate to red.')) {
-                        state.products[state.activeProduct][stepId] = 'red';
-                        recordGateSignature(state.activeProduct, stepId, 'NO-GO');
+                    const btnGo = document.createElement('button');
+                    btnGo.className = 'gate-btn gate-btn-go';
+                    btnGo.textContent = 'GO';
+                    btnGo.addEventListener('click', () => {
+                        state.products[state.activeProduct][stepId] = 'green';
+                        recordGateSignature(state.activeProduct, stepId, 'GO');
                         renderPipeline();
                         openDetailPanel(stepId);
-                    }
-                });
+                    });
 
-                btnGroup.appendChild(btnGo);
-                btnGroup.appendChild(btnRevisit);
-                btnGroup.appendChild(btnNoGo);
-                gateSection.appendChild(btnGroup);
+                    const btnRevisit = document.createElement('button');
+                    btnRevisit.className = 'gate-btn gate-btn-revisit';
+                    btnRevisit.textContent = 'Revisit Later';
+                    btnRevisit.addEventListener('click', () => {
+                        state.products[state.activeProduct][stepId] = 'yellow';
+                        recordGateSignature(state.activeProduct, stepId, 'REVISIT');
+                        renderPipeline();
+                        openDetailPanel(stepId);
+                    });
 
-                const statusMsg = document.createElement('div');
-                statusMsg.className = 'gate-status-msg';
-                if (status === 'green') {
-                    statusMsg.style.color = '#2ea44f';
-                    statusMsg.textContent = 'Decision: GO — Phase ' + (phaseNum + 1) + ' unlocked';
-                } else if (status === 'yellow') {
-                    statusMsg.style.color = '#d29f22';
-                    statusMsg.textContent = 'Decision: Revisit Later — needs more evaluation';
-                } else {
+                    const btnNoGo = document.createElement('button');
+                    btnNoGo.className = 'gate-btn gate-btn-nogo';
+                    btnNoGo.textContent = 'NO-GO';
+                    btnNoGo.addEventListener('click', () => {
+                        if (confirm('Mark this product as NO-GO? This sets the gate to red.')) {
+                            state.products[state.activeProduct][stepId] = 'red';
+                            recordGateSignature(state.activeProduct, stepId, 'NO-GO');
+                            renderPipeline();
+                            openDetailPanel(stepId);
+                        }
+                    });
+
+                    btnGroup.appendChild(btnGo);
+                    btnGroup.appendChild(btnRevisit);
+                    btnGroup.appendChild(btnNoGo);
+                    gateSection.appendChild(btnGroup);
+
+                    const statusMsg = document.createElement('div');
+                    statusMsg.className = 'gate-status-msg';
                     statusMsg.style.color = '#8b949e';
                     statusMsg.textContent = 'Awaiting decision';
-                }
-                gateSection.appendChild(statusMsg);
+                    gateSection.appendChild(statusMsg);
+                } else {
+                    // Decision made — show locked signature + status + revise link
+                    const decisionClass = sig.decision === 'GO' ? 'go' : (sig.decision === 'REVISIT' ? 'revisit' : 'nogo');
+                    const decisionLabel = sig.decision === 'GO' ? 'GO' : (sig.decision === 'REVISIT' ? 'Revisit Later' : 'NO-GO');
 
-                // Signature block — rendered when a decision has been recorded
-                const sig = (state.gateSignatures[state.activeProduct] || {})[stepId];
-                if (sig) {
+                    const statusMsg = document.createElement('div');
+                    statusMsg.className = 'gate-status-msg';
+                    if (sig.decision === 'GO') {
+                        statusMsg.style.color = '#2ea44f';
+                        statusMsg.textContent = 'Decision: GO — Phase ' + (phaseNum + 1) + ' unlocked';
+                    } else if (sig.decision === 'REVISIT') {
+                        statusMsg.style.color = '#d29f22';
+                        statusMsg.textContent = 'Decision: Revisit Later — needs more evaluation';
+                    } else {
+                        statusMsg.style.color = '#f85149';
+                        statusMsg.textContent = 'Decision: NO-GO — product archived';
+                    }
+                    gateSection.appendChild(statusMsg);
+
                     const sigBlock = document.createElement('div');
                     sigBlock.className = 'gate-signature';
 
@@ -3393,9 +3418,6 @@
                     sigTitle.className = 'gate-signature-title';
                     sigTitle.innerHTML = '<span class="sig-lock">🔒</span> Electronic Signature';
                     sigBlock.appendChild(sigTitle);
-
-                    const decisionClass = sig.decision === 'GO' ? 'go' : (sig.decision === 'REVISIT' ? 'revisit' : 'nogo');
-                    const decisionLabel = sig.decision === 'GO' ? 'GO' : (sig.decision === 'REVISIT' ? 'Revisit Later' : 'NO-GO');
 
                     const rows = [
                         { label: 'Decided by:', value: sig.name, cls: '' },
@@ -3411,6 +3433,22 @@
                     });
 
                     gateSection.appendChild(sigBlock);
+
+                    // Revise Decision link
+                    const reviseLink = document.createElement('a');
+                    reviseLink.className = 'gate-revise-link';
+                    reviseLink.href = '#';
+                    reviseLink.textContent = 'Revise Decision';
+                    reviseLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (confirm('Are you sure? This will clear the current signature and require a new decision.')) {
+                            delete state.gateSignatures[state.activeProduct][stepId];
+                            state.products[state.activeProduct][stepId] = 'red';
+                            renderPipeline();
+                            openDetailPanel(stepId);
+                        }
+                    });
+                    gateSection.appendChild(reviseLink);
                 }
 
                 body.appendChild(gateSection);
