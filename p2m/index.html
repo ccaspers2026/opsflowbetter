@@ -268,7 +268,7 @@
             border-top: 4px solid;
             border-radius: 8px;
             background-color: #0d1117;
-            padding: 14px;
+            padding: 12px;
             min-height: 500px;
         }
 
@@ -284,8 +284,8 @@
             display: flex;
             align-items: baseline;
             gap: 8px;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
             border-bottom: 1px solid #21262d;
         }
 
@@ -326,8 +326,8 @@
         .phase-content {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 12px;
+            gap: 8px;
+            margin-top: 8px;
         }
 
         /* Step card */
@@ -336,7 +336,7 @@
             border: 1px solid #21262d;
             border-left: 3px solid;
             border-radius: 6px;
-            padding: 12px;
+            padding: 10px;
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
@@ -443,7 +443,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .step-number {
@@ -507,14 +507,14 @@
             font-size: 11px;
             color: #8b949e;
             line-height: 1.3;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .step-output {
             font-size: 11px;
             color: #58a6ff;
-            margin-top: 4px;
-            padding-top: 4px;
+            margin-top: 3px;
+            padding-top: 3px;
             border-top: 1px solid #21262d;
         }
 
@@ -529,7 +529,7 @@
             background-color: #161b22;
             border: 1px solid #c99a1d;
             border-radius: 6px;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
@@ -541,22 +541,22 @@
         }
 
         .gate-icon {
-            font-size: 18px;
-            margin-bottom: 4px;
+            font-size: 16px;
+            margin-bottom: 2px;
         }
 
         .gate-label {
             font-size: 12px;
             font-weight: 600;
             color: #c99a1d;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .gate-options {
             font-size: 10px;
             color: #8b949e;
             line-height: 1.3;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .gate-led {
@@ -2907,65 +2907,6 @@
                 body.appendChild(tableSection);
             }
 
-            // Gate decision buttons — placed prominently after the criteria table
-            if (step.isGate && phaseUnlocked) {
-                const gateSection = document.createElement('div');
-                gateSection.className = 'gate-decision-section';
-                gateSection.innerHTML = '<div class="gate-decision-label">Decision</div>';
-
-                const btnGroup = document.createElement('div');
-                btnGroup.className = 'gate-decision-buttons';
-
-                const btnGo = document.createElement('button');
-                btnGo.className = 'gate-btn gate-btn-go' + (status === 'green' ? ' active' : '');
-                btnGo.textContent = 'GO';
-                btnGo.addEventListener('click', () => {
-                    state.products[state.activeProduct][stepId] = 'green';
-                    renderPipeline();
-                    openDetailPanel(stepId);
-                });
-
-                const btnRevisit = document.createElement('button');
-                btnRevisit.className = 'gate-btn gate-btn-revisit' + (status === 'yellow' ? ' active' : '');
-                btnRevisit.textContent = 'Revisit Later';
-                btnRevisit.addEventListener('click', () => {
-                    state.products[state.activeProduct][stepId] = 'yellow';
-                    renderPipeline();
-                    openDetailPanel(stepId);
-                });
-
-                const btnNoGo = document.createElement('button');
-                btnNoGo.className = 'gate-btn gate-btn-nogo' + (status === 'red' ? ' active' : '');
-                btnNoGo.textContent = 'NO-GO';
-                btnNoGo.addEventListener('click', () => {
-                    if (confirm('Mark this product as NO-GO? This sets the gate to red.')) {
-                        state.products[state.activeProduct][stepId] = 'red';
-                        renderPipeline();
-                        openDetailPanel(stepId);
-                    }
-                });
-
-                btnGroup.appendChild(btnGo);
-                btnGroup.appendChild(btnRevisit);
-                btnGroup.appendChild(btnNoGo);
-                gateSection.appendChild(btnGroup);
-
-                const statusMsg = document.createElement('div');
-                statusMsg.className = 'gate-status-msg';
-                if (status === 'green') {
-                    statusMsg.style.color = '#2ea44f';
-                    statusMsg.textContent = 'Decision: GO — Phase ' + (phaseNum + 1) + ' unlocked';
-                } else if (status === 'yellow') {
-                    statusMsg.style.color = '#d29f22';
-                    statusMsg.textContent = 'Decision: Revisit Later — needs more evaluation';
-                } else {
-                    statusMsg.style.color = '#8b949e';
-                    statusMsg.textContent = 'Awaiting decision';
-                }
-                gateSection.appendChild(statusMsg);
-                body.appendChild(gateSection);
-            }
-
             // Render ANALYSIS layer
             if (content.analysis && content.analysis.sections && content.analysis.sections.length > 0) {
                 const analysisLayer = document.createElement('div');
@@ -3203,6 +3144,65 @@
                 output.textContent = content.output;
                 outputSection.appendChild(output);
                 body.appendChild(outputSection);
+            }
+
+            // Gate decision buttons — at the bottom of the detail panel
+            if (step.isGate && phaseUnlocked) {
+                const gateSection = document.createElement('div');
+                gateSection.className = 'gate-decision-section';
+                gateSection.innerHTML = '<div class="gate-decision-label">Decision</div>';
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'gate-decision-buttons';
+
+                const btnGo = document.createElement('button');
+                btnGo.className = 'gate-btn gate-btn-go' + (status === 'green' ? ' active' : '');
+                btnGo.textContent = 'GO';
+                btnGo.addEventListener('click', () => {
+                    state.products[state.activeProduct][stepId] = 'green';
+                    renderPipeline();
+                    openDetailPanel(stepId);
+                });
+
+                const btnRevisit = document.createElement('button');
+                btnRevisit.className = 'gate-btn gate-btn-revisit' + (status === 'yellow' ? ' active' : '');
+                btnRevisit.textContent = 'Revisit Later';
+                btnRevisit.addEventListener('click', () => {
+                    state.products[state.activeProduct][stepId] = 'yellow';
+                    renderPipeline();
+                    openDetailPanel(stepId);
+                });
+
+                const btnNoGo = document.createElement('button');
+                btnNoGo.className = 'gate-btn gate-btn-nogo' + (status === 'red' ? ' active' : '');
+                btnNoGo.textContent = 'NO-GO';
+                btnNoGo.addEventListener('click', () => {
+                    if (confirm('Mark this product as NO-GO? This sets the gate to red.')) {
+                        state.products[state.activeProduct][stepId] = 'red';
+                        renderPipeline();
+                        openDetailPanel(stepId);
+                    }
+                });
+
+                btnGroup.appendChild(btnGo);
+                btnGroup.appendChild(btnRevisit);
+                btnGroup.appendChild(btnNoGo);
+                gateSection.appendChild(btnGroup);
+
+                const statusMsg = document.createElement('div');
+                statusMsg.className = 'gate-status-msg';
+                if (status === 'green') {
+                    statusMsg.style.color = '#2ea44f';
+                    statusMsg.textContent = 'Decision: GO — Phase ' + (phaseNum + 1) + ' unlocked';
+                } else if (status === 'yellow') {
+                    statusMsg.style.color = '#d29f22';
+                    statusMsg.textContent = 'Decision: Revisit Later — needs more evaluation';
+                } else {
+                    statusMsg.style.color = '#8b949e';
+                    statusMsg.textContent = 'Awaiting decision';
+                }
+                gateSection.appendChild(statusMsg);
+                body.appendChild(gateSection);
             }
 
             detailPanel.classList.add('active');
