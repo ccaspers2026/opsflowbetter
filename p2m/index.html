@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Caspers Creations - P2M Pipeline</title>
     <style>
         * {
@@ -560,7 +563,6 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            cursor: pointer;
             border: 2px solid;
             margin: 0 auto;
             display: flex;
@@ -1060,6 +1062,84 @@
             content: '✓ ';
             color: #2ea44f;
             margin-right: 4px;
+        }
+
+        /* Gate decision buttons */
+        .gate-decision-section {
+            margin-top: 12px;
+            padding: 16px;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            background: #0d1117;
+            text-align: center;
+        }
+        .gate-decision-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8b949e;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .gate-decision-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .gate-btn {
+            padding: 10px 24px;
+            border: 2px solid;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .gate-btn-go {
+            background: rgba(46,164,79,0.1);
+            border-color: #2ea44f;
+            color: #2ea44f;
+        }
+        .gate-btn-go:hover {
+            background: rgba(46,164,79,0.25);
+            box-shadow: 0 0 12px rgba(46,164,79,0.3);
+        }
+        .gate-btn-go.active {
+            background: #2ea44f;
+            color: #fff;
+        }
+        .gate-btn-nogo {
+            background: rgba(248,81,73,0.1);
+            border-color: #f85149;
+            color: #f85149;
+        }
+        .gate-btn-nogo:hover {
+            background: rgba(248,81,73,0.25);
+            box-shadow: 0 0 12px rgba(248,81,73,0.3);
+        }
+        .gate-btn-nogo.active {
+            background: #f85149;
+            color: #fff;
+        }
+        .gate-btn-revisit {
+            background: rgba(210,159,34,0.1);
+            border-color: #d29f22;
+            color: #d29f22;
+        }
+        .gate-btn-revisit:hover {
+            background: rgba(210,159,34,0.25);
+            box-shadow: 0 0 12px rgba(210,159,34,0.3);
+        }
+        .gate-btn-revisit.active {
+            background: #d29f22;
+            color: #fff;
+        }
+        .gate-status-msg {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         /* Collapsible detail layers */
@@ -1775,7 +1855,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.15.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.16.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2337,18 +2417,12 @@
                         gate.className = 'decision-gate' + (phaseUnlocked ? '' : ' locked');
                         gate.innerHTML = `
                             <div class="gate-icon">◇</div>
+                            <div class="gate-number" style="font-size:11px;font-weight:700;color:#c99a1d;margin-bottom:2px;">${step.number}</div>
                             <div class="gate-label">${step.title}${phaseUnlocked ? '' : ' <span style="font-size:10px;">🔒</span>'}</div>
                             <div class="gate-options">${step.description}</div>
                             <div class="gate-led ${ledClass}"></div>
                         `;
                         gate.addEventListener('click', () => openDetailPanel(stepId));
-                        if (phaseUnlocked) {
-                            const led = gate.querySelector('.gate-led');
-                            led.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                cycleLED(stepId);
-                            });
-                        }
                         content.appendChild(gate);
                     } else {
                         const card = document.createElement('div');
@@ -2750,7 +2824,7 @@
             const phaseUnlocked = isPhaseUnlocked(phaseNum);
             const ledStatus = document.getElementById('detailLedStatus');
             ledStatus.className = phaseUnlocked ? `detail-led-status led-${status}` : 'detail-led-status led-locked';
-            if (phaseUnlocked) {
+            if (phaseUnlocked && !step.isGate) {
                 ledStatus.onclick = () => {
                     cycleLED(stepId);
                     openDetailPanel(stepId);
@@ -2758,7 +2832,7 @@
                 ledStatus.style.cursor = 'pointer';
             } else {
                 ledStatus.onclick = null;
-                ledStatus.style.cursor = 'default';
+                ledStatus.style.cursor = step.isGate ? 'default' : 'default';
             }
 
             const body = document.getElementById('detailBody');
@@ -3050,6 +3124,66 @@
                 });
                 checkSection.appendChild(checkGroup);
                 body.appendChild(checkSection);
+            }
+
+            // Gate decision buttons (only for gate steps)
+            if (step.isGate && phaseUnlocked) {
+                const gateSection = document.createElement('div');
+                gateSection.className = 'gate-decision-section';
+                gateSection.innerHTML = '<div class="gate-decision-label">Decision</div>';
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'gate-decision-buttons';
+
+                const btnGo = document.createElement('button');
+                btnGo.className = 'gate-btn gate-btn-go' + (status === 'green' ? ' active' : '');
+                btnGo.textContent = 'GO';
+                btnGo.addEventListener('click', () => {
+                    state.products[state.activeProduct][stepId] = 'green';
+                    renderPipeline();
+                    openDetailPanel(stepId);
+                });
+
+                const btnRevisit = document.createElement('button');
+                btnRevisit.className = 'gate-btn gate-btn-revisit' + (status === 'yellow' ? ' active' : '');
+                btnRevisit.textContent = 'Revisit Later';
+                btnRevisit.addEventListener('click', () => {
+                    state.products[state.activeProduct][stepId] = 'yellow';
+                    renderPipeline();
+                    openDetailPanel(stepId);
+                });
+
+                const btnNoGo = document.createElement('button');
+                btnNoGo.className = 'gate-btn gate-btn-nogo' + (status === 'red' ? ' active' : '');
+                btnNoGo.textContent = 'NO-GO';
+                btnNoGo.addEventListener('click', () => {
+                    if (confirm('Mark this product as NO-GO? This sets the gate to red.')) {
+                        state.products[state.activeProduct][stepId] = 'red';
+                        renderPipeline();
+                        openDetailPanel(stepId);
+                    }
+                });
+
+                btnGroup.appendChild(btnGo);
+                btnGroup.appendChild(btnRevisit);
+                btnGroup.appendChild(btnNoGo);
+                gateSection.appendChild(btnGroup);
+
+                // Show current status message
+                const statusMsg = document.createElement('div');
+                statusMsg.className = 'gate-status-msg';
+                if (status === 'green') {
+                    statusMsg.style.color = '#2ea44f';
+                    statusMsg.textContent = 'Decision: GO — Phase ' + (phaseNum + 1) + ' unlocked';
+                } else if (status === 'yellow') {
+                    statusMsg.style.color = '#d29f22';
+                    statusMsg.textContent = 'Decision: Revisit Later — needs more evaluation';
+                } else {
+                    statusMsg.style.color = '#8b949e';
+                    statusMsg.textContent = 'Awaiting decision';
+                }
+                gateSection.appendChild(statusMsg);
+                body.appendChild(gateSection);
             }
 
             if (content.tips) {

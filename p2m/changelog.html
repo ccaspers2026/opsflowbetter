@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>P2M Pipeline - Version History</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -249,13 +252,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.15.0 - G1 Gate Auto-Population</h2>
-            <p>Released March 5, 2026 &mdash; G1 GO/NO-GO gate now auto-populates Pass/Fail criteria and notes from Steps 1.4 (Niche Viability Score) and 1.5 (Income Target Math). Users see pre-filled evidence instead of blank rows. Workshop calculated fields visually distinct with auto-calculated badges.</p>
+            <h2>Version 0.16.0 - Gate Decision UX</h2>
+            <p>Released March 5, 2026 &mdash; Gate cards now labeled G1, G2, etc. for clarity. GO / NO-GO / Revisit Later decision buttons replace LED clicking on gates. Cache-busting headers added to all pages so browser always loads latest version after deploy.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">19</div>
+                <div class="stat-value">20</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -277,6 +280,23 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.16.0 -->
+            <div class="version-entry major">
+                <div class="version-header">
+                    <span class="version-number">v0.16.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-major">MAJOR</span>
+                </div>
+                <div class="version-title">Gate Decision UX</div>
+                <ul class="change-list">
+                    <li class="added">Gate cards now show G1, G2, G5 labels matching step numbering pattern</li>
+                    <li class="added">GO / NO-GO / Revisit Later decision buttons on gate detail panels</li>
+                    <li class="added">Gate LED no longer cycles on click &mdash; decisions made via buttons only</li>
+                    <li class="added">Gate status message shows current decision and what it unlocks</li>
+                    <li class="added">Cache-busting meta tags on all pages &mdash; browser always loads latest after deploy</li>
+                </ul>
+            </div>
 
             <!-- v0.15.0 -->
             <div class="version-entry major">
