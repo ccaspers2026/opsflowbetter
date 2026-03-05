@@ -145,6 +145,28 @@
             opacity: 1;
         }
 
+        .product-tab .remove-product-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #f85149;
+            cursor: pointer;
+            padding: 0 0 0 4px;
+            font-size: 10px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            vertical-align: middle;
+        }
+
+        .product-tab:hover .remove-product-btn,
+        .product-tab.active .remove-product-btn {
+            display: inline;
+        }
+
+        .product-tab .remove-product-btn:hover {
+            opacity: 1;
+        }
+
         .product-tab-editing {
             display: inline-flex;
             align-items: center;
@@ -1742,6 +1764,18 @@
         </div>
     </div>
 
+    <!-- Remove Product Confirmation Modal -->
+    <div class="modal" id="removeProductModal">
+        <div class="modal-content">
+            <div class="modal-title" style="color: #f85149;">Remove Product</div>
+            <p style="color: #8b949e; font-size: 13px; margin-bottom: 16px;">Are you sure you want to remove <strong id="removeProductName" style="color: #e0e0e0;"></strong>? All step data and progress for this product will be lost.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" id="removeCancelBtn">Cancel</button>
+                <button class="modal-btn modal-btn-add" id="removeConfirmBtn" style="background: #f85149;">Remove</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Detail Panel -->
     <div class="detail-panel" id="detailPanel">
         <div class="detail-header">
@@ -2074,6 +2108,19 @@
                     startEditProductName(productName, tab);
                 });
                 tab.appendChild(editBtn);
+
+                // Only show remove button if more than 1 product
+                if (Object.keys(state.products).length > 1) {
+                    const removeBtn = document.createElement('span');
+                    removeBtn.className = 'remove-product-btn';
+                    removeBtn.innerHTML = '&#10005;'; // X icon
+                    removeBtn.title = 'Remove product';
+                    removeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openRemoveProductModal(productName);
+                    });
+                    tab.appendChild(removeBtn);
+                }
 
                 tab.addEventListener('click', () => {
                     state.activeProduct = productName;
@@ -2825,6 +2872,47 @@
             }
         }
 
+        // Remove product
+        let pendingRemoveProduct = null;
+
+        function openRemoveProductModal(productName) {
+            pendingRemoveProduct = productName;
+            document.getElementById('removeProductName').textContent = productName;
+            document.getElementById('removeProductModal').classList.add('active');
+        }
+
+        function closeRemoveProductModal() {
+            document.getElementById('removeProductModal').classList.remove('active');
+            pendingRemoveProduct = null;
+        }
+
+        function removeProduct() {
+            if (!pendingRemoveProduct) return;
+            const name = pendingRemoveProduct;
+
+            // Don't allow removing the last product
+            if (Object.keys(state.products).length <= 1) {
+                closeRemoveProductModal();
+                return;
+            }
+
+            // Remove from state
+            delete state.products[name];
+            delete state.checklists[name];
+            if (productDetailContent[name]) {
+                delete productDetailContent[name];
+            }
+
+            // Switch to first remaining product if we removed the active one
+            if (state.activeProduct === name) {
+                state.activeProduct = Object.keys(state.products)[0];
+            }
+
+            closeRemoveProductModal();
+            closeDetailPanel();
+            render();
+        }
+
         // ============================================================================
         // EVENT LISTENERS
         // ============================================================================
@@ -2840,6 +2928,15 @@
         document.getElementById('addProductModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('addProductModal')) {
                 closeAddProductModal();
+            }
+        });
+
+        // Remove product modal listeners
+        document.getElementById('removeCancelBtn').addEventListener('click', closeRemoveProductModal);
+        document.getElementById('removeConfirmBtn').addEventListener('click', removeProduct);
+        document.getElementById('removeProductModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('removeProductModal')) {
+                closeRemoveProductModal();
             }
         });
 
