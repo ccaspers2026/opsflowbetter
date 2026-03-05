@@ -1775,7 +1775,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.14.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.15.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2620,6 +2620,95 @@
         // ============================================================================
         let activeCardStepId = null;
 
+        // ============================================================================
+        // G1 GATE AUTO-POPULATION
+        // ============================================================================
+        function autoPopulateG1(baseContent, productName) {
+            const pContent = productDetailContent[productName];
+            if (!pContent) return baseContent;
+
+            const content14 = pContent['1.4'];
+            const content15 = pContent['1.5'];
+            const productStatuses = state.products[productName];
+
+            // Deep-clone to avoid mutating the template
+            const g1 = JSON.parse(JSON.stringify(baseContent));
+
+            // --- Row 0: Niche score ≥ 18/30 ---
+            if (content14 && content14.table && content14.table.rows) {
+                let totalScore = 0;
+                let hasScores = false;
+                content14.table.rows.forEach(row => {
+                    const scoreStr = (row[1] || '').replace(/[^0-9.]/g, '');
+                    const score = parseFloat(scoreStr);
+                    if (!isNaN(score)) { totalScore += score; hasScores = true; }
+                });
+                if (hasScores) {
+                    const pass = totalScore >= 18;
+                    g1.table.rows[0][1] = pass ? 'YES' : 'NO';
+                    g1.table.rows[0][2] = totalScore + '/30' + (content14.analysis && content14.analysis.sections[0] ? ' — ' + content14.analysis.sections[0].heading : '');
+                }
+            }
+
+            // --- Row 1: Income math works ---
+            if (content15 && content15.table && content15.table.rows) {
+                const feasibleRow = content15.table.rows.find(r => r[0] && r[0].toLowerCase().includes('feasible'));
+                const profitRow = content15.table.rows.find(r => r[0] && r[0].toLowerCase().includes('net profit per unit'));
+                const unitsRow = content15.table.rows.find(r => r[0] && r[0].toLowerCase().includes('units needed per day'));
+                if (feasibleRow) {
+                    const val = (feasibleRow[1] || '').toUpperCase();
+                    const pass = val.includes('YES');
+                    g1.table.rows[1][1] = pass ? 'YES' : 'NO';
+                    let notes = '';
+                    if (unitsRow) notes += unitsRow[1] + ' units/day';
+                    if (profitRow) notes += (notes ? ', ' : '') + profitRow[1] + '/unit net';
+                    g1.table.rows[1][2] = notes || val;
+                }
+            }
+
+            // --- Row 2: Can produce with fleet ---
+            if (content15 && content15.table && content15.table.rows) {
+                const printersRow = content15.table.rows.find(r => r[0] && r[0].toLowerCase().includes('printers needed'));
+                const feasibleRow = content15.table.rows.find(r => r[0] && r[0].toLowerCase().includes('feasible'));
+                if (printersRow || feasibleRow) {
+                    const feasVal = feasibleRow ? (feasibleRow[1] || '').toUpperCase() : '';
+                    g1.table.rows[2][1] = feasVal.includes('YES') ? 'YES' : (feasVal.includes('NO') ? 'NO' : '');
+                    g1.table.rows[2][2] = printersRow ? (printersRow[1] || '') + ' needed' : '';
+                }
+            }
+
+            // --- Row 3: No dominant competitor ---
+            if (content14 && content14.table && content14.table.rows) {
+                const compRow = content14.table.rows.find(r => r[0] && r[0].toLowerCase().includes('competition'));
+                if (compRow) {
+                    const scoreStr = (compRow[1] || '').replace(/[^0-9.]/g, '');
+                    const score = parseFloat(scoreStr);
+                    if (!isNaN(score)) {
+                        g1.table.rows[3][1] = score >= 3 ? 'YES' : 'NO';
+                        g1.table.rows[3][2] = 'Competition Gap: ' + compRow[1] + '/5' + (compRow[2] ? ' — ' + compRow[2].substring(0, 80) + '...' : '');
+                    }
+                }
+            }
+
+            // --- Row 4: Product is printable ---
+            if (content14 && content14.table && content14.table.rows) {
+                const printRow = content14.table.rows.find(r => r[0] && r[0].toLowerCase().includes('print feasibility'));
+                if (printRow) {
+                    const scoreStr = (printRow[1] || '').replace(/[^0-9.]/g, '');
+                    const score = parseFloat(scoreStr);
+                    if (!isNaN(score)) {
+                        g1.table.rows[4][1] = score >= 3 ? 'YES' : 'NO';
+                        g1.table.rows[4][2] = '3D Print Feasibility: ' + printRow[1] + '/5' + (printRow[2] ? ' — ' + printRow[2].substring(0, 80) + '...' : '');
+                    }
+                }
+            }
+
+            // Add auto-calculated badge to purpose
+            g1.purpose = g1.purpose + '<div style="margin-top:12px;padding:8px 12px;background:rgba(88,166,255,0.1);border:1px solid rgba(88,166,255,0.25);border-radius:4px;font-size:12px;color:#58a6ff;">⚡ Gate criteria auto-populated from Steps 1.4 and 1.5 data</div>';
+
+            return g1;
+        }
+
         function openDetailPanel(stepId) {
             // Toggle: if clicking the same card that's already open, close the panel
             if (activeCardStepId === stepId && document.getElementById('detailPanel').classList.contains('active')) {
@@ -2627,7 +2716,13 @@
                 return;
             }
             const step = stepDefinitions[stepId];
-            const content = (productDetailContent[state.activeProduct] && productDetailContent[state.activeProduct][stepId]) || templateDetailContent[stepId];
+            let content = (productDetailContent[state.activeProduct] && productDetailContent[state.activeProduct][stepId]) || templateDetailContent[stepId];
+
+            // Auto-populate G1 gate criteria from Steps 1.4 and 1.5 data
+            if (stepId === 'g1') {
+                content = autoPopulateG1(content, state.activeProduct);
+            }
+
             const status = state.products[state.activeProduct][stepId];
             const phaseNum = step.phase;
 
