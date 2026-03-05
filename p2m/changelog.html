@@ -252,13 +252,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.19.0 - Soft-Lock Gate Decisions</h2>
-            <p>Released March 5, 2026 &mdash; Gate decisions now soft-lock after clicking GO/Revisit/NO-GO. Buttons are replaced by locked signature block. &ldquo;Revise Decision&rdquo; link available with confirmation to re-open.</p>
+            <h2>Version 0.21.0 - localStorage Persistence</h2>
+            <p>Released March 5, 2026 &mdash; All pipeline state now persists across browser refreshes using localStorage. LED states, checklist progress, gate signatures, and active product are all saved automatically. Reset button available to restore defaults.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">26</div>
+                <div class="stat-value">28</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -280,6 +280,37 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.21.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.21.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">localStorage Persistence</div>
+                <ul class="change-list">
+                    <li class="added">All state persists across browser refreshes via localStorage</li>
+                    <li class="added">Auto-saves on every LED cycle, checkbox toggle, gate decision, product add/remove/rename</li>
+                    <li class="added">Reset button in product bar to restore defaults with confirmation</li>
+                    <li class="changed">State loads from localStorage on page init, falls back to hardcoded defaults</li>
+                </ul>
+            </div>
+
+            <!-- v0.20.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.20.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Gate Celebration &amp; LED Colors</div>
+                <ul class="change-list">
+                    <li class="added">Gate LED colors on pipeline cards &mdash; red, yellow, green now render correctly</li>
+                    <li class="added">&ldquo;BOOM Baby!&rdquo; celebration popup on GO decision with auto-dismiss</li>
+                    <li class="changed">Detail panel stays open after GO click so user sees locked checkboxes and signature</li>
+                </ul>
+            </div>
 
             <!-- v0.19.0 -->
             <div class="version-entry">

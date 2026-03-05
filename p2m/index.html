@@ -227,6 +227,22 @@
             white-space: nowrap;
         }
 
+        .reset-state-btn {
+            padding: 4px 10px;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 11px;
+            color: #6e7681;
+            transition: all 0.2s;
+            margin-left: 8px;
+        }
+        .reset-state-btn:hover {
+            border-color: #f85149;
+            color: #f85149;
+        }
+
         /* Pipeline */
         .pipeline-wrapper {
             flex: 1;
@@ -383,6 +399,20 @@
             border-color: #484f58;
         }
 
+        .gate-led.led-red {
+            background-color: #6b2020;
+            border-color: #9b3333;
+        }
+        .gate-led.led-yellow {
+            background-color: #8b6914;
+            border-color: #c99a1d;
+            box-shadow: 0 0 8px rgba(201, 154, 29, 0.4);
+        }
+        .gate-led.led-green {
+            background-color: #1a7a33;
+            border-color: #2ea44f;
+            box-shadow: 0 0 8px rgba(46, 164, 79, 0.5);
+        }
         .gate-led.led-locked {
             background-color: #30363d;
             border-color: #484f58;
@@ -1118,6 +1148,55 @@
         .gate-revise-link:hover {
             color: #d29f22;
             text-decoration: underline;
+        }
+
+        /* Gate celebration overlay */
+        .gate-celebration {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: celebFadeIn 0.3s ease-out;
+        }
+        @keyframes celebFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .gate-celebration-card {
+            background: linear-gradient(135deg, #0d2818, #1a3a2a);
+            border: 2px solid #2ea44f;
+            border-radius: 12px;
+            padding: 40px 50px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(46, 164, 79, 0.3);
+            animation: celebPop 0.4s ease-out;
+        }
+        @keyframes celebPop {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .gate-celebration-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .gate-celebration-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #2ea44f;
+            margin-bottom: 6px;
+        }
+        .gate-celebration-sub {
+            font-size: 15px;
+            color: #8b949e;
+            margin-bottom: 20px;
+        }
+        .gate-celebration-dismiss {
+            font-size: 12px;
+            color: #6e7681;
+            cursor: pointer;
         }
 
         .detail-tips {
@@ -1943,7 +2022,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.19.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.21.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -1959,6 +2038,7 @@
             <div class="led-legend">
                 🔴 Not Started | 🟡 In Progress | 🟢 Complete (click LED to cycle)
             </div>
+            <button class="reset-state-btn" onclick="resetState()" title="Reset all data to defaults">↺ Reset</button>
         </div>
 
         <!-- Pipeline (desktop) -->
@@ -2102,6 +2182,50 @@
             gateSignatures: {},
             activeProduct: '45 RPM Adaptor'
         };
+
+        // Default state — used for reset and as fallback
+        const defaultState = JSON.parse(JSON.stringify(state));
+
+        // ============================================================================
+        // LOCAL STORAGE PERSISTENCE
+        // ============================================================================
+        const STORAGE_KEY = 'p2m_pipeline_state';
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                // Silent fail — localStorage might be full or disabled
+            }
+        }
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // Merge saved state over defaults to handle new fields added in updates
+                    if (parsed.products) state.products = parsed.products;
+                    if (parsed.checklists) state.checklists = parsed.checklists;
+                    if (parsed.gateSignatures) state.gateSignatures = parsed.gateSignatures;
+                    if (parsed.activeProduct) state.activeProduct = parsed.activeProduct;
+                }
+            } catch (e) {
+                // Silent fail — corrupted data, just use defaults
+            }
+        }
+
+        function resetState() {
+            if (confirm('Reset all pipeline data to defaults? This cannot be undone.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                state = JSON.parse(JSON.stringify(defaultState));
+                renderPipeline();
+                closeDetailPanel();
+            }
+        }
+
+        // Load saved state on page init
+        loadState();
 
         const phaseColors = {
             1: '#2563eb',
@@ -2378,6 +2502,7 @@
 
                 tab.addEventListener('click', () => {
                     state.activeProduct = productName;
+                    saveState();
                     render();
                 });
                 tabs.appendChild(tab);
@@ -2453,6 +2578,7 @@
                 state.activeProduct = newName;
             }
 
+            saveState();
             render();
         }
 
@@ -2649,6 +2775,7 @@
             const current = state.products[state.activeProduct][stepId];
             const cycle = { red: 'yellow', yellow: 'green', green: 'red' };
             state.products[state.activeProduct][stepId] = cycle[current];
+            saveState();
             render();
         }
 
@@ -2800,6 +2927,34 @@
                 date: dateStr + ' at ' + timeStr,
                 decision: decision
             };
+            saveState();
+        }
+
+        // ============================================================================
+        // GATE CELEBRATION — shows a popup when a GO decision is made
+        // ============================================================================
+        function showGateCelebration(gateId, phaseNum) {
+            const overlay = document.createElement('div');
+            overlay.className = 'gate-celebration';
+            const card = document.createElement('div');
+            card.className = 'gate-celebration-card';
+            card.innerHTML = `
+                <div class="gate-celebration-icon">🚀</div>
+                <div class="gate-celebration-title">BOOM Baby!</div>
+                <div class="gate-celebration-sub">Phase ${phaseNum} Complete — ${gateId.toUpperCase()} passed!</div>
+                <div class="gate-celebration-dismiss">Click anywhere to continue</div>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', () => {
+                overlay.remove();
+            });
+
+            // Auto-dismiss after 4 seconds
+            setTimeout(() => {
+                if (overlay.parentNode) overlay.remove();
+            }, 4000);
         }
 
         // ============================================================================
@@ -3284,6 +3439,7 @@
                         if (phaseUnlocked) {
                             checkbox.addEventListener('change', () => {
                                 state.checklists[state.activeProduct][stepId][idx] = checkbox.checked;
+                                saveState();
                             });
                         } else {
                             checkbox.disabled = true;
@@ -3358,6 +3514,7 @@
                         recordGateSignature(state.activeProduct, stepId, 'GO');
                         renderPipeline();
                         openDetailPanel(stepId);
+                        setTimeout(() => showGateCelebration(stepId, phaseNum), 300);
                     });
 
                     const btnRevisit = document.createElement('button');
@@ -3444,6 +3601,7 @@
                         if (confirm('Are you sure? This will clear the current signature and require a new decision.')) {
                             delete state.gateSignatures[state.activeProduct][stepId];
                             state.products[state.activeProduct][stepId] = 'red';
+                            saveState();
                             renderPipeline();
                             openDetailPanel(stepId);
                         }
@@ -3487,6 +3645,7 @@
                 state.checklists[name] = {};
                 productDetailContent[name] = {};
                 state.activeProduct = name;
+                saveState();
                 closeAddProductModal();
                 render();
             }
@@ -3528,6 +3687,7 @@
                 state.activeProduct = Object.keys(state.products)[0];
             }
 
+            saveState();
             closeRemoveProductModal();
             closeDetailPanel();
             render();
