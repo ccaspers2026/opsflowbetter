@@ -2022,7 +2022,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.21.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.21.2</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2976,7 +2976,8 @@
             // Gate-specific logic (G1)
             if (stepId === 'g1') {
                 const prodStates = state.products[productName] || {};
-                const hasDecision = (status === 'green' || status === 'yellow');
+                const sig = (state.gateSignatures[productName] || {})[stepId];
+                const hasDecision = !!sig;
 
                 // Item 0: "All criteria evaluated" — locked when 1.4 AND 1.5 are green
                 if (prodStates['1.4'] === 'green' && prodStates['1.5'] === 'green') {
