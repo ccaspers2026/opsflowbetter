@@ -119,7 +119,22 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
         }
+        .phase-header:hover { opacity: 0.85; }
+        .phase-collapse-arrow {
+            font-size: 10px;
+            color: #484f58;
+            transition: transform 0.25s ease;
+            flex-shrink: 0;
+            margin-left: 2px;
+        }
+        .phase-column.collapsed .phase-collapse-arrow { transform: rotate(-90deg); }
+        .phase-column.collapsed .phase-progress-bar { margin-bottom: 0; }
+        .phase-column.collapsed .phase-content { display: none; }
+        .phase-column.collapsed .add-card-btn { display: none; }
         .phase-number {
             width: 22px; height: 22px;
             border-radius: 50%;
@@ -562,7 +577,7 @@
     <header class="workshop-header">
         <div class="header-left">
             <h1>Workshop Setup</h1>
-            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.26.0</p>
+            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.26.1</p>
             <p>Configure your production capabilities — every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -1017,6 +1032,23 @@
         }
     }
 
+    // Track collapsed phases (persists in localStorage)
+    var collapsedPhases = {};
+    try {
+        var savedCollapsed = localStorage.getItem('workshopCollapsedPhases');
+        if (savedCollapsed) collapsedPhases = JSON.parse(savedCollapsed);
+    } catch(e) { /* ignore */ }
+
+    function togglePhaseCollapse(phaseNum) {
+        if (collapsedPhases[phaseNum]) {
+            delete collapsedPhases[phaseNum];
+        } else {
+            collapsedPhases[phaseNum] = true;
+        }
+        try { localStorage.setItem('workshopCollapsedPhases', JSON.stringify(collapsedPhases)); } catch(e) {}
+        render();
+    }
+
     function renderPipeline() {
         var container = document.getElementById('workshopPipeline');
         container.innerHTML = '';
@@ -1027,8 +1059,10 @@
 
             var col = document.createElement('div');
             col.className = 'phase-column phase-' + p;
+            if (collapsedPhases[p]) col.classList.add('collapsed');
 
-            col.innerHTML = '<div class="phase-header">' +
+            col.innerHTML = '<div class="phase-header" data-phase="' + p + '">' +
+                '<span class="phase-collapse-arrow">&#9660;</span>' +
                 '<span class="phase-number">' + p + '</span>' +
                 '<span class="phase-name">' + phaseInfo.name + '</span>' +
                 '<span class="phase-completion">' + progress.done + '/' + progress.total + '</span>' +
@@ -1087,6 +1121,14 @@
             col.appendChild(content);
             container.appendChild(col);
         }
+
+        // Attach collapse handlers to phase headers
+        document.querySelectorAll('.phase-header[data-phase]').forEach(function(header) {
+            header.addEventListener('click', function() {
+                var phaseNum = parseInt(header.getAttribute('data-phase'));
+                togglePhaseCollapse(phaseNum);
+            });
+        });
     }
 
     function createCard(dataId, number, title, description, output, status, onClick) {
