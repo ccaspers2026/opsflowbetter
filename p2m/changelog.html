@@ -249,13 +249,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.13.0 - Workshop Setup + Income Target Math</h2>
-            <p>Released March 5, 2026 &mdash; New Workshop Setup page defines your printer fleet, machine rates, materials, and labor. Step 1.5 (Income Target Math) built for 45 RPM Adaptor with full backward math from $2k/month. Pipeline steps now reference Workshop for fleet data instead of hardcoding printer names.</p>
+            <h2>Version 0.14.0 - Workshop Card-Based Redesign</h2>
+            <p>Released March 5, 2026 &mdash; Complete redesign of Workshop Setup as a card-based system matching the Pipeline visual language. Six phases with LED-tracked cards, slide-in detail panels with data entry, localStorage persistence, dynamic add/remove for printers, materials, and software. Steps 1.4 and 1.5 marked green for 45 RPM Adaptor.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">16</div>
+                <div class="stat-value">17</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -263,7 +263,7 @@
                 <div class="stat-label">Products</div>
             </div>
             <div class="stat">
-                <div class="stat-value">3,090+</div>
+                <div class="stat-value">4,600+</div>
                 <div class="stat-label">Lines of Code</div>
             </div>
             <div class="stat">
@@ -277,6 +277,30 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.14.0 -->
+            <div class="version-entry major">
+                <div class="version-header">
+                    <span class="version-number">v0.14.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-major">MAJOR</span>
+                </div>
+                <div class="version-title">Workshop Card-Based Redesign</div>
+                <ul class="change-list">
+                    <li class="added">Workshop redesigned as card-based system matching Pipeline visual language &mdash; 6 phases, 20+ cards, LED status indicators</li>
+                    <li class="added">Phase 1: Facility &amp; Utilities (electricity rate, workspace, internet/services)</li>
+                    <li class="added">Phase 2: Printer Fleet with dynamic add/remove cards (7 printers pre-populated)</li>
+                    <li class="added">Phase 3: Machine Economics with auto-calculated blended hourly rate from depreciation + maintenance + electricity</li>
+                    <li class="added">Phase 4: Materials Library with dynamic cards, auto-calculated cost per gram</li>
+                    <li class="added">Phase 5: Labor (primary operator + optional additional labor)</li>
+                    <li class="added">Phase 6: Software &amp; Tools with dynamic add/remove cards</li>
+                    <li class="added">Slide-in detail panel with data entry forms, purpose descriptions, and "Mark as Complete" verification</li>
+                    <li class="added">localStorage persistence &mdash; all Workshop data survives page reload</li>
+                    <li class="added">Overall completion tracking with percentage, card count, and LED in header</li>
+                    <li class="added">Phase progress bars showing per-phase completion</li>
+                    <li class="changed">Steps 1.4 and 1.5 LEDs set to GREEN for 45 RPM Adaptor</li>
+                </ul>
+            </div>
 
             <!-- v0.13.0 -->
             <div class="version-entry major">

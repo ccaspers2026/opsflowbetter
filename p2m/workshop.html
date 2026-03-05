@@ -3,753 +3,1506 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2M Pipeline - Workshop Setup</title>
+    <title>Workshop Setup — P2M Pipeline</title>
     <style>
+        /* ===== BASE THEME (matches Pipeline) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             background-color: #0d1117;
             color: #c9d1d9;
-            padding: 40px;
-            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
+        a { color: #58a6ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
+        /* ===== HEADER ===== */
+        .workshop-header {
+            background-color: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-
-        .header {
-            border-bottom: 2px solid #21262d;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+        .header-left h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 2px;
         }
-
-        .header h1 {
-            font-size: 28px;
-            color: #fff;
-            margin-bottom: 4px;
-        }
-
-        .header p {
-            font-size: 13px;
+        .header-left p {
+            font-size: 12px;
             color: #8b949e;
         }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+            align-items: center;
+        }
+        .nav-links a { color: #58a6ff; }
+        .nav-sep { color: #30363d; }
 
-        .header .nav-links {
+        /* ===== SUMMARY BAR ===== */
+        .summary-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background-color: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        .summary-bar strong { color: #e0e0e0; }
+        .overall-led {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            border: 2px solid;
+            flex-shrink: 0;
+        }
+        .overall-led.led-red { background-color: #6b2020; border-color: #9b3333; }
+        .overall-led.led-yellow { background-color: #8b6914; border-color: #c99a1d; box-shadow: 0 0 6px rgba(201,154,29,0.4); animation: pulse-yellow 2s infinite; }
+        .overall-led.led-green { background-color: #1a7a33; border-color: #2ea44f; }
+
+        @keyframes pulse-yellow {
+            0%, 100% { box-shadow: 0 0 6px rgba(201,154,29,0.4); }
+            50% { box-shadow: 0 0 12px rgba(201,154,29,0.7); }
+        }
+
+        /* ===== PIPELINE WRAPPER ===== */
+        .workshop-wrapper {
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .workshop-pipeline {
             display: flex;
             gap: 16px;
-            margin-top: 10px;
+            min-width: max-content;
+            padding-bottom: 20px;
         }
 
-        .header .nav-links a {
-            color: #58a6ff;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        .header .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        .header .nav-links a.suite-link {
-            color: #d29922;
-        }
-
-        /* Summary Card */
-        .summary-card {
-            background: linear-gradient(135deg, #161b22, #1a2332);
-            border: 1px solid #58a6ff;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 30px;
-        }
-
-        .summary-card h2 {
-            font-size: 16px;
-            color: #58a6ff;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-        }
-
-        .summary-item {
-            text-align: center;
-            padding: 12px;
-            background: rgba(88, 166, 255, 0.05);
-            border-radius: 6px;
+        /* ===== PHASE COLUMNS ===== */
+        .phase-column {
+            flex: 0 0 240px;
+            background-color: #0d1117;
             border: 1px solid #21262d;
+            border-top: 3px solid;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
         }
+        .phase-column.phase-1 { border-top-color: #2563eb; }
+        .phase-column.phase-2 { border-top-color: #7c3aed; }
+        .phase-column.phase-3 { border-top-color: #059669; }
+        .phase-column.phase-4 { border-top-color: #d97706; }
+        .phase-column.phase-5 { border-top-color: #dc2626; }
+        .phase-column.phase-6 { border-top-color: #db2777; }
 
-        .summary-value {
-            font-size: 24px;
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .phase-number {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
             font-weight: 700;
             color: #fff;
+            flex-shrink: 0;
+        }
+        .phase-1 .phase-number { background-color: #2563eb; }
+        .phase-2 .phase-number { background-color: #7c3aed; }
+        .phase-3 .phase-number { background-color: #059669; }
+        .phase-4 .phase-number { background-color: #d97706; }
+        .phase-5 .phase-number { background-color: #dc2626; }
+        .phase-6 .phase-number { background-color: #db2777; }
+
+        .phase-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e0e0e0;
+            flex: 1;
+        }
+        .phase-completion {
+            font-size: 11px;
+            color: #8b949e;
+            white-space: nowrap;
         }
 
-        .summary-label {
+        /* ===== PROGRESS BAR ===== */
+        .phase-progress-bar {
+            height: 3px;
+            background-color: #21262d;
+            border-radius: 2px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .phase-progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+        .phase-1 .phase-progress-fill { background-color: #2563eb; }
+        .phase-2 .phase-progress-fill { background-color: #7c3aed; }
+        .phase-3 .phase-progress-fill { background-color: #059669; }
+        .phase-4 .phase-progress-fill { background-color: #d97706; }
+        .phase-5 .phase-progress-fill { background-color: #dc2626; }
+        .phase-6 .phase-progress-fill { background-color: #db2777; }
+
+        .phase-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        /* ===== STEP CARDS ===== */
+        .step-card {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-left: 3px solid #484f58;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .step-card:hover {
+            border-color: #58a6ff;
+            box-shadow: 0 4px 12px rgba(88,166,255,0.15);
+            transform: translateY(-2px);
+        }
+        .step-card.active-card {
+            background-color: #1e2a3a;
+            border-color: #58a6ff;
+            box-shadow: inset 0 0 12px rgba(88,166,255,0.15);
+        }
+        .step-card.led-red { border-left-color: #f85149; }
+        .step-card.led-yellow { border-left-color: #c99a1d; }
+        .step-card.led-green { border-left-color: #2ea44f; }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .step-number {
+            font-size: 12px;
+            font-weight: bold;
+            color: #8b949e;
+        }
+        .step-led {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            border: 2px solid;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .step-led::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            width: 60%; height: 60%;
+            border-radius: 50%;
+            background-color: inherit;
+            opacity: 0.5;
+        }
+        .step-led.led-red { background-color: #6b2020; border-color: #9b3333; }
+        .step-led.led-yellow { background-color: #8b6914; border-color: #c99a1d; box-shadow: 0 0 8px rgba(201,154,29,0.4); animation: pulse-yellow 2s infinite; }
+        .step-led.led-green { background-color: #1a7a33; border-color: #2ea44f; }
+
+        .step-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 4px;
+        }
+        .step-description {
             font-size: 11px;
+            color: #8b949e;
+            line-height: 1.3;
+        }
+        .step-output {
+            font-size: 11px;
+            color: #58a6ff;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #21262d;
+        }
+        .step-output::before { content: '\2192 '; color: #8b949e; }
+
+        /* ===== ADD CARD BUTTON ===== */
+        .add-card-btn {
+            padding: 8px;
+            margin-top: 4px;
+            border: 1px dashed #30363d;
+            border-radius: 6px;
+            background: transparent;
+            color: #8b949e;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .add-card-btn:hover {
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        /* ===== DETAIL PANEL ===== */
+        .detail-panel {
+            position: fixed;
+            top: 0; right: -480px;
+            width: 460px;
+            height: 100vh;
+            background-color: #0d1117;
+            border-left: 1px solid #21262d;
+            z-index: 100;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.4);
+        }
+        .detail-panel.active { right: 0; }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #21262d;
+            background-color: #161b22;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .detail-back-btn {
+            background: none;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            width: 32px; height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .detail-back-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+        .detail-title-section { flex: 1; }
+        .detail-step-info { font-size: 12px; color: #8b949e; margin-bottom: 2px; }
+        .detail-title { font-size: 16px; font-weight: 600; color: #e0e0e0; }
+        .detail-phase-info { font-size: 11px; color: #6e7681; margin-top: 2px; }
+
+        .detail-led-status {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            border: 2px solid;
+            flex-shrink: 0;
+        }
+        .detail-led-status.led-red { background-color: #6b2020; border-color: #9b3333; }
+        .detail-led-status.led-yellow { background-color: #8b6914; border-color: #c99a1d; box-shadow: 0 0 8px rgba(201,154,29,0.4); animation: pulse-yellow 2s infinite; }
+        .detail-led-status.led-green { background-color: #1a7a33; border-color: #2ea44f; }
+
+        .detail-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        /* ===== DETAIL SECTIONS ===== */
+        .detail-section {
+            padding: 16px;
+            border-bottom: 1px solid #21262d;
+        }
+        .detail-section-label {
+            font-size: 11px;
+            font-weight: 600;
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: 4px;
+            margin-bottom: 8px;
         }
-
-        .summary-note {
-            font-size: 11px;
-            color: #484f58;
-            margin-top: 12px;
-            text-align: center;
-            font-style: italic;
-        }
-
-        /* Sections */
-        .section {
-            background-color: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            overflow: hidden;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-bottom: 1px solid #21262d;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .section-header:hover {
-            background-color: #1c2128;
-        }
-
-        .section-header h3 {
-            font-size: 16px;
-            color: #e0e0e0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-header .section-icon {
-            font-size: 18px;
-        }
-
-        .section-header .feeds-into {
-            font-size: 11px;
-            color: #484f58;
-            font-weight: 400;
-        }
-
-        .section-chevron {
-            color: #8b949e;
-            font-size: 14px;
-            transition: transform 0.2s;
-        }
-
-        .section.expanded .section-chevron {
-            transform: rotate(90deg);
-        }
-
-        .section-body {
-            display: none;
-            padding: 20px;
-        }
-
-        .section.expanded .section-body {
-            display: block;
-        }
-
-        .section-description {
+        .detail-section-text {
             font-size: 13px;
-            color: #8b949e;
-            margin-bottom: 16px;
+            color: #c9d1d9;
             line-height: 1.5;
         }
 
-        /* Tables */
-        .workshop-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
+        /* ===== FORM FIELDS ===== */
+        .field-group {
             margin-bottom: 12px;
         }
-
-        .workshop-table th {
-            background-color: #21262d;
-            color: #e0e0e0;
+        .field-label {
+            font-size: 11px;
             font-weight: 600;
-            text-align: left;
-            padding: 10px 12px;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #8b949e;
+            margin-bottom: 4px;
+            display: block;
         }
-
-        .workshop-table td {
-            padding: 8px 12px;
-            border-bottom: 1px solid #21262d;
-            color: #c9d1d9;
-        }
-
-        .workshop-table tr:hover {
-            background-color: rgba(88, 166, 255, 0.03);
-        }
-
-        .workshop-table input {
-            background: transparent;
-            border: 1px solid transparent;
-            color: #c9d1d9;
-            font-family: inherit;
-            font-size: 13px;
-            padding: 4px 6px;
+        .field-input {
             width: 100%;
+            padding: 8px 10px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
             border-radius: 4px;
+            color: #c9d1d9;
+            font-size: 13px;
+            font-family: inherit;
             transition: border-color 0.2s;
         }
-
-        .workshop-table input:hover {
-            border-color: #30363d;
-        }
-
-        .workshop-table input:focus {
+        .field-input:focus {
             outline: none;
             border-color: #58a6ff;
-            background-color: rgba(88, 166, 255, 0.05);
+            box-shadow: 0 0 0 2px rgba(88,166,255,0.15);
         }
-
-        .workshop-table select {
-            background: #0d1117;
+        .field-input::placeholder { color: #484f58; }
+        .field-select {
+            width: 100%;
+            padding: 8px 10px;
+            background-color: #161b22;
             border: 1px solid #30363d;
-            color: #c9d1d9;
-            font-family: inherit;
-            font-size: 13px;
-            padding: 4px 6px;
             border-radius: 4px;
+            color: #c9d1d9;
+            font-size: 13px;
+            font-family: inherit;
             cursor: pointer;
         }
-
-        .workshop-table select:focus {
+        .field-select:focus {
             outline: none;
             border-color: #58a6ff;
         }
-
-        .workshop-table .calculated {
-            color: #58a6ff;
-            font-weight: 600;
+        .field-hint {
+            font-size: 10px;
+            color: #6e7681;
+            margin-top: 3px;
         }
-
-        .workshop-table .row-total {
-            background-color: rgba(88, 166, 255, 0.05);
-            font-weight: 600;
-        }
-
-        .workshop-table .row-total td {
-            border-top: 2px solid #30363d;
-            color: #58a6ff;
-        }
-
-        /* Status badges */
-        .status-active {
-            color: #2ea44f;
-            font-weight: 600;
-        }
-
-        .status-maintenance {
-            color: #d29922;
-            font-weight: 600;
-        }
-
-        .status-retired {
-            color: #8b949e;
-            font-weight: 600;
-        }
-
-        /* Buttons */
-        .btn-add-row {
-            background: none;
-            border: 1px dashed #30363d;
-            color: #8b949e;
-            font-size: 12px;
-            padding: 6px 14px;
+        .field-calculated {
+            padding: 8px 10px;
+            background-color: #0d1117;
+            border: 1px solid #21262d;
             border-radius: 4px;
+            color: #58a6ff;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .btn-verify {
+            width: 100%;
+            padding: 10px;
+            background-color: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-verify:hover { background-color: #2ea44f; }
+
+        .btn-unverify {
+            width: 100%;
+            padding: 8px;
+            background-color: transparent;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
             transition: all 0.2s;
         }
+        .btn-unverify:hover { border-color: #f85149; color: #f85149; }
 
-        .btn-add-row:hover {
-            border-color: #58a6ff;
-            color: #58a6ff;
-        }
-
-        .btn-remove-row {
-            background: none;
-            border: none;
-            color: #f85149;
-            cursor: pointer;
-            font-size: 14px;
-            opacity: 0.4;
-            padding: 2px 6px;
-            transition: opacity 0.2s;
-        }
-
-        .btn-remove-row:hover {
-            opacity: 1;
-        }
-
-        /* Info callouts */
-        .info-callout {
-            background-color: rgba(88, 166, 255, 0.05);
-            border: 1px solid #1f3a5f;
-            border-radius: 6px;
-            padding: 12px 16px;
-            font-size: 12px;
+        .btn-remove-card {
+            width: 100%;
+            padding: 8px;
+            background: transparent;
+            border: 1px solid #30363d;
+            border-radius: 4px;
             color: #8b949e;
-            margin-top: 12px;
-        }
-
-        .info-callout strong {
-            color: #58a6ff;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #21262d;
             font-size: 11px;
-            color: #484f58;
-            text-align: center;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .btn-remove-card:hover { border-color: #f85149; color: #f85149; }
+
+        /* ===== OVERLAY ===== */
+        .panel-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+        .panel-overlay.active { display: block; }
+
+        /* ===== MOBILE ===== */
+        @media (max-width: 900px) {
+            .workshop-pipeline {
+                flex-direction: column;
+                min-width: unset;
+            }
+            .phase-column {
+                flex: none;
+                width: 100%;
+            }
+            .detail-panel {
+                width: 100%;
+                right: -100%;
+            }
+            .workshop-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
 
-        /* Mobile */
-        @media (max-width: 768px) {
-            body { padding: 16px; }
-            .summary-grid { grid-template-columns: repeat(2, 1fr); }
-            .workshop-table { font-size: 12px; }
-            .workshop-table th, .workshop-table td { padding: 6px 8px; }
-        }
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0d1117; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #484f58; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <!-- HEADER -->
+    <header class="workshop-header">
+        <div class="header-left">
             <h1>Workshop Setup</h1>
-            <p>Caspers Creations &mdash; Define your printer fleet, rates, and materials. Pipeline steps reference this data.</p>
+            <p>Configure your production capabilities — every card feeds your product pipeline</p>
+        </div>
+        <div class="header-right">
+            <div class="summary-bar">
+                <span>Completion: <strong id="completionPct">0%</strong></span>
+                <span>(<strong id="completionCount">0/0</strong> cards)</span>
+                <div class="overall-led led-red" id="overallLed"></div>
+            </div>
             <div class="nav-links">
-                <a href="index.html">&larr; Back to Pipeline</a>
-                <span style="color: #30363d;">|</span>
+                <a href="index.html">&larr; Pipeline</a>
+                <span class="nav-sep">|</span>
                 <a href="welcome.html">About P2M</a>
-                <span style="color: #30363d;">|</span>
+                <span class="nav-sep">|</span>
                 <a href="changelog.html">Changelog</a>
-                <span style="color: #30363d;">|</span>
-                <a href="/" class="suite-link">&#x2B21; OpsFlowBetter Suite</a>
+                <span class="nav-sep">|</span>
+                <a href="https://opsflowbetter.com">OpsFlowBetter Suite</a>
             </div>
         </div>
+    </header>
 
-        <!-- Summary Card -->
-        <div class="summary-card" id="summaryCard">
-            <h2>Workshop at a Glance</h2>
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <div class="summary-value" id="sumPrintersActive">7</div>
-                    <div class="summary-label">Printers Active</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-value" id="sumPrintHours">168</div>
-                    <div class="summary-label">Print Hrs / Day</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-value" id="sumBlendedRate">$0.35</div>
-                    <div class="summary-label">Blended Hourly Rate</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-value" id="sumMaterials">2</div>
-                    <div class="summary-label">Materials Stocked</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-value" id="sumLaborRate">$12.00</div>
-                    <div class="summary-label">Operator Rate / Hr</div>
-                </div>
-            </div>
-            <div class="summary-note">These values are referenced by Steps 1.5, 2.3, and 3.1 in the Pipeline.</div>
-        </div>
+    <!-- PIPELINE -->
+    <div class="workshop-wrapper">
+        <div class="workshop-pipeline" id="workshopPipeline"></div>
+    </div>
 
-        <!-- Section 1: Printer Fleet -->
-        <div class="section expanded" id="sectionFleet">
-            <div class="section-header" onclick="toggleSection('sectionFleet')">
-                <h3>
-                    <span class="section-icon">&#x1F5A8;</span>
-                    Printer Fleet
-                    <span class="feeds-into">&rarr; Steps 1.5, 2.1, 2.3</span>
-                </h3>
-                <span class="section-chevron">&#x25B6;</span>
-            </div>
-            <div class="section-body">
-                <div class="section-description">
-                    Define every printer in your workshop. Active printers determine your total production capacity. Build plate size feeds into batch printing calculations in Step 2.1.
-                </div>
-                <table class="workshop-table" id="fleetTable">
-                    <thead>
-                        <tr>
-                            <th>Printer Name</th>
-                            <th>Model</th>
-                            <th>Build Plate (mm)</th>
-                            <th>Max Speed (mm/s)</th>
-                            <th>Hrs / Day</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="fleetBody"></tbody>
-                </table>
-                <button class="btn-add-row" onclick="addFleetRow()">+ Add Printer</button>
-                <div class="info-callout">
-                    <strong>Feeds into:</strong> Step 1.5 uses total active printers and daily print hours to check production feasibility. Step 2.1 uses build plate dimensions for batch layout. Step 2.3 uses printer model for slicer profile selection.
-                </div>
-            </div>
-        </div>
+    <!-- DETAIL PANEL OVERLAY -->
+    <div class="panel-overlay" id="panelOverlay"></div>
 
-        <!-- Section 2: Machine Rates -->
-        <div class="section expanded" id="sectionRates">
-            <div class="section-header" onclick="toggleSection('sectionRates')">
-                <h3>
-                    <span class="section-icon">&#x1F4B0;</span>
-                    Machine Rates
-                    <span class="feeds-into">&rarr; Step 3.1 (COGS)</span>
-                </h3>
-                <span class="section-chevron">&#x25B6;</span>
+    <!-- DETAIL PANEL -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+            <button class="detail-back-btn" id="detailBackBtn">&larr;</button>
+            <div class="detail-title-section">
+                <div class="detail-step-info" id="detailStepInfo"></div>
+                <div class="detail-title" id="detailTitle"></div>
+                <div class="detail-phase-info" id="detailPhaseInfo"></div>
             </div>
-            <div class="section-body">
-                <div class="section-description">
-                    Calculate the true cost of running each printer per hour. The blended rate across all active machines is the single number used in COGS calculations.
-                </div>
-                <table class="workshop-table" id="ratesTable">
-                    <thead>
-                        <tr>
-                            <th>Cost Component</th>
-                            <th>Value</th>
-                            <th>Calculation / Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ratesBody"></tbody>
-                </table>
-                <div class="info-callout">
-                    <strong>Key output:</strong> The <strong>Blended Hourly Rate</strong> is the single number that Step 3.1 (COGS) uses for the machine time cost component. It accounts for depreciation, electricity, and maintenance across your entire fleet.
-                </div>
-            </div>
+            <div class="detail-led-status led-red" id="detailLed"></div>
         </div>
-
-        <!-- Section 3: Materials Inventory -->
-        <div class="section expanded" id="sectionMaterials">
-            <div class="section-header" onclick="toggleSection('sectionMaterials')">
-                <h3>
-                    <span class="section-icon">&#x1F9F5;</span>
-                    Materials Inventory
-                    <span class="feeds-into">&rarr; Steps 2.3, 3.1</span>
-                </h3>
-                <span class="section-chevron">&#x25B6;</span>
-            </div>
-            <div class="section-body">
-                <div class="section-description">
-                    Track your filament and consumable costs. The cost per gram is what drives the material component of COGS in Step 3.1.
-                </div>
-                <table class="workshop-table" id="materialsTable">
-                    <thead>
-                        <tr>
-                            <th>Material</th>
-                            <th>Type</th>
-                            <th>Color</th>
-                            <th>Cost / kg</th>
-                            <th>Cost / gram</th>
-                            <th>Stock (kg)</th>
-                            <th>Supplier</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="materialsBody"></tbody>
-                </table>
-                <button class="btn-add-row" onclick="addMaterialRow()">+ Add Material</button>
-                <div class="info-callout">
-                    <strong>Feeds into:</strong> Step 2.3 selects the material for the product. Step 3.1 uses the cost/gram to calculate material cost per unit (material weight from slicer x cost/gram).
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 4: Workshop Labor -->
-        <div class="section expanded" id="sectionLabor">
-            <div class="section-header" onclick="toggleSection('sectionLabor')">
-                <h3>
-                    <span class="section-icon">&#x1F477;</span>
-                    Workshop Labor
-                    <span class="feeds-into">&rarr; Step 3.1 (COGS)</span>
-                </h3>
-                <span class="section-chevron">&#x25B6;</span>
-            </div>
-            <div class="section-body">
-                <div class="section-description">
-                    Define operator rates and availability. Post-processing, quality checks, and packaging all use the operator hourly rate for labor cost calculations.
-                </div>
-                <table class="workshop-table" id="laborTable">
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Value</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody id="laborBody"></tbody>
-                </table>
-                <div class="info-callout">
-                    <strong>Feeds into:</strong> Step 3.1 uses the operator hourly rate to calculate post-processing labor, packaging labor, and QC time costs. (Labor cost = time in minutes / 60 x hourly rate)
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 5: Workshop Software -->
-        <div class="section" id="sectionSoftware">
-            <div class="section-header" onclick="toggleSection('sectionSoftware')">
-                <h3>
-                    <span class="section-icon">&#x1F4BB;</span>
-                    Software &amp; Automation
-                    <span class="feeds-into">&rarr; Steps 2.1, 2.3</span>
-                </h3>
-                <span class="section-chevron">&#x25B6;</span>
-            </div>
-            <div class="section-body">
-                <div class="section-description">
-                    Track CAD software, slicer versions, and automation tools. Documenting your software stack ensures reproducibility across products.
-                </div>
-                <table class="workshop-table" id="softwareTable">
-                    <thead>
-                        <tr>
-                            <th>Software</th>
-                            <th>Purpose</th>
-                            <th>Version</th>
-                            <th>License</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody id="softwareBody"></tbody>
-                </table>
-                <button class="btn-add-row" onclick="addSoftwareRow()">+ Add Software</button>
-            </div>
-        </div>
-
-        <div class="footer">
-            P2M Pipeline &mdash; Workshop Setup &mdash; Caspers Creations<br>
-            Data on this page is referenced by Pipeline steps. Future: auto-sync between Workshop and Pipeline.
-        </div>
+        <div class="detail-body" id="detailBody"></div>
     </div>
 
     <script>
-        // ============================================================================
-        // WORKSHOP DATA
-        // ============================================================================
-        const workshopData = {
-            fleet: [
-                { name: 'X1C-01', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-                { name: 'X1C-02', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-                { name: 'X1C-03', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-                { name: 'X1C-04', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-                { name: 'X1C-05', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-                { name: 'H2D-01', model: 'Bambu Lab H2D', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-                { name: 'A1-01', model: 'Bambu Lab A1', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' }
-            ],
-            rates: [
-                { component: 'Average printer purchase price', value: '$1,200', notes: 'Weighted average across X1C ($1,400), H2D ($1,200), A1 ($400)' },
-                { component: 'Useful life (years)', value: '5', notes: 'Conservative estimate for consumer-grade printers at production pace' },
-                { component: 'Depreciation per printer/yr', value: '$240', notes: '$1,200 / 5 years' },
-                { component: 'Depreciation per printer/hr', value: '$0.027', notes: '$240 / 8,760 hours (24/7 availability)' },
-                { component: 'Electricity cost per kWh', value: '$0.12', notes: 'NC residential rate (Duke Energy)' },
-                { component: 'Avg printer power draw', value: '200W', notes: 'Bambu X1C ~150-250W during print' },
-                { component: 'Electricity cost per print hr', value: '$0.024', notes: '0.2 kW x $0.12/kWh' },
-                { component: 'Annual maintenance per printer', value: '$100', notes: 'Nozzles, belts, PEI sheets, lubricant' },
-                { component: 'Maintenance per printer/hr', value: '$0.011', notes: '$100 / 8,760 hours' },
-                { component: 'Total cost per printer/hr', value: '$0.062', notes: '$0.027 + $0.024 + $0.011' },
-                { component: 'Active printers', value: '7', notes: 'Current fleet size' },
-                { component: 'BLENDED HOURLY RATE', value: '$0.35', notes: 'Approximate blended rate accounting for utilization and overhead. Used in all COGS calculations.' }
-            ],
-            materials: [
-                { material: 'PETG-HF', type: 'PETG (High Flow)', color: 'Various', costKg: '$30.00', costGram: '$0.030', stock: '10', supplier: 'Bambu Lab / eSUN' },
-                { material: 'PLA Basic', type: 'PLA', color: 'Various', costKg: '$20.00', costGram: '$0.020', stock: '5', supplier: 'Bambu Lab / Polymaker' }
-            ],
-            labor: [
-                { field: 'Primary operator', value: 'Christian Caspers', notes: 'Owner-operator' },
-                { field: 'Operator hourly rate', value: '$12.00', notes: 'Used for labor cost calculations in COGS' },
-                { field: 'Hours available per day', value: '4', notes: 'Part-time dedication to workshop operations' },
-                { field: 'Post-processing skill level', value: 'Intermediate', notes: 'Deburring, sanding, assembly, QC' }
-            ],
-            software: [
-                { name: 'Bambu Studio', purpose: 'Slicer', version: '2.1', license: 'Free', notes: 'Primary slicer for all Bambu printers' },
-                { name: 'Fusion 360', purpose: 'CAD Design', version: 'Current', license: 'Personal', notes: 'Primary CAD tool' },
-                { name: 'AutoFarm3D (AF3D)', purpose: 'Print Farm Automation', version: 'Full', license: 'Beta Tester', notes: 'By 3DQue Systems. Manages print queue and auto-ejection.' }
+    // ===================================================================
+    // WORKSHOP STATE & CARD DEFINITIONS
+    // ===================================================================
+
+    var PHASES = {
+        1: { name: 'Facility & Utilities', color: '#2563eb' },
+        2: { name: 'Printer Fleet', color: '#7c3aed', dynamic: true, dynamicLabel: '+ Add Printer' },
+        3: { name: 'Machine Economics', color: '#059669' },
+        4: { name: 'Materials Library', color: '#d97706', dynamic: true, dynamicLabel: '+ Add Material' },
+        5: { name: 'Labor', color: '#dc2626' },
+        6: { name: 'Software & Tools', color: '#db2777', dynamic: true, dynamicLabel: '+ Add Tool' }
+    };
+
+    var STATIC_CARDS = {
+        '1.1': {
+            phase: 1, number: '1.1', title: 'Electricity Rate',
+            description: 'Your per-kWh electricity cost',
+            output: 'Feeds machine economics',
+            purpose: 'Your electricity rate determines the energy cost per print hour. This flows into Machine Economics (Phase 3) to calculate the blended hourly rate that every product uses for COGS.',
+            fields: [
+                { key: 'rate', label: '$ per kWh', type: 'text', placeholder: '0.12', hint: 'Check your Duke Energy bill — look for the per-kWh rate' }
             ]
+        },
+        '1.2': {
+            phase: 1, number: '1.2', title: 'Workspace Details',
+            description: 'Physical workspace and overhead',
+            output: 'Overhead allocation baseline',
+            purpose: 'Document your physical workspace so you can allocate overhead costs. Even a home workshop has space costs — this helps you understand your true cost basis.',
+            fields: [
+                { key: 'sqft', label: 'Square Footage', type: 'text', placeholder: '200', hint: 'Dedicated workshop area' },
+                { key: 'ownership', label: 'Rent or Own', type: 'select', options: ['Own', 'Rent', 'Shared'], hint: '' },
+                { key: 'monthlyCost', label: 'Monthly Cost ($)', type: 'text', placeholder: '0', hint: 'Rent portion or allocated mortgage cost' },
+                { key: 'location', label: 'Location', type: 'text', placeholder: 'High Point, NC', hint: 'City/state for shipping zone calculations' }
+            ]
+        },
+        '1.3': {
+            phase: 1, number: '1.3', title: 'Internet & Services',
+            description: 'Monthly utility subscriptions',
+            output: 'Service cost baseline',
+            purpose: 'Track recurring service costs that support your print operation — internet for farm monitoring, cloud storage for design files, any automation subscriptions.',
+            fields: [
+                { key: 'internet', label: 'Internet ($/month)', type: 'text', placeholder: '60', hint: 'Monthly ISP cost (or allocated portion)' },
+                { key: 'cloud', label: 'Cloud Storage ($/month)', type: 'text', placeholder: '0', hint: 'Google Drive, Dropbox, etc.' },
+                { key: 'other', label: 'Other Services ($/month)', type: 'text', placeholder: '0', hint: 'Farm monitoring, VPN, etc.' }
+            ]
+        },
+        '3.1': {
+            phase: 3, number: '3.1', title: 'Depreciation',
+            description: 'Per-hour machine depreciation cost',
+            output: 'Depreciation cost/hour',
+            purpose: 'Calculate how much each hour of printing costs in machine depreciation. This is the biggest component of your blended hourly rate.',
+            fields: [
+                { key: 'avgPrice', label: 'Avg. Printer Purchase Price ($)', type: 'text', placeholder: '1200', hint: 'Weighted average across fleet' },
+                { key: 'lifespan', label: 'Useful Life (years)', type: 'text', placeholder: '3', hint: 'Conservative estimate for 3D printers' },
+                { key: 'depYear', label: 'Depreciation per Printer/Year ($)', type: 'calculated' },
+                { key: 'depHour', label: 'Depreciation per Print Hour ($)', type: 'calculated' }
+            ]
+        },
+        '3.2': {
+            phase: 3, number: '3.2', title: 'Maintenance',
+            description: 'Annual maintenance budget allocation',
+            output: 'Maintenance cost/hour',
+            purpose: 'Set aside a maintenance budget for nozzle replacements, belts, bearings, and unexpected repairs. This per-hour allocation flows into your blended rate.',
+            fields: [
+                { key: 'annualBudget', label: 'Annual Budget per Printer ($)', type: 'text', placeholder: '150', hint: 'Nozzles, belts, bearings, misc parts' },
+                { key: 'maintHour', label: 'Maintenance per Print Hour ($)', type: 'calculated' }
+            ]
+        },
+        '3.3': {
+            phase: 3, number: '3.3', title: 'Electricity per Print Hour',
+            description: 'Energy cost per hour of printing',
+            output: 'Electricity cost/hour',
+            purpose: 'Calculate how much electricity each hour of printing consumes. Uses your electricity rate from Phase 1 and the average power draw of your printers.',
+            fields: [
+                { key: 'electricityRate', label: 'Electricity Rate (from 1.1)', type: 'linked' },
+                { key: 'avgWatts', label: 'Avg. Printer Power Draw (watts)', type: 'text', placeholder: '200', hint: 'Bambu X1C draws ~150-250W while printing' },
+                { key: 'elecHour', label: 'Electricity per Print Hour ($)', type: 'calculated' }
+            ]
+        },
+        '3.4': {
+            phase: 3, number: '3.4', title: 'Blended Hourly Rate',
+            description: 'All-in machine cost per print hour',
+            output: 'Used in all product COGS',
+            purpose: 'This is the number that matters most. Your blended hourly rate combines depreciation, maintenance, and electricity into one per-hour cost that every product in the Pipeline uses for COGS calculations.',
+            fields: [
+                { key: 'depComponent', label: 'Depreciation/hr (from 3.1)', type: 'linked' },
+                { key: 'maintComponent', label: 'Maintenance/hr (from 3.2)', type: 'linked' },
+                { key: 'elecComponent', label: 'Electricity/hr (from 3.3)', type: 'linked' },
+                { key: 'blendedRate', label: 'Blended Hourly Rate ($)', type: 'calculated' }
+            ],
+            allLinked: true
+        },
+        '5.1': {
+            phase: 5, number: '5.1', title: 'Primary Operator',
+            description: 'Your role and labor rate',
+            output: 'Labor cost baseline',
+            purpose: 'Define your labor rate and availability. Even as an owner-operator, assigning an hourly rate keeps your COGS honest and helps you know when hiring makes sense.',
+            fields: [
+                { key: 'name', label: 'Operator Name', type: 'text', placeholder: 'Christian Caspers', hint: '' },
+                { key: 'rate', label: 'Hourly Rate ($)', type: 'text', placeholder: '12', hint: 'Your labor cost for COGS calculations' },
+                { key: 'hoursDay', label: 'Hours Available per Day', type: 'text', placeholder: '4', hint: 'Realistic daily availability for print operations' }
+            ]
+        },
+        '5.2': {
+            phase: 5, number: '5.2', title: 'Additional Labor',
+            description: 'Helpers, contractors, future hires',
+            output: 'Expanded labor capacity',
+            purpose: 'If you have anyone helping — even occasionally — document them here. Leave empty if you are a solo operation. This card is optional for verification.',
+            fields: [
+                { key: 'helper1Name', label: 'Name (if any)', type: 'text', placeholder: '', hint: 'Leave blank if solo operation' },
+                { key: 'helper1Role', label: 'Role', type: 'select', options: ['', 'Operator', 'Post-Processing', 'QC', 'Packaging', 'Other'] },
+                { key: 'helper1Rate', label: 'Hourly Rate ($)', type: 'text', placeholder: '', hint: '' },
+                { key: 'helper1Hours', label: 'Hours per Week', type: 'text', placeholder: '', hint: '' }
+            ],
+            optional: true
+        }
+    };
+
+    var DEFAULT_FLEET = [
+        { id: 'p1', name: 'X1C-01', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+        { id: 'p2', name: 'X1C-02', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+        { id: 'p3', name: 'X1C-03', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+        { id: 'p4', name: 'X1C-04', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+        { id: 'p5', name: 'X1C-05', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+        { id: 'p6', name: 'H2D-01', model: 'Bambu Lab H2D', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+        { id: 'p7', name: 'A1-01', model: 'Bambu Lab A1', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' }
+    ];
+
+    var DEFAULT_MATERIALS = [
+        { id: 'm1', name: 'PETG-HF', type: 'PETG (High Flow)', color: 'Various', costKg: '30', costGram: '0.030', stock: '10', supplier: 'Bambu Lab / eSUN' },
+        { id: 'm2', name: 'PLA', type: 'PLA', color: 'Various', costKg: '20', costGram: '0.020', stock: '5', supplier: 'Bambu Lab / eSUN' }
+    ];
+
+    var DEFAULT_SOFTWARE = [
+        { id: 's1', name: 'Bambu Studio', purpose: 'Slicer', version: '2.1', license: 'Free', cost: '0', notes: 'Primary slicer for Bambu fleet' },
+        { id: 's2', name: 'Fusion 360', purpose: 'CAD', version: '2.0', license: 'Personal', cost: '0', notes: 'Product design and modeling' },
+        { id: 's3', name: 'AutoFarm3D', purpose: 'Farm Control', version: 'Beta', license: 'Beta', cost: '0', notes: 'Print farm automation and monitoring' }
+    ];
+
+    // ===================================================================
+    // STATE MANAGEMENT
+    // ===================================================================
+
+    var state = loadState();
+    var activeCardId = null;
+
+    function createDefaultState() {
+        var s = {
+            statics: {},
+            fleet: DEFAULT_FLEET.map(function(p) { return Object.assign({}, p, { status_led: 'red', verified: false }); }),
+            materials: DEFAULT_MATERIALS.map(function(m) { return Object.assign({}, m, { status_led: 'red', verified: false }); }),
+            software: DEFAULT_SOFTWARE.map(function(sw) { return Object.assign({}, sw, { status_led: 'red', verified: false }); }),
+            nextDynId: { fleet: 8, materials: 3, software: 4 }
         };
-
-        // ============================================================================
-        // RENDER FUNCTIONS
-        // ============================================================================
-        function renderFleet() {
-            const tbody = document.getElementById('fleetBody');
-            tbody.innerHTML = '';
-            workshopData.fleet.forEach((p, idx) => {
-                const statusClass = p.status === 'Active' ? 'status-active' : p.status === 'Maintenance' ? 'status-maintenance' : 'status-retired';
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><input type="text" value="${p.name}" onchange="workshopData.fleet[${idx}].name=this.value; updateSummary();"></td>
-                    <td><input type="text" value="${p.model}" onchange="workshopData.fleet[${idx}].model=this.value;"></td>
-                    <td><input type="text" value="${p.plate}" onchange="workshopData.fleet[${idx}].plate=this.value;"></td>
-                    <td><input type="text" value="${p.speed}" onchange="workshopData.fleet[${idx}].speed=this.value;"></td>
-                    <td><input type="text" value="${p.hours}" onchange="workshopData.fleet[${idx}].hours=this.value; updateSummary();" style="width:50px;"></td>
-                    <td><select onchange="workshopData.fleet[${idx}].status=this.value; updateSummary(); renderFleet();">
-                        <option value="Active" ${p.status === 'Active' ? 'selected' : ''}>Active</option>
-                        <option value="Maintenance" ${p.status === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
-                        <option value="Retired" ${p.status === 'Retired' ? 'selected' : ''}>Retired</option>
-                    </select></td>
-                    <td><button class="btn-remove-row" onclick="workshopData.fleet.splice(${idx},1); renderFleet(); updateSummary();" title="Remove">&times;</button></td>
-                `;
-                tbody.appendChild(tr);
+        Object.keys(STATIC_CARDS).forEach(function(id) {
+            s.statics[id] = { status: 'red', verified: false, values: {} };
+            STATIC_CARDS[id].fields.forEach(function(f) {
+                if (f.type !== 'calculated' && f.type !== 'linked') {
+                    s.statics[id].values[f.key] = f.placeholder || '';
+                }
             });
-        }
+        });
+        return s;
+    }
 
-        function renderRates() {
-            const tbody = document.getElementById('ratesBody');
-            tbody.innerHTML = '';
-            workshopData.rates.forEach((r, idx) => {
-                const isTotal = r.component === 'BLENDED HOURLY RATE';
-                const tr = document.createElement('tr');
-                if (isTotal) tr.className = 'row-total';
-                tr.innerHTML = `
-                    <td>${isTotal ? '<strong>' + r.component + '</strong>' : r.component}</td>
-                    <td><input type="text" value="${r.value}" onchange="workshopData.rates[${idx}].value=this.value; updateSummary();" ${isTotal ? 'class="calculated"' : ''}></td>
-                    <td style="color:#8b949e; font-size:12px;">${r.notes}</td>
-                `;
-                tbody.appendChild(tr);
+    function loadState() {
+        try {
+            var saved = localStorage.getItem('workshopState_v2');
+            if (saved) return JSON.parse(saved);
+        } catch (e) { /* ignore */ }
+        return createDefaultState();
+    }
+
+    function saveState() {
+        try {
+            localStorage.setItem('workshopState_v2', JSON.stringify(state));
+        } catch (e) { /* ignore */ }
+    }
+
+    // ===================================================================
+    // LED STATUS LOGIC
+    // ===================================================================
+
+    function getStaticCardStatus(cardId) {
+        var def = STATIC_CARDS[cardId];
+        var data = state.statics[cardId];
+        if (!def || !data) return 'red';
+        if (data.verified) return 'green';
+
+        if (def.allLinked) return 'yellow';
+
+        var requiredFields = def.fields.filter(function(f) { return f.type !== 'calculated' && f.type !== 'linked'; });
+        if (requiredFields.length === 0) return 'yellow';
+
+        var filled = requiredFields.filter(function(f) {
+            var val = data.values[f.key];
+            return val !== undefined && val !== null && val !== '';
+        }).length;
+
+        if (def.optional && filled === 0) return 'red';
+        if (filled === 0) return 'red';
+        if (filled < requiredFields.length) return 'yellow';
+        return 'yellow';
+    }
+
+    function getDynamicCardStatus(item) {
+        if (item.verified) return 'green';
+        var filled = 0;
+        var total = 0;
+        Object.keys(item).forEach(function(key) {
+            if (key !== 'id' && key !== 'status_led' && key !== 'verified' && key !== 'costGram') {
+                total++;
+                if (item[key] !== '' && item[key] !== null && item[key] !== undefined) filled++;
+            }
+        });
+        if (filled === 0) return 'red';
+        return 'yellow';
+    }
+
+    function updateAllStatuses() {
+        Object.keys(STATIC_CARDS).forEach(function(id) {
+            state.statics[id].status = getStaticCardStatus(id);
+        });
+        state.fleet.forEach(function(p) { p.status_led = getDynamicCardStatus(p); });
+        state.materials.forEach(function(m) { m.status_led = getDynamicCardStatus(m); });
+        state.software.forEach(function(s) { s.status_led = getDynamicCardStatus(s); });
+    }
+
+    // ===================================================================
+    // CALCULATED FIELDS
+    // ===================================================================
+
+    function getFieldValue(cardId, fieldKey) {
+        if (state.statics[cardId]) {
+            return state.statics[cardId].values[fieldKey] || '';
+        }
+        return '';
+    }
+
+    function calcAvgHoursPerDay() {
+        var active = state.fleet.filter(function(p) { return p.status === 'Active'; });
+        if (active.length === 0) return 24;
+        var total = active.reduce(function(s, p) { return s + (parseFloat(p.hours) || 0); }, 0);
+        return total / active.length;
+    }
+
+    function calcDepYear() {
+        var price = parseFloat(getFieldValue('3.1', 'avgPrice')) || 0;
+        var life = parseFloat(getFieldValue('3.1', 'lifespan')) || 1;
+        return (price / life).toFixed(2);
+    }
+
+    function calcDepHour() {
+        var depYear = parseFloat(calcDepYear()) || 0;
+        var avgHrs = calcAvgHoursPerDay();
+        return (depYear / (365 * avgHrs)).toFixed(4);
+    }
+
+    function calcMaintHour() {
+        var budget = parseFloat(getFieldValue('3.2', 'annualBudget')) || 0;
+        var avgHrs = calcAvgHoursPerDay();
+        return (budget / (365 * avgHrs)).toFixed(4);
+    }
+
+    function calcElecHour() {
+        var rate = parseFloat(getFieldValue('1.1', 'rate')) || 0;
+        var watts = parseFloat(getFieldValue('3.3', 'avgWatts')) || 0;
+        return (rate * (watts / 1000)).toFixed(4);
+    }
+
+    function calcBlendedRate() {
+        var dep = parseFloat(calcDepHour()) || 0;
+        var maint = parseFloat(calcMaintHour()) || 0;
+        var elec = parseFloat(calcElecHour()) || 0;
+        return (dep + maint + elec).toFixed(2);
+    }
+
+    function getCalculatedValue(cardId, fieldKey) {
+        if (cardId === '3.1' && fieldKey === 'depYear') return '$' + calcDepYear();
+        if (cardId === '3.1' && fieldKey === 'depHour') return '$' + calcDepHour();
+        if (cardId === '3.2' && fieldKey === 'maintHour') return '$' + calcMaintHour();
+        if (cardId === '3.3' && fieldKey === 'electricityRate') return '$' + (getFieldValue('1.1', 'rate') || '—');
+        if (cardId === '3.3' && fieldKey === 'elecHour') return '$' + calcElecHour();
+        if (cardId === '3.4' && fieldKey === 'depComponent') return '$' + calcDepHour();
+        if (cardId === '3.4' && fieldKey === 'maintComponent') return '$' + calcMaintHour();
+        if (cardId === '3.4' && fieldKey === 'elecComponent') return '$' + calcElecHour();
+        if (cardId === '3.4' && fieldKey === 'blendedRate') return '$' + calcBlendedRate();
+        return '—';
+    }
+
+    // ===================================================================
+    // COMPLETION TRACKING
+    // ===================================================================
+
+    function getPhaseCards(phaseNum) {
+        var cards = [];
+        Object.keys(STATIC_CARDS).forEach(function(id) {
+            if (STATIC_CARDS[id].phase === phaseNum) {
+                cards.push({ id: id, status: state.statics[id].status });
+            }
+        });
+        if (phaseNum === 2) state.fleet.forEach(function(p) { cards.push({ id: 'fleet-' + p.id, status: p.status_led }); });
+        if (phaseNum === 4) state.materials.forEach(function(m) { cards.push({ id: 'mat-' + m.id, status: m.status_led }); });
+        if (phaseNum === 6) state.software.forEach(function(s) { cards.push({ id: 'sw-' + s.id, status: s.status_led }); });
+        return cards;
+    }
+
+    function getPhaseProgress(phaseNum) {
+        var cards = getPhaseCards(phaseNum);
+        if (cards.length === 0) return { done: 0, total: 0, pct: 0 };
+        var done = cards.filter(function(c) { return c.status === 'green'; }).length;
+        return { done: done, total: cards.length, pct: Math.round((done / cards.length) * 100) };
+    }
+
+    function getOverallProgress() {
+        var total = 0, done = 0;
+        for (var p = 1; p <= 6; p++) {
+            var prog = getPhaseProgress(p);
+            total += prog.total;
+            done += prog.done;
+        }
+        return { done: done, total: total, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
+    }
+
+    function updateCompletionDisplay() {
+        var prog = getOverallProgress();
+        document.getElementById('completionPct').textContent = prog.pct + '%';
+        document.getElementById('completionCount').textContent = prog.done + '/' + prog.total;
+        var led = document.getElementById('overallLed');
+        led.className = 'overall-led';
+        if (prog.pct === 100) led.classList.add('led-green');
+        else if (prog.pct > 0) led.classList.add('led-yellow');
+        else led.classList.add('led-red');
+    }
+
+    // ===================================================================
+    // RENDERING
+    // ===================================================================
+
+    function render() {
+        updateAllStatuses();
+        renderPipeline();
+        updateCompletionDisplay();
+        saveState();
+    }
+
+    function renderPipeline() {
+        var container = document.getElementById('workshopPipeline');
+        container.innerHTML = '';
+
+        for (var p = 1; p <= 6; p++) {
+            var phaseInfo = PHASES[p];
+            var progress = getPhaseProgress(p);
+
+            var col = document.createElement('div');
+            col.className = 'phase-column phase-' + p;
+
+            col.innerHTML = '<div class="phase-header">' +
+                '<span class="phase-number">' + p + '</span>' +
+                '<span class="phase-name">' + phaseInfo.name + '</span>' +
+                '<span class="phase-completion">' + progress.done + '/' + progress.total + '</span>' +
+                '</div>' +
+                '<div class="phase-progress-bar"><div class="phase-progress-fill" style="width:' + progress.pct + '%"></div></div>';
+
+            var content = document.createElement('div');
+            content.className = 'phase-content';
+
+            // Static cards
+            Object.keys(STATIC_CARDS).forEach(function(id) {
+                if (STATIC_CARDS[id].phase === p) {
+                    var def = STATIC_CARDS[id];
+                    var data = state.statics[id];
+                    content.appendChild(createCard(id, def.number, def.title, def.description, def.output, data.status, function(cardId) {
+                        return function() { openStaticCard(cardId); };
+                    }(id)));
+                }
             });
-        }
 
-        function renderMaterials() {
-            const tbody = document.getElementById('materialsBody');
-            tbody.innerHTML = '';
-            workshopData.materials.forEach((m, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><input type="text" value="${m.material}" onchange="workshopData.materials[${idx}].material=this.value; updateSummary();"></td>
-                    <td><input type="text" value="${m.type}" onchange="workshopData.materials[${idx}].type=this.value;"></td>
-                    <td><input type="text" value="${m.color}" onchange="workshopData.materials[${idx}].color=this.value;"></td>
-                    <td><input type="text" value="${m.costKg}" onchange="workshopData.materials[${idx}].costKg=this.value;" style="width:70px;"></td>
-                    <td class="calculated">${m.costGram}</td>
-                    <td><input type="text" value="${m.stock}" onchange="workshopData.materials[${idx}].stock=this.value;" style="width:50px;"></td>
-                    <td><input type="text" value="${m.supplier}" onchange="workshopData.materials[${idx}].supplier=this.value;"></td>
-                    <td><button class="btn-remove-row" onclick="workshopData.materials.splice(${idx},1); renderMaterials(); updateSummary();" title="Remove">&times;</button></td>
-                `;
-                tbody.appendChild(tr);
+            // Dynamic cards
+            if (p === 2) {
+                state.fleet.forEach(function(printer) {
+                    content.appendChild(createCard('fleet-' + printer.id, printer.name || 'New Printer', printer.model || 'Unconfigured', printer.status, 'Printer config', printer.status_led, function(pid) {
+                        return function() { openFleetCard(pid); };
+                    }(printer.id)));
+                });
+            }
+            if (p === 4) {
+                state.materials.forEach(function(mat) {
+                    content.appendChild(createCard('mat-' + mat.id, mat.name || 'New Material', mat.type || 'Unconfigured', '$' + (mat.costKg || '—') + '/kg', 'Material costs', mat.status_led, function(mid) {
+                        return function() { openMaterialCard(mid); };
+                    }(mat.id)));
+                });
+            }
+            if (p === 6) {
+                state.software.forEach(function(sw) {
+                    content.appendChild(createCard('sw-' + sw.id, sw.name || 'New Tool', sw.purpose || 'Unconfigured', sw.license, 'Tool config', sw.status_led, function(sid) {
+                        return function() { openSoftwareCard(sid); };
+                    }(sw.id)));
+                });
+            }
+
+            // Add button
+            if (phaseInfo.dynamic) {
+                var addBtn = document.createElement('button');
+                addBtn.className = 'add-card-btn';
+                addBtn.textContent = phaseInfo.dynamicLabel;
+                addBtn.addEventListener('click', function(phaseNum) {
+                    return function() { addDynamicCard(phaseNum); };
+                }(p));
+                content.appendChild(addBtn);
+            }
+
+            col.appendChild(content);
+            container.appendChild(col);
+        }
+    }
+
+    function createCard(dataId, number, title, description, output, status, onClick) {
+        var card = document.createElement('div');
+        card.className = 'step-card led-' + status;
+        card.dataset.cardId = dataId;
+        if (dataId === activeCardId) card.classList.add('active-card');
+
+        card.innerHTML = '<div class="step-header">' +
+            '<span class="step-number">' + escHtml(number) + '</span>' +
+            '<div class="step-led led-' + status + '"></div>' +
+            '</div>' +
+            '<div class="step-title">' + escHtml(title) + '</div>' +
+            '<div class="step-description">' + escHtml(description) + '</div>' +
+            '<div class="step-output">' + escHtml(output) + '</div>';
+
+        card.addEventListener('click', onClick);
+        return card;
+    }
+
+    // ===================================================================
+    // DETAIL PANEL — STATIC CARDS
+    // ===================================================================
+
+    function openStaticCard(cardId) {
+        var def = STATIC_CARDS[cardId];
+        var data = state.statics[cardId];
+        if (!def || !data) return;
+
+        activeCardId = cardId;
+        highlightCard(cardId);
+
+        document.getElementById('detailStepInfo').textContent = 'Card ' + def.number;
+        document.getElementById('detailTitle').textContent = def.title;
+        document.getElementById('detailPhaseInfo').textContent = 'Phase ' + def.phase + ': ' + PHASES[def.phase].name;
+        setDetailLed(data.status);
+
+        var body = document.getElementById('detailBody');
+        body.innerHTML = '';
+
+        body.appendChild(makeSection('Purpose', def.purpose));
+
+        var fieldsDiv = document.createElement('div');
+        fieldsDiv.className = 'detail-section';
+        fieldsDiv.innerHTML = '<div class="detail-section-label">Data Entry</div>';
+
+        def.fields.forEach(function(field) {
+            var group = document.createElement('div');
+            group.className = 'field-group';
+
+            if (field.type === 'calculated' || field.type === 'linked') {
+                group.innerHTML = '<label class="field-label">' + escHtml(field.label) + '</label>' +
+                    '<div class="field-calculated">' + getCalculatedValue(cardId, field.key) + '</div>';
+            } else if (field.type === 'select') {
+                var optHtml = (field.options || []).map(function(o) {
+                    var sel = (data.values[field.key] === o) ? ' selected' : '';
+                    return '<option value="' + escHtml(o) + '"' + sel + '>' + escHtml(o) + '</option>';
+                }).join('');
+                group.innerHTML = '<label class="field-label">' + escHtml(field.label) + '</label>' +
+                    '<select class="field-select" data-card="' + cardId + '" data-field="' + field.key + '">' + optHtml + '</select>';
+                if (field.hint) group.innerHTML += '<div class="field-hint">' + escHtml(field.hint) + '</div>';
+            } else {
+                group.innerHTML = '<label class="field-label">' + escHtml(field.label) + '</label>' +
+                    '<input class="field-input" type="text" data-card="' + cardId + '" data-field="' + field.key + '" value="' + escHtml(data.values[field.key] || '') + '" placeholder="' + escHtml(field.placeholder || '') + '">' +
+                    (field.hint ? '<div class="field-hint">' + escHtml(field.hint) + '</div>' : '');
+            }
+            fieldsDiv.appendChild(group);
+        });
+        body.appendChild(fieldsDiv);
+
+        var actDiv = document.createElement('div');
+        actDiv.className = 'detail-section';
+        if (data.verified) {
+            actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
+                '<button class="btn-unverify" id="btnUnverify">Edit &amp; Re-verify</button>';
+        } else {
+            actDiv.innerHTML = '<button class="btn-verify" id="btnVerify">' + (def.optional ? 'Mark as Complete (Optional)' : 'Mark as Complete') + '</button>';
+        }
+        body.appendChild(actDiv);
+
+        showPanel();
+
+        setTimeout(function() {
+            var verifyBtn = document.getElementById('btnVerify');
+            if (verifyBtn) verifyBtn.addEventListener('click', function() { verifyStatic(cardId); });
+            var unverifyBtn = document.getElementById('btnUnverify');
+            if (unverifyBtn) unverifyBtn.addEventListener('click', function() { unverifyStatic(cardId); });
+
+            document.querySelectorAll('.field-input[data-card="' + cardId + '"], .field-select[data-card="' + cardId + '"]').forEach(function(el) {
+                var handler = function() {
+                    state.statics[cardId].values[el.dataset.field] = el.value;
+                    state.statics[cardId].verified = false;
+                    state.statics[cardId].status = getStaticCardStatus(cardId);
+                    updateCardLed(cardId, state.statics[cardId].status);
+                    setDetailLed(state.statics[cardId].status);
+                    updatePhaseProgressBar(STATIC_CARDS[cardId].phase);
+                    updateCompletionDisplay();
+                    saveState();
+                };
+                el.addEventListener('input', handler);
+                el.addEventListener('change', handler);
             });
-        }
+        }, 50);
+    }
 
-        function renderLabor() {
-            const tbody = document.getElementById('laborBody');
-            tbody.innerHTML = '';
-            workshopData.labor.forEach((l, idx) => {
-                tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${l.field}</td>
-                    <td><input type="text" value="${l.value}" onchange="workshopData.labor[${idx}].value=this.value; updateSummary();"></td>
-                    <td style="color:#8b949e; font-size:12px;">${l.notes}</td>
-                `;
-                tbody.appendChild(tr);
+    function verifyStatic(cardId) {
+        var def = STATIC_CARDS[cardId];
+        var data = state.statics[cardId];
+        if (def.optional) {
+            data.verified = true;
+            data.status = 'green';
+            render();
+            openStaticCard(cardId);
+            return;
+        }
+        var required = def.fields.filter(function(f) { return f.type !== 'calculated' && f.type !== 'linked'; });
+        var allFilled = required.every(function(f) {
+            var val = data.values[f.key];
+            return val !== undefined && val !== null && val !== '';
+        });
+        if (!allFilled) {
+            alert('Please fill in all fields before marking complete.');
+            return;
+        }
+        data.verified = true;
+        data.status = 'green';
+        render();
+        openStaticCard(cardId);
+    }
+
+    function unverifyStatic(cardId) {
+        state.statics[cardId].verified = false;
+        render();
+        openStaticCard(cardId);
+    }
+
+    // ===================================================================
+    // DETAIL PANEL — FLEET (Dynamic)
+    // ===================================================================
+
+    function openFleetCard(printerId) {
+        var printer = state.fleet.find(function(p) { return p.id === printerId; });
+        if (!printer) return;
+
+        activeCardId = 'fleet-' + printerId;
+        highlightCard(activeCardId);
+
+        document.getElementById('detailStepInfo').textContent = printer.name || 'New Printer';
+        document.getElementById('detailTitle').textContent = printer.model || 'Configure this printer';
+        document.getElementById('detailPhaseInfo').textContent = 'Phase 2: Printer Fleet';
+        setDetailLed(printer.status_led);
+
+        var body = document.getElementById('detailBody');
+        body.innerHTML = '';
+
+        body.appendChild(makeSection('Purpose', 'Configure this printer\'s specs and availability. Each printer contributes to your fleet\'s total capacity, which determines how many products you can produce per day.'));
+
+        var fieldsDiv = document.createElement('div');
+        fieldsDiv.className = 'detail-section';
+        fieldsDiv.innerHTML = '<div class="detail-section-label">Printer Details</div>';
+
+        var fields = [
+            { key: 'name', label: 'Printer Name', placeholder: 'X1C-01' },
+            { key: 'model', label: 'Model', placeholder: 'Bambu Lab X1C' },
+            { key: 'plate', label: 'Build Plate (mm)', placeholder: '256 x 256' },
+            { key: 'speed', label: 'Max Speed (mm/s)', placeholder: '500' },
+            { key: 'hours', label: 'Hours/Day Available', placeholder: '24' }
+        ];
+
+        fields.forEach(function(f) {
+            var group = document.createElement('div');
+            group.className = 'field-group';
+            group.innerHTML = '<label class="field-label">' + escHtml(f.label) + '</label>' +
+                '<input class="field-input" type="text" data-dyn="fleet" data-id="' + printerId + '" data-field="' + f.key + '" value="' + escHtml(printer[f.key] || '') + '" placeholder="' + escHtml(f.placeholder) + '">';
+            fieldsDiv.appendChild(group);
+        });
+
+        var statusGroup = document.createElement('div');
+        statusGroup.className = 'field-group';
+        var statusOpts = ['Active', 'Maintenance', 'Retired'].map(function(o) {
+            return '<option value="' + o + '"' + (printer.status === o ? ' selected' : '') + '>' + o + '</option>';
+        }).join('');
+        statusGroup.innerHTML = '<label class="field-label">Status</label>' +
+            '<select class="field-select" data-dyn="fleet" data-id="' + printerId + '" data-field="status">' + statusOpts + '</select>';
+        fieldsDiv.appendChild(statusGroup);
+        body.appendChild(fieldsDiv);
+
+        var actDiv = document.createElement('div');
+        actDiv.className = 'detail-section';
+        if (printer.verified) {
+            actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
+                '<button class="btn-unverify" id="btnUnverifyDyn">Edit &amp; Re-verify</button>';
+        } else {
+            actDiv.innerHTML = '<button class="btn-verify" id="btnVerifyDyn">Mark as Complete</button>';
+        }
+        actDiv.innerHTML += '<button class="btn-remove-card" id="btnRemoveDyn">Remove Printer</button>';
+        body.appendChild(actDiv);
+
+        showPanel();
+        attachDynListeners('fleet', printerId);
+    }
+
+    function verifyFleet(id) {
+        var p = state.fleet.find(function(x) { return x.id === id; });
+        if (!p) return;
+        if (!p.name || !p.model) { alert('Please fill in at least the printer name and model.'); return; }
+        p.verified = true;
+        render();
+        openFleetCard(id);
+    }
+
+    function unverifyFleet(id) {
+        var p = state.fleet.find(function(x) { return x.id === id; });
+        if (p) p.verified = false;
+        render();
+        openFleetCard(id);
+    }
+
+    function removeFleet(id) {
+        if (!confirm('Remove this printer from the fleet?')) return;
+        state.fleet = state.fleet.filter(function(x) { return x.id !== id; });
+        closePanel();
+        render();
+    }
+
+    // ===================================================================
+    // DETAIL PANEL — MATERIALS (Dynamic)
+    // ===================================================================
+
+    function openMaterialCard(matId) {
+        var mat = state.materials.find(function(m) { return m.id === matId; });
+        if (!mat) return;
+
+        activeCardId = 'mat-' + matId;
+        highlightCard(activeCardId);
+
+        document.getElementById('detailStepInfo').textContent = mat.name || 'New Material';
+        document.getElementById('detailTitle').textContent = mat.type || 'Configure this material';
+        document.getElementById('detailPhaseInfo').textContent = 'Phase 4: Materials Library';
+        setDetailLed(mat.status_led);
+
+        var body = document.getElementById('detailBody');
+        body.innerHTML = '';
+
+        body.appendChild(makeSection('Purpose', 'Define this material\'s cost and availability. The cost per gram flows directly into every product\'s COGS calculation in the Pipeline.'));
+
+        var fieldsDiv = document.createElement('div');
+        fieldsDiv.className = 'detail-section';
+        fieldsDiv.innerHTML = '<div class="detail-section-label">Material Details</div>';
+
+        var fields = [
+            { key: 'name', label: 'Material Name', placeholder: 'PETG-HF' },
+            { key: 'type', label: 'Type', placeholder: 'PETG (High Flow)' },
+            { key: 'color', label: 'Color', placeholder: 'Various' },
+            { key: 'costKg', label: 'Cost per kg ($)', placeholder: '30' },
+            { key: 'stock', label: 'Stock on Hand (kg)', placeholder: '10' },
+            { key: 'supplier', label: 'Supplier', placeholder: 'Bambu Lab / eSUN' }
+        ];
+
+        fields.forEach(function(f) {
+            var group = document.createElement('div');
+            group.className = 'field-group';
+            group.innerHTML = '<label class="field-label">' + escHtml(f.label) + '</label>' +
+                '<input class="field-input" type="text" data-dyn="materials" data-id="' + matId + '" data-field="' + f.key + '" value="' + escHtml(mat[f.key] || '') + '" placeholder="' + escHtml(f.placeholder) + '">';
+            fieldsDiv.appendChild(group);
+        });
+
+        var calcGroup = document.createElement('div');
+        calcGroup.className = 'field-group';
+        var cpg = mat.costKg ? (parseFloat(mat.costKg) / 1000).toFixed(3) : '—';
+        calcGroup.innerHTML = '<label class="field-label">Cost per Gram ($)</label>' +
+            '<div class="field-calculated">$' + cpg + '</div>';
+        fieldsDiv.appendChild(calcGroup);
+        body.appendChild(fieldsDiv);
+
+        var actDiv = document.createElement('div');
+        actDiv.className = 'detail-section';
+        if (mat.verified) {
+            actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
+                '<button class="btn-unverify" id="btnUnverifyDyn">Edit &amp; Re-verify</button>';
+        } else {
+            actDiv.innerHTML = '<button class="btn-verify" id="btnVerifyDyn">Mark as Complete</button>';
+        }
+        actDiv.innerHTML += '<button class="btn-remove-card" id="btnRemoveDyn">Remove Material</button>';
+        body.appendChild(actDiv);
+
+        showPanel();
+        attachDynListeners('materials', matId);
+    }
+
+    function verifyMaterial(id) {
+        var m = state.materials.find(function(x) { return x.id === id; });
+        if (!m) return;
+        if (!m.name || !m.costKg) { alert('Please fill in at least the material name and cost per kg.'); return; }
+        m.verified = true;
+        m.costGram = (parseFloat(m.costKg) / 1000).toFixed(3);
+        render();
+        openMaterialCard(id);
+    }
+
+    function unverifyMaterial(id) {
+        var m = state.materials.find(function(x) { return x.id === id; });
+        if (m) m.verified = false;
+        render();
+        openMaterialCard(id);
+    }
+
+    function removeMaterial(id) {
+        if (!confirm('Remove this material?')) return;
+        state.materials = state.materials.filter(function(x) { return x.id !== id; });
+        closePanel();
+        render();
+    }
+
+    // ===================================================================
+    // DETAIL PANEL — SOFTWARE (Dynamic)
+    // ===================================================================
+
+    function openSoftwareCard(swId) {
+        var sw = state.software.find(function(s) { return s.id === swId; });
+        if (!sw) return;
+
+        activeCardId = 'sw-' + swId;
+        highlightCard(activeCardId);
+
+        document.getElementById('detailStepInfo').textContent = sw.name || 'New Tool';
+        document.getElementById('detailTitle').textContent = sw.purpose || 'Configure this tool';
+        document.getElementById('detailPhaseInfo').textContent = 'Phase 6: Software & Tools';
+        setDetailLed(sw.status_led);
+
+        var body = document.getElementById('detailBody');
+        body.innerHTML = '';
+
+        body.appendChild(makeSection('Purpose', 'Document this software tool\'s role in your workflow. Knowing your toolchain helps identify automation opportunities and recurring costs.'));
+
+        var fieldsDiv = document.createElement('div');
+        fieldsDiv.className = 'detail-section';
+        fieldsDiv.innerHTML = '<div class="detail-section-label">Software Details</div>';
+
+        var fields = [
+            { key: 'name', label: 'Software Name', placeholder: 'Bambu Studio' },
+            { key: 'purpose', label: 'Purpose', placeholder: 'Slicer' },
+            { key: 'version', label: 'Version', placeholder: '2.1' },
+            { key: 'cost', label: 'Monthly Cost ($)', placeholder: '0' },
+            { key: 'notes', label: 'Notes', placeholder: 'Primary slicer for Bambu fleet' }
+        ];
+
+        fields.forEach(function(f) {
+            var group = document.createElement('div');
+            group.className = 'field-group';
+            group.innerHTML = '<label class="field-label">' + escHtml(f.label) + '</label>' +
+                '<input class="field-input" type="text" data-dyn="software" data-id="' + swId + '" data-field="' + f.key + '" value="' + escHtml(sw[f.key] || '') + '" placeholder="' + escHtml(f.placeholder) + '">';
+            fieldsDiv.appendChild(group);
+        });
+
+        var licGroup = document.createElement('div');
+        licGroup.className = 'field-group';
+        var licOpts = ['Free', 'Personal', 'Paid', 'Subscription', 'Beta', 'Open Source'].map(function(o) {
+            return '<option value="' + o + '"' + (sw.license === o ? ' selected' : '') + '>' + o + '</option>';
+        }).join('');
+        licGroup.innerHTML = '<label class="field-label">License Type</label>' +
+            '<select class="field-select" data-dyn="software" data-id="' + swId + '" data-field="license">' + licOpts + '</select>';
+        fieldsDiv.appendChild(licGroup);
+        body.appendChild(fieldsDiv);
+
+        var actDiv = document.createElement('div');
+        actDiv.className = 'detail-section';
+        if (sw.verified) {
+            actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
+                '<button class="btn-unverify" id="btnUnverifyDyn">Edit &amp; Re-verify</button>';
+        } else {
+            actDiv.innerHTML = '<button class="btn-verify" id="btnVerifyDyn">Mark as Complete</button>';
+        }
+        actDiv.innerHTML += '<button class="btn-remove-card" id="btnRemoveDyn">Remove Tool</button>';
+        body.appendChild(actDiv);
+
+        showPanel();
+        attachDynListeners('software', swId);
+    }
+
+    function verifySoftware(id) {
+        var s = state.software.find(function(x) { return x.id === id; });
+        if (!s) return;
+        if (!s.name || !s.purpose) { alert('Please fill in at least the software name and purpose.'); return; }
+        s.verified = true;
+        render();
+        openSoftwareCard(id);
+    }
+
+    function unverifySoftware(id) {
+        var s = state.software.find(function(x) { return x.id === id; });
+        if (s) s.verified = false;
+        render();
+        openSoftwareCard(id);
+    }
+
+    function removeSoftware(id) {
+        if (!confirm('Remove this tool?')) return;
+        state.software = state.software.filter(function(x) { return x.id !== id; });
+        closePanel();
+        render();
+    }
+
+    // ===================================================================
+    // DYNAMIC FIELD LISTENERS
+    // ===================================================================
+
+    function attachDynListeners(dynType, itemId) {
+        setTimeout(function() {
+            var verifyBtn = document.getElementById('btnVerifyDyn');
+            var unverifyBtn = document.getElementById('btnUnverifyDyn');
+            var removeBtn = document.getElementById('btnRemoveDyn');
+
+            if (verifyBtn) {
+                verifyBtn.addEventListener('click', function() {
+                    if (dynType === 'fleet') verifyFleet(itemId);
+                    else if (dynType === 'materials') verifyMaterial(itemId);
+                    else if (dynType === 'software') verifySoftware(itemId);
+                });
+            }
+            if (unverifyBtn) {
+                unverifyBtn.addEventListener('click', function() {
+                    if (dynType === 'fleet') unverifyFleet(itemId);
+                    else if (dynType === 'materials') unverifyMaterial(itemId);
+                    else if (dynType === 'software') unverifySoftware(itemId);
+                });
+            }
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function() {
+                    if (dynType === 'fleet') removeFleet(itemId);
+                    else if (dynType === 'materials') removeMaterial(itemId);
+                    else if (dynType === 'software') removeSoftware(itemId);
+                });
+            }
+
+            document.querySelectorAll('.field-input[data-dyn="' + dynType + '"], .field-select[data-dyn="' + dynType + '"]').forEach(function(el) {
+                var handler = function() {
+                    var arr = dynType === 'fleet' ? state.fleet : dynType === 'materials' ? state.materials : state.software;
+                    var item = arr.find(function(x) { return x.id === el.dataset.id; });
+                    if (item) {
+                        item[el.dataset.field] = el.value;
+                        item.verified = false;
+                        item.status_led = getDynamicCardStatus(item);
+                        saveState();
+                    }
+                };
+                el.addEventListener('input', handler);
+                el.addEventListener('change', handler);
             });
+        }, 50);
+    }
+
+    // ===================================================================
+    // ADD DYNAMIC CARDS
+    // ===================================================================
+
+    function addDynamicCard(phaseNum) {
+        if (phaseNum === 2) {
+            var id = 'p' + state.nextDynId.fleet++;
+            state.fleet.push({ id: id, name: '', model: '', plate: '', speed: '', hours: '24', status: 'Active', status_led: 'red', verified: false });
+            render();
+            openFleetCard(id);
+        } else if (phaseNum === 4) {
+            var id = 'm' + state.nextDynId.materials++;
+            state.materials.push({ id: id, name: '', type: '', color: '', costKg: '', costGram: '', stock: '', supplier: '', status_led: 'red', verified: false });
+            render();
+            openMaterialCard(id);
+        } else if (phaseNum === 6) {
+            var id = 's' + state.nextDynId.software++;
+            state.software.push({ id: id, name: '', purpose: '', version: '', license: 'Free', cost: '0', notes: '', status_led: 'red', verified: false });
+            render();
+            openSoftwareCard(id);
         }
+    }
 
-        function renderSoftware() {
-            const tbody = document.getElementById('softwareBody');
-            tbody.innerHTML = '';
-            workshopData.software.forEach((s, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><input type="text" value="${s.name}" onchange="workshopData.software[${idx}].name=this.value;"></td>
-                    <td><input type="text" value="${s.purpose}" onchange="workshopData.software[${idx}].purpose=this.value;"></td>
-                    <td><input type="text" value="${s.version}" onchange="workshopData.software[${idx}].version=this.value;"></td>
-                    <td><input type="text" value="${s.license}" onchange="workshopData.software[${idx}].license=this.value;"></td>
-                    <td><input type="text" value="${s.notes}" onchange="workshopData.software[${idx}].notes=this.value;"></td>
-                `;
-                tbody.appendChild(tr);
-            });
+    // ===================================================================
+    // PANEL HELPERS
+    // ===================================================================
+
+    function showPanel() {
+        document.getElementById('detailPanel').classList.add('active');
+        document.getElementById('panelOverlay').classList.add('active');
+    }
+
+    function closePanel() {
+        document.getElementById('detailPanel').classList.remove('active');
+        document.getElementById('panelOverlay').classList.remove('active');
+        activeCardId = null;
+        document.querySelectorAll('.step-card.active-card').forEach(function(el) { el.classList.remove('active-card'); });
+    }
+
+    function highlightCard(cardId) {
+        document.querySelectorAll('.step-card.active-card').forEach(function(el) { el.classList.remove('active-card'); });
+        var el = document.querySelector('[data-card-id="' + cardId + '"]');
+        if (el) el.classList.add('active-card');
+    }
+
+    function setDetailLed(status) {
+        document.getElementById('detailLed').className = 'detail-led-status led-' + status;
+    }
+
+    function makeSection(label, text) {
+        var div = document.createElement('div');
+        div.className = 'detail-section';
+        div.innerHTML = '<div class="detail-section-label">' + escHtml(label) + '</div>' +
+            '<div class="detail-section-text">' + escHtml(text) + '</div>';
+        return div;
+    }
+
+    function updateCardLed(cardId, status) {
+        var cardEl = document.querySelector('[data-card-id="' + cardId + '"]');
+        if (cardEl) {
+            cardEl.className = 'step-card led-' + status;
+            if (cardId === activeCardId) cardEl.classList.add('active-card');
+            var led = cardEl.querySelector('.step-led');
+            if (led) led.className = 'step-led led-' + status;
         }
+    }
 
-        // ============================================================================
-        // SUMMARY CALCULATION
-        // ============================================================================
-        function updateSummary() {
-            const activePrinters = workshopData.fleet.filter(p => p.status === 'Active').length;
-            const totalHours = workshopData.fleet
-                .filter(p => p.status === 'Active')
-                .reduce((sum, p) => sum + (parseFloat(p.hours) || 0), 0);
-
-            // Find blended rate from rates table
-            const blendedRow = workshopData.rates.find(r => r.component === 'BLENDED HOURLY RATE');
-            const blendedRate = blendedRow ? blendedRow.value : '--';
-
-            const materialCount = workshopData.materials.length;
-
-            // Find operator rate from labor table
-            const laborRateRow = workshopData.labor.find(l => l.field === 'Operator hourly rate');
-            const laborRate = laborRateRow ? laborRateRow.value : '--';
-
-            document.getElementById('sumPrintersActive').textContent = activePrinters;
-            document.getElementById('sumPrintHours').textContent = totalHours;
-            document.getElementById('sumBlendedRate').textContent = blendedRate;
-            document.getElementById('sumMaterials').textContent = materialCount;
-            document.getElementById('sumLaborRate').textContent = laborRate;
+    function updatePhaseProgressBar(phaseNum) {
+        var progress = getPhaseProgress(phaseNum);
+        var cols = document.querySelectorAll('.phase-column');
+        var col = cols[phaseNum - 1];
+        if (col) {
+            var fill = col.querySelector('.phase-progress-fill');
+            if (fill) fill.style.width = progress.pct + '%';
+            var comp = col.querySelector('.phase-completion');
+            if (comp) comp.textContent = progress.done + '/' + progress.total;
         }
+    }
 
-        // ============================================================================
-        // ADD ROW FUNCTIONS
-        // ============================================================================
-        function addFleetRow() {
-            workshopData.fleet.push({ name: '', model: '', plate: '', speed: '', hours: '24', status: 'Active' });
-            renderFleet();
-            updateSummary();
-        }
+    function escHtml(str) {
+        if (!str && str !== 0) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
-        function addMaterialRow() {
-            workshopData.materials.push({ material: '', type: '', color: '', costKg: '', costGram: '', stock: '', supplier: '' });
-            renderMaterials();
-            updateSummary();
-        }
+    // ===================================================================
+    // EVENT LISTENERS
+    // ===================================================================
 
-        function addSoftwareRow() {
-            workshopData.software.push({ name: '', purpose: '', version: '', license: '', notes: '' });
-            renderSoftware();
-        }
+    document.getElementById('detailBackBtn').addEventListener('click', closePanel);
+    document.getElementById('panelOverlay').addEventListener('click', closePanel);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closePanel();
+    });
 
-        // ============================================================================
-        // SECTION TOGGLE
-        // ============================================================================
-        function toggleSection(id) {
-            document.getElementById(id).classList.toggle('expanded');
-        }
+    // ===================================================================
+    // INIT
+    // ===================================================================
 
-        // ============================================================================
-        // INIT
-        // ============================================================================
-        renderFleet();
-        renderRates();
-        renderMaterials();
-        renderLabor();
-        renderSoftware();
-        updateSummary();
+    render();
+
     </script>
 </body>
 </html>
