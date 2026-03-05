@@ -252,13 +252,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.21.2 - NO-GO Checklist Fix</h2>
-            <p>Released March 5, 2026 &mdash; NO-GO decision now correctly locks &ldquo;Decision made&rdquo; and &ldquo;Decision documented with date&rdquo; checklist items. hasDecision now checks for signature existence instead of LED color.</p>
+            <h2>Version 0.22.0 - Undo Toast for Revise Decision</h2>
+            <p>Released March 5, 2026 &mdash; Revise Decision no longer shows a confirm dialog. Decision clears instantly with a 5-second undo toast. Click Undo to restore the previous signature and decision.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">30</div>
+                <div class="stat-value">31</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -280,6 +280,21 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.22.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.22.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Undo Toast for Revise Decision</div>
+                <ul class="change-list">
+                    <li class="changed">Revise Decision now clears instantly &mdash; no more confirm popup</li>
+                    <li class="added">5-second undo toast with one-click restore of previous signature and decision</li>
+                    <li class="changed">Previous decision state snapshot enables clean undo without data loss</li>
+                </ul>
+            </div>
 
             <!-- v0.21.2 -->
             <div class="version-entry">

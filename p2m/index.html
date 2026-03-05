@@ -1150,6 +1150,30 @@
             text-decoration: underline;
         }
 
+        .gate-undo-toast {
+            margin-top: 10px;
+            padding: 8px 14px;
+            background: rgba(210, 159, 34, 0.12);
+            border: 1px solid rgba(210, 159, 34, 0.3);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #d29f22;
+            animation: celebFadeIn 0.2s ease-out;
+        }
+        .gate-undo-toast a {
+            color: #58a6ff;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            margin-left: 12px;
+        }
+        .gate-undo-toast a:hover {
+            text-decoration: underline;
+        }
+
         /* Gate celebration overlay */
         .gate-celebration {
             position: fixed;
@@ -2022,7 +2046,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.21.2</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.22.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -3590,19 +3614,51 @@
 
                     gateSection.appendChild(sigBlock);
 
-                    // Revise Decision link
+                    // Revise Decision link — instant action with undo toast
                     const reviseLink = document.createElement('a');
                     reviseLink.className = 'gate-revise-link';
                     reviseLink.href = '#';
                     reviseLink.textContent = 'Revise Decision';
                     reviseLink.addEventListener('click', (e) => {
                         e.preventDefault();
-                        if (confirm('Are you sure? This will clear the current signature and require a new decision.')) {
-                            delete state.gateSignatures[state.activeProduct][stepId];
-                            state.products[state.activeProduct][stepId] = 'red';
-                            saveState();
-                            renderPipeline();
-                            openDetailPanel(stepId, true);
+                        // Snapshot current state for undo
+                        const prevSig = JSON.parse(JSON.stringify(sig));
+                        const prevStatus = state.products[state.activeProduct][stepId];
+
+                        // Clear immediately
+                        delete state.gateSignatures[state.activeProduct][stepId];
+                        state.products[state.activeProduct][stepId] = 'red';
+                        saveState();
+                        renderPipeline();
+                        openDetailPanel(stepId, true);
+
+                        // Show undo toast inside the gate section
+                        const gateEl = document.querySelector('.gate-decision-section');
+                        if (gateEl) {
+                            const toast = document.createElement('div');
+                            toast.className = 'gate-undo-toast';
+                            toast.innerHTML = 'Decision cleared';
+                            const undoLink = document.createElement('a');
+                            undoLink.textContent = 'Undo';
+                            undoLink.addEventListener('click', (ev) => {
+                                ev.preventDefault();
+                                // Restore
+                                if (!state.gateSignatures[state.activeProduct]) {
+                                    state.gateSignatures[state.activeProduct] = {};
+                                }
+                                state.gateSignatures[state.activeProduct][stepId] = prevSig;
+                                state.products[state.activeProduct][stepId] = prevStatus;
+                                saveState();
+                                renderPipeline();
+                                openDetailPanel(stepId, true);
+                            });
+                            toast.appendChild(undoLink);
+                            gateEl.appendChild(toast);
+
+                            // Auto-dismiss after 5 seconds
+                            setTimeout(() => {
+                                if (toast.parentNode) toast.remove();
+                            }, 5000);
                         }
                     });
                     gateSection.appendChild(reviseLink);
