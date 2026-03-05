@@ -562,7 +562,7 @@
             output: 'Feeds machine economics',
             purpose: 'Your electricity rate determines the energy cost per print hour. This flows into Machine Economics (Phase 3) to calculate the blended hourly rate that every product uses for COGS.',
             fields: [
-                { key: 'rate', label: '$ per kWh', type: 'text', placeholder: '0.12', hint: 'Check your Duke Energy bill — look for the per-kWh rate' }
+                { key: 'rate', label: '$ per kWh', type: 'text', placeholder: '0.107', hint: 'Confirmed from Duke Energy bill — $0.107/kWh' }
             ]
         },
         '1.2': {
@@ -592,11 +592,10 @@
             phase: 3, number: '3.1', title: 'Depreciation',
             description: 'Per-hour machine depreciation cost',
             output: 'Depreciation cost/hour',
-            purpose: 'Calculate how much each hour of printing costs in machine depreciation. This is the biggest component of your blended hourly rate.',
+            purpose: 'Calculate how much each hour of printing costs in machine depreciation. The fleet uses a 5,000-hour lifespan per machine. Total fleet CAPEX is $8,293 across 7 printers.',
             fields: [
-                { key: 'avgPrice', label: 'Avg. Printer Purchase Price ($)', type: 'text', placeholder: '1200', hint: 'Weighted average across fleet' },
-                { key: 'lifespan', label: 'Useful Life (years)', type: 'text', placeholder: '3', hint: 'Conservative estimate for 3D printers' },
-                { key: 'depYear', label: 'Depreciation per Printer/Year ($)', type: 'calculated' },
+                { key: 'avgPrice', label: 'Avg. Printer Purchase Price ($)', type: 'text', placeholder: '1185', hint: 'Fleet weighted avg: (5×$1,199 + $1,999 + $299) ÷ 7 = $1,185' },
+                { key: 'lifespan', label: 'Useful Life (hours)', type: 'text', placeholder: '5000', hint: 'Industry standard for Bambu Lab printers' },
                 { key: 'depHour', label: 'Depreciation per Print Hour ($)', type: 'calculated' }
             ]
         },
@@ -604,9 +603,10 @@
             phase: 3, number: '3.2', title: 'Maintenance',
             description: 'Annual maintenance budget allocation',
             output: 'Maintenance cost/hour',
-            purpose: 'Set aside a maintenance budget for nozzle replacements, belts, bearings, and unexpected repairs. This per-hour allocation flows into your blended rate.',
+            purpose: 'Fleet-pooled maintenance calculated bottom-up from actual consumable pricing and Bambu Lab maintenance schedules. Total fleet maintenance is $515.97/yr across 7 machines. Top 3 costs: hotend assemblies (35%), build plates (27%), silicone socks (10%).',
             fields: [
-                { key: 'annualBudget', label: 'Annual Budget per Printer ($)', type: 'text', placeholder: '150', hint: 'Nozzles, belts, bearings, misc parts' },
+                { key: 'annualBudget', label: 'Annual Fleet Maintenance ($)', type: 'text', placeholder: '515.97', hint: 'Bottom-up: socks $50 + plates $140 + hotends $180 + misc $146 = $516/yr' },
+                { key: 'fleetMachines', label: 'Number of Machines', type: 'text', placeholder: '7', hint: 'Active fleet count' },
                 { key: 'maintHour', label: 'Maintenance per Print Hour ($)', type: 'calculated' }
             ]
         },
@@ -617,7 +617,7 @@
             purpose: 'Calculate how much electricity each hour of printing consumes. Uses your electricity rate from Phase 1 and the average power draw of your printers.',
             fields: [
                 { key: 'electricityRate', label: 'Electricity Rate (from 1.1)', type: 'linked' },
-                { key: 'avgWatts', label: 'Avg. Printer Power Draw (watts)', type: 'text', placeholder: '200', hint: 'Bambu X1C draws ~150-250W while printing' },
+                { key: 'avgWatts', label: 'Avg. Printer Power Draw (watts)', type: 'text', placeholder: '150', hint: 'Fleet weighted avg: X1C 150W, H2D 200W, A1 90W' },
                 { key: 'elecHour', label: 'Electricity per Print Hour ($)', type: 'calculated' }
             ]
         },
@@ -655,33 +655,32 @@
                 { key: 'helper1Title', label: 'Title', type: 'text', placeholder: 'Additive Manufacturing Assistant', hint: 'What they do in the workshop' },
                 { key: 'helper1Role', label: 'Primary Duties', type: 'select', options: ['', 'Machine Maintenance', 'Post-Processing', 'QC', 'Packaging', 'General Workshop', 'Operator', 'Other'] },
                 { key: 'helper1Rate', label: 'Hourly Rate ($)', type: 'text', placeholder: '20', hint: '' },
-                { key: 'helper1HoursMin', label: 'Min Hours per Week', type: 'text', placeholder: '1', hint: 'Minimum weekly commitment' },
-                { key: 'helper1HoursMax', label: 'Max Hours per Week', type: 'text', placeholder: '5', hint: 'Maximum weekly availability' },
-                { key: 'helper1Tasks', label: 'Typical Tasks', type: 'text', placeholder: 'Machine cleaning, emptying waste, pulling plates', hint: 'What does a typical shift look like?' }
+                { key: 'helper1HoursMin', label: 'Min Hours per Week', type: 'text', placeholder: '5', hint: 'Confirmed low end from Operations Plan' },
+                { key: 'helper1HoursMax', label: 'Max Hours per Week', type: 'text', placeholder: '8', hint: 'Confirmed high end — may expand to 10-14 with packaging' },
+                { key: 'helper1Tasks', label: 'Typical Tasks', type: 'text', placeholder: 'Cleaning, IPA wipes, lubrication, pulling plates, packaging (future)', hint: 'What does a typical shift look like?' }
             ],
             optional: true
         }
     };
 
     var DEFAULT_FLEET = [
-        { id: 'p1', name: 'X1C-01', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-        { id: 'p2', name: 'X1C-02', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-        { id: 'p3', name: 'X1C-03', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-        { id: 'p4', name: 'X1C-04', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-        { id: 'p5', name: 'X1C-05', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-        { id: 'p6', name: 'H2D-01', model: 'Bambu Lab H2D', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
-        { id: 'p7', name: 'A1-01', model: 'Bambu Lab A1', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' }
+        { id: 'p1', name: 'Galileo Seven', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
+        { id: 'p2', name: 'Optimus Prime', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
+        { id: 'p3', name: 'Print Buster', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
+        { id: 'p4', name: 'Third Wheel', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
+        { id: 'p5', name: 'Little Monster', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
+        { id: 'p6', name: 'The Boss', model: 'Bambu Lab H2D', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
+        { id: 'p7', name: 'Redemption', model: 'Bambu Lab A1', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' }
     ];
 
     var DEFAULT_MATERIALS = [
-        { id: 'm1', name: 'PETG-HF', type: 'PETG (High Flow)', color: 'Various', costKg: '30', costGram: '0.030', stock: '10', supplier: 'Bambu Lab / eSUN' },
-        { id: 'm2', name: 'PLA', type: 'PLA', color: 'Various', costKg: '20', costGram: '0.020', stock: '5', supplier: 'Bambu Lab / eSUN' }
+        { id: 'm1', name: 'PETG-HF', type: 'PETG (High Flow)', color: 'Various', costKg: '12.99', costGram: '0.01299', stock: '10', supplier: 'Bambu Lab (10+ roll bulk pricing)' }
     ];
 
     var DEFAULT_SOFTWARE = [
-        { id: 's1', name: 'Bambu Studio', purpose: 'Slicer', version: '2.1', license: 'Free', cost: '0', costCycle: 'Free', notes: 'Primary slicer for Bambu fleet' },
-        { id: 's2', name: 'Fusion 360', purpose: 'CAD', version: '2.0', license: 'Personal', cost: '0', costCycle: 'Free', notes: 'Product design and modeling' },
-        { id: 's3', name: 'AutoFarm3D', purpose: 'Farm Control', version: 'Beta', license: 'Beta', cost: '0', costCycle: 'Free', notes: 'Print farm automation and monitoring' }
+        { id: 's1', name: 'Bambu Studio', purpose: 'Slicer', version: '2.1', license: 'Free', cost: '0', costCycle: 'Free', notes: 'Primary slicer for all Bambu Lab printers' },
+        { id: 's2', name: 'Fusion 360', purpose: 'CAD', version: '2.0', license: 'Personal', cost: '0', costCycle: 'Free', notes: 'Product design and modeling — Personal license' },
+        { id: 's3', name: 'AutoFarm3D Full', purpose: 'Farm Management', version: '3.15.4-AF', license: 'Beta', cost: '0', costCycle: 'Free', notes: 'Beta tester arrangement — retail would be $29.99/printer/mo ($209.93/mo for 7 printers). Smart queue, QuinlyVision AI, order mgmt.' }
     ];
 
     // ===================================================================
@@ -791,22 +790,19 @@
         return total / active.length;
     }
 
-    function calcDepYear() {
-        var price = parseFloat(getFieldValue('3.1', 'avgPrice')) || 0;
-        var life = parseFloat(getFieldValue('3.1', 'lifespan')) || 1;
-        return (price / life).toFixed(2);
-    }
-
     function calcDepHour() {
-        var depYear = parseFloat(calcDepYear()) || 0;
-        var avgHrs = calcAvgHoursPerDay();
-        return (depYear / (365 * avgHrs)).toFixed(4);
+        var price = parseFloat(getFieldValue('3.1', 'avgPrice')) || 0;
+        var lifespanHrs = parseFloat(getFieldValue('3.1', 'lifespan')) || 5000;
+        return (price / lifespanHrs).toFixed(4);
     }
 
     function calcMaintHour() {
-        var budget = parseFloat(getFieldValue('3.2', 'annualBudget')) || 0;
-        var avgHrs = calcAvgHoursPerDay();
-        return (budget / (365 * avgHrs)).toFixed(4);
+        var fleetBudget = parseFloat(getFieldValue('3.2', 'annualBudget')) || 0;
+        var machines = parseFloat(getFieldValue('3.2', 'fleetMachines')) || 7;
+        var hrsPerMachinePerYear = 800; // conservative baseline from Operations Plan
+        var totalFleetHrs = machines * hrsPerMachinePerYear;
+        if (totalFleetHrs === 0) return '0.0000';
+        return (fleetBudget / totalFleetHrs).toFixed(4);
     }
 
     function calcElecHour() {
@@ -823,7 +819,6 @@
     }
 
     function getCalculatedValue(cardId, fieldKey) {
-        if (cardId === '3.1' && fieldKey === 'depYear') return '$' + calcDepYear();
         if (cardId === '3.1' && fieldKey === 'depHour') return '$' + calcDepHour();
         if (cardId === '3.2' && fieldKey === 'maintHour') return '$' + calcMaintHour();
         if (cardId === '3.3' && fieldKey === 'electricityRate') return '$' + (getFieldValue('1.1', 'rate') || '—');
