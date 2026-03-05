@@ -249,13 +249,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.12.0 - Phase-Gated Locking + Step Descriptions</h2>
-            <p>Released March 5, 2026 &mdash; Future phases now locked until prerequisite gates/steps are completed. Locked cards show grey LEDs with lock icons but remain clickable for preview. All 30+ step descriptions expanded with outcome expectations so users know exactly what they'll walk away with at each step.</p>
+            <h2>Version 0.13.0 - Workshop Setup + Income Target Math</h2>
+            <p>Released March 5, 2026 &mdash; New Workshop Setup page defines your printer fleet, machine rates, materials, and labor. Step 1.5 (Income Target Math) built for 45 RPM Adaptor with full backward math from $2k/month. Pipeline steps now reference Workshop for fleet data instead of hardcoding printer names.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">15</div>
+                <div class="stat-value">16</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -277,6 +277,27 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.13.0 -->
+            <div class="version-entry major">
+                <div class="version-header">
+                    <span class="version-number">v0.13.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-major">MAJOR</span>
+                </div>
+                <div class="version-title">Workshop Setup + Income Target Math</div>
+                <ul class="change-list">
+                    <li class="added">Workshop Setup page (workshop.html) &mdash; standalone page defining printer fleet (7 machines), machine rates ($0.35/hr blended), materials inventory, labor rates, and software stack</li>
+                    <li class="added">Workshop Summary Card &mdash; at-a-glance view of active printers, daily print hours, blended rate, materials stocked, and operator rate</li>
+                    <li class="added">Editable tables with add/remove rows for printers, materials, and software</li>
+                    <li class="added">Step 1.5 (Income Target Math) for 45 RPM Adaptor &mdash; backward math from $2k/month: 154 units/month, 5.1/day, ~29% net margin, one printer sufficient. Three price scenarios ($9.99-$14.99) all feasible.</li>
+                    <li class="added">Full three-layer data model for Step 1.5: Analysis (7 sections), Evidence (4 tables), Automation Roadmap (5 gaps)</li>
+                    <li class="changed">Pipeline header now includes Workshop link alongside About P2M and Changelog</li>
+                    <li class="changed">Welcome page nav updated with Workshop link</li>
+                    <li class="changed">Step 1.5 references softened from hardcoded "Bambu X1C" to "see Workshop Setup" for fleet/rate data</li>
+                    <li class="changed">Step 1.5 LED set to YELLOW for 45 RPM Adaptor</li>
+                </ul>
+            </div>
 
             <!-- v0.12.0 -->
             <div class="version-entry major">

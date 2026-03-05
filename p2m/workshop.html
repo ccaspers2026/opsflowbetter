@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2M Pipeline - Workshop Setup</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            padding: 40px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            border-bottom: 2px solid #21262d;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        .header .nav-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .header .nav-links a {
+            color: #58a6ff;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .header .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .header .nav-links a.suite-link {
+            color: #d29922;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            background: linear-gradient(135deg, #161b22, #1a2332);
+            border: 1px solid #58a6ff;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card h2 {
+            font-size: 16px;
+            color: #58a6ff;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 12px;
+            background: rgba(88, 166, 255, 0.05);
+            border-radius: 6px;
+            border: 1px solid #21262d;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .summary-note {
+            font-size: 11px;
+            color: #484f58;
+            margin-top: 12px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* Sections */
+        .section {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #21262d;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .section-header:hover {
+            background-color: #1c2128;
+        }
+
+        .section-header h3 {
+            font-size: 16px;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header .section-icon {
+            font-size: 18px;
+        }
+
+        .section-header .feeds-into {
+            font-size: 11px;
+            color: #484f58;
+            font-weight: 400;
+        }
+
+        .section-chevron {
+            color: #8b949e;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .section.expanded .section-chevron {
+            transform: rotate(90deg);
+        }
+
+        .section-body {
+            display: none;
+            padding: 20px;
+        }
+
+        .section.expanded .section-body {
+            display: block;
+        }
+
+        .section-description {
+            font-size: 13px;
+            color: #8b949e;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        /* Tables */
+        .workshop-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .workshop-table th {
+            background-color: #21262d;
+            color: #e0e0e0;
+            font-weight: 600;
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .workshop-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #21262d;
+            color: #c9d1d9;
+        }
+
+        .workshop-table tr:hover {
+            background-color: rgba(88, 166, 255, 0.03);
+        }
+
+        .workshop-table input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #c9d1d9;
+            font-family: inherit;
+            font-size: 13px;
+            padding: 4px 6px;
+            width: 100%;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+
+        .workshop-table input:hover {
+            border-color: #30363d;
+        }
+
+        .workshop-table input:focus {
+            outline: none;
+            border-color: #58a6ff;
+            background-color: rgba(88, 166, 255, 0.05);
+        }
+
+        .workshop-table select {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            font-family: inherit;
+            font-size: 13px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .workshop-table select:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        .workshop-table .calculated {
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
+        .workshop-table .row-total {
+            background-color: rgba(88, 166, 255, 0.05);
+            font-weight: 600;
+        }
+
+        .workshop-table .row-total td {
+            border-top: 2px solid #30363d;
+            color: #58a6ff;
+        }
+
+        /* Status badges */
+        .status-active {
+            color: #2ea44f;
+            font-weight: 600;
+        }
+
+        .status-maintenance {
+            color: #d29922;
+            font-weight: 600;
+        }
+
+        .status-retired {
+            color: #8b949e;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-add-row {
+            background: none;
+            border: 1px dashed #30363d;
+            color: #8b949e;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-row:hover {
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        .btn-remove-row {
+            background: none;
+            border: none;
+            color: #f85149;
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0.4;
+            padding: 2px 6px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-remove-row:hover {
+            opacity: 1;
+        }
+
+        /* Info callouts */
+        .info-callout {
+            background-color: rgba(88, 166, 255, 0.05);
+            border: 1px solid #1f3a5f;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 12px;
+        }
+
+        .info-callout strong {
+            color: #58a6ff;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #21262d;
+            font-size: 11px;
+            color: #484f58;
+            text-align: center;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .workshop-table { font-size: 12px; }
+            .workshop-table th, .workshop-table td { padding: 6px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Workshop Setup</h1>
+            <p>Caspers Creations &mdash; Define your printer fleet, rates, and materials. Pipeline steps reference this data.</p>
+            <div class="nav-links">
+                <a href="index.html">&larr; Back to Pipeline</a>
+                <span style="color: #30363d;">|</span>
+                <a href="welcome.html">About P2M</a>
+                <span style="color: #30363d;">|</span>
+                <a href="changelog.html">Changelog</a>
+                <span style="color: #30363d;">|</span>
+                <a href="/" class="suite-link">&#x2B21; OpsFlowBetter Suite</a>
+            </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="summary-card" id="summaryCard">
+            <h2>Workshop at a Glance</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-value" id="sumPrintersActive">7</div>
+                    <div class="summary-label">Printers Active</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="sumPrintHours">168</div>
+                    <div class="summary-label">Print Hrs / Day</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="sumBlendedRate">$0.35</div>
+                    <div class="summary-label">Blended Hourly Rate</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="sumMaterials">2</div>
+                    <div class="summary-label">Materials Stocked</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="sumLaborRate">$12.00</div>
+                    <div class="summary-label">Operator Rate / Hr</div>
+                </div>
+            </div>
+            <div class="summary-note">These values are referenced by Steps 1.5, 2.3, and 3.1 in the Pipeline.</div>
+        </div>
+
+        <!-- Section 1: Printer Fleet -->
+        <div class="section expanded" id="sectionFleet">
+            <div class="section-header" onclick="toggleSection('sectionFleet')">
+                <h3>
+                    <span class="section-icon">&#x1F5A8;</span>
+                    Printer Fleet
+                    <span class="feeds-into">&rarr; Steps 1.5, 2.1, 2.3</span>
+                </h3>
+                <span class="section-chevron">&#x25B6;</span>
+            </div>
+            <div class="section-body">
+                <div class="section-description">
+                    Define every printer in your workshop. Active printers determine your total production capacity. Build plate size feeds into batch printing calculations in Step 2.1.
+                </div>
+                <table class="workshop-table" id="fleetTable">
+                    <thead>
+                        <tr>
+                            <th>Printer Name</th>
+                            <th>Model</th>
+                            <th>Build Plate (mm)</th>
+                            <th>Max Speed (mm/s)</th>
+                            <th>Hrs / Day</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="fleetBody"></tbody>
+                </table>
+                <button class="btn-add-row" onclick="addFleetRow()">+ Add Printer</button>
+                <div class="info-callout">
+                    <strong>Feeds into:</strong> Step 1.5 uses total active printers and daily print hours to check production feasibility. Step 2.1 uses build plate dimensions for batch layout. Step 2.3 uses printer model for slicer profile selection.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Machine Rates -->
+        <div class="section expanded" id="sectionRates">
+            <div class="section-header" onclick="toggleSection('sectionRates')">
+                <h3>
+                    <span class="section-icon">&#x1F4B0;</span>
+                    Machine Rates
+                    <span class="feeds-into">&rarr; Step 3.1 (COGS)</span>
+                </h3>
+                <span class="section-chevron">&#x25B6;</span>
+            </div>
+            <div class="section-body">
+                <div class="section-description">
+                    Calculate the true cost of running each printer per hour. The blended rate across all active machines is the single number used in COGS calculations.
+                </div>
+                <table class="workshop-table" id="ratesTable">
+                    <thead>
+                        <tr>
+                            <th>Cost Component</th>
+                            <th>Value</th>
+                            <th>Calculation / Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ratesBody"></tbody>
+                </table>
+                <div class="info-callout">
+                    <strong>Key output:</strong> The <strong>Blended Hourly Rate</strong> is the single number that Step 3.1 (COGS) uses for the machine time cost component. It accounts for depreciation, electricity, and maintenance across your entire fleet.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Materials Inventory -->
+        <div class="section expanded" id="sectionMaterials">
+            <div class="section-header" onclick="toggleSection('sectionMaterials')">
+                <h3>
+                    <span class="section-icon">&#x1F9F5;</span>
+                    Materials Inventory
+                    <span class="feeds-into">&rarr; Steps 2.3, 3.1</span>
+                </h3>
+                <span class="section-chevron">&#x25B6;</span>
+            </div>
+            <div class="section-body">
+                <div class="section-description">
+                    Track your filament and consumable costs. The cost per gram is what drives the material component of COGS in Step 3.1.
+                </div>
+                <table class="workshop-table" id="materialsTable">
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Type</th>
+                            <th>Color</th>
+                            <th>Cost / kg</th>
+                            <th>Cost / gram</th>
+                            <th>Stock (kg)</th>
+                            <th>Supplier</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="materialsBody"></tbody>
+                </table>
+                <button class="btn-add-row" onclick="addMaterialRow()">+ Add Material</button>
+                <div class="info-callout">
+                    <strong>Feeds into:</strong> Step 2.3 selects the material for the product. Step 3.1 uses the cost/gram to calculate material cost per unit (material weight from slicer x cost/gram).
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Workshop Labor -->
+        <div class="section expanded" id="sectionLabor">
+            <div class="section-header" onclick="toggleSection('sectionLabor')">
+                <h3>
+                    <span class="section-icon">&#x1F477;</span>
+                    Workshop Labor
+                    <span class="feeds-into">&rarr; Step 3.1 (COGS)</span>
+                </h3>
+                <span class="section-chevron">&#x25B6;</span>
+            </div>
+            <div class="section-body">
+                <div class="section-description">
+                    Define operator rates and availability. Post-processing, quality checks, and packaging all use the operator hourly rate for labor cost calculations.
+                </div>
+                <table class="workshop-table" id="laborTable">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="laborBody"></tbody>
+                </table>
+                <div class="info-callout">
+                    <strong>Feeds into:</strong> Step 3.1 uses the operator hourly rate to calculate post-processing labor, packaging labor, and QC time costs. (Labor cost = time in minutes / 60 x hourly rate)
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Workshop Software -->
+        <div class="section" id="sectionSoftware">
+            <div class="section-header" onclick="toggleSection('sectionSoftware')">
+                <h3>
+                    <span class="section-icon">&#x1F4BB;</span>
+                    Software &amp; Automation
+                    <span class="feeds-into">&rarr; Steps 2.1, 2.3</span>
+                </h3>
+                <span class="section-chevron">&#x25B6;</span>
+            </div>
+            <div class="section-body">
+                <div class="section-description">
+                    Track CAD software, slicer versions, and automation tools. Documenting your software stack ensures reproducibility across products.
+                </div>
+                <table class="workshop-table" id="softwareTable">
+                    <thead>
+                        <tr>
+                            <th>Software</th>
+                            <th>Purpose</th>
+                            <th>Version</th>
+                            <th>License</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="softwareBody"></tbody>
+                </table>
+                <button class="btn-add-row" onclick="addSoftwareRow()">+ Add Software</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            P2M Pipeline &mdash; Workshop Setup &mdash; Caspers Creations<br>
+            Data on this page is referenced by Pipeline steps. Future: auto-sync between Workshop and Pipeline.
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // WORKSHOP DATA
+        // ============================================================================
+        const workshopData = {
+            fleet: [
+                { name: 'X1C-01', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+                { name: 'X1C-02', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+                { name: 'X1C-03', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+                { name: 'X1C-04', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+                { name: 'X1C-05', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+                { name: 'H2D-01', model: 'Bambu Lab H2D', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' },
+                { name: 'A1-01', model: 'Bambu Lab A1', plate: '256 x 256', speed: '500', hours: '24', status: 'Active' }
+            ],
+            rates: [
+                { component: 'Average printer purchase price', value: '$1,200', notes: 'Weighted average across X1C ($1,400), H2D ($1,200), A1 ($400)' },
+                { component: 'Useful life (years)', value: '5', notes: 'Conservative estimate for consumer-grade printers at production pace' },
+                { component: 'Depreciation per printer/yr', value: '$240', notes: '$1,200 / 5 years' },
+                { component: 'Depreciation per printer/hr', value: '$0.027', notes: '$240 / 8,760 hours (24/7 availability)' },
+                { component: 'Electricity cost per kWh', value: '$0.12', notes: 'NC residential rate (Duke Energy)' },
+                { component: 'Avg printer power draw', value: '200W', notes: 'Bambu X1C ~150-250W during print' },
+                { component: 'Electricity cost per print hr', value: '$0.024', notes: '0.2 kW x $0.12/kWh' },
+                { component: 'Annual maintenance per printer', value: '$100', notes: 'Nozzles, belts, PEI sheets, lubricant' },
+                { component: 'Maintenance per printer/hr', value: '$0.011', notes: '$100 / 8,760 hours' },
+                { component: 'Total cost per printer/hr', value: '$0.062', notes: '$0.027 + $0.024 + $0.011' },
+                { component: 'Active printers', value: '7', notes: 'Current fleet size' },
+                { component: 'BLENDED HOURLY RATE', value: '$0.35', notes: 'Approximate blended rate accounting for utilization and overhead. Used in all COGS calculations.' }
+            ],
+            materials: [
+                { material: 'PETG-HF', type: 'PETG (High Flow)', color: 'Various', costKg: '$30.00', costGram: '$0.030', stock: '10', supplier: 'Bambu Lab / eSUN' },
+                { material: 'PLA Basic', type: 'PLA', color: 'Various', costKg: '$20.00', costGram: '$0.020', stock: '5', supplier: 'Bambu Lab / Polymaker' }
+            ],
+            labor: [
+                { field: 'Primary operator', value: 'Christian Caspers', notes: 'Owner-operator' },
+                { field: 'Operator hourly rate', value: '$12.00', notes: 'Used for labor cost calculations in COGS' },
+                { field: 'Hours available per day', value: '4', notes: 'Part-time dedication to workshop operations' },
+                { field: 'Post-processing skill level', value: 'Intermediate', notes: 'Deburring, sanding, assembly, QC' }
+            ],
+            software: [
+                { name: 'Bambu Studio', purpose: 'Slicer', version: '2.1', license: 'Free', notes: 'Primary slicer for all Bambu printers' },
+                { name: 'Fusion 360', purpose: 'CAD Design', version: 'Current', license: 'Personal', notes: 'Primary CAD tool' },
+                { name: 'AutoFarm3D (AF3D)', purpose: 'Print Farm Automation', version: 'Full', license: 'Beta Tester', notes: 'By 3DQue Systems. Manages print queue and auto-ejection.' }
+            ]
+        };
+
+        // ============================================================================
+        // RENDER FUNCTIONS
+        // ============================================================================
+        function renderFleet() {
+            const tbody = document.getElementById('fleetBody');
+            tbody.innerHTML = '';
+            workshopData.fleet.forEach((p, idx) => {
+                const statusClass = p.status === 'Active' ? 'status-active' : p.status === 'Maintenance' ? 'status-maintenance' : 'status-retired';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${p.name}" onchange="workshopData.fleet[${idx}].name=this.value; updateSummary();"></td>
+                    <td><input type="text" value="${p.model}" onchange="workshopData.fleet[${idx}].model=this.value;"></td>
+                    <td><input type="text" value="${p.plate}" onchange="workshopData.fleet[${idx}].plate=this.value;"></td>
+                    <td><input type="text" value="${p.speed}" onchange="workshopData.fleet[${idx}].speed=this.value;"></td>
+                    <td><input type="text" value="${p.hours}" onchange="workshopData.fleet[${idx}].hours=this.value; updateSummary();" style="width:50px;"></td>
+                    <td><select onchange="workshopData.fleet[${idx}].status=this.value; updateSummary(); renderFleet();">
+                        <option value="Active" ${p.status === 'Active' ? 'selected' : ''}>Active</option>
+                        <option value="Maintenance" ${p.status === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
+                        <option value="Retired" ${p.status === 'Retired' ? 'selected' : ''}>Retired</option>
+                    </select></td>
+                    <td><button class="btn-remove-row" onclick="workshopData.fleet.splice(${idx},1); renderFleet(); updateSummary();" title="Remove">&times;</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderRates() {
+            const tbody = document.getElementById('ratesBody');
+            tbody.innerHTML = '';
+            workshopData.rates.forEach((r, idx) => {
+                const isTotal = r.component === 'BLENDED HOURLY RATE';
+                const tr = document.createElement('tr');
+                if (isTotal) tr.className = 'row-total';
+                tr.innerHTML = `
+                    <td>${isTotal ? '<strong>' + r.component + '</strong>' : r.component}</td>
+                    <td><input type="text" value="${r.value}" onchange="workshopData.rates[${idx}].value=this.value; updateSummary();" ${isTotal ? 'class="calculated"' : ''}></td>
+                    <td style="color:#8b949e; font-size:12px;">${r.notes}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderMaterials() {
+            const tbody = document.getElementById('materialsBody');
+            tbody.innerHTML = '';
+            workshopData.materials.forEach((m, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${m.material}" onchange="workshopData.materials[${idx}].material=this.value; updateSummary();"></td>
+                    <td><input type="text" value="${m.type}" onchange="workshopData.materials[${idx}].type=this.value;"></td>
+                    <td><input type="text" value="${m.color}" onchange="workshopData.materials[${idx}].color=this.value;"></td>
+                    <td><input type="text" value="${m.costKg}" onchange="workshopData.materials[${idx}].costKg=this.value;" style="width:70px;"></td>
+                    <td class="calculated">${m.costGram}</td>
+                    <td><input type="text" value="${m.stock}" onchange="workshopData.materials[${idx}].stock=this.value;" style="width:50px;"></td>
+                    <td><input type="text" value="${m.supplier}" onchange="workshopData.materials[${idx}].supplier=this.value;"></td>
+                    <td><button class="btn-remove-row" onclick="workshopData.materials.splice(${idx},1); renderMaterials(); updateSummary();" title="Remove">&times;</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderLabor() {
+            const tbody = document.getElementById('laborBody');
+            tbody.innerHTML = '';
+            workshopData.labor.forEach((l, idx) => {
+                tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${l.field}</td>
+                    <td><input type="text" value="${l.value}" onchange="workshopData.labor[${idx}].value=this.value; updateSummary();"></td>
+                    <td style="color:#8b949e; font-size:12px;">${l.notes}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSoftware() {
+            const tbody = document.getElementById('softwareBody');
+            tbody.innerHTML = '';
+            workshopData.software.forEach((s, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${s.name}" onchange="workshopData.software[${idx}].name=this.value;"></td>
+                    <td><input type="text" value="${s.purpose}" onchange="workshopData.software[${idx}].purpose=this.value;"></td>
+                    <td><input type="text" value="${s.version}" onchange="workshopData.software[${idx}].version=this.value;"></td>
+                    <td><input type="text" value="${s.license}" onchange="workshopData.software[${idx}].license=this.value;"></td>
+                    <td><input type="text" value="${s.notes}" onchange="workshopData.software[${idx}].notes=this.value;"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ============================================================================
+        // SUMMARY CALCULATION
+        // ============================================================================
+        function updateSummary() {
+            const activePrinters = workshopData.fleet.filter(p => p.status === 'Active').length;
+            const totalHours = workshopData.fleet
+                .filter(p => p.status === 'Active')
+                .reduce((sum, p) => sum + (parseFloat(p.hours) || 0), 0);
+
+            // Find blended rate from rates table
+            const blendedRow = workshopData.rates.find(r => r.component === 'BLENDED HOURLY RATE');
+            const blendedRate = blendedRow ? blendedRow.value : '--';
+
+            const materialCount = workshopData.materials.length;
+
+            // Find operator rate from labor table
+            const laborRateRow = workshopData.labor.find(l => l.field === 'Operator hourly rate');
+            const laborRate = laborRateRow ? laborRateRow.value : '--';
+
+            document.getElementById('sumPrintersActive').textContent = activePrinters;
+            document.getElementById('sumPrintHours').textContent = totalHours;
+            document.getElementById('sumBlendedRate').textContent = blendedRate;
+            document.getElementById('sumMaterials').textContent = materialCount;
+            document.getElementById('sumLaborRate').textContent = laborRate;
+        }
+
+        // ============================================================================
+        // ADD ROW FUNCTIONS
+        // ============================================================================
+        function addFleetRow() {
+            workshopData.fleet.push({ name: '', model: '', plate: '', speed: '', hours: '24', status: 'Active' });
+            renderFleet();
+            updateSummary();
+        }
+
+        function addMaterialRow() {
+            workshopData.materials.push({ material: '', type: '', color: '', costKg: '', costGram: '', stock: '', supplier: '' });
+            renderMaterials();
+            updateSummary();
+        }
+
+        function addSoftwareRow() {
+            workshopData.software.push({ name: '', purpose: '', version: '', license: '', notes: '' });
+            renderSoftware();
+        }
+
+        // ============================================================================
+        // SECTION TOGGLE
+        // ============================================================================
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('expanded');
+        }
+
+        // ============================================================================
+        // INIT
+        // ============================================================================
+        renderFleet();
+        renderRates();
+        renderMaterials();
+        renderLabor();
+        renderSoftware();
+        updateSummary();
+    </script>
+</body>
+</html>
