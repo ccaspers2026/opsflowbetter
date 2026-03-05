@@ -577,7 +577,7 @@
     <header class="workshop-header">
         <div class="header-left">
             <h1>Workshop Setup</h1>
-            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.26.1</p>
+            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.27.0</p>
             <p>Configure your production capabilities — every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -590,6 +590,7 @@
                 <span>(<strong id="completionCount">0/0</strong> cards)</span>
                 <div class="overall-led led-red" id="overallLed"></div>
                 <button id="resetStateBtn" style="background:none;border:1px solid #30363d;color:#8b949e;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;" title="Reset all Workshop data to defaults">Reset</button>
+                <span id="editLockIcon" onclick="toggleEditLock()" style="font-size:18px;cursor:pointer;margin-left:8px;transition:opacity 0.2s;">&#128274;</span>
             </div>
             <div class="nav-links">
                 <a href="index.html">&larr; Pipeline</a>
@@ -819,6 +820,61 @@
         try {
             localStorage.setItem('workshopState_v2', JSON.stringify(state));
         } catch (e) { /* ignore */ }
+    }
+
+    // ===================================================================
+    // EDIT LOCK (shared with Pipeline via same localStorage key)
+    // ===================================================================
+
+    var EDIT_LOCK_KEY = 'opsflow_edit_unlocked';
+    var EDIT_PASSWORD = 'BlowMeAway!';
+
+    function isEditUnlocked() {
+        try { return localStorage.getItem(EDIT_LOCK_KEY) === 'true'; } catch(e) { return false; }
+    }
+
+    function promptEditUnlock() {
+        var pw = prompt('Enter edit password:');
+        if (pw === EDIT_PASSWORD) {
+            try { localStorage.setItem(EDIT_LOCK_KEY, 'true'); } catch(e) {}
+            updateLockIcon();
+            showToast('Edit mode unlocked');
+            return true;
+        } else if (pw !== null) {
+            showToast('Incorrect password', 'error');
+        }
+        return false;
+    }
+
+    function lockEditing() {
+        try { localStorage.removeItem(EDIT_LOCK_KEY); } catch(e) {}
+        updateLockIcon();
+        showToast('Edit mode locked');
+    }
+
+    function toggleEditLock() {
+        if (isEditUnlocked()) { lockEditing(); }
+        else { promptEditUnlock(); }
+    }
+
+    function updateLockIcon() {
+        var icon = document.getElementById('editLockIcon');
+        if (!icon) return;
+        if (isEditUnlocked()) {
+            icon.textContent = '\uD83D\uDD13';
+            icon.title = 'Edit mode ON \u2014 click to lock';
+            icon.style.opacity = '1';
+        } else {
+            icon.textContent = '\uD83D\uDD12';
+            icon.title = 'Read-only mode \u2014 click to unlock editing';
+            icon.style.opacity = '0.6';
+        }
+    }
+
+    function requireEdit(actionName) {
+        if (isEditUnlocked()) return true;
+        showToast('Read-only mode \u2014 unlock editing to ' + (actionName || 'make changes'), 'error');
+        return false;
     }
 
     // ===================================================================
@@ -1218,7 +1274,9 @@
             if (unverifyBtn) unverifyBtn.addEventListener('click', function() { unverifyStatic(cardId); });
 
             document.querySelectorAll('.field-input[data-card="' + cardId + '"], .field-select[data-card="' + cardId + '"]').forEach(function(el) {
+                if (!isEditUnlocked()) { el.disabled = true; }
                 var handler = function() {
+                    if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing to change values', 'error'); return; }
                     state.statics[cardId].values[el.dataset.field] = el.value;
                     state.statics[cardId].verified = false;
                     state.statics[cardId].status = getStaticCardStatus(cardId);
@@ -1235,6 +1293,7 @@
     }
 
     function verifyStatic(cardId) {
+        if (!requireEdit('mark complete')) return;
         var def = STATIC_CARDS[cardId];
         var data = state.statics[cardId];
         if (def.optional) {
@@ -1260,6 +1319,7 @@
     }
 
     function unverifyStatic(cardId) {
+        if (!requireEdit('edit verified cards')) return;
         state.statics[cardId].verified = false;
         render();
         openStaticCard(cardId);
@@ -1335,6 +1395,7 @@
     }
 
     function verifyFleet(id) {
+        if (!requireEdit('mark complete')) return;
         var p = state.fleet.find(function(x) { return x.id === id; });
         if (!p) return;
         if (!p.name || !p.model) { showToast('Please fill in at least the printer name and model', 'error'); return; }
@@ -1344,6 +1405,7 @@
     }
 
     function unverifyFleet(id) {
+        if (!requireEdit('edit verified cards')) return;
         var p = state.fleet.find(function(x) { return x.id === id; });
         if (p) p.verified = false;
         render();
@@ -1351,6 +1413,7 @@
     }
 
     function removeFleet(id) {
+        if (!requireEdit('remove cards')) return;
         var removed = state.fleet.find(function(x) { return x.id === id; });
         var idx = state.fleet.indexOf(removed);
         state.fleet = state.fleet.filter(function(x) { return x.id !== id; });
@@ -1428,6 +1491,7 @@
     }
 
     function verifyMaterial(id) {
+        if (!requireEdit('mark complete')) return;
         var m = state.materials.find(function(x) { return x.id === id; });
         if (!m) return;
         if (!m.name || !m.costKg) { showToast('Please fill in at least the material name and cost per kg', 'error'); return; }
@@ -1438,6 +1502,7 @@
     }
 
     function unverifyMaterial(id) {
+        if (!requireEdit('edit verified cards')) return;
         var m = state.materials.find(function(x) { return x.id === id; });
         if (m) m.verified = false;
         render();
@@ -1445,6 +1510,7 @@
     }
 
     function removeMaterial(id) {
+        if (!requireEdit('remove cards')) return;
         var removed = state.materials.find(function(x) { return x.id === id; });
         var idx = state.materials.indexOf(removed);
         state.materials = state.materials.filter(function(x) { return x.id !== id; });
@@ -1536,6 +1602,7 @@
     }
 
     function verifySoftware(id) {
+        if (!requireEdit('mark complete')) return;
         var s = state.software.find(function(x) { return x.id === id; });
         if (!s) return;
         if (!s.name || !s.purpose) { showToast('Please fill in at least the software name and purpose', 'error'); return; }
@@ -1545,6 +1612,7 @@
     }
 
     function unverifySoftware(id) {
+        if (!requireEdit('edit verified cards')) return;
         var s = state.software.find(function(x) { return x.id === id; });
         if (s) s.verified = false;
         render();
@@ -1552,6 +1620,7 @@
     }
 
     function removeSoftware(id) {
+        if (!requireEdit('remove cards')) return;
         var removed = state.software.find(function(x) { return x.id === id; });
         var idx = state.software.indexOf(removed);
         state.software = state.software.filter(function(x) { return x.id !== id; });
@@ -1596,7 +1665,9 @@
             }
 
             document.querySelectorAll('.field-input[data-dyn="' + dynType + '"], .field-select[data-dyn="' + dynType + '"]').forEach(function(el) {
+                if (!isEditUnlocked()) { el.disabled = true; }
                 var handler = function() {
+                    if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing to change values', 'error'); return; }
                     var arr = dynType === 'fleet' ? state.fleet : dynType === 'materials' ? state.materials : state.software;
                     var item = arr.find(function(x) { return x.id === el.dataset.id; });
                     if (item) {
@@ -1617,6 +1688,7 @@
     // ===================================================================
 
     function addDynamicCard(phaseNum) {
+        if (!requireEdit('add cards')) return;
         if (phaseNum === 2) {
             var id = 'p' + state.nextDynId.fleet++;
             state.fleet.push({ id: id, name: '', model: '', plate: '', speed: '', watts: '', price: '', hours: '24', status: 'Active', status_led: 'red', verified: false });
@@ -1742,6 +1814,7 @@
     });
 
     document.getElementById('resetStateBtn').addEventListener('click', function() {
+        if (!requireEdit('reset')) return;
         var snapshot = JSON.parse(JSON.stringify(state));
         state = createDefaultState();
         saveState();
@@ -1758,6 +1831,7 @@
     // INIT
     // ===================================================================
 
+    updateLockIcon();
     render();
 
     </script>

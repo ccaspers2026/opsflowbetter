@@ -281,6 +281,24 @@
 
         <div class="timeline">
 
+            <!-- v0.27.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.27.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Read-Only Edit Lock</div>
+                <ul class="change-list">
+                    <li class="added">Password-protected edit lock across Pipeline and Workshop &mdash; read-only by default, visitors can browse but not modify data</li>
+                    <li class="added">Lock icon in header toggles between locked (read-only) and unlocked (edit mode)</li>
+                    <li class="added">All state-modifying actions guarded: LED cycling, Mark as Complete, gate decisions, product add/remove/rename, card verify/unverify, field editing, reset</li>
+                    <li class="added">Workshop fields disabled when locked &mdash; inputs greyed out to prevent accidental edits</li>
+                    <li class="added">Shared lock state between Pipeline and Workshop via localStorage &mdash; unlock once, edit everywhere</li>
+                    <li class="added">Toast notifications inform visitors they&rsquo;re in read-only mode when they attempt changes</li>
+                </ul>
+            </div>
+
             <!-- v0.26.1 -->
             <div class="version-entry">
                 <div class="version-header">

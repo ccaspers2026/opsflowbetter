@@ -2152,7 +2152,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.26.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.27.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2820,6 +2820,7 @@
                 editBtn.title = 'Rename product';
                 editBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    if (!requireEdit('rename products')) return;
                     startEditProductName(productName, tab);
                 });
                 tab.appendChild(editBtn);
@@ -3932,6 +3933,7 @@
                     completeBtn.className = 'step-complete-btn';
                     completeBtn.textContent = 'Mark as Complete';
                     completeBtn.addEventListener('click', () => {
+                        if (!requireEdit('mark complete')) return;
                         const prevStatus = state.products[state.activeProduct][stepId];
                         state.products[state.activeProduct][stepId] = 'green';
                         saveState();
@@ -3969,6 +3971,7 @@
                     btnGo.className = 'gate-btn gate-btn-go';
                     btnGo.textContent = 'GO';
                     btnGo.addEventListener('click', () => {
+                        if (!requireEdit('make gate decisions')) return;
                         state.products[state.activeProduct][stepId] = 'green';
                         recordGateSignature(state.activeProduct, stepId, 'GO');
                         renderPipeline();
@@ -3980,6 +3983,7 @@
                     btnRevisit.className = 'gate-btn gate-btn-revisit';
                     btnRevisit.textContent = 'Revisit Later';
                     btnRevisit.addEventListener('click', () => {
+                        if (!requireEdit('make gate decisions')) return;
                         state.products[state.activeProduct][stepId] = 'yellow';
                         recordGateSignature(state.activeProduct, stepId, 'REVISIT');
                         renderPipeline();
@@ -3990,6 +3994,7 @@
                     btnNoGo.className = 'gate-btn gate-btn-nogo';
                     btnNoGo.textContent = 'NO-GO';
                     btnNoGo.addEventListener('click', () => {
+                        if (!requireEdit('make gate decisions')) return;
                         state.products[state.activeProduct][stepId] = 'red';
                         recordGateSignature(state.activeProduct, stepId, 'NO-GO');
                         renderPipeline();
@@ -4055,6 +4060,7 @@
                     reviseLink.textContent = 'Revise Decision';
                     reviseLink.addEventListener('click', (e) => {
                         e.preventDefault();
+                        if (!requireEdit('revise gate decisions')) return;
                         // Snapshot current state for undo
                         const prevSig = JSON.parse(JSON.stringify(sig));
                         const prevStatus = state.products[state.activeProduct][stepId];
@@ -4216,6 +4222,7 @@
         // ============================================================================
         renderPhaseLegend();
         initGlossaryFloater();
+        updateLockIcon();
         render();
     </script>
 </body>
