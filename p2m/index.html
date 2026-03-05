@@ -1197,6 +1197,31 @@
         }
 
         /* Mark as Complete / Undo buttons */
+        /* Workshop Bridge Banners */
+        .workshop-bridge { margin-bottom: 4px; }
+        .bridge-banner {
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .bridge-connected {
+            background: rgba(46,164,79,0.08);
+            border: 1px solid rgba(46,164,79,0.25);
+            color: #c9d1d9;
+        }
+        .bridge-disconnected {
+            background: rgba(88,166,255,0.08);
+            border: 1px dashed rgba(88,166,255,0.3);
+            color: #8b949e;
+        }
+        .bridge-icon { margin-right: 4px; }
+        .bridge-header { margin-bottom: 6px; }
+        .bridge-row { display: flex; gap: 8px; align-items: baseline; padding: 2px 0; }
+        .bridge-label { color: #8b949e; min-width: 100px; }
+        .bridge-value { color: #58a6ff; font-weight: 600; }
+        .bridge-sub { color: #6e7681; font-size: 11px; }
+
         .step-complete-btn {
             width: 100%;
             padding: 10px;
@@ -2127,7 +2152,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.24.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.25.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2323,6 +2348,156 @@
             } catch (e) {
                 // Silent fail — corrupted data, just use defaults
             }
+        }
+
+        // ============================================================================
+        // WORKSHOP DATA BRIDGE — reads Workshop localStorage for cross-page data
+        // ============================================================================
+
+        function getWorkshopData() {
+            try {
+                const raw = localStorage.getItem('workshopState_v2');
+                if (!raw) return null;
+                const ws = JSON.parse(raw);
+                // Extract key values from Workshop state
+                const getVal = (cardId, key) => (ws.statics && ws.statics[cardId] && ws.statics[cardId].values && ws.statics[cardId].values[key]) || '';
+
+                // Fleet calculations
+                const activeFleet = (ws.fleet || []).filter(p => p.status === 'Active');
+                const fleetCount = activeFleet.length;
+                const fleetAvgPrice = fleetCount > 0 ? Math.round(activeFleet.reduce((s, p) => s + (parseFloat(p.price) || 0), 0) / fleetCount) : 0;
+                const fleetAvgWatts = fleetCount > 0 ? Math.round(activeFleet.reduce((s, p) => s + (parseFloat(p.watts) || 0), 0) / fleetCount * 10) / 10 : 0;
+
+                // Machine economics
+                const elecRate = parseFloat(getVal('1.1', 'rate')) || 0;
+                const lifespan = parseFloat(getVal('3.1', 'lifespan')) || 5000;
+                const depHour = fleetAvgPrice > 0 ? (fleetAvgPrice / lifespan) : 0;
+                const maintBudget = parseFloat(getVal('3.2', 'annualBudget')) || 0;
+                const hrsPerYear = parseFloat(getVal('3.2', 'hrsPerMachinePerYear')) || 800;
+                const totalFleetHrs = (fleetCount || 1) * hrsPerYear;
+                const maintHour = totalFleetHrs > 0 ? maintBudget / totalFleetHrs : 0;
+                const elecHour = elecRate * (fleetAvgWatts / 1000);
+                const blendedRate = depHour + maintHour + elecHour;
+
+                // Packaging defaults
+                const polyBag = parseFloat(getVal('3.5', 'polyBag')) || 0;
+                const fnskuLabel = parseFloat(getVal('3.5', 'fnskuLabel')) || 0;
+                const insertCard = parseFloat(getVal('3.5', 'insertCard')) || 0;
+                const packagingTotal = polyBag + fnskuLabel + insertCard;
+
+                // Materials library
+                const materials = (ws.materials || []).map(m => ({
+                    name: m.name || '',
+                    type: m.type || '',
+                    costKg: m.costKg || '',
+                    costGram: m.costGram || (m.costKg ? (parseFloat(m.costKg) / 1000).toFixed(5) : ''),
+                    color: m.color || '',
+                    stock: m.stock || ''
+                }));
+
+                // Software tools
+                const software = (ws.software || []).map(s => ({
+                    name: s.name || '',
+                    purpose: s.purpose || '',
+                    license: s.license || '',
+                    cost: s.cost || '0'
+                }));
+
+                // Labor
+                const laborAbsorbed = getVal('5.1', 'laborAbsorbed') || 'No — Owner Absorbed';
+                const helperRate = parseFloat(getVal('5.2', 'helper1Rate')) || 0;
+                const helperName = getVal('5.2', 'helper1Name') || '';
+
+                // Fleet roster
+                const fleet = activeFleet.map(p => ({
+                    name: p.name || '',
+                    model: p.model || '',
+                    speed: p.speed || '',
+                    status: p.status || ''
+                }));
+
+                return {
+                    connected: true,
+                    fleet: fleet,
+                    fleetCount: fleetCount,
+                    fleetAvgPrice: fleetAvgPrice,
+                    fleetAvgWatts: fleetAvgWatts,
+                    elecRate: elecRate,
+                    depHour: depHour.toFixed(4),
+                    maintHour: maintHour.toFixed(4),
+                    elecHour: elecHour.toFixed(4),
+                    blendedRate: blendedRate.toFixed(2),
+                    packagingTotal: packagingTotal.toFixed(2),
+                    materials: materials,
+                    software: software,
+                    laborAbsorbed: laborAbsorbed,
+                    helperRate: helperRate,
+                    helperName: helperName
+                };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function getWorkshopBridgeContent(stepId) {
+            const ws = getWorkshopData();
+            if (!ws) {
+                // Show "connect to Workshop" hint for data-dependent steps
+                const dataSteps = ['1.5', '2.1', '2.3', '3.1', '3.2'];
+                if (dataSteps.includes(stepId)) {
+                    return '<div class="bridge-banner bridge-disconnected"><span class="bridge-icon">🔗</span> <a href="workshop.html" style="color:#58a6ff;">Complete Workshop Setup</a> to auto-populate costs and rates here</div>';
+                }
+                return null;
+            }
+
+            let html = '';
+
+            if (stepId === '1.5') {
+                // Income Math — fleet capacity check
+                html = '<div class="bridge-banner bridge-connected"><span class="bridge-icon">🔗</span> <strong>From Workshop:</strong> ' +
+                    ws.fleetCount + ' active printers available' +
+                    (ws.fleet.length > 0 ? ' (' + ws.fleet.map(p => p.name).join(', ') + ')' : '') +
+                    '</div>';
+            }
+
+            if (stepId === '2.1') {
+                // CAD Design — software from Workshop
+                const cadTools = ws.software.filter(s => s.purpose === 'CAD' || s.purpose === 'Slicer');
+                if (cadTools.length > 0) {
+                    html = '<div class="bridge-banner bridge-connected"><span class="bridge-icon">🔗</span> <strong>Workshop Software:</strong> ' +
+                        cadTools.map(t => t.name + ' (' + t.purpose + ')').join(', ') +
+                        '</div>';
+                }
+            }
+
+            if (stepId === '2.3') {
+                // Slicer Settings — material library
+                if (ws.materials.length > 0) {
+                    html = '<div class="bridge-banner bridge-connected"><span class="bridge-icon">🔗</span> <strong>Materials Library:</strong> ' +
+                        ws.materials.map(m => m.name + ' @ $' + m.costKg + '/kg').join(' · ') +
+                        '</div>';
+                }
+            }
+
+            if (stepId === '3.1') {
+                // COGS — the big one: blended rate, material costs, packaging
+                const parts = [];
+                parts.push('<div class="bridge-row"><span class="bridge-label">Machine Time:</span> <span class="bridge-value">$' + ws.blendedRate + '/hr</span> <span class="bridge-sub">(Dep $' + ws.depHour + ' + Maint $' + ws.maintHour + ' + Elec $' + ws.elecHour + ')</span></div>');
+                if (ws.materials.length > 0) {
+                    parts.push('<div class="bridge-row"><span class="bridge-label">Material:</span> <span class="bridge-value">' + ws.materials.map(m => m.name + ' @ $' + m.costGram + '/g').join(' · ') + '</span></div>');
+                }
+                parts.push('<div class="bridge-row"><span class="bridge-label">Packaging:</span> <span class="bridge-value">$' + ws.packagingTotal + '/unit</span></div>');
+                parts.push('<div class="bridge-row"><span class="bridge-label">Labor:</span> <span class="bridge-value">' + ws.laborAbsorbed + '</span>' +
+                    (ws.helperRate > 0 ? ' <span class="bridge-sub">(' + ws.helperName + ' @ $' + ws.helperRate + '/hr)</span>' : '') + '</div>');
+                html = '<div class="bridge-banner bridge-connected"><div class="bridge-header"><span class="bridge-icon">🔗</span> <strong>Workshop Data for COGS</strong></div>' + parts.join('') + '</div>';
+            }
+
+            if (stepId === '3.2') {
+                // Pricing Strategy — quick COGS reference
+                html = '<div class="bridge-banner bridge-connected"><span class="bridge-icon">🔗</span> <strong>Workshop Rate:</strong> $' + ws.blendedRate + '/hr machine time · Packaging $' + ws.packagingTotal + '/unit</div>';
+            }
+
+            return html || null;
         }
 
         function resetState() {
@@ -3323,6 +3498,15 @@
                 lockBanner.className = 'detail-lock-banner';
                 lockBanner.innerHTML = `<span class="lock-icon">🔒</span><span>${getPhaseUnlockMessage(phaseNum)}</span>`;
                 body.appendChild(lockBanner);
+            }
+
+            // Workshop data bridge — show relevant Workshop data for applicable steps
+            const workshopBridge = getWorkshopBridgeContent(stepId);
+            if (workshopBridge) {
+                const bridgeSection = document.createElement('div');
+                bridgeSection.className = 'detail-section workshop-bridge';
+                bridgeSection.innerHTML = workshopBridge;
+                body.appendChild(bridgeSection);
             }
 
             if (content.purpose) {

@@ -562,10 +562,14 @@
     <header class="workshop-header">
         <div class="header-left">
             <h1>Workshop Setup</h1>
-            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.24.1</p>
+            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.25.0</p>
             <p>Configure your production capabilities — every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
+            <div class="summary-bar" id="blendedRateBanner" style="border-color:#059669;">
+                <span style="color:#2ea44f;font-weight:700;font-size:14px;" id="blendedRateDisplay">Blended Rate: $—/hr</span>
+                <span style="font-size:11px;color:#6e7681;" id="blendedRateBreakdown"></span>
+            </div>
             <div class="summary-bar">
                 <span>Completion: <strong id="completionPct">0%</strong></span>
                 <span>(<strong id="completionCount">0/0</strong> cards)</span>
@@ -671,6 +675,7 @@
             purpose: 'Fleet-pooled maintenance calculated bottom-up from actual consumable pricing and Bambu Lab maintenance schedules. Total fleet maintenance is $515.97/yr across 7 machines. Top 3 costs: hotend assemblies (35%), build plates (27%), silicone socks (10%).',
             fields: [
                 { key: 'annualBudget', label: 'Annual Fleet Maintenance ($)', type: 'text', placeholder: '515.97', hint: 'Bottom-up: socks $50 + plates $140 + hotends $180 + misc $146 = $516/yr' },
+                { key: 'hrsPerMachinePerYear', label: 'Hours per Machine per Year', type: 'text', placeholder: '800', hint: 'Conservative baseline — adjust based on actual utilization' },
                 { key: 'fleetMachines', label: 'Active Machines in Fleet', type: 'calculated' },
                 { key: 'maintHour', label: 'Maintenance per Print Hour ($)', type: 'calculated' }
             ]
@@ -698,6 +703,18 @@
                 { key: 'blendedRate', label: 'Blended Hourly Rate ($)', type: 'calculated' }
             ],
             allLinked: true
+        },
+        '3.5': {
+            phase: 3, number: 'W3.5', title: 'Packaging Defaults',
+            description: 'Default per-unit packaging cost',
+            output: 'Feeds product COGS',
+            purpose: 'Set your default packaging cost per unit. This includes poly bags, labels, FNSKU stickers, inserts, and any protective packaging. Individual products can override this in their Pipeline COGS step (P3.1), but having a workshop-level default speeds up new product costing.',
+            fields: [
+                { key: 'polyBag', label: 'Poly Bag + Seal ($/unit)', type: 'text', placeholder: '0.02', hint: 'Standard poly bags with suffocation warning' },
+                { key: 'fnskuLabel', label: 'FNSKU Label ($/unit)', type: 'text', placeholder: '0.01', hint: 'Printed barcode label per unit' },
+                { key: 'insertCard', label: 'Insert Card ($/unit)', type: 'text', placeholder: '0.02', hint: 'Thank-you card / instructions insert' },
+                { key: 'packagingTotal', label: 'Total Packaging ($/unit)', type: 'calculated' }
+            ]
         },
         '5.1': {
             phase: 5, number: 'W5.1', title: 'Owner / Primary Operator',
@@ -884,7 +901,7 @@
     function calcMaintHour() {
         var fleetBudget = parseFloat(getFieldValue('3.2', 'annualBudget')) || 0;
         var machines = getActiveFleetCount() || 1;
-        var hrsPerMachinePerYear = 800; // conservative baseline from Operations Plan
+        var hrsPerMachinePerYear = parseFloat(getFieldValue('3.2', 'hrsPerMachinePerYear')) || 800;
         var totalFleetHrs = machines * hrsPerMachinePerYear;
         if (totalFleetHrs === 0) return '0.0000';
         return (fleetBudget / totalFleetHrs).toFixed(4);
@@ -915,6 +932,12 @@
         if (cardId === '3.4' && fieldKey === 'maintComponent') return '$' + calcMaintHour();
         if (cardId === '3.4' && fieldKey === 'elecComponent') return '$' + calcElecHour();
         if (cardId === '3.4' && fieldKey === 'blendedRate') return '$' + calcBlendedRate();
+        if (cardId === '3.5' && fieldKey === 'packagingTotal') {
+            var poly = parseFloat(getFieldValue('3.5', 'polyBag')) || 0;
+            var fnsku = parseFloat(getFieldValue('3.5', 'fnskuLabel')) || 0;
+            var insert = parseFloat(getFieldValue('3.5', 'insertCard')) || 0;
+            return '$' + (poly + fnsku + insert).toFixed(2);
+        }
         return '—';
     }
 
@@ -971,7 +994,27 @@
         updateAllStatuses();
         renderPipeline();
         updateCompletionDisplay();
+        updateBlendedRateBanner();
         saveState();
+    }
+
+    function updateBlendedRateBanner() {
+        var rate = calcBlendedRate();
+        var dep = calcDepHour();
+        var maint = calcMaintHour();
+        var elec = calcElecHour();
+        var rateNum = parseFloat(rate) || 0;
+        var display = document.getElementById('blendedRateDisplay');
+        var breakdown = document.getElementById('blendedRateBreakdown');
+        if (rateNum > 0) {
+            display.textContent = 'Blended Rate: $' + rate + '/hr';
+            display.style.color = '#2ea44f';
+            breakdown.textContent = 'Dep $' + dep + ' + Maint $' + maint + ' + Elec $' + elec;
+        } else {
+            display.textContent = 'Blended Rate: $\u2014/hr';
+            display.style.color = '#8b949e';
+            breakdown.textContent = 'Complete Phase 3 cards to calculate';
+        }
     }
 
     function renderPipeline() {
