@@ -249,13 +249,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.11.0 - Niche Viability Score + Flow Integrity</h2>
-            <p>Released March 5, 2026 &mdash; Step 1.4 (Niche Viability Score) built for 45 RPM Adaptor. Phase 1 data cleaned to remove forward-looking knowledge — P2M now follows an honest first-timer flow. G2 gate upgraded as Phase 1 validation checkpoint. Remove product and detail panel toggle added.</p>
+            <h2>Version 0.12.0 - Phase-Gated Locking + Step Descriptions</h2>
+            <p>Released March 5, 2026 &mdash; Future phases now locked until prerequisite gates/steps are completed. Locked cards show grey LEDs with lock icons but remain clickable for preview. All 30+ step descriptions expanded with outcome expectations so users know exactly what they'll walk away with at each step.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">14</div>
+                <div class="stat-value">15</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -263,7 +263,7 @@
                 <div class="stat-label">Products</div>
             </div>
             <div class="stat">
-                <div class="stat-value">2,950+</div>
+                <div class="stat-value">3,090+</div>
                 <div class="stat-label">Lines of Code</div>
             </div>
             <div class="stat">
@@ -277,6 +277,26 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.12.0 -->
+            <div class="version-entry major">
+                <div class="version-header">
+                    <span class="version-number">v0.12.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-major">MAJOR</span>
+                </div>
+                <div class="version-title">Phase-Gated Locking + Step Descriptions</div>
+                <ul class="change-list">
+                    <li class="added">Phase-gated card locking &mdash; future phases are locked (grey LED, grey border, lock icon) until prerequisite gate or phase steps are completed</li>
+                    <li class="added">Lock rules: Phase 1 always open. Phase 2 unlocks at G1 green. Phase 3 at G2 green. Phases 4/5/7 unlock when all prior phase steps are green. Phase 6 at G5 green.</li>
+                    <li class="added">Locked card preview &mdash; clicking a locked card still opens the detail panel with a lock banner explaining what to complete, read-only checklists, and disabled LED cycling</li>
+                    <li class="added">Lock icon (&#x1f512;) displayed on locked step cards and gates in both desktop and mobile views</li>
+                    <li class="changed">Expanded all 30+ step descriptions with outcome expectations &mdash; every step now tells the user exactly what they'll "walk away with" after completing it</li>
+                    <li class="changed">Phase 2 step purposes (2.1, 2.2, 2.3) updated to reference G2 gate validation of Phase 1 estimates</li>
+                    <li class="changed">Changelog link simplified from "v0.11.0 Changelog" to "Changelog" &mdash; version now shown in header subtitle</li>
+                    <li class="fixed">Red LED cards now show matching red left border (was transparent)</li>
+                </ul>
+            </div>
 
             <!-- v0.11.0 -->
             <div class="version-entry major">
