@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>OpsFlowBetter — Operations Tools for Makers &amp; Sellers</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -530,6 +533,135 @@
         }
 
         /* ================================================================
+           PRODUCT PORTFOLIO
+        ================================================================ */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .portfolio-card {
+            background: #111820;
+            border: 1px solid #1a1f2b;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+
+        .portfolio-card:hover { border-color: #2a3040; transform: translateY(-2px); }
+
+        .portfolio-img {
+            width: 100%;
+            height: 180px;
+            background: #161b22;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #1a1f2b;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-img-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: #30363d;
+        }
+
+        .portfolio-img-placeholder .camera-icon {
+            font-size: 36px;
+            opacity: 0.5;
+        }
+
+        .portfolio-img-placeholder span {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .portfolio-body {
+            padding: 24px;
+        }
+
+        .portfolio-body h4 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #e6edf3;
+        }
+
+        .portfolio-concept {
+            font-size: 13px;
+            color: #6e7681;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .portfolio-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 16px;
+        }
+
+        .badge-development { background: rgba(210, 153, 34, 0.15); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.25); }
+        .badge-design-locked { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.25); }
+        .badge-production { background: rgba(59, 130, 246, 0.15); color: #58a6ff; border: 1px solid rgba(59, 130, 246, 0.25); }
+        .badge-coming-soon { background: rgba(63, 185, 80, 0.15); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.25); }
+        .badge-live { background: rgba(63, 185, 80, 0.25); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.4); }
+
+        .portfolio-progress {
+            margin-top: 12px;
+        }
+
+        .portfolio-progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #6e7681;
+            margin-bottom: 6px;
+        }
+
+        .portfolio-progress-bar {
+            height: 4px;
+            background: #21262d;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .portfolio-progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        .portfolio-phase-dots {
+            display: flex;
+            gap: 4px;
+            margin-top: 10px;
+        }
+
+        .portfolio-phase-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid #30363d;
+            background: #0d1117;
+        }
+
+        .portfolio-phase-dot.dot-active { background: #d29922; border-color: #d29922; }
+        .portfolio-phase-dot.dot-done { background: #3fb950; border-color: #3fb950; }
+
+        /* ================================================================
            RESPONSIVE
         ================================================================ */
         @media (max-width: 768px) {
@@ -606,33 +738,29 @@
             </div>
             <div class="fp-body">
                 <p class="fp-description">
-                    A structured, repeatable system that takes a physical product from napkin sketch to revenue-generating listing. Seven phases, 28 guided steps, three Go/No-Go gates, and a three-layer data model that ensures every decision is backed by evidence &mdash; not gut feel.
+                    A structured, repeatable system that takes a physical product from napkin sketch to revenue-generating listing. Seven phases, 31 guided steps, three Go/No-Go gates, and a multi-layer data model backed by a full Workshop Setup &mdash; ensuring every decision is grounded in evidence, not gut feel.
                 </p>
                 <div class="fp-features">
-                    <div class="fp-feature"><div class="fp-feature-dot"></div> 7-phase guided pipeline</div>
-                    <div class="fp-feature"><div class="fp-feature-dot"></div> Multi-product support</div>
-                    <div class="fp-feature"><div class="fp-feature-dot"></div> Three-layer data model</div>
-                    <div class="fp-feature"><div class="fp-feature-dot"></div> Smart glossary tooltips</div>
-                    <div class="fp-feature"><div class="fp-feature-dot"></div> Automation roadmap</div>
+                    <div class="fp-feature"><div class="fp-feature-dot"></div> 7-phase guided pipeline (31 steps)</div>
+                    <div class="fp-feature"><div class="fp-feature-dot"></div> Workshop Setup &mdash; fleet, costs, materials</div>
+                    <div class="fp-feature"><div class="fp-feature-dot"></div> Workshop &rarr; Pipeline data bridge</div>
+                    <div class="fp-feature"><div class="fp-feature-dot"></div> Mark as Complete with undo</div>
                     <div class="fp-feature"><div class="fp-feature-dot"></div> Go/No-Go decision gates</div>
+                    <div class="fp-feature"><div class="fp-feature-dot"></div> Smart glossary tooltips</div>
+                    <div class="fp-feature"><div class="fp-feature-dot"></div> Multi-product support</div>
                     <div class="fp-feature"><div class="fp-feature-dot"></div> Built for 3D print &amp; FBA</div>
-                    <div class="fp-feature"><div class="fp-feature-dot"></div> Version-tracked changelog</div>
                 </div>
                 <div class="fp-actions">
                     <a href="p2m/" class="fp-btn fp-btn-primary">Open Pipeline</a>
+                    <a href="p2m/workshop.html" class="fp-btn fp-btn-secondary">Workshop Setup</a>
                     <a href="p2m/welcome.html" class="fp-btn fp-btn-secondary">Learn More</a>
-                    <a href="P2M_Changelog.html" class="fp-btn fp-btn-secondary">Changelog</a>
+                    <a href="p2m/changelog.html" class="fp-btn fp-btn-secondary">Changelog</a>
                 </div>
             </div>
         </div>
 
         <!-- Coming Soon Products -->
         <div class="coming-soon-grid">
-            <div class="cs-card">
-                <span class="cs-icon">&#9881;</span>
-                <h4>Workshop Ops</h4>
-                <p>Production scheduling, printer fleet management, material inventory, and cost tracking for small-batch manufacturing workshops. Know your true cost per unit.</p>
-            </div>
             <div class="cs-card">
                 <span class="cs-icon">&#9733;</span>
                 <h4>Listing Forge</h4>
@@ -648,6 +776,16 @@
                 <h4>LaunchPad</h4>
                 <p>Your visual workspace launcher. 3D interactive spheres replace boring bookmarks &mdash; group links by workflow, hover to preview, click to launch. Research tools, seller dashboards, and daily ops all one tap away.</p>
             </div>
+        </div>
+
+        <!-- ============================================================
+             PRODUCT PORTFOLIO — Auto-populated from P2M Pipeline data
+        ============================================================ -->
+        <div id="productPortfolio" style="margin-top: 64px; display: none;">
+            <div class="section-label" style="margin-top: 48px;">Product Portfolio</div>
+            <div class="section-title">What we're building with P2M.</div>
+            <div class="section-desc">Every product below is being developed through our own P2M Pipeline &mdash; from idea to income, tracked in real time.</div>
+            <div class="portfolio-grid" id="portfolioGrid"></div>
         </div>
     </section>
 
@@ -731,10 +869,168 @@
         <div class="footer-links">
             <a href="p2m/">P2M Pipeline</a>
             <a href="p2m/welcome.html">About P2M</a>
-            <a href="P2M_Changelog.html">Changelog</a>
+            <a href="p2m/changelog.html">Changelog</a>
         </div>
         <div class="footer-copy">&copy; 2026 OpsFlowBetter &mdash; A Caspers Creations Company &mdash; High Point, NC</div>
     </footer>
+
+    <!-- ============================================================
+         PRODUCT PORTFOLIO — Pipeline Data Bridge
+    ============================================================ -->
+    <script>
+    (function() {
+        // Phase names and colors matching P2M Pipeline
+        var phaseNames = {
+            1: 'Ideation', 2: 'Design', 3: 'Costing',
+            4: 'Packaging', 5: 'Listing', 6: 'Marketing', 7: 'Operations'
+        };
+        var phaseColors = {
+            1: '#2563eb', 2: '#7c3aed', 3: '#059669',
+            4: '#d97706', 5: '#dc2626', 6: '#db2777', 7: '#4f46e5'
+        };
+
+        // Step definitions — which steps belong to which phase
+        var stepPhases = {
+            '1.1':1,'1.2':1,'1.3':1,'1.4':1,'1.5':1,'g1':1,
+            '2.1':2,'2.2':2,'2.3':2,'g2':2,
+            '3.1':3,'3.2':3,'3.3':3,'3.4':3,
+            '4.1':4,'4.2':4,'4.3':4,
+            '5.1':5,'5.2':5,'5.3':5,'5.4':5,'5.5':5,'g5':5,
+            '6.1':6,'6.2':6,'6.3':6,'6.4':6,
+            '7.1':7,'7.2':7,'7.3':7,'7.4':7
+        };
+
+        function getStatusFromPipeline(productState) {
+            if (!productState) return { status: 'development', label: 'In Development', badge: 'badge-development' };
+
+            // Count green steps per phase
+            var phaseGreen = {};
+            var phaseTotal = {};
+            for (var step in stepPhases) {
+                var ph = stepPhases[step];
+                if (!phaseTotal[ph]) phaseTotal[ph] = 0;
+                if (!phaseGreen[ph]) phaseGreen[ph] = 0;
+                phaseTotal[ph]++;
+                if (productState[step] === 'green') phaseGreen[ph]++;
+            }
+
+            var phaseComplete = function(p) { return phaseGreen[p] === phaseTotal[p] && phaseTotal[p] > 0; };
+            var phaseStarted = function(p) { return (phaseGreen[p] || 0) > 0; };
+
+            // Derive status from phase completion
+            if (phaseComplete(5) && productState['g5'] === 'green') {
+                return { status: 'live', label: 'Live on Amazon', badge: 'badge-live' };
+            }
+            if (phaseStarted(5)) {
+                return { status: 'coming-soon', label: 'Coming Soon', badge: 'badge-coming-soon' };
+            }
+            if (phaseComplete(3) || phaseStarted(4)) {
+                return { status: 'production', label: 'Production Ready', badge: 'badge-production' };
+            }
+            if (productState['g2'] === 'green') {
+                return { status: 'design-locked', label: 'Design Locked', badge: 'badge-design-locked' };
+            }
+            return { status: 'development', label: 'In Development', badge: 'badge-development' };
+        }
+
+        function getProductConcept(productName, pipelineState) {
+            // Try to read from product detail content (stored in checklist data, or from template)
+            // For now, return a category hint based on product name
+            return '';
+        }
+
+        function getPhaseProgress(productState) {
+            var result = [];
+            for (var p = 1; p <= 7; p++) {
+                var total = 0, done = 0;
+                for (var step in stepPhases) {
+                    if (stepPhases[step] === p) {
+                        total++;
+                        if (productState && productState[step] === 'green') done++;
+                    }
+                }
+                result.push({ phase: p, done: done, total: total });
+            }
+            return result;
+        }
+
+        function renderPortfolio() {
+            var raw;
+            try {
+                raw = localStorage.getItem('p2m_pipeline_state');
+            } catch(e) { return; }
+            if (!raw) return;
+
+            var state;
+            try { state = JSON.parse(raw); } catch(e) { return; }
+            if (!state || !state.products) return;
+
+            var productNames = Object.keys(state.products);
+            if (productNames.length === 0) return;
+
+            var container = document.getElementById('productPortfolio');
+            var grid = document.getElementById('portfolioGrid');
+            if (!container || !grid) return;
+
+            container.style.display = 'block';
+            grid.innerHTML = '';
+
+            productNames.forEach(function(name) {
+                var prodState = state.products[name];
+                var statusInfo = getStatusFromPipeline(prodState);
+                var phases = getPhaseProgress(prodState);
+
+                // Overall progress
+                var totalSteps = 0, doneSteps = 0;
+                phases.forEach(function(p) { totalSteps += p.total; doneSteps += p.done; });
+                var pct = totalSteps > 0 ? Math.round((doneSteps / totalSteps) * 100) : 0;
+
+                // Progress bar color based on status
+                var barColor = '#d29922';
+                if (statusInfo.status === 'live') barColor = '#3fb950';
+                else if (statusInfo.status === 'coming-soon') barColor = '#3fb950';
+                else if (statusInfo.status === 'production') barColor = '#58a6ff';
+                else if (statusInfo.status === 'design-locked') barColor = '#a78bfa';
+
+                var card = document.createElement('div');
+                card.className = 'portfolio-card';
+
+                // Image placeholder
+                var imgHtml = '<div class="portfolio-img">' +
+                    '<div class="portfolio-img-placeholder">' +
+                    '<span class="camera-icon">&#128247;</span>' +
+                    '<span>Photo coming soon</span>' +
+                    '</div></div>';
+
+                // Phase dots
+                var dotsHtml = '<div class="portfolio-phase-dots">';
+                phases.forEach(function(p) {
+                    var cls = 'portfolio-phase-dot';
+                    if (p.done === p.total && p.total > 0) cls += ' dot-done';
+                    else if (p.done > 0) cls += ' dot-active';
+                    dotsHtml += '<div class="' + cls + '" title="Phase ' + p.phase + ': ' + phaseNames[p.phase] + ' (' + p.done + '/' + p.total + ')"></div>';
+                });
+                dotsHtml += '</div>';
+
+                card.innerHTML = imgHtml +
+                    '<div class="portfolio-body">' +
+                    '<h4>' + name + '</h4>' +
+                    '<div class="portfolio-status-badge ' + statusInfo.badge + '">' +
+                    '<span style="font-size:8px;">&#9679;</span> ' + statusInfo.label + '</div>' +
+                    '<div class="portfolio-progress">' +
+                    '<div class="portfolio-progress-label"><span>Pipeline Progress</span><span>' + pct + '% (' + doneSteps + '/' + totalSteps + ' steps)</span></div>' +
+                    '<div class="portfolio-progress-bar"><div class="portfolio-progress-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' +
+                    dotsHtml +
+                    '</div></div>';
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Render on load
+        renderPortfolio();
+    })();
+    </script>
 
 </body>
 </html>
