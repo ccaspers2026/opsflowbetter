@@ -685,6 +685,7 @@
         </a>
         <div class="nav-links">
             <a href="#products">Products</a>
+            <a href="#portfolio">Our Products</a>
             <a href="#philosophy">Philosophy</a>
             <a href="#story">Our Story</a>
             <a href="p2m/welcome.html">P2M Pipeline <span class="nav-badge">LIVE</span></a>
@@ -778,15 +779,16 @@
             </div>
         </div>
 
-        <!-- ============================================================
-             PRODUCT PORTFOLIO — Auto-populated from P2M Pipeline data
-        ============================================================ -->
-        <div id="productPortfolio" style="margin-top: 64px; display: none;">
-            <div class="section-label" style="margin-top: 48px;">Product Portfolio</div>
-            <div class="section-title">What we're building with P2M.</div>
-            <div class="section-desc">Every product below is being developed through our own P2M Pipeline &mdash; from idea to income, tracked in real time.</div>
-            <div class="portfolio-grid" id="portfolioGrid"></div>
-        </div>
+    </section>
+
+    <!-- ============================================================
+         OUR PRODUCTS — Auto-populated from P2M Pipeline data
+    ============================================================ -->
+    <section class="products-section" id="portfolio" style="display: none;">
+        <div class="section-label">Our Products</div>
+        <div class="section-title">Built with our own tools. Tracked in real time.</div>
+        <div class="section-desc">We don&rsquo;t just build operations software &mdash; we use it. Every product below is running through our own P2M Pipeline right now. What you see here updates automatically as we hit milestones. No marketing fluff, just real progress on real products.</div>
+        <div class="portfolio-grid" id="portfolioGrid"></div>
     </section>
 
     <!-- ============================================================
@@ -968,7 +970,7 @@
             var productNames = Object.keys(state.products);
             if (productNames.length === 0) return;
 
-            var container = document.getElementById('productPortfolio');
+            var container = document.getElementById('portfolio');
             var grid = document.getElementById('portfolioGrid');
             if (!container || !grid) return;
 
