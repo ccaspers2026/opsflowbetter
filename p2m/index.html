@@ -218,6 +218,28 @@
             color: #1F4E79;
         }
 
+        .pipeline-summary-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            background-color: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        .pipeline-summary-bar strong { color: #e0e0e0; }
+        .pipeline-overall-led {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            border: 2px solid;
+            flex-shrink: 0;
+        }
+        .pipeline-overall-led.led-red { background-color: #6b2020; border-color: #9b3333; }
+        .pipeline-overall-led.led-yellow { background-color: #8b6914; border-color: #c99a1d; box-shadow: 0 0 6px rgba(201,154,29,0.4); }
+        .pipeline-overall-led.led-green { background-color: #1a7a33; border-color: #2ea44f; }
+
         .led-legend {
             margin-left: auto;
             display: flex;
@@ -2105,7 +2127,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.24.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.24.1</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2118,6 +2140,11 @@
             <label>Product:</label>
             <div class="product-tabs" id="productTabs"></div>
             <button class="add-product-btn" id="addProductBtn">+ Add Product</button>
+            <div class="pipeline-summary-bar" id="pipelineSummaryBar">
+                <span>Completion: <strong id="pipelineCompletionPct">0%</strong></span>
+                <span>(<strong id="pipelineCompletionCount">0/0</strong> steps)</span>
+                <div class="pipeline-overall-led led-red" id="pipelineOverallLed"></div>
+            </div>
             <div class="led-legend">
                 🔴 Not Started | 🟡 In Progress | 🟢 Complete (click LED to cycle)
             </div>
@@ -2986,6 +3013,28 @@
             renderPipeline();
             renderMobileAccordion();
             renderProgressAndTracker();
+            updatePipelineCompletion();
+        }
+
+        function updatePipelineCompletion() {
+            if (!state.activeProduct || !state.products[state.activeProduct]) return;
+            const prodState = state.products[state.activeProduct];
+            const allStepIds = Object.keys(stepDefinitions);
+            const total = allStepIds.length;
+            const done = allStepIds.filter(id => prodState[id] === 'green').length;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            const pctEl = document.getElementById('pipelineCompletionPct');
+            const countEl = document.getElementById('pipelineCompletionCount');
+            const ledEl = document.getElementById('pipelineOverallLed');
+            if (pctEl) pctEl.textContent = pct + '%';
+            if (countEl) countEl.textContent = done + '/' + total;
+            if (ledEl) {
+                ledEl.className = 'pipeline-overall-led';
+                if (pct === 100) ledEl.classList.add('led-green');
+                else if (pct > 0) ledEl.classList.add('led-yellow');
+                else ledEl.classList.add('led-red');
+            }
         }
 
         // ============================================================================
