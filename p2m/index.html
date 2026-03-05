@@ -2022,7 +2022,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.21.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.21.1</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -3092,9 +3092,9 @@
             return g1;
         }
 
-        function openDetailPanel(stepId) {
+        function openDetailPanel(stepId, forceOpen) {
             // Toggle: if clicking the same card that's already open, close the panel
-            if (activeCardStepId === stepId && document.getElementById('detailPanel').classList.contains('active')) {
+            if (!forceOpen && activeCardStepId === stepId && document.getElementById('detailPanel').classList.contains('active')) {
                 closeDetailPanel();
                 return;
             }
@@ -3136,7 +3136,7 @@
             if (phaseUnlocked && !step.isGate) {
                 ledStatus.onclick = () => {
                     cycleLED(stepId);
-                    openDetailPanel(stepId);
+                    openDetailPanel(stepId, true);
                 };
                 ledStatus.style.cursor = 'pointer';
             } else {
@@ -3513,7 +3513,7 @@
                         state.products[state.activeProduct][stepId] = 'green';
                         recordGateSignature(state.activeProduct, stepId, 'GO');
                         renderPipeline();
-                        openDetailPanel(stepId);
+                        openDetailPanel(stepId, true);
                         setTimeout(() => showGateCelebration(stepId, phaseNum), 300);
                     });
 
@@ -3524,19 +3524,17 @@
                         state.products[state.activeProduct][stepId] = 'yellow';
                         recordGateSignature(state.activeProduct, stepId, 'REVISIT');
                         renderPipeline();
-                        openDetailPanel(stepId);
+                        openDetailPanel(stepId, true);
                     });
 
                     const btnNoGo = document.createElement('button');
                     btnNoGo.className = 'gate-btn gate-btn-nogo';
                     btnNoGo.textContent = 'NO-GO';
                     btnNoGo.addEventListener('click', () => {
-                        if (confirm('Mark this product as NO-GO? This sets the gate to red.')) {
-                            state.products[state.activeProduct][stepId] = 'red';
-                            recordGateSignature(state.activeProduct, stepId, 'NO-GO');
-                            renderPipeline();
-                            openDetailPanel(stepId);
-                        }
+                        state.products[state.activeProduct][stepId] = 'red';
+                        recordGateSignature(state.activeProduct, stepId, 'NO-GO');
+                        renderPipeline();
+                        openDetailPanel(stepId, true);
                     });
 
                     btnGroup.appendChild(btnGo);
@@ -3603,7 +3601,7 @@
                             state.products[state.activeProduct][stepId] = 'red';
                             saveState();
                             renderPipeline();
-                            openDetailPanel(stepId);
+                            openDetailPanel(stepId, true);
                         }
                     });
                     gateSection.appendChild(reviseLink);

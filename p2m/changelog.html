@@ -252,13 +252,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.21.0 - localStorage Persistence</h2>
-            <p>Released March 5, 2026 &mdash; All pipeline state now persists across browser refreshes using localStorage. LED states, checklist progress, gate signatures, and active product are all saved automatically. Reset button available to restore defaults.</p>
+            <h2>Version 0.21.1 - Gate UX Fixes</h2>
+            <p>Released March 5, 2026 &mdash; Detail panel now stays open after all gate decisions. NO-GO confirm dialog removed. Panel uses forceOpen to prevent toggle-close on state refresh.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">28</div>
+                <div class="stat-value">29</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -280,6 +280,21 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.21.1 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.21.1</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-minor">FIX</span>
+                </div>
+                <div class="version-title">Gate UX Fixes</div>
+                <ul class="change-list">
+                    <li class="fixed">Detail panel stays open after GO, Revisit Later, and NO-GO decisions</li>
+                    <li class="fixed">Detail panel stays open after LED cycle and Revise Decision</li>
+                    <li class="changed">Removed NO-GO confirm dialog &mdash; decision records immediately</li>
+                </ul>
+            </div>
 
             <!-- v0.21.0 -->
             <div class="version-entry">
