@@ -624,7 +624,7 @@
             purpose: 'Fleet-pooled maintenance calculated bottom-up from actual consumable pricing and Bambu Lab maintenance schedules. Total fleet maintenance is $515.97/yr across 7 machines. Top 3 costs: hotend assemblies (35%), build plates (27%), silicone socks (10%).',
             fields: [
                 { key: 'annualBudget', label: 'Annual Fleet Maintenance ($)', type: 'text', placeholder: '515.97', hint: 'Bottom-up: socks $50 + plates $140 + hotends $180 + misc $146 = $516/yr' },
-                { key: 'fleetMachines', label: 'Number of Machines', type: 'text', placeholder: '7', hint: 'Active fleet count' },
+                { key: 'fleetMachines', label: 'Active Machines in Fleet', type: 'calculated' },
                 { key: 'maintHour', label: 'Maintenance per Print Hour ($)', type: 'calculated' }
             ]
         },
@@ -814,9 +814,13 @@
         return (price / lifespanHrs).toFixed(4);
     }
 
+    function getActiveFleetCount() {
+        return state.fleet.filter(function(p) { return p.status === 'Active'; }).length;
+    }
+
     function calcMaintHour() {
         var fleetBudget = parseFloat(getFieldValue('3.2', 'annualBudget')) || 0;
-        var machines = parseFloat(getFieldValue('3.2', 'fleetMachines')) || 7;
+        var machines = getActiveFleetCount() || 1;
         var hrsPerMachinePerYear = 800; // conservative baseline from Operations Plan
         var totalFleetHrs = machines * hrsPerMachinePerYear;
         if (totalFleetHrs === 0) return '0.0000';
@@ -838,6 +842,7 @@
 
     function getCalculatedValue(cardId, fieldKey) {
         if (cardId === '3.1' && fieldKey === 'depHour') return '$' + calcDepHour();
+        if (cardId === '3.2' && fieldKey === 'fleetMachines') return getActiveFleetCount() + ' (from Fleet)';
         if (cardId === '3.2' && fieldKey === 'maintHour') return '$' + calcMaintHour();
         if (cardId === '3.3' && fieldKey === 'electricityRate') return '$' + (getFieldValue('1.1', 'rate') || '—');
         if (cardId === '3.3' && fieldKey === 'elecHour') return '$' + calcElecHour();
@@ -1140,7 +1145,7 @@
             { key: 'model', label: 'Model', placeholder: 'Bambu Lab X1C' },
             { key: 'plate', label: 'Build Plate (mm)', placeholder: '256 x 256' },
             { key: 'speed', label: 'Max Speed (mm/s)', placeholder: '500' },
-            { key: 'hours', label: 'Hours/Day Available', placeholder: '24' }
+            { key: 'hours', label: 'Productive Hours/Day', placeholder: '2.2', hint: 'Realistic daily output — limited by operator availability, not printer uptime' }
         ];
 
         fields.forEach(function(f) {
@@ -1148,6 +1153,7 @@
             group.className = 'field-group';
             group.innerHTML = '<label class="field-label">' + escHtml(f.label) + '</label>' +
                 '<input class="field-input" type="text" data-dyn="fleet" data-id="' + printerId + '" data-field="' + f.key + '" value="' + escHtml(printer[f.key] || '') + '" placeholder="' + escHtml(f.placeholder) + '">';
+            if (f.hint) group.innerHTML += '<div class="field-hint">' + escHtml(f.hint) + '</div>';
             fieldsDiv.appendChild(group);
         });
 
