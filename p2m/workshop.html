@@ -512,6 +512,49 @@
         ::-webkit-scrollbar-track { background: #0d1117; }
         ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+        /* ===== TOAST ===== */
+        .workshop-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: #c9d1d9;
+            font-size: 13px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            animation: toast-in 0.3s ease;
+        }
+        .workshop-toast.toast-error { border-color: #f85149; }
+        .workshop-toast.toast-success { border-color: #2ea44f; }
+        .workshop-toast .toast-undo {
+            color: #58a6ff;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .workshop-toast .toast-undo:hover { text-decoration: underline; }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* ===== FIELD VALIDATION ===== */
+        .field-validation-msg {
+            font-size: 11px;
+            color: #f85149;
+            margin-top: 4px;
+            padding: 4px 8px;
+            background: rgba(248,81,73,0.1);
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -519,7 +562,7 @@
     <header class="workshop-header">
         <div class="header-left">
             <h1>Workshop Setup</h1>
-            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.16.1</p>
+            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.23.0</p>
             <p>Configure your production capabilities — every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -527,6 +570,7 @@
                 <span>Completion: <strong id="completionPct">0%</strong></span>
                 <span>(<strong id="completionCount">0/0</strong> cards)</span>
                 <div class="overall-led led-red" id="overallLed"></div>
+                <button id="resetStateBtn" style="background:none;border:1px solid #30363d;color:#8b949e;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;" title="Reset all Workshop data to defaults">Reset</button>
             </div>
             <div class="nav-links">
                 <a href="index.html">&larr; Pipeline</a>
@@ -613,9 +657,9 @@
             phase: 3, number: '3.1', title: 'Depreciation',
             description: 'Per-hour machine depreciation cost',
             output: 'Depreciation cost/hour',
-            purpose: 'Calculate how much each hour of printing costs in machine depreciation. The fleet uses a 5,000-hour lifespan per machine. Total fleet CAPEX is $8,293 across 7 printers.',
+            purpose: 'Calculate how much each hour of printing costs in machine depreciation. Uses a 5,000-hour lifespan per machine. The average purchase price is auto-calculated from your Fleet data (Phase 2).',
             fields: [
-                { key: 'avgPrice', label: 'Avg. Printer Purchase Price ($)', type: 'text', placeholder: '1185', hint: 'Fleet weighted avg: (5×$1,199 + $1,999 + $299) ÷ 7 = $1,185' },
+                { key: 'fleetAvgPrice', label: 'Avg. Purchase Price (from Fleet)', type: 'linked' },
                 { key: 'lifespan', label: 'Useful Life (hours)', type: 'text', placeholder: '5000', hint: 'Industry standard for Bambu Lab printers' },
                 { key: 'depHour', label: 'Depreciation per Print Hour ($)', type: 'calculated' }
             ]
@@ -635,10 +679,10 @@
             phase: 3, number: '3.3', title: 'Electricity per Print Hour',
             description: 'Energy cost per hour of printing',
             output: 'Electricity cost/hour',
-            purpose: 'Calculate how much electricity each hour of printing consumes. Uses your electricity rate from Phase 1 and the average power draw of your printers.',
+            purpose: 'Calculate how much electricity each hour of printing consumes. Uses your electricity rate from Phase 1 and the fleet-weighted average power draw from Phase 2.',
             fields: [
                 { key: 'electricityRate', label: 'Electricity Rate (from 1.1)', type: 'linked' },
-                { key: 'avgWatts', label: 'Avg. Printer Power Draw (watts)', type: 'text', placeholder: '150', hint: 'Fleet weighted avg: X1C 150W, H2D 200W, A1 90W' },
+                { key: 'fleetAvgWatts', label: 'Avg. Power Draw (from Fleet)', type: 'linked' },
                 { key: 'elecHour', label: 'Electricity per Print Hour ($)', type: 'calculated' }
             ]
         },
@@ -656,13 +700,14 @@
             allLinked: true
         },
         '5.1': {
-            phase: 5, number: '5.1', title: 'Primary Operator',
-            description: 'Your role and labor rate',
+            phase: 5, number: '5.1', title: 'Owner / Primary Operator',
+            description: 'Owner role and labor absorption decision',
             output: 'Labor cost baseline',
-            purpose: 'This captures only your direct production labor — time spent on the shop floor pulling plates, post-processing, QC, packaging, and shipping prep. Your business owner time (design, strategy, marketing, accounting) is overhead covered by profit margin, not per-unit COGS. Keep this rate and hours focused on hands-on product work.',
+            purpose: 'Document the owner\'s role in workshop operations. During startup phase, owner labor is absorbed personally and NOT included in product pricing — this is a deliberate business decision that keeps products competitively priced while building volume. Track your hours here for future automation ROI analysis (e.g., Tesla Optimus investment case).',
             fields: [
-                { key: 'name', label: 'Operator Name', type: 'text', placeholder: 'Christian Caspers', hint: '' },
-                { key: 'rate', label: 'Hourly Rate ($)', type: 'text', placeholder: '12', hint: 'Your labor cost for COGS calculations' },
+                { key: 'name', label: 'Owner Name', type: 'text', placeholder: 'Christian Caspers', hint: '' },
+                { key: 'role', label: 'Role', type: 'text', placeholder: 'Owner / Operator', hint: 'Your workshop role' },
+                { key: 'laborAbsorbed', label: 'Labor in Product Pricing?', type: 'select', options: ['No — Owner Absorbed', 'Yes — Include in COGS'], placeholder: 'No — Owner Absorbed', hint: 'Confirmed business decision: owner labor absorbed during startup' },
                 { key: 'hoursDay', label: 'Hours Available per Day', type: 'text', placeholder: '4', hint: 'Realistic daily availability for print operations' }
             ]
         },
@@ -685,13 +730,13 @@
     };
 
     var DEFAULT_FLEET = [
-        { id: 'p1', name: 'Galileo Seven', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
-        { id: 'p2', name: 'Optimus Prime', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
-        { id: 'p3', name: 'Print Buster', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
-        { id: 'p4', name: 'Third Wheel', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
-        { id: 'p5', name: 'Little Monster', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
-        { id: 'p6', name: 'The Boss', model: 'Bambu Lab H2D', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' },
-        { id: 'p7', name: 'Redemption', model: 'Bambu Lab A1', plate: '256 x 256', speed: '500', hours: '2.2', status: 'Active' }
+        { id: 'p1', name: 'Galileo Seven', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p2', name: 'Optimus Prime', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p3', name: 'Print Buster', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p4', name: 'Third Wheel', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p5', name: 'Little Monster', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p6', name: 'The Boss', model: 'Bambu Lab H2D', plate: '256 x 256', speed: '300', watts: '200', price: '1999', hours: '2.2', status: 'Active' },
+        { id: 'p7', name: 'Redemption', model: 'Bambu Lab A1', plate: '256 x 256', speed: '500', watts: '90', price: '299', hours: '2.2', status: 'Active' }
     ];
 
     var DEFAULT_MATERIALS = [
@@ -811,9 +856,24 @@
         return total / active.length;
     }
 
+    function getFleetAvgPrice() {
+        var active = state.fleet.filter(function(p) { return p.status === 'Active'; });
+        if (active.length === 0) return 0;
+        var total = active.reduce(function(s, p) { return s + (parseFloat(p.price) || 0); }, 0);
+        return Math.round(total / active.length);
+    }
+
+    function getFleetAvgWatts() {
+        var active = state.fleet.filter(function(p) { return p.status === 'Active'; });
+        if (active.length === 0) return 0;
+        var total = active.reduce(function(s, p) { return s + (parseFloat(p.watts) || 0); }, 0);
+        return Math.round(total / active.length * 10) / 10;
+    }
+
     function calcDepHour() {
-        var price = parseFloat(getFieldValue('3.1', 'avgPrice')) || 0;
+        var price = getFleetAvgPrice();
         var lifespanHrs = parseFloat(getFieldValue('3.1', 'lifespan')) || 5000;
+        if (price === 0) return '0.0000';
         return (price / lifespanHrs).toFixed(4);
     }
 
@@ -832,7 +892,7 @@
 
     function calcElecHour() {
         var rate = parseFloat(getFieldValue('1.1', 'rate')) || 0;
-        var watts = parseFloat(getFieldValue('3.3', 'avgWatts')) || 0;
+        var watts = getFleetAvgWatts();
         return (rate * (watts / 1000)).toFixed(4);
     }
 
@@ -844,10 +904,12 @@
     }
 
     function getCalculatedValue(cardId, fieldKey) {
+        if (cardId === '3.1' && fieldKey === 'fleetAvgPrice') return '$' + getFleetAvgPrice() + ' (from ' + getActiveFleetCount() + ' active printers)';
         if (cardId === '3.1' && fieldKey === 'depHour') return '$' + calcDepHour();
         if (cardId === '3.2' && fieldKey === 'fleetMachines') return getActiveFleetCount() + ' (from Fleet)';
         if (cardId === '3.2' && fieldKey === 'maintHour') return '$' + calcMaintHour();
         if (cardId === '3.3' && fieldKey === 'electricityRate') return '$' + (getFieldValue('1.1', 'rate') || '—');
+        if (cardId === '3.3' && fieldKey === 'fleetAvgWatts') return getFleetAvgWatts() + 'W (from ' + getActiveFleetCount() + ' active printers)';
         if (cardId === '3.3' && fieldKey === 'elecHour') return '$' + calcElecHour();
         if (cardId === '3.4' && fieldKey === 'depComponent') return '$' + calcDepHour();
         if (cardId === '3.4' && fieldKey === 'maintComponent') return '$' + calcMaintHour();
@@ -1103,7 +1165,7 @@
             return val !== undefined && val !== null && val !== '';
         });
         if (!allFilled) {
-            alert('Please fill in all fields before marking complete.');
+            showToast('Please fill in all fields before marking complete', 'error');
             return;
         }
         data.verified = true;
@@ -1148,6 +1210,8 @@
             { key: 'model', label: 'Model', placeholder: 'Bambu Lab X1C' },
             { key: 'plate', label: 'Build Plate (mm)', placeholder: '256 x 256' },
             { key: 'speed', label: 'Max Speed (mm/s)', placeholder: '500' },
+            { key: 'watts', label: 'Avg Power Draw (watts)', placeholder: '150', hint: 'X1C: 150W, H2D: 200W, A1: 90W — feeds electricity cost calc' },
+            { key: 'price', label: 'Purchase Price ($)', placeholder: '1199', hint: 'Actual purchase price — feeds depreciation calc' },
             { key: 'hours', label: 'Productive Hours/Day', placeholder: '2.2', hint: 'Realistic daily output — limited by operator availability, not printer uptime' }
         ];
 
@@ -1188,7 +1252,7 @@
     function verifyFleet(id) {
         var p = state.fleet.find(function(x) { return x.id === id; });
         if (!p) return;
-        if (!p.name || !p.model) { alert('Please fill in at least the printer name and model.'); return; }
+        if (!p.name || !p.model) { showToast('Please fill in at least the printer name and model', 'error'); return; }
         p.verified = true;
         render();
         openFleetCard(id);
@@ -1202,10 +1266,15 @@
     }
 
     function removeFleet(id) {
-        if (!confirm('Remove this printer from the fleet?')) return;
+        var removed = state.fleet.find(function(x) { return x.id === id; });
+        var idx = state.fleet.indexOf(removed);
         state.fleet = state.fleet.filter(function(x) { return x.id !== id; });
         closePanel();
         render();
+        showToast('Printer "' + (removed.name || 'Unnamed') + '" removed', null, function() {
+            state.fleet.splice(idx, 0, removed);
+            render();
+        });
     }
 
     // ===================================================================
@@ -1276,7 +1345,7 @@
     function verifyMaterial(id) {
         var m = state.materials.find(function(x) { return x.id === id; });
         if (!m) return;
-        if (!m.name || !m.costKg) { alert('Please fill in at least the material name and cost per kg.'); return; }
+        if (!m.name || !m.costKg) { showToast('Please fill in at least the material name and cost per kg', 'error'); return; }
         m.verified = true;
         m.costGram = (parseFloat(m.costKg) / 1000).toFixed(3);
         render();
@@ -1291,10 +1360,15 @@
     }
 
     function removeMaterial(id) {
-        if (!confirm('Remove this material?')) return;
+        var removed = state.materials.find(function(x) { return x.id === id; });
+        var idx = state.materials.indexOf(removed);
         state.materials = state.materials.filter(function(x) { return x.id !== id; });
         closePanel();
         render();
+        showToast('Material "' + (removed.name || 'Unnamed') + '" removed', null, function() {
+            state.materials.splice(idx, 0, removed);
+            render();
+        });
     }
 
     // ===================================================================
@@ -1379,7 +1453,7 @@
     function verifySoftware(id) {
         var s = state.software.find(function(x) { return x.id === id; });
         if (!s) return;
-        if (!s.name || !s.purpose) { alert('Please fill in at least the software name and purpose.'); return; }
+        if (!s.name || !s.purpose) { showToast('Please fill in at least the software name and purpose', 'error'); return; }
         s.verified = true;
         render();
         openSoftwareCard(id);
@@ -1393,10 +1467,15 @@
     }
 
     function removeSoftware(id) {
-        if (!confirm('Remove this tool?')) return;
+        var removed = state.software.find(function(x) { return x.id === id; });
+        var idx = state.software.indexOf(removed);
         state.software = state.software.filter(function(x) { return x.id !== id; });
         closePanel();
         render();
+        showToast('Tool "' + (removed.name || 'Unnamed') + '" removed', null, function() {
+            state.software.splice(idx, 0, removed);
+            render();
+        });
     }
 
     // ===================================================================
@@ -1455,7 +1534,7 @@
     function addDynamicCard(phaseNum) {
         if (phaseNum === 2) {
             var id = 'p' + state.nextDynId.fleet++;
-            state.fleet.push({ id: id, name: '', model: '', plate: '', speed: '', hours: '24', status: 'Active', status_led: 'red', verified: false });
+            state.fleet.push({ id: id, name: '', model: '', plate: '', speed: '', watts: '', price: '', hours: '24', status: 'Active', status_led: 'red', verified: false });
             render();
             openFleetCard(id);
         } else if (phaseNum === 4) {
@@ -1469,6 +1548,41 @@
             render();
             openSoftwareCard(id);
         }
+    }
+
+    // ===================================================================
+    // TOAST NOTIFICATIONS
+    // ===================================================================
+
+    var activeToast = null;
+    var toastTimer = null;
+
+    function showToast(message, type, undoFn) {
+        if (activeToast && activeToast.parentNode) activeToast.remove();
+        if (toastTimer) clearTimeout(toastTimer);
+
+        var toast = document.createElement('div');
+        toast.className = 'workshop-toast' + (type ? ' toast-' + type : '');
+        toast.innerHTML = '<span>' + escHtml(message) + '</span>';
+
+        if (undoFn) {
+            var undoLink = document.createElement('span');
+            undoLink.className = 'toast-undo';
+            undoLink.textContent = 'Undo';
+            undoLink.addEventListener('click', function() {
+                undoFn();
+                toast.remove();
+                activeToast = null;
+            });
+            toast.appendChild(undoLink);
+        }
+
+        document.body.appendChild(toast);
+        activeToast = toast;
+        toastTimer = setTimeout(function() {
+            if (toast.parentNode) toast.remove();
+            activeToast = null;
+        }, 5000);
     }
 
     // ===================================================================
@@ -1540,6 +1654,19 @@
     document.getElementById('panelOverlay').addEventListener('click', closePanel);
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closePanel();
+    });
+
+    document.getElementById('resetStateBtn').addEventListener('click', function() {
+        var snapshot = JSON.parse(JSON.stringify(state));
+        state = createDefaultState();
+        saveState();
+        closePanel();
+        render();
+        showToast('Workshop reset to defaults', null, function() {
+            state = snapshot;
+            saveState();
+            render();
+        });
     });
 
     // ===================================================================
