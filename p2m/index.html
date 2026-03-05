@@ -1174,6 +1174,65 @@
             text-decoration: underline;
         }
 
+        /* Mark as Complete / Undo buttons */
+        .step-complete-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .step-complete-btn:hover { background-color: #2ea44f; }
+
+        .step-unverify-btn {
+            width: 100%;
+            padding: 8px;
+            background-color: transparent;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .step-unverify-btn:hover { border-color: #f85149; color: #f85149; }
+
+        /* Pipeline toast */
+        .pipeline-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: #c9d1d9;
+            font-size: 13px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            animation: pipeline-toast-in 0.3s ease;
+        }
+        .pipeline-toast-undo {
+            color: #58a6ff;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .pipeline-toast-undo:hover { text-decoration: underline; }
+        @keyframes pipeline-toast-in {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
         /* Gate celebration overlay */
         .gate-celebration {
             position: fixed;
@@ -2046,7 +2105,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.23.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.24.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2285,37 +2344,37 @@
         // STEP DEFINITIONS & DETAIL CONTENT
         // ============================================================================
         const stepDefinitions = {
-            '1.1': { phase: 1, number: '1.1', title: 'Product Idea', description: 'Define the product, target customer, and unique angle', output: 'Product concept document' },
-            '1.2': { phase: 1, number: '1.2', title: 'Market Research', description: 'Search terms, competitor count, price range, review complaints', output: 'Market research summary' },
-            '1.3': { phase: 1, number: '1.3', title: 'Competitive Analysis', description: 'Top 3-5 competitors, strengths, weaknesses', output: 'Competitive positioning' },
-            '1.4': { phase: 1, number: '1.4', title: 'Niche Viability Score', description: '6-factor scoring (min 18/30 to proceed)', output: 'Viability score ≥ 18/30' },
-            '1.5': { phase: 1, number: '1.5', title: 'Income Target Math', description: '$2k/month backward calculation', output: 'Units/day and printer requirements' },
+            '1.1': { phase: 1, number: 'P1.1', title: 'Product Idea', description: 'Define the product, target customer, and unique angle', output: 'Product concept document' },
+            '1.2': { phase: 1, number: 'P1.2', title: 'Market Research', description: 'Search terms, competitor count, price range, review complaints', output: 'Market research summary' },
+            '1.3': { phase: 1, number: 'P1.3', title: 'Competitive Analysis', description: 'Top 3-5 competitors, strengths, weaknesses', output: 'Competitive positioning' },
+            '1.4': { phase: 1, number: 'P1.4', title: 'Niche Viability Score', description: '6-factor scoring (min 18/30 to proceed)', output: 'Viability score ≥ 18/30' },
+            '1.5': { phase: 1, number: 'P1.5', title: 'Income Target Math', description: '$2k/month backward calculation', output: 'Units/day and printer requirements' },
             'g1': { phase: 1, number: 'G1', title: 'GO / NO-GO Gate', description: 'Pass → Phase 2 | Fail → Archive idea', isGate: true, output: 'GO / NO-GO decision' },
-            '2.1': { phase: 2, number: '2.1', title: 'CAD Design', description: 'Model in chosen software, document key dimensions', output: 'CAD model file' },
-            '2.2': { phase: 2, number: '2.2', title: 'Prototype & Iterate', description: 'Print, test, refine until satisfied', output: 'Tested prototypes' },
-            '2.3': { phase: 2, number: '2.3', title: 'Lock Print Settings', description: 'Finalize slicer profile for production', output: 'Locked slicer profile' },
+            '2.1': { phase: 2, number: 'P2.1', title: 'CAD Design', description: 'Model in chosen software, document key dimensions', output: 'CAD model file' },
+            '2.2': { phase: 2, number: 'P2.2', title: 'Prototype & Iterate', description: 'Print, test, refine until satisfied', output: 'Tested prototypes' },
+            '2.3': { phase: 2, number: 'P2.3', title: 'Lock Print Settings', description: 'Finalize slicer profile for production', output: 'Locked slicer profile' },
             'g2': { phase: 2, number: 'G2', title: 'DESIGN LOCK Gate', description: 'Signed off → Phase 3', isGate: true, output: 'Design locked' },
-            '3.1': { phase: 3, number: '3.1', title: 'Per-Unit COGS', description: 'Material, machine time, labor, packaging, QC', output: 'COGS calculation' },
-            '3.2': { phase: 3, number: '3.2', title: 'Pricing Strategy', description: 'All-in cost + margin target = sell price', output: 'Final selling price' },
-            '3.3': { phase: 3, number: '3.3', title: 'Variation Pricing', description: 'Price each model/size if applicable', output: 'Pricing per variation' },
-            '3.4': { phase: 3, number: '3.4', title: 'Break-Even Analysis', description: 'How many units to recover startup costs?', output: 'Break-even timeline' },
-            '4.1': { phase: 4, number: '4.1', title: 'Packaging Design', description: 'Box, insert, labels, poly bag, FNSKU', output: 'Packaging prototype' },
-            '4.2': { phase: 4, number: '4.2', title: 'FBA Prep Checklist', description: 'Amazon requirements, size tier, labels', output: 'FBA compliance' },
-            '4.3': { phase: 4, number: '4.3', title: 'Prep & Ship Workflow', description: '8-step batch process documented', output: 'Batch SOP' },
-            '5.1': { phase: 5, number: '5.1', title: 'UPC / GTIN Codes', description: 'Purchase and assign barcodes', output: 'Barcode assignment' },
-            '5.2': { phase: 5, number: '5.2', title: 'Amazon Listing Content', description: 'Title, bullets, description, keywords', output: 'Listing content' },
-            '5.3': { phase: 5, number: '5.3', title: 'Product Photography', description: '7 images: main, lifestyle, features, scale', output: '7 product images' },
-            '5.4': { phase: 5, number: '5.4', title: 'Variations Setup', description: 'Parent/child listings if multiple models', output: 'Variations configured' },
-            '5.5': { phase: 5, number: '5.5', title: 'Launch Checklist', description: '10-step go-live sequence', output: 'Go-live checklist' },
+            '3.1': { phase: 3, number: 'P3.1', title: 'Per-Unit COGS', description: 'Material, machine time, labor, packaging, QC', output: 'COGS calculation' },
+            '3.2': { phase: 3, number: 'P3.2', title: 'Pricing Strategy', description: 'All-in cost + margin target = sell price', output: 'Final selling price' },
+            '3.3': { phase: 3, number: 'P3.3', title: 'Variation Pricing', description: 'Price each model/size if applicable', output: 'Pricing per variation' },
+            '3.4': { phase: 3, number: 'P3.4', title: 'Break-Even Analysis', description: 'How many units to recover startup costs?', output: 'Break-even timeline' },
+            '4.1': { phase: 4, number: 'P4.1', title: 'Packaging Design', description: 'Box, insert, labels, poly bag, FNSKU', output: 'Packaging prototype' },
+            '4.2': { phase: 4, number: 'P4.2', title: 'FBA Prep Checklist', description: 'Amazon requirements, size tier, labels', output: 'FBA compliance' },
+            '4.3': { phase: 4, number: 'P4.3', title: 'Prep & Ship Workflow', description: '8-step batch process documented', output: 'Batch SOP' },
+            '5.1': { phase: 5, number: 'P5.1', title: 'UPC / GTIN Codes', description: 'Purchase and assign barcodes', output: 'Barcode assignment' },
+            '5.2': { phase: 5, number: 'P5.2', title: 'Amazon Listing Content', description: 'Title, bullets, description, keywords', output: 'Listing content' },
+            '5.3': { phase: 5, number: 'P5.3', title: 'Product Photography', description: '7 images: main, lifestyle, features, scale', output: '7 product images' },
+            '5.4': { phase: 5, number: 'P5.4', title: 'Variations Setup', description: 'Parent/child listings if multiple models', output: 'Variations configured' },
+            '5.5': { phase: 5, number: 'P5.5', title: 'Launch Checklist', description: '10-step go-live sequence', output: 'Go-live checklist' },
             'g5': { phase: 5, number: 'G5', title: 'PRODUCT LIVE Gate', description: 'Listing active → Phase 6', isGate: true, output: 'Product live' },
-            '6.1': { phase: 6, number: '6.1', title: 'Launch Strategy', description: 'PPC, social, F&F, communities', output: 'Marketing plan' },
-            '6.2': { phase: 6, number: '6.2', title: 'PPC Campaigns', description: 'Auto, exact, broad, product targeting', output: 'Active campaigns' },
-            '6.3': { phase: 6, number: '6.3', title: 'Review Generation', description: 'Build social proof to 25+ reviews', output: '25+ reviews' },
-            '6.4': { phase: 6, number: '6.4', title: 'Growth Milestones', description: 'Track toward $2k/month target', output: '$2k/month revenue' },
-            '7.1': { phase: 7, number: '7.1', title: 'Inventory Management', description: 'Reorder points, batch sizing, safety stock', output: 'Inventory policy' },
-            '7.2': { phase: 7, number: '7.2', title: 'Monthly P&L', description: 'Revenue, costs, net profit tracking', output: 'P&L tracking' },
-            '7.3': { phase: 7, number: '7.3', title: 'Continuous Optimization', description: 'PPC, listing, pricing, cost reduction', output: 'Optimization log' },
-            '7.4': { phase: 7, number: '7.4', title: 'Product Iteration', description: 'When and why to update the product', output: 'Sustained $2k+/month' }
+            '6.1': { phase: 6, number: 'P6.1', title: 'Launch Strategy', description: 'PPC, social, F&F, communities', output: 'Marketing plan' },
+            '6.2': { phase: 6, number: 'P6.2', title: 'PPC Campaigns', description: 'Auto, exact, broad, product targeting', output: 'Active campaigns' },
+            '6.3': { phase: 6, number: 'P6.3', title: 'Review Generation', description: 'Build social proof to 25+ reviews', output: '25+ reviews' },
+            '6.4': { phase: 6, number: 'P6.4', title: 'Growth Milestones', description: 'Track toward $2k/month target', output: '$2k/month revenue' },
+            '7.1': { phase: 7, number: 'P7.1', title: 'Inventory Management', description: 'Reorder points, batch sizing, safety stock', output: 'Inventory policy' },
+            '7.2': { phase: 7, number: 'P7.2', title: 'Monthly P&L', description: 'Revenue, costs, net profit tracking', output: 'P&L tracking' },
+            '7.3': { phase: 7, number: 'P7.3', title: 'Continuous Optimization', description: 'PPC, listing, pricing, cost reduction', output: 'Optimization log' },
+            '7.4': { phase: 7, number: 'P7.4', title: 'Product Iteration', description: 'When and why to update the product', output: 'Sustained $2k+/month' }
         };
 
         // ============================================================================
@@ -2982,6 +3041,40 @@
         }
 
         // ============================================================================
+        // PIPELINE TOAST (for Mark as Complete undo)
+        // ============================================================================
+        let pipelineToastEl = null;
+        let pipelineToastTimer = null;
+
+        function showPipelineToast(message, undoFn) {
+            if (pipelineToastEl && pipelineToastEl.parentNode) pipelineToastEl.remove();
+            if (pipelineToastTimer) clearTimeout(pipelineToastTimer);
+
+            const toast = document.createElement('div');
+            toast.className = 'pipeline-toast';
+            toast.innerHTML = `<span>${message}</span>`;
+
+            if (undoFn) {
+                const undoLink = document.createElement('span');
+                undoLink.className = 'pipeline-toast-undo';
+                undoLink.textContent = 'Undo';
+                undoLink.addEventListener('click', () => {
+                    undoFn();
+                    toast.remove();
+                    pipelineToastEl = null;
+                });
+                toast.appendChild(undoLink);
+            }
+
+            document.body.appendChild(toast);
+            pipelineToastEl = toast;
+            pipelineToastTimer = setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+                pipelineToastEl = null;
+            }, 5000);
+        }
+
+        // ============================================================================
         // Returns an object keyed by checklist index:
         //   'locked'   = auto-checked, disabled, green with lock icon
         //   'disabled' = unchecked, disabled, greyed out (automation-only field, user can't touch)
@@ -3516,6 +3609,59 @@
                 output.textContent = content.output;
                 outputSection.appendChild(output);
                 body.appendChild(outputSection);
+            }
+
+            // Mark as Complete button — for non-gate steps in unlocked phases
+            if (!step.isGate && phaseUnlocked) {
+                const completeSection = document.createElement('div');
+                completeSection.className = 'detail-section';
+                completeSection.style.textAlign = 'center';
+
+                if (status === 'green') {
+                    // Already complete — show verified + undo
+                    completeSection.innerHTML = '<div style="color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Complete</div>';
+                    const undoBtn = document.createElement('button');
+                    undoBtn.className = 'step-unverify-btn';
+                    undoBtn.textContent = 'Undo Completion';
+                    undoBtn.addEventListener('click', () => {
+                        const prevStatus = state.products[state.activeProduct][stepId];
+                        state.products[state.activeProduct][stepId] = 'yellow';
+                        saveState();
+                        renderPipeline();
+                        openDetailPanel(stepId, true);
+
+                        // Show undo toast
+                        showPipelineToast(step.number + ' marked incomplete', () => {
+                            state.products[state.activeProduct][stepId] = prevStatus;
+                            saveState();
+                            renderPipeline();
+                            openDetailPanel(stepId, true);
+                        });
+                    });
+                    completeSection.appendChild(undoBtn);
+                } else {
+                    const completeBtn = document.createElement('button');
+                    completeBtn.className = 'step-complete-btn';
+                    completeBtn.textContent = 'Mark as Complete';
+                    completeBtn.addEventListener('click', () => {
+                        const prevStatus = state.products[state.activeProduct][stepId];
+                        state.products[state.activeProduct][stepId] = 'green';
+                        saveState();
+                        renderPipeline();
+                        openDetailPanel(stepId, true);
+
+                        // Show undo toast
+                        showPipelineToast(step.number + ' marked complete', () => {
+                            state.products[state.activeProduct][stepId] = prevStatus;
+                            saveState();
+                            renderPipeline();
+                            openDetailPanel(stepId, true);
+                        });
+                    });
+                    completeSection.appendChild(completeBtn);
+                }
+
+                body.appendChild(completeSection);
             }
 
             // Gate decision — at the bottom of the detail panel

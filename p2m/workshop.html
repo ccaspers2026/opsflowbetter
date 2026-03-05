@@ -562,7 +562,7 @@
     <header class="workshop-header">
         <div class="header-left">
             <h1>Workshop Setup</h1>
-            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.23.0</p>
+            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Workshop v0.24.0</p>
             <p>Configure your production capabilities — every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -622,7 +622,7 @@
 
     var STATIC_CARDS = {
         '1.1': {
-            phase: 1, number: '1.1', title: 'Electricity Rate',
+            phase: 1, number: 'W1.1', title: 'Electricity Rate',
             description: 'Your per-kWh electricity cost',
             output: 'Feeds machine economics',
             purpose: 'Your electricity rate determines the energy cost per print hour. This flows into Machine Economics (Phase 3) to calculate the blended hourly rate that every product uses for COGS.',
@@ -631,7 +631,7 @@
             ]
         },
         '1.2': {
-            phase: 1, number: '1.2', title: 'Workspace Details',
+            phase: 1, number: 'W1.2', title: 'Workspace Details',
             description: 'Physical workspace and overhead',
             output: 'Overhead allocation baseline',
             purpose: 'Document your physical workspace so you can allocate overhead costs. Even a home workshop has space costs — this helps you understand your true cost basis.',
@@ -643,7 +643,7 @@
             ]
         },
         '1.3': {
-            phase: 1, number: '1.3', title: 'Internet & Services',
+            phase: 1, number: 'W1.3', title: 'Internet & Services',
             description: 'Monthly utility subscriptions',
             output: 'Service cost baseline',
             purpose: 'Track recurring service costs that support your print operation — internet for farm monitoring, cloud storage for design files, any automation subscriptions.',
@@ -654,7 +654,7 @@
             ]
         },
         '3.1': {
-            phase: 3, number: '3.1', title: 'Depreciation',
+            phase: 3, number: 'W3.1', title: 'Depreciation',
             description: 'Per-hour machine depreciation cost',
             output: 'Depreciation cost/hour',
             purpose: 'Calculate how much each hour of printing costs in machine depreciation. Uses a 5,000-hour lifespan per machine. The average purchase price is auto-calculated from your Fleet data (Phase 2).',
@@ -665,7 +665,7 @@
             ]
         },
         '3.2': {
-            phase: 3, number: '3.2', title: 'Maintenance',
+            phase: 3, number: 'W3.2', title: 'Maintenance',
             description: 'Annual maintenance budget allocation',
             output: 'Maintenance cost/hour',
             purpose: 'Fleet-pooled maintenance calculated bottom-up from actual consumable pricing and Bambu Lab maintenance schedules. Total fleet maintenance is $515.97/yr across 7 machines. Top 3 costs: hotend assemblies (35%), build plates (27%), silicone socks (10%).',
@@ -676,7 +676,7 @@
             ]
         },
         '3.3': {
-            phase: 3, number: '3.3', title: 'Electricity per Print Hour',
+            phase: 3, number: 'W3.3', title: 'Electricity per Print Hour',
             description: 'Energy cost per hour of printing',
             output: 'Electricity cost/hour',
             purpose: 'Calculate how much electricity each hour of printing consumes. Uses your electricity rate from Phase 1 and the fleet-weighted average power draw from Phase 2.',
@@ -687,7 +687,7 @@
             ]
         },
         '3.4': {
-            phase: 3, number: '3.4', title: 'Blended Hourly Rate',
+            phase: 3, number: 'W3.4', title: 'Blended Hourly Rate',
             description: 'All-in machine cost per print hour',
             output: 'Used in all product COGS',
             purpose: 'This is the number that matters most. Your blended hourly rate combines depreciation, maintenance, and electricity into one per-hour cost that every product in the Pipeline uses for COGS calculations.',
@@ -700,7 +700,7 @@
             allLinked: true
         },
         '5.1': {
-            phase: 5, number: '5.1', title: 'Owner / Primary Operator',
+            phase: 5, number: 'W5.1', title: 'Owner / Primary Operator',
             description: 'Owner role and labor absorption decision',
             output: 'Labor cost baseline',
             purpose: 'Document the owner\'s role in workshop operations. During startup phase, owner labor is absorbed personally and NOT included in product pricing — this is a deliberate business decision that keeps products competitively priced while building volume. Track your hours here for future automation ROI analysis (e.g., Tesla Optimus investment case).',
@@ -712,7 +712,7 @@
             ]
         },
         '5.2': {
-            phase: 5, number: '5.2', title: 'Additional Labor',
+            phase: 5, number: 'W5.2', title: 'Additional Labor',
             description: 'Helpers, contractors, future hires',
             output: 'Expanded labor capacity',
             purpose: 'Document anyone who helps with workshop operations — even part-time. Machine cleaning, plate clearing, packaging, QC — it all counts as labor cost that should be reflected in your COGS.',
