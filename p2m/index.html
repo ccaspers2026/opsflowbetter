@@ -1046,6 +1046,46 @@
             margin-left: 2px;
         }
 
+        /* Gate signature block */
+        .gate-signature {
+            margin-top: 14px;
+            padding: 14px;
+            background: rgba(46, 164, 79, 0.06);
+            border: 1px solid rgba(46, 164, 79, 0.25);
+            border-radius: 6px;
+        }
+        .gate-signature-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8b949e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .gate-signature-title .sig-lock {
+            font-size: 10px;
+        }
+        .gate-sig-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .gate-sig-label {
+            color: #8b949e;
+            min-width: 75px;
+            flex-shrink: 0;
+        }
+        .gate-sig-value {
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+        .gate-sig-value.go { color: #2ea44f; }
+        .gate-sig-value.revisit { color: #d29f22; }
+        .gate-sig-value.nogo { color: #f85149; }
+
         .detail-tips {
             background-color: #1a2030;
             border-left: 3px solid #c99a1d;
@@ -1869,7 +1909,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.17.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.18.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2025,6 +2065,7 @@
                     '3.2': { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }
                 }
             },
+            gateSignatures: {},
             activeProduct: '45 RPM Adaptor'
         };
 
@@ -2711,6 +2752,23 @@
         // ============================================================================
         // AUTO-LOCK CHECKLIST LOGIC
         // ============================================================================
+        // GATE SIGNATURE — records who decided and when
+        // ============================================================================
+        function recordGateSignature(productName, gateId, decision) {
+            if (!state.gateSignatures[productName]) {
+                state.gateSignatures[productName] = {};
+            }
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            state.gateSignatures[productName][gateId] = {
+                name: 'Christian Caspers',
+                date: dateStr + ' at ' + timeStr,
+                decision: decision
+            };
+        }
+
+        // ============================================================================
         // Returns an object keyed by checklist index → true if that item should be auto-locked
         function getAutoLockedChecklist(stepId, status, productName) {
             const locked = {};
@@ -3250,6 +3308,7 @@
                 btnGo.textContent = 'GO';
                 btnGo.addEventListener('click', () => {
                     state.products[state.activeProduct][stepId] = 'green';
+                    recordGateSignature(state.activeProduct, stepId, 'GO');
                     renderPipeline();
                     openDetailPanel(stepId);
                 });
@@ -3259,6 +3318,7 @@
                 btnRevisit.textContent = 'Revisit Later';
                 btnRevisit.addEventListener('click', () => {
                     state.products[state.activeProduct][stepId] = 'yellow';
+                    recordGateSignature(state.activeProduct, stepId, 'REVISIT');
                     renderPipeline();
                     openDetailPanel(stepId);
                 });
@@ -3269,6 +3329,7 @@
                 btnNoGo.addEventListener('click', () => {
                     if (confirm('Mark this product as NO-GO? This sets the gate to red.')) {
                         state.products[state.activeProduct][stepId] = 'red';
+                        recordGateSignature(state.activeProduct, stepId, 'NO-GO');
                         renderPipeline();
                         openDetailPanel(stepId);
                     }
@@ -3292,6 +3353,37 @@
                     statusMsg.textContent = 'Awaiting decision';
                 }
                 gateSection.appendChild(statusMsg);
+
+                // Signature block — rendered when a decision has been recorded
+                const sig = (state.gateSignatures[state.activeProduct] || {})[stepId];
+                if (sig) {
+                    const sigBlock = document.createElement('div');
+                    sigBlock.className = 'gate-signature';
+
+                    const sigTitle = document.createElement('div');
+                    sigTitle.className = 'gate-signature-title';
+                    sigTitle.innerHTML = '<span class="sig-lock">🔒</span> Electronic Signature';
+                    sigBlock.appendChild(sigTitle);
+
+                    const decisionClass = sig.decision === 'GO' ? 'go' : (sig.decision === 'REVISIT' ? 'revisit' : 'nogo');
+                    const decisionLabel = sig.decision === 'GO' ? 'GO' : (sig.decision === 'REVISIT' ? 'Revisit Later' : 'NO-GO');
+
+                    const rows = [
+                        { label: 'Decided by:', value: sig.name, cls: '' },
+                        { label: 'Decision:', value: decisionLabel, cls: decisionClass },
+                        { label: 'Date:', value: sig.date, cls: '' }
+                    ];
+
+                    rows.forEach(r => {
+                        const row = document.createElement('div');
+                        row.className = 'gate-sig-row';
+                        row.innerHTML = '<span class="gate-sig-label">' + r.label + '</span><span class="gate-sig-value ' + r.cls + '">' + r.value + '</span>';
+                        sigBlock.appendChild(row);
+                    });
+
+                    gateSection.appendChild(sigBlock);
+                }
+
                 body.appendChild(gateSection);
             }
 
