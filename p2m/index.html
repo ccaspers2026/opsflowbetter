@@ -7,21 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Caspers Creations - P2M Pipeline</title>
-    <!-- Cross-origin isolation service worker — enables SharedArrayBuffer for AI background removal -->
-    <script src="coi-serviceworker.js"></script>
-    <script type="module">
-        // Self-hosted @imgly/background-removal JS on R2 — ONNX models fetched from IMG.LY CDN at runtime
-        const BGREMOVAL_BASE = 'https://images.opsflowbetter.com/libs/bgremoval/';
-        try {
-            const mod = await import(BGREMOVAL_BASE + 'index.mjs');
-            window.imglyRemoveBackground = mod.default || mod.removeBackground;
-            window._imglyLoaded = true;
-            console.log('[AI] Background removal library loaded from R2');
-        } catch (err) {
-            console.warn('[AI] Background removal library failed to load:', err.message);
-            window._imglyLoaded = false;
-        }
-    </script>
+    <!-- Background removal now handled server-side via Media Center + remove.bg API -->
     <style>
         * {
             margin: 0;
@@ -2167,8 +2153,8 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.39.1</p>
-                <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.40.0</p>
+                <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="media-center.html" style="color: #f0883e; text-decoration: none; font-size: 11px;">Media Center</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
                 <div class="phase-legend" id="phaseLegend"></div>
@@ -2652,6 +2638,32 @@
 
         var _pendingR2Upload = null; // holds {canvas, productName, suffix, onDone} for retry after secret entry
 
+        // Queue an image for background removal in the Media Center
+        function queueForMediaCenter(product, fileName, r2Key, url) {
+            try {
+                var queueKey = 'opsflow_media_queue';
+                var queue = JSON.parse(localStorage.getItem(queueKey)) || [];
+                // Don't duplicate — check if same r2Key already pending
+                var exists = queue.some(function(j) { return j.r2Key === r2Key && (j.status === 'pending' || j.status === 'processing'); });
+                if (exists) { console.log('[Media] Already queued:', r2Key); return; }
+                queue.unshift({
+                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+                    product: product,
+                    fileName: fileName,
+                    r2Key: r2Key,
+                    url: url,
+                    status: 'pending',
+                    error: null,
+                    addedAt: new Date().toISOString(),
+                    processedAt: null,
+                });
+                localStorage.setItem(queueKey, JSON.stringify(queue));
+                console.log('[Media] Queued for BG removal:', r2Key);
+            } catch (e) {
+                console.warn('[Media] Failed to queue:', e);
+            }
+        }
+
         function uploadToR2(canvas, productName, suffix, onDone) {
             const secret = getR2Secret();
             if (!secret) {
@@ -2964,166 +2976,12 @@
             const origUrl = URL.createObjectURL(file);
             document.getElementById('modalFixerOriginal').src = origUrl;
 
-            // Simulate progress for the AI processing
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                if (progress < 85) {
-                    progress += Math.random() * 8 + 2;
-                    if (progress > 85) progress = 85;
-                    progressBar.style.width = progress + '%';
-                    progressPct.textContent = Math.round(progress) + '%';
-                    if (progress < 20) progressLabel.textContent = 'Loading AI model...';
-                    else if (progress < 50) progressLabel.textContent = 'Analyzing image...';
-                    else if (progress < 80) progressLabel.textContent = 'Removing background...';
-                    else progressLabel.textContent = 'Almost done...';
-                }
-            }, 400);
+            // Quick flow: composite on white → upload to R2 → queue for BG removal in Media Center
+            progressBar.style.width = '30%';
+            progressPct.textContent = '30%';
+            progressLabel.textContent = 'Compositing on white background...';
 
-            // Check if imgly loaded — wait up to 60 seconds for first-time ~30MB download
-            if (!window.imglyRemoveBackground) {
-                progressLabel.textContent = 'AI model loading (first use: ~30MB download)...';
-                let retries = 0;
-                const maxRetries = 60; // 60 seconds
-                const check = setInterval(() => {
-                    retries++;
-                    if (retries % 10 === 0) progressLabel.textContent = 'Still loading AI model... (' + retries + 's)';
-                    if (window.imglyRemoveBackground) {
-                        clearInterval(check);
-                        doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
-                    } else if (retries > maxRetries) {
-                        clearInterval(check);
-                        clearInterval(progressInterval);
-                        progressBar.style.width = '100%';
-                        progressBar.style.background = 'linear-gradient(90deg,#f0883e,#f0883e)';
-                        progressPct.textContent = '100%';
-                        progressLabel.innerHTML = 'AI model failed to load — <a href="#" id="retryAiBtn" style="color:#58a6ff;text-decoration:underline;cursor:pointer;">Retry</a> or using resize-only mode';
-
-                        // Retry button reloads the module and tries again
-                        setTimeout(() => {
-                            const retryBtn = document.getElementById('retryAiBtn');
-                            if (retryBtn) {
-                                retryBtn.addEventListener('click', function(e) {
-                                    e.preventDefault();
-                                    progressLabel.textContent = 'Retrying AI model load...';
-                                    progressBar.style.background = 'linear-gradient(90deg,#238636,#2ea043)';
-                                    progressBar.style.width = '10%';
-                                    progressPct.textContent = '10%';
-                                    // Re-import the module from self-hosted R2
-                                    var bgBase = 'https://images.opsflowbetter.com/libs/bgremoval/';
-                                    import(bgBase + 'index.mjs').then(mod => {
-                                        window.imglyRemoveBackground = mod.default || mod.removeBackground;
-                                        window._imglyLoaded = true;
-                                        doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
-                                    }).catch(err => {
-                                        console.error('[AI] Retry failed:', err);
-                                        progressLabel.textContent = 'AI retry failed — ' + err.message;
-                                        doModalFallback(origUrl, progressContainer, fixerPreview);
-                                    });
-                                });
-                            }
-                        }, 50);
-
-                        doModalFallback(origUrl, progressContainer, fixerPreview);
-                    }
-                }, 1000);
-            } else {
-                doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
-            }
-        }
-
-        function doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview) {
-            window.imglyRemoveBackground(origUrl, {
-                output: { format: 'image/png' }
-            }).then(blob => {
-                clearInterval(progressInterval);
-                progressBar.style.width = '95%';
-                progressPct.textContent = '95%';
-                progressLabel.textContent = 'Compositing on white...';
-
-                const noBgUrl = URL.createObjectURL(blob);
-                compositeOnWhite(noBgUrl, function(canvas, dataUrl) {
-                    _modalFixerCanvas = canvas;
-                    progressBar.style.width = '100%';
-                    progressPct.textContent = '100%';
-                    progressLabel.textContent = 'Uploading to R2...';
-                    progressLabel.style.color = '#58a6ff';
-
-                    document.getElementById('modalFixerResult').src = dataUrl;
-                    fixerPreview.style.display = 'block';
-
-                    // Auto-upload to R2
-                    uploadToR2(canvas, state.activeProduct, 'main', function(url, err) {
-                        const actionsEl = document.getElementById('modalFixerActions');
-                        actionsEl.innerHTML = '';
-
-                        if (url) {
-                            progressLabel.textContent = 'Uploaded to R2!';
-                            progressLabel.style.color = '#3fb950';
-
-                            // Auto-set the image URL in state
-                            if (!state.imageUrls) state.imageUrls = {};
-                            state.imageUrls[state.activeProduct] = url;
-                            saveState();
-
-                            // Update the modal's image URL fields
-                            const rootSelect = document.getElementById('modalImageRoot');
-                            const filenameInput = document.getElementById('modalImageFilename');
-                            if (rootSelect && filenameInput) {
-                                const parts = parseUrlParts(url);
-                                addImageRoot(parts.root);
-                                rootSelect.value = '__full__';
-                                filenameInput.value = url;
-                                updateModalImagePreview();
-                            }
-
-                            // Show success + download option
-                            actionsEl.innerHTML = '<span style="font-size:11px;color:#3fb950;font-weight:600;">&#10003; Uploaded &amp; URL saved</span> ';
-                            const dlBtn = document.createElement('button');
-                            dlBtn.textContent = 'Also Download';
-                            dlBtn.style.cssText = 'padding:4px 10px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;font-size:11px;cursor:pointer;';
-                            dlBtn.addEventListener('click', () => {
-                                canvas.toBlob(jpegBlob => {
-                                    const a = document.createElement('a');
-                                    a.href = URL.createObjectURL(jpegBlob);
-                                    const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
-                                    a.download = pname + '_amazon_ready.jpg';
-                                    a.click();
-                                }, 'image/jpeg', 0.95);
-                            });
-                            actionsEl.appendChild(dlBtn);
-                            renderMarketingBar();
-                            showPipelineToast('Image processed & uploaded to R2');
-                        } else {
-                            progressLabel.textContent = 'Done (upload failed — save locally)';
-                            progressLabel.style.color = '#f0883e';
-
-                            // Fallback: offer download
-                            const dlBtn = document.createElement('button');
-                            dlBtn.textContent = 'Download JPEG';
-                            dlBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
-                            dlBtn.addEventListener('click', () => {
-                                canvas.toBlob(jpegBlob => {
-                                    const a = document.createElement('a');
-                                    a.href = URL.createObjectURL(jpegBlob);
-                                    const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
-                                    a.download = pname + '_amazon_ready.jpg';
-                                    a.click();
-                                }, 'image/jpeg', 0.95);
-                            });
-                            actionsEl.appendChild(dlBtn);
-                            actionsEl.insertAdjacentHTML('beforeend', ' <span style="font-size:10px;color:#6e7681;">R2 upload failed: ' + (err||'unknown') + '</span>');
-                        }
-                    });
-                });
-            }).catch(err => {
-                clearInterval(progressInterval);
-                progressLabel.textContent = 'Background removal failed — using manual resize';
-                progressLabel.style.color = '#f0883e';
-                progressBar.style.width = '100%';
-                progressBar.style.background = 'linear-gradient(90deg,#f0883e,#f0883e)';
-                progressPct.textContent = '100%';
-                doModalFallback(origUrl, progressContainer, fixerPreview);
-            });
+            doModalFallback(origUrl, progressContainer, fixerPreview);
         }
 
         function doModalFallback(origUrl, progressContainer, fixerPreview) {
@@ -3133,7 +2991,7 @@
                 fixerPreview.style.display = 'block';
 
                 const actionsEl = document.getElementById('modalFixerActions');
-                actionsEl.innerHTML = '<span style="font-size:10px;color:#f0883e;">Resize only (AI background removal unavailable) — try clicking Retry above, or reload the page.</span> ';
+                actionsEl.innerHTML = '<span style="font-size:10px;color:#58a6ff;">Uploading to R2... BG removal will happen in Media Center.</span> ';
 
                 // Still auto-upload the resized version to R2
                 uploadToR2(canvas, state.activeProduct, 'main', function(url, err) {
@@ -3152,6 +3010,10 @@
                         }
                         actionsEl.insertAdjacentHTML('beforeend', '<br><span style="font-size:10px;color:#3fb950;">&#10003; Uploaded to R2 &amp; URL saved</span> ');
                         renderMarketingBar();
+
+                        // Auto-queue for background removal in Media Center
+                        queueForMediaCenter(state.activeProduct, 'main.jpg', makeR2Key(state.activeProduct, 'main'), url);
+                        actionsEl.insertAdjacentHTML('beforeend', '<br><span style="font-size:10px;color:#58a6ff;">&#9881; Queued for BG removal in <a href="media-center.html" target="_blank" style="color:#58a6ff;">Media Center</a></span>');
                     }
 
                     // Always offer download too
@@ -3311,92 +3173,12 @@
             origLabel.appendChild(origImg);
             preview.appendChild(origLabel);
 
-            // Check if imgly library loaded
-            if (!window._imglyLoaded || !window.imglyRemoveBackground) {
-                status.innerHTML = '<span style="color:#f0883e;">&#9888; Background removal library still loading... This may take a moment on first use (~30MB AI model download).</span>';
-                // Retry after a delay
-                let retries = 0;
-                const checkLoaded = setInterval(() => {
-                    retries++;
-                    if (window.imglyRemoveBackground) {
-                        clearInterval(checkLoaded);
-                        runBackgroundRemoval(file, origUrl, panel, status, preview, actions);
-                    } else if (retries > 30) {
-                        clearInterval(checkLoaded);
-                        status.innerHTML = '<span style="color:#f85149;">&#10007; Could not load background removal library. Falling back to manual mode...</span>';
-                        showManualFallback(file, origUrl, panel, status, preview, actions);
-                    }
-                }, 1000);
-            } else {
-                runBackgroundRemoval(file, origUrl, panel, status, preview, actions);
-            }
+            // Quick flow: composite on white → upload to R2 → queue BG removal for Media Center
+            status.innerHTML = '<span style="color:#58a6ff;">&#9881; Compositing on white &amp; uploading to R2...</span>';
+            showManualFallback(file, origUrl, panel, status, preview, actions);
 
             // Reset file input for re-use
             input.value = '';
-        }
-
-        function runBackgroundRemoval(file, origUrl, panel, status, preview, actions) {
-            status.innerHTML = '<span style="color:#58a6ff;">&#9881; Removing background... This may take 10-30 seconds depending on image size and your device.</span>';
-
-            window.imglyRemoveBackground(origUrl, {
-                output: { format: 'image/png' }
-            }).then(blob => {
-                // Background removed — now composite on white 2000x2000
-                const noBgUrl = URL.createObjectURL(blob);
-                compositeOnWhite(noBgUrl, function(finalCanvas, finalUrl) {
-                    // Show result preview
-                    const resultImg = document.createElement('img');
-                    resultImg.src = finalUrl;
-                    resultImg.style.cssText = 'max-width:180px;max-height:180px;border:1px solid #3fb950;border-radius:4px;';
-
-                    const arrow = document.createElement('div');
-                    arrow.style.cssText = 'display:flex;align-items:center;font-size:20px;color:#3fb950;padding:0 8px;';
-                    arrow.textContent = '→';
-
-                    const resultLabel = document.createElement('div');
-                    resultLabel.style.cssText = 'text-align:center;';
-                    resultLabel.innerHTML = '<div style="font-size:10px;color:#3fb950;margin-bottom:4px;">AMAZON-READY</div>';
-                    resultLabel.appendChild(resultImg);
-
-                    preview.appendChild(arrow);
-                    preview.appendChild(resultLabel);
-
-                    status.innerHTML = '<span style="color:#3fb950;">&#10003; Done! Background removed and composited on pure white 2000x2000.</span>';
-
-                    // Action buttons
-                    actions.style.display = 'flex';
-                    actions.innerHTML = '';
-
-                    const downloadBtn = document.createElement('button');
-                    downloadBtn.textContent = 'Download JPEG';
-                    downloadBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
-                    downloadBtn.addEventListener('click', () => {
-                        // Convert canvas to JPEG for download
-                        finalCanvas.toBlob(jpegBlob => {
-                            const a = document.createElement('a');
-                            a.href = URL.createObjectURL(jpegBlob);
-                            const productName = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
-                            a.download = productName + '_amazon_ready.jpg';
-                            a.click();
-                            showPipelineToast('Image downloaded — upload to R2 bucket');
-                        }, 'image/jpeg', 0.95);
-                    });
-
-                    const closeBtn = document.createElement('button');
-                    closeBtn.textContent = 'Close';
-                    closeBtn.style.cssText = 'padding:6px 14px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;font-size:12px;cursor:pointer;';
-                    closeBtn.addEventListener('click', () => {
-                        panel.style.display = 'none';
-                    });
-
-                    actions.appendChild(downloadBtn);
-                    actions.appendChild(closeBtn);
-                });
-            }).catch(err => {
-                console.error('Background removal failed:', err);
-                status.innerHTML = '<span style="color:#f85149;">&#10007; Background removal failed: ' + (err.message || 'Unknown error') + '. Falling back to manual mode...</span>';
-                showManualFallback(file, origUrl, panel, status, preview, actions);
-            });
         }
 
         function compositeOnWhite(transparentImgUrl, callback) {

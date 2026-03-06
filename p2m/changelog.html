@@ -281,6 +281,28 @@
 
         <div class="timeline">
 
+            <!-- v0.40.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.40.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Media Center &amp; Server-Side Background Removal</div>
+                <ul class="changes-list">
+                    <li>NEW: Media Center page with processing queue and media gallery</li>
+                    <li>NEW: Server-side background removal via remove.bg API through Cloudflare Worker</li>
+                    <li>NEW: /remove-bg Worker endpoint — fetches raw image from R2, sends to remove.bg, uploads clean version back</li>
+                    <li>NEW: /credits Worker endpoint — check remaining remove.bg API credits</li>
+                    <li>Pipeline popup now uploads raw image instantly, queues BG removal for Media Center</li>
+                    <li>Removed browser-based @imgly/background-removal (CDN import issues) and coi-serviceworker</li>
+                    <li>Drop zone supports drag &amp; drop, clipboard paste, and file browse</li>
+                    <li>Queue shows pending/processing/done/failed with Process All button</li>
+                    <li>Media Gallery tab with per-product filtering</li>
+                    <li>Added Media Center link to Pipeline navigation bar</li>
+                </ul>
+            </div>
+
             <!-- v0.39.1 -->
             <div class="version-entry">
                 <div class="version-header">

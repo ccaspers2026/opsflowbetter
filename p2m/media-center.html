@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Caspers Creations - Media Center</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d1117;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        /* ── Top Bar ─────────────────────────────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar-logo {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .topbar-logo span { color: #58a6ff; }
+        .topbar-version {
+            font-size: 11px;
+            color: #8b949e;
+            background: #21262d;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .topbar-nav {
+            display: flex;
+            gap: 8px;
+        }
+        .topbar-nav a {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .topbar-nav a:hover { color: #e0e0e0; background: #21262d; }
+        .topbar-nav a.active { color: #58a6ff; background: #1c2333; }
+
+        /* ── Credits Badge ───────────────────────────────────── */
+        .credits-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #8b949e;
+            background: #21262d;
+            padding: 4px 10px;
+            border-radius: 10px;
+        }
+        .credits-badge .count { color: #3fb950; font-weight: 600; }
+
+        /* ── Main Layout ─────────────────────────────────────── */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* ── Queue Section ───────────────────────────────────── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .section-header h2 {
+            font-size: 18px;
+            color: #fff;
+            font-weight: 600;
+        }
+        .section-header .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .badge-pending { background: #1c2333; color: #58a6ff; }
+        .badge-processing { background: #2a1f0d; color: #f0883e; }
+        .badge-done { background: #0d2818; color: #3fb950; }
+
+        /* ── Queue Table ─────────────────────────────────────── */
+        .queue-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+        .queue-table th {
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8b949e;
+            padding: 8px 12px;
+            border-bottom: 1px solid #21262d;
+        }
+        .queue-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #161b22;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        .queue-table tr:hover { background: #161b22; }
+
+        .queue-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid #30363d;
+            background: #0d1117;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-dot.pending { background: #58a6ff; }
+        .status-dot.processing { background: #f0883e; animation: pulse 1.5s infinite; }
+        .status-dot.done { background: #3fb950; }
+        .status-dot.failed { background: #f85149; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .queue-actions button {
+            padding: 3px 10px;
+            font-size: 11px;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            background: #21262d;
+            color: #c9d1d9;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .queue-actions button:hover { border-color: #58a6ff; color: #58a6ff; }
+        .queue-actions button.btn-danger:hover { border-color: #f85149; color: #f85149; }
+        .queue-actions button.btn-process {
+            background: #238636;
+            border-color: #238636;
+            color: #fff;
+        }
+        .queue-actions button.btn-process:hover {
+            background: #2ea043;
+        }
+
+        /* ── Empty State ─────────────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #484f58;
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state h3 { color: #8b949e; font-size: 16px; margin-bottom: 6px; }
+        .empty-state p { font-size: 13px; }
+
+        /* ── Drop Zone ───────────────────────────────────────── */
+        .drop-zone {
+            border: 2px dashed #30363d;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 24px;
+            background: #0d1117;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #58a6ff;
+            background: #0d1117cc;
+        }
+        .drop-zone .icon { font-size: 32px; margin-bottom: 8px; color: #30363d; }
+        .drop-zone p { color: #8b949e; font-size: 13px; }
+        .drop-zone input { display: none; }
+
+        /* ── Product Filter ──────────────────────────────────── */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-bar label {
+            font-size: 12px;
+            color: #8b949e;
+        }
+        .filter-bar select, .filter-bar input {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #c9d1d9;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .filter-bar select:focus, .filter-bar input:focus {
+            border-color: #58a6ff;
+            outline: none;
+        }
+
+        /* ── Gallery Grid ────────────────────────────────────── */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .gallery-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .gallery-card:hover { border-color: #30363d; }
+        .gallery-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            background: #fff;
+        }
+        .gallery-card .info {
+            padding: 8px 10px;
+        }
+        .gallery-card .info .name {
+            font-size: 12px;
+            color: #e0e0e0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .gallery-card .info .meta {
+            font-size: 10px;
+            color: #484f58;
+            margin-top: 2px;
+        }
+
+        /* ── Tabs ────────────────────────────────────────────── */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #21262d;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8b949e;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: #e0e0e0; }
+        .tab-btn.active {
+            color: #58a6ff;
+            border-bottom-color: #58a6ff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ── Notification Toast ──────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 13px;
+            color: #e0e0e0;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-color: #238636; }
+        .toast.error { border-color: #f85149; }
+
+        /* ── Process All Button ──────────────────────────────── */
+        .btn-process-all {
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-process-all:hover { background: #2ea043; }
+        .btn-process-all:disabled { opacity: 0.4; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<!-- ── Top Bar ────────────────────────────────────────────────────── -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">Caspers <span>Creations</span></div>
+        <span class="topbar-version">Media Center v0.40.0</span>
+    </div>
+    <div class="topbar-nav">
+        <a href="index.html">Pipeline</a>
+        <a href="media-center.html" class="active">Media Center</a>
+        <a href="changelog.html">Changelog</a>
+    </div>
+    <div class="credits-badge">
+        remove.bg: <span class="count" id="creditsCount">—</span> credits
+    </div>
+</div>
+
+<!-- ── Main Content ──────────────────────────────────────────────── -->
+<div class="main">
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('queue')">&#9881; Processing Queue</button>
+        <button class="tab-btn" onclick="switchTab('gallery')">&#128444; Media Gallery</button>
+    </div>
+
+    <!-- ── Queue Tab ─────────────────────────────────────────── -->
+    <div id="tab-queue" class="tab-content active">
+
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="icon">&#128228;</div>
+            <p>Drag & drop images here, paste (Ctrl+V), or click to browse</p>
+            <p style="font-size:11px;color:#484f58;margin-top:6px;">Images upload to R2 immediately &bull; Background removal queued automatically</p>
+            <input type="file" id="fileInput" accept="image/*" multiple>
+        </div>
+
+        <!-- Queue Header -->
+        <div class="section-header">
+            <h2>Processing Queue</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <span class="badge badge-pending" id="pendingBadge">0 pending</span>
+                <span class="badge badge-processing" id="processingBadge">0 processing</span>
+                <span class="badge badge-done" id="doneBadge">0 done</span>
+                <button class="btn-process-all" id="processAllBtn" onclick="processAllPending()">&#9654; Process All</button>
+            </div>
+        </div>
+
+        <!-- Queue Table -->
+        <table class="queue-table" id="queueTable">
+            <thead>
+                <tr>
+                    <th style="width:50px;"></th>
+                    <th>Product</th>
+                    <th>File</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                    <th style="width:120px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="queueBody">
+            </tbody>
+        </table>
+
+        <div class="empty-state" id="queueEmpty">
+            <div class="icon">&#128444;</div>
+            <h3>Queue is empty</h3>
+            <p>Drop images above or they'll appear here automatically from the Pipeline</p>
+        </div>
+    </div>
+
+    <!-- ── Gallery Tab ───────────────────────────────────────── -->
+    <div id="tab-gallery" class="tab-content">
+        <div class="filter-bar">
+            <label>Product:</label>
+            <select id="galleryFilter" onchange="renderGallery()">
+                <option value="all">All Products</option>
+            </select>
+        </div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+        <div class="empty-state" id="galleryEmpty">
+            <div class="icon">&#128444;</div>
+            <h3>No media yet</h3>
+            <p>Processed images will appear here organized by product</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Configuration ────────────────────────────────────────────────
+const R2_UPLOAD_API = 'https://api.opsflowbetter.com/upload/';
+const R2_REMOVE_BG_API = 'https://api.opsflowbetter.com/remove-bg';
+const R2_CREDITS_API = 'https://api.opsflowbetter.com/credits';
+const R2_PUBLIC_BASE = 'https://images.opsflowbetter.com/';
+const R2_SECRET_KEY = 'opsflow_r2_secret';
+const QUEUE_STORAGE_KEY = 'opsflow_media_queue';
+const GALLERY_STORAGE_KEY = 'opsflow_media_gallery';
+
+// ── State ────────────────────────────────────────────────────────
+var queue = [];        // Array of { id, product, fileName, r2Key, status, error, addedAt, processedAt }
+var gallery = [];      // Array of { r2Key, product, fileName, url, processedAt }
+var isProcessing = false;
+
+// ── Init ─────────────────────────────────────────────────────────
+function init() {
+    loadQueue();
+    loadGallery();
+    renderQueue();
+    renderGallery();
+    checkCredits();
+    setupDropZone();
+    setupPaste();
+    populateProductFilter();
+}
+
+// ── R2 Secret ────────────────────────────────────────────────────
+function getR2Secret() {
+    return localStorage.getItem(R2_SECRET_KEY) || '';
+}
+
+function promptR2Secret() {
+    var s = prompt('Enter your R2 upload secret:');
+    if (s) localStorage.setItem(R2_SECRET_KEY, s);
+    return s || '';
+}
+
+// ── Storage ──────────────────────────────────────────────────────
+function loadQueue() {
+    try { queue = JSON.parse(localStorage.getItem(QUEUE_STORAGE_KEY)) || []; } catch { queue = []; }
+}
+function saveQueue() {
+    localStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(queue));
+}
+function loadGallery() {
+    try { gallery = JSON.parse(localStorage.getItem(GALLERY_STORAGE_KEY)) || []; } catch { gallery = []; }
+}
+function saveGallery() {
+    localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(gallery));
+}
+
+// ── Credits ──────────────────────────────────────────────────────
+function checkCredits() {
+    var secret = getR2Secret();
+    if (!secret) { document.getElementById('creditsCount').textContent = '?'; return; }
+    fetch(R2_CREDITS_API, { headers: { 'X-Upload-Secret': secret } })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                document.getElementById('creditsCount').textContent = data.credits;
+            } else {
+                document.getElementById('creditsCount').textContent = '?';
+            }
+        })
+        .catch(() => { document.getElementById('creditsCount').textContent = '?'; });
+}
+
+// ── Product Detection ────────────────────────────────────────────
+function getActiveProduct() {
+    // Try to get from pipeline state
+    try {
+        var pState = JSON.parse(localStorage.getItem('p2m_pipeline_state'));
+        if (pState && pState.activeProduct) return pState.activeProduct;
+    } catch {}
+    return 'unassigned';
+}
+
+function makeSlug(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+// ── Drop Zone ────────────────────────────────────────────────────
+function setupDropZone() {
+    var dz = document.getElementById('dropZone');
+    var fi = document.getElementById('fileInput');
+
+    dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', function() { dz.classList.remove('dragover'); });
+    dz.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dz.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+    fi.addEventListener('change', function() {
+        if (fi.files.length) handleFiles(fi.files);
+        fi.value = '';
+    });
+}
+
+// ── Clipboard Paste ──────────────────────────────────────────────
+function setupPaste() {
+    document.addEventListener('paste', function(e) {
+        var items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        var files = [];
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                var f = items[i].getAsFile();
+                if (f) files.push(f);
+            }
+        }
+        if (files.length) {
+            e.preventDefault();
+            handleFiles(files);
+        }
+    });
+}
+
+// ── Handle Files — Upload to R2 + Queue ──────────────────────────
+function handleFiles(fileList) {
+    var secret = getR2Secret();
+    if (!secret) { secret = promptR2Secret(); }
+    if (!secret) { showToast('R2 secret required', 'error'); return; }
+
+    var product = getActiveProduct();
+
+    for (var i = 0; i < fileList.length; i++) {
+        (function(file) {
+            var suffix = file.name.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase() || 'image';
+            var r2Key = makeSlug(product) + '/' + suffix + '.jpg';
+
+            // Add to queue immediately as "uploading"
+            var job = {
+                id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+                product: product,
+                fileName: file.name,
+                r2Key: r2Key,
+                status: 'uploading',
+                error: null,
+                addedAt: new Date().toISOString(),
+                processedAt: null,
+            };
+            queue.unshift(job);
+            saveQueue();
+            renderQueue();
+
+            // Composite on white 2000x2000, then upload
+            compositeOnWhite(file, function(canvas) {
+                canvas.toBlob(function(blob) {
+                    fetch(R2_UPLOAD_API + r2Key, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'image/jpeg', 'X-Upload-Secret': secret },
+                        body: blob,
+                    }).then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.ok) {
+                            job.status = 'pending';
+                            job.url = data.url;
+                            showToast('Uploaded ' + file.name + ' — queued for cleanup', 'success');
+                        } else {
+                            job.status = 'failed';
+                            job.error = data.error || 'Upload failed';
+                            showToast('Upload failed: ' + (data.error || 'Unknown'), 'error');
+                        }
+                        saveQueue();
+                        renderQueue();
+                    })
+                    .catch(function(err) {
+                        job.status = 'failed';
+                        job.error = err.message;
+                        saveQueue();
+                        renderQueue();
+                        showToast('Upload error: ' + err.message, 'error');
+                    });
+                }, 'image/jpeg', 0.95);
+            });
+        })(fileList[i]);
+    }
+}
+
+// ── Composite on White 2000x2000 ─────────────────────────────────
+function compositeOnWhite(file, callback) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            canvas.width = 2000;
+            canvas.height = 2000;
+            var ctx = canvas.getContext('2d');
+
+            // White background
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, 2000, 2000);
+
+            // Scale to 85% of canvas, centered
+            var maxDim = 1700;
+            var scale = Math.min(maxDim / img.width, maxDim / img.height, 1);
+            var w = img.width * scale;
+            var h = img.height * scale;
+            var x = (2000 - w) / 2;
+            var y = (2000 - h) / 2;
+            ctx.drawImage(img, x, y, w, h);
+
+            callback(canvas);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// ── Process a Single Job ─────────────────────────────────────────
+function processJob(jobId) {
+    var secret = getR2Secret();
+    if (!secret) { secret = promptR2Secret(); }
+    if (!secret) return;
+
+    var job = queue.find(function(j) { return j.id === jobId; });
+    if (!job || job.status === 'processing' || job.status === 'done') return;
+
+    job.status = 'processing';
+    job.error = null;
+    saveQueue();
+    renderQueue();
+
+    fetch(R2_REMOVE_BG_API, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Upload-Secret': secret,
+        },
+        body: JSON.stringify({ r2Key: job.r2Key }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.ok) {
+            job.status = 'done';
+            job.processedAt = new Date().toISOString();
+            job.rawSizeKB = data.rawSizeKB;
+            job.cleanSizeKB = data.cleanSizeKB;
+            showToast('Background removed: ' + job.fileName, 'success');
+
+            // Add to gallery
+            gallery.unshift({
+                r2Key: job.r2Key,
+                product: job.product,
+                fileName: job.fileName,
+                url: data.url,
+                processedAt: job.processedAt,
+            });
+            saveGallery();
+            renderGallery();
+            checkCredits();
+        } else {
+            job.status = 'failed';
+            job.error = data.error || 'Processing failed';
+            showToast('Failed: ' + (data.error || 'Unknown error'), 'error');
+        }
+        saveQueue();
+        renderQueue();
+    })
+    .catch(function(err) {
+        job.status = 'failed';
+        job.error = err.message;
+        saveQueue();
+        renderQueue();
+        showToast('Error: ' + err.message, 'error');
+    });
+}
+
+// ── Process All Pending ──────────────────────────────────────────
+function processAllPending() {
+    var pending = queue.filter(function(j) { return j.status === 'pending' || j.status === 'failed'; });
+    if (!pending.length) { showToast('No pending jobs', 'error'); return; }
+
+    // Process sequentially to avoid hammering the API
+    var i = 0;
+    function next() {
+        if (i >= pending.length) return;
+        var job = pending[i];
+        i++;
+        job.status = 'processing';
+        job.error = null;
+        saveQueue();
+        renderQueue();
+
+        var secret = getR2Secret();
+        fetch(R2_REMOVE_BG_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': secret },
+            body: JSON.stringify({ r2Key: job.r2Key }),
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.ok) {
+                job.status = 'done';
+                job.processedAt = new Date().toISOString();
+                job.rawSizeKB = data.rawSizeKB;
+                job.cleanSizeKB = data.cleanSizeKB;
+                gallery.unshift({ r2Key: job.r2Key, product: job.product, fileName: job.fileName, url: data.url, processedAt: job.processedAt });
+                saveGallery();
+                renderGallery();
+            } else {
+                job.status = 'failed';
+                job.error = data.error || 'Failed';
+            }
+            saveQueue();
+            renderQueue();
+            checkCredits();
+            // Small delay between jobs
+            setTimeout(next, 500);
+        })
+        .catch(function(err) {
+            job.status = 'failed';
+            job.error = err.message;
+            saveQueue();
+            renderQueue();
+            setTimeout(next, 500);
+        });
+    }
+    next();
+}
+
+// ── Remove Job ───────────────────────────────────────────────────
+function removeJob(jobId) {
+    queue = queue.filter(function(j) { return j.id !== jobId; });
+    saveQueue();
+    renderQueue();
+}
+
+// ── Clear Done ───────────────────────────────────────────────────
+function clearDone() {
+    queue = queue.filter(function(j) { return j.status !== 'done'; });
+    saveQueue();
+    renderQueue();
+}
+
+// ── Render Queue ─────────────────────────────────────────────────
+function renderQueue() {
+    var tbody = document.getElementById('queueBody');
+    var emptyEl = document.getElementById('queueEmpty');
+
+    var pending = queue.filter(function(j) { return j.status === 'pending'; }).length;
+    var processing = queue.filter(function(j) { return j.status === 'processing' || j.status === 'uploading'; }).length;
+    var done = queue.filter(function(j) { return j.status === 'done'; }).length;
+
+    document.getElementById('pendingBadge').textContent = pending + ' pending';
+    document.getElementById('processingBadge').textContent = processing + ' processing';
+    document.getElementById('doneBadge').textContent = done + ' done';
+
+    if (!queue.length) {
+        tbody.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+    }
+    emptyEl.style.display = 'none';
+
+    var html = '';
+    for (var i = 0; i < queue.length; i++) {
+        var j = queue[i];
+        var thumbUrl = j.url || (R2_PUBLIC_BASE + j.r2Key);
+        var statusHtml = '<span class="status-dot ' + j.status + '"></span>';
+
+        var statusText = j.status.charAt(0).toUpperCase() + j.status.slice(1);
+        if (j.status === 'uploading') statusText = 'Uploading...';
+        if (j.status === 'processing') statusText = 'Removing BG...';
+
+        var detailsHtml = '';
+        if (j.error) detailsHtml = '<span style="color:#f85149;font-size:11px;">' + j.error + '</span>';
+        else if (j.status === 'done' && j.rawSizeKB && j.cleanSizeKB) detailsHtml = '<span style="color:#3fb950;font-size:11px;">' + j.rawSizeKB + 'KB &rarr; ' + j.cleanSizeKB + 'KB</span>';
+        else if (j.status === 'pending') detailsHtml = '<span style="color:#8b949e;font-size:11px;">Ready for cleanup</span>';
+
+        var actionsHtml = '';
+        if (j.status === 'pending') {
+            actionsHtml = '<button class="btn-process" onclick="processJob(\'' + j.id + '\')">&#9654; Process</button> ';
+            actionsHtml += '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')">&#10005;</button>';
+        } else if (j.status === 'failed') {
+            actionsHtml = '<button class="btn-process" onclick="processJob(\'' + j.id + '\')">&#8635; Retry</button> ';
+            actionsHtml += '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')">&#10005;</button>';
+        } else if (j.status === 'done') {
+            actionsHtml = '<a href="' + thumbUrl + '" target="_blank" style="color:#58a6ff;font-size:11px;text-decoration:none;">View &#8599;</a> ';
+            actionsHtml += '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')">&#10005;</button>';
+        } else {
+            actionsHtml = '<span style="color:#8b949e;font-size:11px;">...</span>';
+        }
+
+        html += '<tr>';
+        html += '<td><img class="queue-thumb" src="' + thumbUrl + '" onerror="this.style.display=\'none\'"></td>';
+        html += '<td style="color:#e0e0e0;font-weight:500;">' + (j.product || '—') + '</td>';
+        html += '<td style="color:#8b949e;">' + (j.fileName || j.r2Key) + '</td>';
+        html += '<td>' + statusHtml + statusText + '</td>';
+        html += '<td>' + detailsHtml + '</td>';
+        html += '<td class="queue-actions">' + actionsHtml + '</td>';
+        html += '</tr>';
+    }
+    tbody.innerHTML = html;
+}
+
+// ── Render Gallery ───────────────────────────────────────────────
+function renderGallery() {
+    var grid = document.getElementById('galleryGrid');
+    var emptyEl = document.getElementById('galleryEmpty');
+    var filter = document.getElementById('galleryFilter').value;
+
+    var items = gallery;
+    if (filter !== 'all') {
+        items = gallery.filter(function(g) { return g.product === filter; });
+    }
+
+    if (!items.length) {
+        grid.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+    }
+    emptyEl.style.display = 'none';
+
+    var html = '';
+    for (var i = 0; i < items.length; i++) {
+        var g = items[i];
+        var url = g.url || (R2_PUBLIC_BASE + g.r2Key);
+        var date = g.processedAt ? new Date(g.processedAt).toLocaleDateString() : '';
+        html += '<div class="gallery-card">';
+        html += '<a href="' + url + '" target="_blank"><img src="' + url + '" alt="' + g.fileName + '"></a>';
+        html += '<div class="info">';
+        html += '<div class="name">' + g.product + '</div>';
+        html += '<div class="meta">' + g.fileName + ' &bull; ' + date + '</div>';
+        html += '</div></div>';
+    }
+    grid.innerHTML = html;
+}
+
+// ── Populate Product Filter ──────────────────────────────────────
+function populateProductFilter() {
+    var sel = document.getElementById('galleryFilter');
+    var products = {};
+    for (var i = 0; i < gallery.length; i++) {
+        products[gallery[i].product] = true;
+    }
+    var keys = Object.keys(products).sort();
+    for (var k = 0; k < keys.length; k++) {
+        var opt = document.createElement('option');
+        opt.value = keys[k];
+        opt.textContent = keys[k];
+        sel.appendChild(opt);
+    }
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.getElementById('tab-' + tab).classList.add('active');
+    // Activate button
+    var btns = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < btns.length; i++) {
+        if ((tab === 'queue' && i === 0) || (tab === 'gallery' && i === 1)) btns[i].classList.add('active');
+    }
+    if (tab === 'gallery') { populateProductFilter(); renderGallery(); }
+}
+
+// ── Toast Notification ───────────────────────────────────────────
+function showToast(msg, type) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast ' + (type || '') + ' show';
+    clearTimeout(el._timer);
+    el._timer = setTimeout(function() { el.classList.remove('show'); }, 3000);
+}
+
+// ── Public API for Pipeline Integration ──────────────────────────
+// Called from Pipeline popup after R2 upload: addToMediaQueue(product, fileName, r2Key, url)
+window.addToMediaQueue = function(product, fileName, r2Key, url) {
+    loadQueue();
+    queue.unshift({
+        id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+        product: product,
+        fileName: fileName,
+        r2Key: r2Key,
+        url: url,
+        status: 'pending',
+        error: null,
+        addedAt: new Date().toISOString(),
+        processedAt: null,
+    });
+    saveQueue();
+};
+
+// ── Boot ─────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
