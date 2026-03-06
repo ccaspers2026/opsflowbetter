@@ -235,7 +235,7 @@
             padding-top: 20px;
             border-top: 1px solid #21262d;
             font-size: 11px;
-            color: #484f58;
+            color: #6e7681;
             text-align: center;
         }
     </style>
@@ -252,13 +252,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.32.0 - Color Variant Tracking</h2>
-            <p>Released March 5, 2026 &mdash; Products now track color variants with visual swatches. Add, edit, and remove variants directly from the Pipeline. Each variant stores a name, hex color, and optional per-variant image URL. Color swatches display on Portfolio cards for visitors. Amazon variant strategy: each child ASIN needs its own main image.</p>
+            <h2>Version 0.33.0 - Built-In Image Fixer</h2>
+            <p>Released March 5, 2026 &mdash; Upload a raw product photo, and the built-in Image Fixer removes the background using browser-based AI, composites the product on pure white, resizes to 2000x2000, and centers at 85% fill. Download the Amazon-ready JPEG and upload to R2. Falls back to manual resize mode if the AI model can&rsquo;t load.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">46</div>
+                <div class="stat-value">47</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -280,6 +280,27 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.33.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.33.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Built-In Image Fixer</div>
+                <ul class="change-list">
+                    <li>New &ldquo;Image Fixer&rdquo; button on the product image bar — upload a raw photo for instant Amazon-ready processing</li>
+                    <li>AI-powered background removal using @imgly/background-removal (runs entirely in browser, no server, no API key, no cost)</li>
+                    <li>Auto-composites product on pure white (RGB 255,255,255) background at 2000x2000 pixels</li>
+                    <li>Centers product at 85% fill ratio per Amazon requirements</li>
+                    <li>Side-by-side original vs result preview with download button</li>
+                    <li>Exports as JPEG at 95% quality — ready to upload to R2 bucket</li>
+                    <li>Fallback mode: if AI model can&rsquo;t load, resizes image on white background with link to PhotoRoom for external bg removal</li>
+                    <li>~30MB AI model downloads on first use, then cached by browser for instant subsequent processing</li>
+                    <li>Brightened grey text across all pages (#484f58 &rarr; #6e7681) for better readability</li>
+                </ul>
+            </div>
 
             <!-- v0.32.0 -->
             <div class="version-entry">

@@ -7,6 +7,12 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Caspers Creations - P2M Pipeline</title>
+    <script type="module">
+        // Import background-removal library (loads AI model ~30MB on first use, then cached)
+        import imglyRemoveBackground from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/dist/index.js';
+        window.imglyRemoveBackground = imglyRemoveBackground;
+        window._imglyLoaded = true;
+    </script>
     <style>
         * {
             margin: 0;
@@ -290,7 +296,7 @@
             border-radius: 5px;
         }
         .pipeline-wrapper::-webkit-scrollbar-thumb:hover {
-            background: #484f58;
+            background: #6e7681;
         }
 
         .pipeline {
@@ -401,12 +407,12 @@
 
         /* Locked state */
         .step-card.locked {
-            border-left-color: #484f58;
+            border-left-color: #6e7681;
             opacity: 0.5;
         }
 
         .step-card.locked:hover {
-            border-color: #484f58;
+            border-color: #6e7681;
             box-shadow: 0 4px 12px rgba(72, 79, 88, 0.2);
         }
 
@@ -418,7 +424,7 @@
 
         .step-led.led-locked {
             background-color: #30363d;
-            border-color: #484f58;
+            border-color: #6e7681;
         }
 
         .gate-led.led-red {
@@ -437,11 +443,11 @@
         }
         .gate-led.led-locked {
             background-color: #30363d;
-            border-color: #484f58;
+            border-color: #6e7681;
         }
 
         .decision-gate.locked {
-            border-color: #484f58;
+            border-color: #6e7681;
             opacity: 0.5;
         }
 
@@ -459,13 +465,13 @@
 
         .detail-led-status.led-locked {
             background-color: #30363d;
-            border-color: #484f58;
+            border-color: #6e7681;
             cursor: default;
         }
 
         .detail-lock-banner {
             background-color: #1c1e24;
-            border: 1px solid #484f58;
+            border: 1px solid #6e7681;
             border-radius: 6px;
             padding: 12px 16px;
             margin-bottom: 16px;
@@ -1840,7 +1846,7 @@
 
         .accordion-chevron {
             font-size: 14px;
-            color: #484f58;
+            color: #6e7681;
             transition: transform 0.25s;
             flex-shrink: 0;
         }
@@ -1895,7 +1901,7 @@
         .mobile-step-led.led-red { background-color: #f85149; box-shadow: 0 0 6px rgba(248,81,73,0.4); }
         .mobile-step-led.led-yellow { background-color: #d29922; box-shadow: 0 0 6px rgba(210,153,34,0.4); }
         .mobile-step-led.led-green { background-color: #2ea44f; box-shadow: 0 0 6px rgba(46,164,79,0.4); }
-        .mobile-step-led.led-locked { background-color: #484f58; box-shadow: none; }
+        .mobile-step-led.led-locked { background-color: #6e7681; box-shadow: none; }
 
         .mobile-step-card.locked,
         .mobile-gate-card.locked {
@@ -1936,7 +1942,7 @@
         }
 
         .mobile-step-arrow {
-            color: #484f58;
+            color: #6e7681;
             font-size: 16px;
             flex-shrink: 0;
         }
@@ -2152,7 +2158,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.32.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.33.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2186,7 +2192,9 @@
             <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Product image:</span>
             <span id="imageUrlDisplay" style="font-size:11px;color:#c9d1d9;cursor:pointer;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Click to set image URL"></span>
             <img id="imageUrlPreview" src="" alt="" style="width:24px;height:24px;border-radius:3px;object-fit:cover;display:none;border:1px solid #30363d;">
-            <span id="imageReqsBtn" title="Image requirements (Amazon-ready specs)" style="font-size:11px;color:#484f58;cursor:pointer;white-space:nowrap;user-select:none;" onclick="toggleImageReqs()">&#9432; Specs</span>
+            <span id="imageReqsBtn" title="Image requirements (Amazon-ready specs)" style="font-size:11px;color:#6e7681;cursor:pointer;white-space:nowrap;user-select:none;" onclick="toggleImageReqs()">&#9432; Specs</span>
+            <span id="imageFixerBtn" title="Upload a raw photo — removes background, white bg, 2000x2000, Amazon-ready" style="font-size:11px;color:#3fb950;cursor:pointer;white-space:nowrap;user-select:none;font-weight:600;" onclick="openImageFixer()">&#9881; Image Fixer</span>
+            <input type="file" id="imageFixerInput" accept="image/*" style="display:none;" onchange="processImageFixer(this)">
         </div>
         <div id="imageReqsPanel" style="display:none;padding:8px 12px;background:#0d1117;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;font-size:11px;color:#8b949e;line-height:1.6;">
             <strong style="color:#58a6ff;">Amazon-Ready Image Requirements</strong><br>
@@ -2194,10 +2202,15 @@
             <span style="color:#c9d1d9;">Pure white background</span> (RGB 255,255,255) &bull; Product fills <span style="color:#c9d1d9;">85%+</span> of frame &bull; No text/logos/watermarks<br>
             <span style="color:#c9d1d9;">Square 1:1 ratio</span> for best display &bull; No packaging shown &bull; Flatten layers before export
         </div>
+        <div id="imageFixerPanel" style="display:none;padding:12px;background:#0d1117;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;">
+            <div id="imageFixerStatus" style="font-size:12px;color:#8b949e;margin-bottom:8px;"></div>
+            <div id="imageFixerPreview" style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;"></div>
+            <div id="imageFixerActions" style="display:none;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
         <div id="colorVariantBar" style="padding:6px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:8px;min-height:28px;flex-wrap:wrap;">
             <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Color variants:</span>
             <div id="colorVariantSwatches" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"></div>
-            <span id="addVariantBtn" style="font-size:11px;color:#484f58;cursor:pointer;white-space:nowrap;user-select:none;" title="Add color variant">+ Add</span>
+            <span id="addVariantBtn" style="font-size:11px;color:#6e7681;cursor:pointer;white-space:nowrap;user-select:none;" title="Add color variant">+ Add</span>
         </div>
 
         <!-- Pipeline (desktop) -->
@@ -2444,7 +2457,7 @@
                 display.style.color = '#c9d1d9';
             } else {
                 display.textContent = 'Click to add a tagline for the portfolio...';
-                display.style.color = '#484f58';
+                display.style.color = '#6e7681';
             }
         }
 
@@ -2532,6 +2545,221 @@
             };
         }
 
+        // ============================================================================
+        // IMAGE FIXER — upload raw photo, remove bg, white bg, 2000x2000, Amazon-ready
+        // ============================================================================
+
+        function openImageFixer() {
+            if (!requireEdit('use Image Fixer')) return;
+            document.getElementById('imageFixerInput').click();
+        }
+
+        function processImageFixer(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            if (!file.type.startsWith('image/')) {
+                showPipelineToast('Please select an image file');
+                return;
+            }
+
+            const panel = document.getElementById('imageFixerPanel');
+            const status = document.getElementById('imageFixerStatus');
+            const preview = document.getElementById('imageFixerPreview');
+            const actions = document.getElementById('imageFixerActions');
+            panel.style.display = 'block';
+            preview.innerHTML = '';
+            actions.innerHTML = '';
+            actions.style.display = 'none';
+
+            // Show original preview
+            const origUrl = URL.createObjectURL(file);
+            const origImg = document.createElement('img');
+            origImg.src = origUrl;
+            origImg.style.cssText = 'max-width:180px;max-height:180px;border:1px solid #21262d;border-radius:4px;';
+
+            const origLabel = document.createElement('div');
+            origLabel.style.cssText = 'text-align:center;';
+            origLabel.innerHTML = '<div style="font-size:10px;color:#8b949e;margin-bottom:4px;">ORIGINAL</div>';
+            origLabel.appendChild(origImg);
+            preview.appendChild(origLabel);
+
+            // Check if imgly library loaded
+            if (!window._imglyLoaded || !window.imglyRemoveBackground) {
+                status.innerHTML = '<span style="color:#f0883e;">&#9888; Background removal library still loading... This may take a moment on first use (~30MB AI model download).</span>';
+                // Retry after a delay
+                let retries = 0;
+                const checkLoaded = setInterval(() => {
+                    retries++;
+                    if (window.imglyRemoveBackground) {
+                        clearInterval(checkLoaded);
+                        runBackgroundRemoval(file, origUrl, panel, status, preview, actions);
+                    } else if (retries > 30) {
+                        clearInterval(checkLoaded);
+                        status.innerHTML = '<span style="color:#f85149;">&#10007; Could not load background removal library. Falling back to manual mode...</span>';
+                        showManualFallback(file, origUrl, panel, status, preview, actions);
+                    }
+                }, 1000);
+            } else {
+                runBackgroundRemoval(file, origUrl, panel, status, preview, actions);
+            }
+
+            // Reset file input for re-use
+            input.value = '';
+        }
+
+        function runBackgroundRemoval(file, origUrl, panel, status, preview, actions) {
+            status.innerHTML = '<span style="color:#58a6ff;">&#9881; Removing background... This may take 10-30 seconds depending on image size and your device.</span>';
+
+            window.imglyRemoveBackground(origUrl, {
+                output: { format: 'image/png' }
+            }).then(blob => {
+                // Background removed — now composite on white 2000x2000
+                const noBgUrl = URL.createObjectURL(blob);
+                compositeOnWhite(noBgUrl, function(finalCanvas, finalUrl) {
+                    // Show result preview
+                    const resultImg = document.createElement('img');
+                    resultImg.src = finalUrl;
+                    resultImg.style.cssText = 'max-width:180px;max-height:180px;border:1px solid #3fb950;border-radius:4px;';
+
+                    const arrow = document.createElement('div');
+                    arrow.style.cssText = 'display:flex;align-items:center;font-size:20px;color:#3fb950;padding:0 8px;';
+                    arrow.textContent = '→';
+
+                    const resultLabel = document.createElement('div');
+                    resultLabel.style.cssText = 'text-align:center;';
+                    resultLabel.innerHTML = '<div style="font-size:10px;color:#3fb950;margin-bottom:4px;">AMAZON-READY</div>';
+                    resultLabel.appendChild(resultImg);
+
+                    preview.appendChild(arrow);
+                    preview.appendChild(resultLabel);
+
+                    status.innerHTML = '<span style="color:#3fb950;">&#10003; Done! Background removed and composited on pure white 2000x2000.</span>';
+
+                    // Action buttons
+                    actions.style.display = 'flex';
+                    actions.innerHTML = '';
+
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.textContent = 'Download JPEG';
+                    downloadBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
+                    downloadBtn.addEventListener('click', () => {
+                        // Convert canvas to JPEG for download
+                        finalCanvas.toBlob(jpegBlob => {
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(jpegBlob);
+                            const productName = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
+                            a.download = productName + '_amazon_ready.jpg';
+                            a.click();
+                            showPipelineToast('Image downloaded — upload to R2 bucket');
+                        }, 'image/jpeg', 0.95);
+                    });
+
+                    const closeBtn = document.createElement('button');
+                    closeBtn.textContent = 'Close';
+                    closeBtn.style.cssText = 'padding:6px 14px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;font-size:12px;cursor:pointer;';
+                    closeBtn.addEventListener('click', () => {
+                        panel.style.display = 'none';
+                    });
+
+                    actions.appendChild(downloadBtn);
+                    actions.appendChild(closeBtn);
+                });
+            }).catch(err => {
+                console.error('Background removal failed:', err);
+                status.innerHTML = '<span style="color:#f85149;">&#10007; Background removal failed: ' + (err.message || 'Unknown error') + '. Falling back to manual mode...</span>';
+                showManualFallback(file, origUrl, panel, status, preview, actions);
+            });
+        }
+
+        function compositeOnWhite(transparentImgUrl, callback) {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function() {
+                const CANVAS_SIZE = 2000;
+                const FILL_RATIO = 0.85; // Product fills 85% of frame
+
+                const canvas = document.createElement('canvas');
+                canvas.width = CANVAS_SIZE;
+                canvas.height = CANVAS_SIZE;
+                const ctx = canvas.getContext('2d');
+
+                // Fill with pure white
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+                // Calculate scale to fit product at 85% of canvas
+                const maxDim = Math.max(img.width, img.height);
+                const targetDim = CANVAS_SIZE * FILL_RATIO;
+                const scale = targetDim / maxDim;
+                const scaledW = img.width * scale;
+                const scaledH = img.height * scale;
+
+                // Center on canvas
+                const x = (CANVAS_SIZE - scaledW) / 2;
+                const y = (CANVAS_SIZE - scaledH) / 2;
+
+                ctx.drawImage(img, x, y, scaledW, scaledH);
+
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                callback(canvas, dataUrl);
+            };
+            img.src = transparentImgUrl;
+        }
+
+        function showManualFallback(file, origUrl, panel, status, preview, actions) {
+            // Fallback: just resize and white-bg without background removal
+            status.innerHTML += '<br><span style="color:#8b949e;">Manual mode: resizing to 2000x2000 on white background (no background removal). You can remove the background externally with <a href="https://www.photoroom.com" target="_blank" style="color:#58a6ff;">PhotoRoom</a> first.</span>';
+
+            const img = new Image();
+            img.onload = function() {
+                compositeOnWhite(origUrl, function(finalCanvas, finalUrl) {
+                    const resultImg = document.createElement('img');
+                    resultImg.src = finalUrl;
+                    resultImg.style.cssText = 'max-width:180px;max-height:180px;border:1px solid #f0883e;border-radius:4px;';
+
+                    const arrow = document.createElement('div');
+                    arrow.style.cssText = 'display:flex;align-items:center;font-size:20px;color:#f0883e;padding:0 8px;';
+                    arrow.textContent = '→';
+
+                    const resultLabel = document.createElement('div');
+                    resultLabel.style.cssText = 'text-align:center;';
+                    resultLabel.innerHTML = '<div style="font-size:10px;color:#f0883e;margin-bottom:4px;">RESIZED (no bg removal)</div>';
+                    resultLabel.appendChild(resultImg);
+
+                    preview.appendChild(arrow);
+                    preview.appendChild(resultLabel);
+
+                    actions.style.display = 'flex';
+                    actions.innerHTML = '';
+
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.textContent = 'Download JPEG';
+                    downloadBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
+                    downloadBtn.addEventListener('click', () => {
+                        finalCanvas.toBlob(jpegBlob => {
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(jpegBlob);
+                            const productName = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
+                            a.download = productName + '_resized.jpg';
+                            a.click();
+                            showPipelineToast('Image downloaded');
+                        }, 'image/jpeg', 0.95);
+                    });
+
+                    const closeBtn = document.createElement('button');
+                    closeBtn.textContent = 'Close';
+                    closeBtn.style.cssText = 'padding:6px 14px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;font-size:12px;cursor:pointer;';
+                    closeBtn.addEventListener('click', () => {
+                        panel.style.display = 'none';
+                    });
+
+                    actions.appendChild(downloadBtn);
+                    actions.appendChild(closeBtn);
+                });
+            };
+            img.src = origUrl;
+        }
+
         function toggleImageReqs() {
             const panel = document.getElementById('imageReqsPanel');
             const btn = document.getElementById('imageReqsBtn');
@@ -2541,7 +2769,7 @@
                 btn.style.color = '#58a6ff';
             } else {
                 panel.style.display = 'none';
-                btn.style.color = '#484f58';
+                btn.style.color = '#6e7681';
             }
         }
 
@@ -2554,7 +2782,7 @@
             if (url) {
                 const parts = parseUrlParts(url);
                 if (parts.root && parts.filename) {
-                    display.innerHTML = '<span style="color:#484f58;">' + parts.root + '</span><span style="color:#58a6ff;">' + parts.filename + '</span>';
+                    display.innerHTML = '<span style="color:#6e7681;">' + parts.root + '</span><span style="color:#58a6ff;">' + parts.filename + '</span>';
                 } else {
                     display.textContent = url;
                     display.style.color = '#58a6ff';
@@ -2566,7 +2794,7 @@
                 }
             } else {
                 display.textContent = 'Click to add product image URL...';
-                display.style.color = '#484f58';
+                display.style.color = '#6e7681';
                 display.innerHTML = display.textContent;
                 if (preview) preview.style.display = 'none';
             }
@@ -2749,7 +2977,7 @@
 
             if (variants.length === 0) {
                 const emptyMsg = document.createElement('span');
-                emptyMsg.style.cssText = 'font-size:11px;color:#484f58;font-style:italic;';
+                emptyMsg.style.cssText = 'font-size:11px;color:#6e7681;font-style:italic;';
                 emptyMsg.textContent = 'No variants yet';
                 container.appendChild(emptyMsg);
                 return;
