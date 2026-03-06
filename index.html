@@ -1023,11 +1023,28 @@
                 dotsHtml += '</div>';
 
                 var tagline = (state.taglines && state.taglines[name]) ? state.taglines[name] : '';
+                var variants = (state.colorVariants && state.colorVariants[name]) ? state.colorVariants[name] : [];
+                var swatchHtml = '';
+                if (variants.length > 0) {
+                    swatchHtml = '<div style="display:flex;align-items:center;gap:6px;margin:6px 0 4px;">';
+                    swatchHtml += '<span style="font-size:10px;color:#8b949e;">Colors:</span>';
+                    variants.forEach(function(v) {
+                        var bg = v.hex || '#666';
+                        var isClear = (v.name || '').toLowerCase().indexOf('clear') >= 0 || (v.name || '').toLowerCase().indexOf('translucent') >= 0;
+                        if (isClear) {
+                            swatchHtml += '<span title="' + v.name + '" style="width:14px;height:14px;border-radius:50%;border:1px solid #30363d;display:inline-block;background:linear-gradient(45deg,#ccc 25%,transparent 25%,transparent 75%,#ccc 75%),linear-gradient(45deg,#ccc 25%,transparent 25%,transparent 75%,#ccc 75%);background-size:6px 6px;background-position:0 0,3px 3px;cursor:default;"></span>';
+                        } else {
+                            swatchHtml += '<span title="' + v.name + '" style="width:14px;height:14px;border-radius:50%;background:' + bg + ';border:1px solid #30363d;display:inline-block;cursor:default;"></span>';
+                        }
+                    });
+                    swatchHtml += '</div>';
+                }
 
                 card.innerHTML = imgHtml +
                     '<div class="portfolio-body">' +
                     '<h4>' + name + '</h4>' +
                     (tagline ? '<div class="portfolio-concept">' + tagline + '</div>' : '') +
+                    swatchHtml +
                     '<div class="portfolio-status-badge ' + statusInfo.badge + '">' +
                     '<span style="font-size:8px;">&#9679;</span> ' + statusInfo.label + '</div>' +
                     '<div class="portfolio-progress">' +

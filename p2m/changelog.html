@@ -252,13 +252,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.31.0 - Smart Image URL &amp; Portfolio Image Upgrade</h2>
-            <p>Released March 5, 2026 &mdash; Image URL input now features a smart root prefix dropdown that auto-learns from previous entries. Pick a saved root and just type the filename. Pasting a full URL auto-parses and saves the root for next time. Added Amazon-ready image spec guide. Portfolio images now render on white backgrounds with proper contain-fit for professional display.</p>
+            <h2>Version 0.32.0 - Color Variant Tracking</h2>
+            <p>Released March 5, 2026 &mdash; Products now track color variants with visual swatches. Add, edit, and remove variants directly from the Pipeline. Each variant stores a name, hex color, and optional per-variant image URL. Color swatches display on Portfolio cards for visitors. Amazon variant strategy: each child ASIN needs its own main image.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">45</div>
+                <div class="stat-value">46</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -280,6 +280,26 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.32.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.32.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Color Variant Tracking</div>
+                <ul class="change-list">
+                    <li>New colorVariants state field — each product stores an array of variants with name, hex color, and optional image URL</li>
+                    <li>Variant chip UI in Pipeline product bar — visual swatches with color dots and labels</li>
+                    <li>Click variant chip to edit (rename, change color, set image URL); right-click to remove</li>
+                    <li>&ldquo;+ Add&rdquo; button for creating new variants with color name and hex code</li>
+                    <li>Portfolio cards now display color swatches row when variants exist</li>
+                    <li>Translucent/clear variants show checkered pattern swatch</li>
+                    <li>Pre-populated: 45 RPM Adaptor (Matte Black, Stone Grey, Translucent Clear) and Improbability Spinner (Deep Space Blue, Nebula Purple, Glow Green)</li>
+                    <li>Variants persist in localStorage, migrate on product rename, clean up on product remove</li>
+                </ul>
+            </div>
 
             <!-- v0.31.0 -->
             <div class="version-entry">

@@ -2152,7 +2152,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.31.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.32.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2193,6 +2193,11 @@
             <span style="color:#c9d1d9;">Min 1600px</span> on longest side (2000x2000 recommended) &bull; <span style="color:#c9d1d9;">Max 10MB</span> &bull; JPEG preferred (PNG/TIFF accepted)<br>
             <span style="color:#c9d1d9;">Pure white background</span> (RGB 255,255,255) &bull; Product fills <span style="color:#c9d1d9;">85%+</span> of frame &bull; No text/logos/watermarks<br>
             <span style="color:#c9d1d9;">Square 1:1 ratio</span> for best display &bull; No packaging shown &bull; Flatten layers before export
+        </div>
+        <div id="colorVariantBar" style="padding:6px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:8px;min-height:28px;flex-wrap:wrap;">
+            <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Color variants:</span>
+            <div id="colorVariantSwatches" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"></div>
+            <span id="addVariantBtn" style="font-size:11px;color:#484f58;cursor:pointer;white-space:nowrap;user-select:none;" title="Add color variant">+ Add</span>
         </div>
 
         <!-- Pipeline (desktop) -->
@@ -2350,6 +2355,19 @@
                 '45 RPM Adaptor': '',
                 'RC Plane Hangar': '',
                 'Improbability Spinner': ''
+            },
+            colorVariants: {
+                '45 RPM Adaptor': [
+                    { name: 'Matte Black', hex: '#1a1a1a', imageUrl: '' },
+                    { name: 'Stone Grey', hex: '#8a8a8a', imageUrl: '' },
+                    { name: 'Translucent Clear', hex: '#e0e8f0', imageUrl: '' }
+                ],
+                'RC Plane Hangar': [],
+                'Improbability Spinner': [
+                    { name: 'Deep Space Blue', hex: '#1a2744', imageUrl: '' },
+                    { name: 'Nebula Purple', hex: '#6a3d7d', imageUrl: '' },
+                    { name: 'Glow Green', hex: '#7dff7d', imageUrl: '' }
+                ]
             },
             activeProduct: '45 RPM Adaptor'
         };
@@ -2718,6 +2736,155 @@
             });
         }
 
+        // ============================================================================
+        // COLOR VARIANT MANAGEMENT
+        // ============================================================================
+
+        function renderColorVariants() {
+            const container = document.getElementById('colorVariantSwatches');
+            if (!container) return;
+            if (!state.colorVariants) state.colorVariants = {};
+            const variants = state.colorVariants[state.activeProduct] || [];
+            container.innerHTML = '';
+
+            if (variants.length === 0) {
+                const emptyMsg = document.createElement('span');
+                emptyMsg.style.cssText = 'font-size:11px;color:#484f58;font-style:italic;';
+                emptyMsg.textContent = 'No variants yet';
+                container.appendChild(emptyMsg);
+                return;
+            }
+
+            variants.forEach((v, idx) => {
+                const chip = document.createElement('div');
+                chip.style.cssText = 'display:flex;align-items:center;gap:4px;background:#0d1117;border:1px solid #21262d;border-radius:12px;padding:2px 8px 2px 4px;cursor:pointer;transition:border-color 0.2s;';
+                chip.title = v.name + (v.imageUrl ? ' (has image)' : ' (no image yet)');
+
+                // Color swatch circle
+                const swatch = document.createElement('span');
+                swatch.style.cssText = 'width:14px;height:14px;border-radius:50%;border:1px solid #30363d;flex-shrink:0;display:inline-block;';
+                swatch.style.background = v.hex || '#666';
+                // Checkered pattern for translucent/clear colors
+                if (v.hex && (v.hex.toLowerCase().includes('e0') || v.name.toLowerCase().includes('clear') || v.name.toLowerCase().includes('translucent'))) {
+                    swatch.style.background = 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%)';
+                    swatch.style.backgroundSize = '6px 6px';
+                    swatch.style.backgroundPosition = '0 0, 3px 3px';
+                }
+
+                // Name label
+                const label = document.createElement('span');
+                label.style.cssText = 'font-size:10px;color:#c9d1d9;white-space:nowrap;';
+                label.textContent = v.name;
+
+                // Image indicator
+                if (v.imageUrl) {
+                    const imgDot = document.createElement('span');
+                    imgDot.style.cssText = 'width:5px;height:5px;border-radius:50%;background:#3fb950;flex-shrink:0;';
+                    imgDot.title = 'Has product image';
+                    chip.appendChild(swatch);
+                    chip.appendChild(label);
+                    chip.appendChild(imgDot);
+                } else {
+                    chip.appendChild(swatch);
+                    chip.appendChild(label);
+                }
+
+                // Click to edit variant
+                chip.addEventListener('click', () => editColorVariant(idx));
+                // Right-click to remove
+                chip.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    removeColorVariant(idx);
+                });
+
+                chip.addEventListener('mouseenter', () => { chip.style.borderColor = '#58a6ff'; });
+                chip.addEventListener('mouseleave', () => { chip.style.borderColor = '#21262d'; });
+
+                container.appendChild(chip);
+            });
+        }
+
+        function addColorVariant() {
+            if (!requireEdit('add color variant')) return;
+            if (!state.colorVariants) state.colorVariants = {};
+            if (!state.colorVariants[state.activeProduct]) state.colorVariants[state.activeProduct] = [];
+
+            const name = prompt('Variant color name (e.g. "Matte Black"):');
+            if (!name || !name.trim()) return;
+
+            const hex = prompt('Hex color code for swatch (e.g. "#1a1a1a"):', '#666666');
+            if (!hex) return;
+
+            state.colorVariants[state.activeProduct].push({
+                name: name.trim(),
+                hex: hex.trim(),
+                imageUrl: ''
+            });
+            saveState();
+            renderColorVariants();
+            showPipelineToast('Added variant: ' + name.trim());
+        }
+
+        function editColorVariant(idx) {
+            if (!requireEdit('edit color variant')) return;
+            if (!state.colorVariants) return;
+            const variants = state.colorVariants[state.activeProduct];
+            if (!variants || !variants[idx]) return;
+
+            const v = variants[idx];
+            const choice = prompt(
+                'Editing "' + v.name + '"\\n\\n' +
+                '1 = Rename\\n' +
+                '2 = Change color hex (current: ' + v.hex + ')\\n' +
+                '3 = Set image URL' + (v.imageUrl ? ' (current: ' + v.imageUrl + ')' : '') + '\\n\\n' +
+                'Enter 1, 2, or 3:'
+            );
+            if (!choice) return;
+
+            if (choice.trim() === '1') {
+                const newName = prompt('New name:', v.name);
+                if (newName && newName.trim()) {
+                    v.name = newName.trim();
+                    saveState();
+                    renderColorVariants();
+                    showPipelineToast('Variant renamed');
+                }
+            } else if (choice.trim() === '2') {
+                const newHex = prompt('New hex color:', v.hex);
+                if (newHex && newHex.trim()) {
+                    v.hex = newHex.trim();
+                    saveState();
+                    renderColorVariants();
+                    showPipelineToast('Variant color updated');
+                }
+            } else if (choice.trim() === '3') {
+                const newUrl = prompt('Image URL for this variant:', v.imageUrl || '');
+                if (newUrl !== null) {
+                    v.imageUrl = newUrl.trim();
+                    if (v.imageUrl) {
+                        const parts = parseUrlParts(v.imageUrl);
+                        if (parts.root) addImageRoot(parts.root);
+                    }
+                    saveState();
+                    renderColorVariants();
+                    showPipelineToast(v.imageUrl ? 'Variant image URL saved' : 'Variant image URL cleared');
+                }
+            }
+        }
+
+        function removeColorVariant(idx) {
+            if (!requireEdit('remove color variant')) return;
+            if (!state.colorVariants) return;
+            const variants = state.colorVariants[state.activeProduct];
+            if (!variants || !variants[idx]) return;
+
+            const name = variants[idx].name;
+            variants.splice(idx, 1);
+            saveState();
+            renderColorVariants();
+            showPipelineToast('Removed variant: ' + name);
+        }
+
         function saveState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -2737,6 +2904,7 @@
                     if (parsed.gateSignatures) state.gateSignatures = parsed.gateSignatures;
                     if (parsed.taglines) state.taglines = parsed.taglines;
                     if (parsed.imageUrls) state.imageUrls = parsed.imageUrls;
+                    if (parsed.colorVariants) state.colorVariants = parsed.colorVariants;
                     if (parsed.activeProduct) state.activeProduct = parsed.activeProduct;
                 }
             } catch (e) {
@@ -3271,6 +3439,11 @@
                 delete state.imageUrls[oldName];
             }
 
+            if (state.colorVariants && state.colorVariants[oldName] !== undefined) {
+                state.colorVariants[newName] = state.colorVariants[oldName];
+                delete state.colorVariants[oldName];
+            }
+
             if (state.activeProduct === oldName) {
                 state.activeProduct = newName;
             }
@@ -3604,6 +3777,7 @@
             updatePipelineCompletion();
             renderTagline();
             renderImageUrl();
+            renderColorVariants();
         }
 
         function updatePipelineCompletion() {
@@ -4504,6 +4678,8 @@
                 state.taglines[name] = '';
                 if (!state.imageUrls) state.imageUrls = {};
                 state.imageUrls[name] = '';
+                if (!state.colorVariants) state.colorVariants = {};
+                state.colorVariants[name] = [];
                 productDetailContent[name] = {};
                 state.activeProduct = name;
                 saveState();
@@ -4542,6 +4718,7 @@
             delete state.checklists[name];
             if (state.taglines) delete state.taglines[name];
             if (state.imageUrls) delete state.imageUrls[name];
+            if (state.colorVariants) delete state.colorVariants[name];
             if (productDetailContent[name]) {
                 delete productDetailContent[name];
             }
@@ -4592,8 +4769,10 @@
         updateLockIcon();
         renderTagline();
         renderImageUrl();
+        renderColorVariants();
         document.getElementById('taglineDisplay').addEventListener('click', startEditTagline);
         document.getElementById('imageUrlDisplay').addEventListener('click', startEditImageUrl);
+        document.getElementById('addVariantBtn').addEventListener('click', addColorVariant);
         render();
     </script>
 </body>
