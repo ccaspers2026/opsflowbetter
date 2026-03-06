@@ -262,13 +262,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.46.0 - Gallery UX, Preview Retry, Design Consistency</h2>
-            <p>Released March 6, 2026 &mdash; Uploaded images now appear in Media Gallery immediately (before BG removal). Preview popup retries without cache-bust before showing error. Nav left-aligned across all pages. Font, max-width, and spacing standardized site-wide.</p>
+            <h2>Version 0.47.0 - Image Retry Engine, Credits Badge &amp; Gallery Dedup</h2>
+            <p>Released March 6, 2026 &mdash; Robust multi-step image retry for gallery thumbnails, queue thumbnails, and preview popup. Fixed gallery duplicate entries from processAll. Credits badge now says &ldquo;BG Removal&rdquo; instead of &ldquo;remove.bg&rdquo;.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">57</div>
+                <div class="stat-value">58</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -290,6 +290,21 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.47.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.47.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">Image Retry Engine, Credits Badge &amp; Gallery Dedup</div>
+                <ul class="changes-list">
+                    <li>New multi-step image retry engine &mdash; gallery/queue thumbnails and preview popup now try: strip cache-bust &rarr; base URL &rarr; fresh cache-bust &rarr; then show fallback</li>
+                    <li>Fixed duplicate gallery entries when using Process All &mdash; now updates existing entry instead of creating new one</li>
+                    <li>Credits badge renamed from &ldquo;remove.bg: 0 credits&rdquo; to &ldquo;BG Removal: 0 credits&rdquo; with tooltip explaining the service</li>
+                </ul>
+            </div>
 
             <!-- v0.46.0 -->
             <div class="version-entry">

@@ -424,7 +424,7 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.46.0</span>
+        <span class="topbar-version">Media Center v0.47.0</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
@@ -435,8 +435,8 @@
         <a href="/#portfolio" style="color:#3fb950;">Our Products</a>
         <a href="/" style="color:#d29922;">OpsFlowBetter</a>
     </div>
-    <div class="credits-badge">
-        remove.bg: <span class="count" id="creditsCount">—</span> credits
+    <div class="credits-badge" title="Background removal credits remaining (powered by remove.bg)">
+        BG Removal: <span class="count" id="creditsCount">—</span> credits
     </div>
 </div>
 
@@ -558,20 +558,27 @@ function showPreview(url, label) {
     // Reset state
     img.style.display = '';
     errEl.style.display = 'none';
-    img._retried = false;
-    img._originalUrl = url;
+    img._retryStep = 0;
 
-    // On error: try stripping cache-bust params first, then show error
+    // Multi-step retry: strip cache-bust → try base URL → fresh bust → give up
     img.onerror = function() {
-        if (!img._retried && url.indexOf('?') !== -1) {
-            img._retried = true;
-            var cleanUrl = url.split('?')[0];
+        img._retryStep++;
+        var cleanUrl = url.split('?')[0];
+
+        if (img._retryStep === 1 && url.indexOf('?') !== -1) {
+            // Step 1: strip cache-bust params
             img.src = cleanUrl;
             link.href = cleanUrl;
-            return;
+        } else if (img._retryStep <= 2) {
+            // Step 2: try with fresh cache-bust
+            var freshUrl = cleanUrl + '?v=' + Date.now();
+            img.src = freshUrl;
+            link.href = freshUrl;
+        } else {
+            // Give up
+            img.style.display = 'none';
+            errEl.style.display = 'block';
         }
-        img.style.display = 'none';
-        errEl.style.display = 'block';
     };
     img.onload = function() {
         img.style.display = '';
@@ -1163,7 +1170,18 @@ function processAllPending() {
                     job.url = cbUrl;
                     if (cropped) job.cleanSizeKB = finalSizeKB;
                     updatePipelineImageUrl(job.product, cbUrl);
-                    gallery.unshift({ r2Key: job.r2Key, product: job.product, fileName: job.fileName, url: cbUrl, processedAt: job.processedAt });
+                    // Update existing gallery entry or add new
+                    var gIdx = -1;
+                    for (var gi2 = 0; gi2 < gallery.length; gi2++) {
+                        if (gallery[gi2].r2Key === job.r2Key) { gIdx = gi2; break; }
+                    }
+                    if (gIdx >= 0) {
+                        gallery[gIdx].url = cbUrl;
+                        gallery[gIdx].processedAt = job.processedAt;
+                        gallery[gIdx].raw = false;
+                    } else {
+                        gallery.unshift({ r2Key: job.r2Key, product: job.product, fileName: job.fileName, url: cbUrl, processedAt: job.processedAt });
+                    }
                     saveGallery();
                     renderGallery();
                     saveQueue();
@@ -1260,7 +1278,7 @@ function renderQueue() {
         }
 
         html += '<tr>';
-        html += '<td><img class="queue-thumb" src="' + thumbUrl + '" onerror="this.style.display=\'none\'" onclick="showPreview(\'' + thumbUrl.replace(/'/g, "\\'") + '\',\'' + (j.product + ' — ' + j.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview"></td>';
+        html += '<td><img class="queue-thumb" src="' + thumbUrl + '" data-r2key="' + (j.r2Key || '') + '" onerror="retryImage(this, this.getAttribute(\'data-r2key\'))" onclick="showPreview(\'' + thumbUrl.replace(/'/g, "\\'") + '\',\'' + (j.product + ' — ' + j.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview"></td>';
         html += '<td style="color:#e0e0e0;font-weight:500;">' + (j.product || '—') + '</td>';
         html += '<td style="color:#8b949e;">' + (j.fileName || j.r2Key) + '</td>';
         html += '<td>' + statusHtml + statusText + '</td>';
@@ -1269,6 +1287,40 @@ function renderQueue() {
         html += '</tr>';
     }
     tbody.innerHTML = html;
+}
+
+// ── Image Retry Helper ──────────────────────────────────────────
+// When an image fails to load, try: (1) strip cache-bust params,
+// (2) use base URL + r2Key, (3) give up and show fallback
+function retryImage(imgEl, r2Key) {
+    var baseUrl = R2_PUBLIC_BASE + r2Key;
+    var currentSrc = imgEl.src || '';
+
+    // Attempt 1: strip cache-bust ?v= params
+    if (currentSrc.indexOf('?') !== -1) {
+        imgEl.onerror = function() { retryImage(imgEl, r2Key); };
+        imgEl.src = currentSrc.split('?')[0];
+        return;
+    }
+
+    // Attempt 2: try base URL directly (different from current)
+    if (currentSrc !== baseUrl && r2Key) {
+        imgEl.onerror = function() { retryImage(imgEl, r2Key); };
+        imgEl.src = baseUrl;
+        return;
+    }
+
+    // Attempt 3: try with fresh cache-bust
+    if (currentSrc === baseUrl && !imgEl._freshBusted) {
+        imgEl._freshBusted = true;
+        imgEl.onerror = function() { retryImage(imgEl, r2Key); };
+        imgEl.src = baseUrl + '?v=' + Date.now();
+        return;
+    }
+
+    // Give up — show fallback
+    imgEl.onerror = null;
+    imgEl.outerHTML = '<div class="img-error">Image unavailable</div>';
 }
 
 // ── Render Gallery ───────────────────────────────────────────────
@@ -1297,7 +1349,7 @@ function renderGallery() {
         var rawBadge = g.raw ? '<span style="background:#f0883e;color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:6px;">Original</span>' : '';
         html += '<div class="gallery-card">';
         html += '<button class="gallery-remove" onclick="removeGalleryItem(' + i + ')" title="Remove from gallery">&times;</button>';
-        html += '<img src="' + url + '" alt="' + g.fileName + '" onclick="showPreview(\'' + url.replace(/'/g, "\\'") + '\',\'' + (g.product + ' — ' + g.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview" onerror="this.outerHTML=\'<div class=img-error>Image unavailable</div>\'">';
+        html += '<img src="' + url + '" alt="' + g.fileName + '" data-r2key="' + (g.r2Key || '') + '" onclick="showPreview(\'' + url.replace(/'/g, "\\'") + '\',\'' + (g.product + ' — ' + g.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview" onerror="retryImage(this, this.getAttribute(\'data-r2key\'))">';
         html += '<div class="info">';
         html += '<div class="name">' + g.product + rawBadge + '</div>';
         html += '<div class="meta">' + g.fileName + ' &bull; ' + (date || 'Uploaded — not yet processed') + '</div>';
