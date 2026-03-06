@@ -2158,7 +2158,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.34.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.36.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2183,12 +2183,10 @@
             <span id="editLockIcon" onclick="toggleEditLock()" style="font-size:18px;cursor:pointer;margin-left:8px;transition:opacity 0.2s;">🔒</span>
         </div>
 
-        <!-- Product Marketing Summary Bar -->
+        <!-- Product Marketing Summary Bar (minimal — button moved below progress bar) -->
         <div id="marketingBar" style="padding:6px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:10px;min-height:28px;flex-wrap:wrap;">
             <span id="marketingBarSummary" style="font-size:11px;color:#8b949e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-            <div id="marketingBarSwatches" style="display:flex;gap:3px;"></div>
             <img id="marketingBarThumb" src="" alt="" style="width:22px;height:22px;border-radius:3px;object-fit:cover;display:none;border:1px solid #30363d;">
-            <button onclick="openProductMarketing()" style="padding:3px 12px;background:#238636;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap;">&#9998; Product Marketing</button>
         </div>
 
         <!-- Hidden elements still needed by existing functions -->
@@ -2306,6 +2304,7 @@
                         <div class="progress-bar-text" id="progressText">35%</div>
                     </div>
                 </div>
+                <button onclick="openProductMarketing()" style="margin-top:8px;padding:6px 18px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap;width:100%;letter-spacing:0.3px;">&#9998; Product Marketing</button>
             </div>
             <div class="tracker-section" style="flex: 1;">
                 <div class="tracker-label">Product Tracker</div>
@@ -2622,6 +2621,75 @@
         }
 
         // ============================================================================
+        // R2 AUTO-UPLOAD — uploads processed images to Cloudflare R2 via Worker
+        // ============================================================================
+        const R2_UPLOAD_API = 'https://api.opsflowbetter.com/upload/';
+        const R2_PUBLIC_BASE = 'https://images.opsflowbetter.com/';
+        const R2_SECRET_KEY = 'opsflow_r2_secret';
+
+        function getR2Secret() {
+            return localStorage.getItem(R2_SECRET_KEY) || '';
+        }
+
+        function setR2Secret(secret) {
+            localStorage.setItem(R2_SECRET_KEY, secret);
+        }
+
+        function makeR2Key(productName, suffix) {
+            // e.g. "45 RPM Adaptor" + "main" → "45-rpm-adaptor/main.jpg"
+            const slug = productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            return slug + '/' + (suffix || 'main') + '.jpg';
+        }
+
+        function uploadToR2(canvas, productName, suffix, onDone) {
+            const secret = getR2Secret();
+            if (!secret) {
+                // First time — prompt for the upload secret
+                const entered = prompt('Enter your R2 upload secret (one-time setup, saved locally):');
+                if (!entered) {
+                    if (onDone) onDone(null, 'No secret provided');
+                    return;
+                }
+                setR2Secret(entered);
+                uploadToR2(canvas, productName, suffix, onDone); // retry
+                return;
+            }
+
+            const key = makeR2Key(productName, suffix);
+
+            canvas.toBlob(function(blob) {
+                if (!blob) { if (onDone) onDone(null, 'Canvas blob failed'); return; }
+
+                fetch(R2_UPLOAD_API + key, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'image/jpeg',
+                        'X-Upload-Secret': secret,
+                    },
+                    body: blob,
+                }).then(r => {
+                    if (r.status === 401) {
+                        // Bad secret — clear it and retry once
+                        localStorage.removeItem(R2_SECRET_KEY);
+                        showPipelineToast('R2 secret rejected — please re-enter', true);
+                        uploadToR2(canvas, productName, suffix, onDone);
+                        return;
+                    }
+                    return r.json().then(data => {
+                        if (data.ok) {
+                            if (onDone) onDone(data.url, null);
+                        } else {
+                            if (onDone) onDone(null, data.error || 'Upload failed');
+                        }
+                    });
+                }).catch(err => {
+                    console.warn('R2 upload failed:', err);
+                    if (onDone) onDone(null, err.message);
+                });
+            }, 'image/jpeg', 0.95);
+        }
+
+        // ============================================================================
         // PRODUCT MARKETING MODAL
         // ============================================================================
 
@@ -2873,29 +2941,75 @@
                     _modalFixerCanvas = canvas;
                     progressBar.style.width = '100%';
                     progressPct.textContent = '100%';
-                    progressLabel.textContent = 'Done!';
-                    progressLabel.style.color = '#3fb950';
+                    progressLabel.textContent = 'Uploading to R2...';
+                    progressLabel.style.color = '#58a6ff';
 
                     document.getElementById('modalFixerResult').src = dataUrl;
                     fixerPreview.style.display = 'block';
 
-                    // Build action buttons
-                    const actionsEl = document.getElementById('modalFixerActions');
-                    actionsEl.innerHTML = '';
-                    const dlBtn = document.createElement('button');
-                    dlBtn.textContent = 'Download JPEG';
-                    dlBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
-                    dlBtn.addEventListener('click', () => {
-                        canvas.toBlob(jpegBlob => {
-                            const a = document.createElement('a');
-                            a.href = URL.createObjectURL(jpegBlob);
-                            const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
-                            a.download = pname + '_amazon_ready.jpg';
-                            a.click();
-                            showPipelineToast('Image downloaded — upload to R2 bucket');
-                        }, 'image/jpeg', 0.95);
+                    // Auto-upload to R2
+                    uploadToR2(canvas, state.activeProduct, 'main', function(url, err) {
+                        const actionsEl = document.getElementById('modalFixerActions');
+                        actionsEl.innerHTML = '';
+
+                        if (url) {
+                            progressLabel.textContent = 'Uploaded to R2!';
+                            progressLabel.style.color = '#3fb950';
+
+                            // Auto-set the image URL in state
+                            if (!state.imageUrls) state.imageUrls = {};
+                            state.imageUrls[state.activeProduct] = url;
+                            saveState();
+
+                            // Update the modal's image URL fields
+                            const rootSelect = document.getElementById('modalImageRoot');
+                            const filenameInput = document.getElementById('modalImageFilename');
+                            if (rootSelect && filenameInput) {
+                                const parts = parseUrlParts(url);
+                                addImageRoot(parts.root);
+                                rootSelect.value = '__full__';
+                                filenameInput.value = url;
+                                updateModalImagePreview();
+                            }
+
+                            // Show success + download option
+                            actionsEl.innerHTML = '<span style="font-size:11px;color:#3fb950;font-weight:600;">&#10003; Uploaded &amp; URL saved</span> ';
+                            const dlBtn = document.createElement('button');
+                            dlBtn.textContent = 'Also Download';
+                            dlBtn.style.cssText = 'padding:4px 10px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;font-size:11px;cursor:pointer;';
+                            dlBtn.addEventListener('click', () => {
+                                canvas.toBlob(jpegBlob => {
+                                    const a = document.createElement('a');
+                                    a.href = URL.createObjectURL(jpegBlob);
+                                    const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
+                                    a.download = pname + '_amazon_ready.jpg';
+                                    a.click();
+                                }, 'image/jpeg', 0.95);
+                            });
+                            actionsEl.appendChild(dlBtn);
+                            renderMarketingBar();
+                            showPipelineToast('Image processed & uploaded to R2');
+                        } else {
+                            progressLabel.textContent = 'Done (upload failed — save locally)';
+                            progressLabel.style.color = '#f0883e';
+
+                            // Fallback: offer download
+                            const dlBtn = document.createElement('button');
+                            dlBtn.textContent = 'Download JPEG';
+                            dlBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
+                            dlBtn.addEventListener('click', () => {
+                                canvas.toBlob(jpegBlob => {
+                                    const a = document.createElement('a');
+                                    a.href = URL.createObjectURL(jpegBlob);
+                                    const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
+                                    a.download = pname + '_amazon_ready.jpg';
+                                    a.click();
+                                }, 'image/jpeg', 0.95);
+                            });
+                            actionsEl.appendChild(dlBtn);
+                            actionsEl.insertAdjacentHTML('beforeend', ' <span style="font-size:10px;color:#6e7681;">R2 upload failed: ' + (err||'unknown') + '</span>');
+                        }
                     });
-                    actionsEl.appendChild(dlBtn);
                 });
             }).catch(err => {
                 clearInterval(progressInterval);
@@ -2916,19 +3030,43 @@
 
                 const actionsEl = document.getElementById('modalFixerActions');
                 actionsEl.innerHTML = '<span style="font-size:10px;color:#f0883e;">No background removal — resize only. Use <a href="https://www.photoroom.com" target="_blank" style="color:#58a6ff;">PhotoRoom</a> for bg removal first.</span> ';
-                const dlBtn = document.createElement('button');
-                dlBtn.textContent = 'Download JPEG';
-                dlBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
-                dlBtn.addEventListener('click', () => {
-                    canvas.toBlob(jpegBlob => {
-                        const a = document.createElement('a');
-                        a.href = URL.createObjectURL(jpegBlob);
-                        const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
-                        a.download = pname + '_resized.jpg';
-                        a.click();
-                    }, 'image/jpeg', 0.95);
+
+                // Still auto-upload the resized version to R2
+                uploadToR2(canvas, state.activeProduct, 'main', function(url, err) {
+                    if (url) {
+                        if (!state.imageUrls) state.imageUrls = {};
+                        state.imageUrls[state.activeProduct] = url;
+                        saveState();
+                        const rootSelect = document.getElementById('modalImageRoot');
+                        const filenameInput = document.getElementById('modalImageFilename');
+                        if (rootSelect && filenameInput) {
+                            const parts = parseUrlParts(url);
+                            addImageRoot(parts.root);
+                            rootSelect.value = '__full__';
+                            filenameInput.value = url;
+                            updateModalImagePreview();
+                        }
+                        actionsEl.insertAdjacentHTML('beforeend', '<br><span style="font-size:10px;color:#3fb950;">&#10003; Uploaded to R2 &amp; URL saved</span> ');
+                        renderMarketingBar();
+                    }
+
+                    // Always offer download too
+                    const dlBtn = document.createElement('button');
+                    dlBtn.textContent = url ? 'Also Download' : 'Download JPEG';
+                    dlBtn.style.cssText = url
+                        ? 'padding:4px 10px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;font-size:11px;cursor:pointer;'
+                        : 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
+                    dlBtn.addEventListener('click', () => {
+                        canvas.toBlob(jpegBlob => {
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(jpegBlob);
+                            const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
+                            a.download = pname + '_resized.jpg';
+                            a.click();
+                        }, 'image/jpeg', 0.95);
+                    });
+                    actionsEl.appendChild(dlBtn);
                 });
-                actionsEl.appendChild(dlBtn);
             });
         }
 
@@ -3001,7 +3139,6 @@
 
         function renderMarketingBar() {
             const summary = document.getElementById('marketingBarSummary');
-            const swatches = document.getElementById('marketingBarSwatches');
             const thumb = document.getElementById('marketingBarThumb');
             if (!summary) return;
 
@@ -3013,24 +3150,14 @@
             const imgUrl = state.imageUrls[state.activeProduct] || '';
             const variants = state.colorVariants[state.activeProduct] || [];
 
-            // Summary text
+            // Summary text — tagline + image status only (no color count to avoid confusion)
             const parts = [];
-            if (tagline) parts.push('"' + (tagline.length > 40 ? tagline.substring(0, 38) + '...' : tagline) + '"');
+            if (tagline) parts.push('"' + (tagline.length > 50 ? tagline.substring(0, 48) + '...' : tagline) + '"');
             if (imgUrl) parts.push('Image set');
-            if (variants.length > 0) parts.push(variants.length + ' color' + (variants.length > 1 ? 's' : ''));
-            summary.textContent = parts.length > 0 ? parts.join(' · ') : 'No marketing data yet — click to set up';
+            if (variants.length > 0) parts.push(variants.length + ' variant' + (variants.length > 1 ? 's' : ''));
+            summary.textContent = parts.length > 0 ? parts.join(' · ') : 'No marketing data yet';
             summary.style.color = parts.length > 0 ? '#c9d1d9' : '#6e7681';
             if (tagline) summary.style.fontStyle = 'italic'; else summary.style.fontStyle = 'normal';
-
-            // Color swatches
-            swatches.innerHTML = '';
-            variants.slice(0, 5).forEach(v => {
-                const dot = document.createElement('span');
-                dot.style.cssText = 'width:10px;height:10px;border-radius:50%;border:1px solid #30363d;display:inline-block;';
-                dot.style.background = v.hex || '#666';
-                dot.title = v.name;
-                swatches.appendChild(dot);
-            });
 
             // Thumbnail
             if (imgUrl) {

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpsFlowBetter — Cloudflare Architecture</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #c9d1d9; padding: 40px 20px; }
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { color: #fff; font-size: 26px; margin-bottom: 6px; }
+.subtitle { color: #8b949e; font-size: 13px; margin-bottom: 30px; }
+
+svg { width: 100%; height: auto; display: block; }
+
+/* Legend */
+.legend { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 24px; padding: 16px; background: #161b22; border: 1px solid #21262d; border-radius: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+/* Info cards */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 24px; }
+.card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 16px; }
+.card h3 { color: #58a6ff; font-size: 14px; margin-bottom: 8px; }
+.card p { font-size: 12px; color: #8b949e; line-height: 1.5; }
+.card code { background: #1c2129; padding: 2px 6px; border-radius: 3px; font-size: 11px; color: #f0883e; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>OpsFlowBetter — Cloudflare Architecture</h1>
+    <p class="subtitle">How your infrastructure connects through Cloudflare's edge network</p>
+
+    <svg viewBox="0 0 1060 680" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#58a6ff"/>
+            </marker>
+            <marker id="arrow-green" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#3fb950"/>
+            </marker>
+            <marker id="arrow-orange" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#f0883e"/>
+            </marker>
+            <marker id="arrow-purple" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#bc8cff"/>
+            </marker>
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+        </defs>
+
+        <!-- Background regions -->
+        <!-- Cloudflare Zone -->
+        <rect x="250" y="20" width="560" height="640" rx="12" fill="#161b22" stroke="#f6821f" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.6"/>
+        <text x="530" y="50" text-anchor="middle" fill="#f6821f" font-size="14" font-weight="600">CLOUDFLARE EDGE NETWORK</text>
+        <text x="530" y="67" text-anchor="middle" fill="#8b949e" font-size="10">opsflowbetter.com zone • eva/leonidas nameservers</text>
+
+        <!-- ========== LEFT SIDE: User's Browser ========== -->
+        <rect x="20" y="200" width="180" height="90" rx="10" fill="#1c2129" stroke="#58a6ff" stroke-width="2"/>
+        <text x="110" y="232" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Your Browser</text>
+        <text x="110" y="252" text-anchor="middle" fill="#8b949e" font-size="10">P2M Pipeline</text>
+        <text x="110" y="268" text-anchor="middle" fill="#8b949e" font-size="10">Image Fixer Modal</text>
+
+        <!-- VS Code -->
+        <rect x="20" y="420" width="180" height="70" rx="10" fill="#1c2129" stroke="#bc8cff" stroke-width="2"/>
+        <text x="110" y="452" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">VS Code</text>
+        <text x="110" y="470" text-anchor="middle" fill="#8b949e" font-size="10">git push → GitHub</text>
+
+        <!-- ========== CLOUDFLARE DNS ========== -->
+        <rect x="310" y="100" width="200" height="70" rx="8" fill="#21262d" stroke="#f6821f" stroke-width="1.5"/>
+        <text x="410" y="125" text-anchor="middle" fill="#f6821f" font-size="12" font-weight="600">DNS (Proxied)</text>
+        <text x="410" y="143" text-anchor="middle" fill="#c9d1d9" font-size="10">opsflowbetter.com → GitHub Pages</text>
+        <text x="410" y="158" text-anchor="middle" fill="#c9d1d9" font-size="10">api.opsflowbetter.com → Worker</text>
+
+        <!-- ========== CLOUDFLARE WORKER ========== -->
+        <rect x="310" y="230" width="200" height="90" rx="8" fill="#21262d" stroke="#f0883e" stroke-width="2"/>
+        <text x="410" y="256" text-anchor="middle" fill="#f0883e" font-size="13" font-weight="700">Worker</text>
+        <text x="410" y="274" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">opsflowbetter-r2</text>
+        <text x="410" y="292" text-anchor="middle" fill="#8b949e" font-size="10">PUT /upload/:path</text>
+        <text x="410" y="306" text-anchor="middle" fill="#8b949e" font-size="10">GET /health</text>
+
+        <!-- ========== R2 BUCKET ========== -->
+        <rect x="310" y="390" width="200" height="90" rx="8" fill="#21262d" stroke="#3fb950" stroke-width="2"/>
+        <text x="410" y="416" text-anchor="middle" fill="#3fb950" font-size="13" font-weight="700">R2 Bucket</text>
+        <text x="410" y="434" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">opsflowbetter-images</text>
+        <text x="410" y="454" text-anchor="middle" fill="#8b949e" font-size="10">images.opsflowbetter.com</text>
+        <text x="410" y="470" text-anchor="middle" fill="#8b949e" font-size="10">Product images (JPEG)</text>
+
+        <!-- ========== R2 PUBLIC CDN ========== -->
+        <rect x="310" y="550" width="200" height="65" rx="8" fill="#21262d" stroke="#3fb950" stroke-width="1"/>
+        <text x="410" y="574" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="600">Public R2 URL</text>
+        <text x="410" y="592" text-anchor="middle" fill="#c9d1d9" font-size="9">images.opsflowbetter.com/</text>
+        <text x="410" y="605" text-anchor="middle" fill="#8b949e" font-size="9">45-rpm-adaptor/main.jpg</text>
+
+        <!-- ========== RIGHT SIDE: GitHub Pages ========== -->
+        <rect x="860" y="200" width="180" height="90" rx="10" fill="#1c2129" stroke="#bc8cff" stroke-width="2"/>
+        <text x="950" y="232" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">GitHub Pages</text>
+        <text x="950" y="252" text-anchor="middle" fill="#8b949e" font-size="10">ccaspers2026.github.io</text>
+        <text x="950" y="268" text-anchor="middle" fill="#8b949e" font-size="10">Static HTML/JS/CSS</text>
+
+        <!-- GitHub Repo -->
+        <rect x="860" y="420" width="180" height="70" rx="10" fill="#1c2129" stroke="#bc8cff" stroke-width="1.5"/>
+        <text x="950" y="450" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">GitHub Repo</text>
+        <text x="950" y="468" text-anchor="middle" fill="#8b949e" font-size="10">ccasperslocal/opsflowbetter</text>
+
+        <!-- ========== FLOW ARROWS ========== -->
+
+        <!-- Browser → DNS (page load) -->
+        <path d="M 200 230 L 270 230 Q 290 230 290 200 L 290 140 L 308 140" fill="none" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="255" y="178" fill="#58a6ff" font-size="9" transform="rotate(-90,255,178)">page load</text>
+
+        <!-- DNS → GitHub Pages -->
+        <path d="M 510 130 L 700 130 Q 720 130 720 160 L 720 230 L 858 230" fill="none" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+        <text x="720" y="190" fill="#bc8cff" font-size="9">proxied</text>
+
+        <!-- Browser → Worker (image upload) -->
+        <path d="M 200 260 L 308 260" fill="none" stroke="#f0883e" stroke-width="2" marker-end="url(#arrow-orange)"/>
+        <text x="254" y="254" text-anchor="middle" fill="#f0883e" font-size="9" font-weight="600">PUT image</text>
+
+        <!-- Worker → R2 (store) -->
+        <path d="M 410 320 L 410 388" fill="none" stroke="#3fb950" stroke-width="2" marker-end="url(#arrow-green)"/>
+        <text x="425" y="358" fill="#3fb950" font-size="9" font-weight="600">env.IMAGES.put()</text>
+
+        <!-- R2 → Public CDN -->
+        <path d="M 410 480 L 410 548" fill="none" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+        <text x="425" y="518" fill="#3fb950" font-size="9">public access</text>
+
+        <!-- Public CDN back to Browser (serve images) -->
+        <path d="M 308 575 L 160 575 Q 110 575 110 530 L 110 292" fill="none" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arrow-green)" stroke-dasharray="5 3"/>
+        <text x="160" y="530" fill="#3fb950" font-size="9">serve images</text>
+
+        <!-- Worker → Browser (URL response) -->
+        <path d="M 308 290 L 240 290 Q 220 290 220 280 L 220 272 L 202 272" fill="none" stroke="#f0883e" stroke-width="1.5" marker-end="url(#arrow-orange)" stroke-dasharray="5 3"/>
+        <text x="254" y="300" text-anchor="middle" fill="#f0883e" font-size="8">returns URL</text>
+
+        <!-- VS Code → GitHub -->
+        <path d="M 200 455 L 858 455" fill="none" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+        <text x="530" y="448" text-anchor="middle" fill="#bc8cff" font-size="9" font-weight="600">git push</text>
+
+        <!-- GitHub → GitHub Pages -->
+        <path d="M 950 418 L 950 292" fill="none" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+        <text x="965" y="360" fill="#bc8cff" font-size="9">deploy</text>
+
+        <!-- Auth label on Worker -->
+        <rect x="555" y="255" width="120" height="30" rx="4" fill="#f0883e" opacity="0.15" stroke="#f0883e" stroke-width="1"/>
+        <text x="615" y="274" text-anchor="middle" fill="#f0883e" font-size="9" font-weight="600">X-Upload-Secret</text>
+        <path d="M 512 275 L 553 275" fill="none" stroke="#f0883e" stroke-width="1" stroke-dasharray="3 2"/>
+
+        <!-- R2 binding label -->
+        <rect x="555" y="415" width="120" height="30" rx="4" fill="#3fb950" opacity="0.15" stroke="#3fb950" stroke-width="1"/>
+        <text x="615" y="434" text-anchor="middle" fill="#3fb950" font-size="9" font-weight="600">binding: IMAGES</text>
+        <path d="M 512 435 L 553 435" fill="none" stroke="#3fb950" stroke-width="1" stroke-dasharray="3 2"/>
+
+    </svg>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#58a6ff;"></div> Browser requests</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f0883e;"></div> Image upload flow (Worker API)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3fb950;"></div> R2 storage &amp; image serving</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#bc8cff;"></div> Code deploy flow (GitHub)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f6821f;"></div> Cloudflare zone boundary</div>
+    </div>
+
+    <!-- Info cards -->
+    <div class="cards">
+        <div class="card">
+            <h3>Image Upload Flow (orange)</h3>
+            <p>
+                1. You drop an image in the Image Fixer modal<br>
+                2. Browser processes it (bg removal + white composite)<br>
+                3. Pipeline sends <code>PUT /upload/45-rpm-adaptor/main.jpg</code> to Worker<br>
+                4. Worker authenticates via <code>X-Upload-Secret</code> header<br>
+                5. Worker stores JPEG in R2 bucket — overwrites if exists<br>
+                6. Worker returns public URL → Pipeline auto-saves it
+            </p>
+        </div>
+        <div class="card">
+            <h3>Image Serving Flow (green)</h3>
+            <p>
+                1. Pipeline or Portfolio page loads <code>&lt;img&gt;</code> tag<br>
+                2. Browser requests <code>images.opsflowbetter.com/45-rpm-adaptor/main.jpg</code><br>
+                3. Cloudflare R2 serves the image via its custom domain<br>
+                4. Cached at Cloudflare's edge — fast worldwide delivery
+            </p>
+        </div>
+        <div class="card">
+            <h3>Code Deploy Flow (purple)</h3>
+            <p>
+                1. You commit in VS Code and <code>git push</code><br>
+                2. GitHub receives code → auto-deploys to GitHub Pages<br>
+                3. Cloudflare DNS proxies <code>opsflowbetter.com</code> → GitHub Pages<br>
+                4. Users see the updated site with SSL via Cloudflare
+            </p>
+        </div>
+        <div class="card">
+            <h3>DNS Records</h3>
+            <p>
+                <code>A</code> opsflowbetter.com → 185.199.x.x (GitHub Pages, proxied)<br>
+                <code>CNAME</code> www → ccaspers2026.github.io (proxied)<br>
+                <code>R2</code> images → opsflowbetter-images (proxied)<br>
+                <code>AAAA</code> api → 100:: (dummy, proxied → Worker)<br>
+                <code>MX</code> → mx.hover.com (email, DNS only)
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

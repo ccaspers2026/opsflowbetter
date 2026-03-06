@@ -281,6 +281,41 @@
 
         <div class="timeline">
 
+            <!-- v0.36.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.36.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">R2 Auto-Upload &mdash; Image Fixer to Cloud Pipeline</div>
+                <ul class="change-list">
+                    <li>Cloudflare Worker script for R2 image uploads with shared-secret auth and CORS support</li>
+                    <li>Image Fixer now auto-uploads processed Amazon-ready JPEGs to R2 after processing &mdash; no manual upload step</li>
+                    <li>Uploading again overwrites the existing image (R2 PUT semantics) &mdash; always latest version</li>
+                    <li>Image URL auto-populated in state and modal fields after successful upload</li>
+                    <li>R2 root auto-learned so future manual URL entries offer images.opsflowbetter.com in the dropdown</li>
+                    <li>Graceful fallback: if R2 upload fails, download button appears with error details</li>
+                    <li>Upload secret stored in localStorage (one-time prompt on first use)</li>
+                </ul>
+            </div>
+
+            <!-- v0.35.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.35.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-enhancement">ENHANCEMENT</span>
+                </div>
+                <div class="version-title">Marketing Bar Cleanup &amp; Button Relocation</div>
+                <ul class="change-list">
+                    <li>Removed confusing color swatch dots and &ldquo;3 colors&rdquo; count from the marketing summary bar &mdash; variants label now reads &ldquo;3 variants&rdquo; in text only</li>
+                    <li>Moved &ldquo;Product Marketing&rdquo; button from the summary bar to below the Overall Progress bar where it&rsquo;s more prominent and uses existing empty space</li>
+                    <li>Button now spans full width of the progress section for easy visibility</li>
+                    <li>Marketing summary bar is now a slim, uncluttered status line with tagline excerpt and image thumbnail only</li>
+                </ul>
+            </div>
+
             <!-- v0.34.0 -->
             <div class="version-entry">
                 <div class="version-header">
