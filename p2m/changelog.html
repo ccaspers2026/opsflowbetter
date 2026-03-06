@@ -281,6 +281,23 @@
 
         <div class="timeline">
 
+            <!-- v0.39.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.39.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Self-Hosted AI Background Removal</div>
+                <ul class="changes-list">
+                    <li>Self-host @imgly/background-removal library on R2 — eliminates CDN import failures</li>
+                    <li>All WASM + ONNX model files served from images.opsflowbetter.com/libs/bgremoval/</li>
+                    <li>Added publicPath config so AI models load from our own CDN, not third-party</li>
+                    <li>Setup script (worker/setup-bgremoval.js) downloads and uploads library to R2</li>
+                    <li>Retry button now imports from self-hosted URL instead of unpkg</li>
+                </ul>
+            </div>
+
             <!-- v0.38.0 -->
             <div class="version-entry">
                 <div class="version-header">

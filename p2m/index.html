@@ -10,10 +10,18 @@
     <!-- Cross-origin isolation service worker — enables SharedArrayBuffer for AI background removal -->
     <script src="coi-serviceworker.js"></script>
     <script type="module">
-        // Import background-removal library (loads AI model ~30MB on first use, then cached)
-        import imglyRemoveBackground from 'https://unpkg.com/@imgly/background-removal@1.5.5/dist/index.js';
-        window.imglyRemoveBackground = imglyRemoveBackground;
-        window._imglyLoaded = true;
+        // Self-hosted @imgly/background-removal on R2 — no CDN dependency
+        const BGREMOVAL_BASE = 'https://images.opsflowbetter.com/libs/bgremoval/';
+        try {
+            const mod = await import(BGREMOVAL_BASE + 'index.js');
+            window.imglyRemoveBackground = mod.default;
+            window._imglyPublicPath = BGREMOVAL_BASE;
+            window._imglyLoaded = true;
+            console.log('[AI] Background removal library loaded from R2');
+        } catch (err) {
+            console.warn('[AI] Background removal library failed to load:', err.message);
+            window._imglyLoaded = false;
+        }
     </script>
     <style>
         * {
@@ -2160,7 +2168,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.38.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.39.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -3001,8 +3009,9 @@
                                     progressBar.style.background = 'linear-gradient(90deg,#238636,#2ea043)';
                                     progressBar.style.width = '10%';
                                     progressPct.textContent = '10%';
-                                    // Re-import the module
-                                    import('https://unpkg.com/@imgly/background-removal@1.5.5/dist/index.js').then(mod => {
+                                    // Re-import the module from self-hosted R2
+                                    var bgBase = 'https://images.opsflowbetter.com/libs/bgremoval/';
+                                    import(bgBase + 'index.js').then(mod => {
                                         window.imglyRemoveBackground = mod.default;
                                         window._imglyLoaded = true;
                                         doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
@@ -3025,7 +3034,8 @@
 
         function doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview) {
             window.imglyRemoveBackground(origUrl, {
-                output: { format: 'image/png' }
+                output: { format: 'image/png' },
+                publicPath: window._imglyPublicPath || 'https://images.opsflowbetter.com/libs/bgremoval/'
             }).then(blob => {
                 clearInterval(progressInterval);
                 progressBar.style.width = '95%';
@@ -3331,7 +3341,8 @@
             status.innerHTML = '<span style="color:#58a6ff;">&#9881; Removing background... This may take 10-30 seconds depending on image size and your device.</span>';
 
             window.imglyRemoveBackground(origUrl, {
-                output: { format: 'image/png' }
+                output: { format: 'image/png' },
+                publicPath: window._imglyPublicPath || 'https://images.opsflowbetter.com/libs/bgremoval/'
             }).then(blob => {
                 // Background removed — now composite on white 2000x2000
                 const noBgUrl = URL.createObjectURL(blob);
