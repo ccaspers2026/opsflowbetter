@@ -997,12 +997,20 @@
                 var card = document.createElement('div');
                 card.className = 'portfolio-card';
 
-                // Image placeholder
-                var imgHtml = '<div class="portfolio-img">' +
-                    '<div class="portfolio-img-placeholder">' +
-                    '<span class="camera-icon">&#128247;</span>' +
-                    '<span>Photo coming soon</span>' +
-                    '</div></div>';
+                // Product image or placeholder
+                var productImgUrl = (state.imageUrls && state.imageUrls[name]) ? state.imageUrls[name] : '';
+                var imgHtml;
+                if (productImgUrl) {
+                    imgHtml = '<div class="portfolio-img">' +
+                        '<img src="' + productImgUrl + '" alt="' + name + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px 8px 0 0;" onerror="this.parentElement.innerHTML=\'<div class=portfolio-img-placeholder><span class=camera-icon>&#128247;</span><span>Photo coming soon</span></div>\'">' +
+                        '</div>';
+                } else {
+                    imgHtml = '<div class="portfolio-img">' +
+                        '<div class="portfolio-img-placeholder">' +
+                        '<span class="camera-icon">&#128247;</span>' +
+                        '<span>Photo coming soon</span>' +
+                        '</div></div>';
+                }
 
                 // Phase dots
                 var dotsHtml = '<div class="portfolio-phase-dots">';
