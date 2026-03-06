@@ -281,6 +281,21 @@
 
         <div class="timeline">
 
+            <!-- v0.39.1 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.39.1</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">Fix Self-Hosted Import Path</div>
+                <ul class="changes-list">
+                    <li>Changed import from index.js → index.mjs to match actual R2-hosted filename</li>
+                    <li>Removed publicPath override — ONNX models load from IMG.LY default CDN at runtime</li>
+                    <li>Handle both mod.default and mod.removeBackground exports for compatibility</li>
+                </ul>
+            </div>
+
             <!-- v0.39.0 -->
             <div class="version-entry">
                 <div class="version-header">

@@ -10,12 +10,11 @@
     <!-- Cross-origin isolation service worker — enables SharedArrayBuffer for AI background removal -->
     <script src="coi-serviceworker.js"></script>
     <script type="module">
-        // Self-hosted @imgly/background-removal on R2 — no CDN dependency
+        // Self-hosted @imgly/background-removal JS on R2 — ONNX models fetched from IMG.LY CDN at runtime
         const BGREMOVAL_BASE = 'https://images.opsflowbetter.com/libs/bgremoval/';
         try {
-            const mod = await import(BGREMOVAL_BASE + 'index.js');
-            window.imglyRemoveBackground = mod.default;
-            window._imglyPublicPath = BGREMOVAL_BASE;
+            const mod = await import(BGREMOVAL_BASE + 'index.mjs');
+            window.imglyRemoveBackground = mod.default || mod.removeBackground;
             window._imglyLoaded = true;
             console.log('[AI] Background removal library loaded from R2');
         } catch (err) {
@@ -2168,7 +2167,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.39.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.39.1</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -3011,8 +3010,8 @@
                                     progressPct.textContent = '10%';
                                     // Re-import the module from self-hosted R2
                                     var bgBase = 'https://images.opsflowbetter.com/libs/bgremoval/';
-                                    import(bgBase + 'index.js').then(mod => {
-                                        window.imglyRemoveBackground = mod.default;
+                                    import(bgBase + 'index.mjs').then(mod => {
+                                        window.imglyRemoveBackground = mod.default || mod.removeBackground;
                                         window._imglyLoaded = true;
                                         doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
                                     }).catch(err => {
@@ -3034,8 +3033,7 @@
 
         function doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview) {
             window.imglyRemoveBackground(origUrl, {
-                output: { format: 'image/png' },
-                publicPath: window._imglyPublicPath || 'https://images.opsflowbetter.com/libs/bgremoval/'
+                output: { format: 'image/png' }
             }).then(blob => {
                 clearInterval(progressInterval);
                 progressBar.style.width = '95%';
@@ -3341,8 +3339,7 @@
             status.innerHTML = '<span style="color:#58a6ff;">&#9881; Removing background... This may take 10-30 seconds depending on image size and your device.</span>';
 
             window.imglyRemoveBackground(origUrl, {
-                output: { format: 'image/png' },
-                publicPath: window._imglyPublicPath || 'https://images.opsflowbetter.com/libs/bgremoval/'
+                output: { format: 'image/png' }
             }).then(blob => {
                 // Background removed — now composite on white 2000x2000
                 const noBgUrl = URL.createObjectURL(blob);
