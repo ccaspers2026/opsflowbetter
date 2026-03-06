@@ -321,6 +321,70 @@
         }
         .btn-process-all:hover { background: #2ea043; }
         .btn-process-all:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── Image Preview Popup ───────────────────────────────── */
+        .img-preview-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .img-preview-overlay.show { display: flex; }
+        .img-preview-overlay img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 8px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            object-fit: contain;
+            background: #fff;
+        }
+        .img-preview-overlay .preview-info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .img-preview-overlay .preview-label {
+            color: #8b949e;
+            font-size: 12px;
+            background: rgba(22,27,34,0.9);
+            padding: 6px 14px;
+            border-radius: 6px;
+        }
+        .img-preview-overlay .preview-open {
+            color: #58a6ff;
+            font-size: 12px;
+            background: rgba(22,27,34,0.9);
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .img-preview-overlay .preview-open:hover { color: #79c0ff; }
+        .img-preview-overlay .preview-close {
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            color: #8b949e;
+            font-size: 28px;
+            cursor: pointer;
+            background: rgba(22,27,34,0.8);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        .img-preview-overlay .preview-close:hover { color: #fff; }
     </style>
 </head>
 <body>
@@ -329,12 +393,15 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.42.0</span>
+        <span class="topbar-version">Media Center v0.43.0</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
-        <a href="media-center.html" class="active">Media Center</a>
+        <a href="media-center.html" class="active" style="color:#f0883e;">Media Center</a>
+        <a href="workshop.html">Workshop</a>
         <a href="changelog.html">Changelog</a>
+        <a href="/#portfolio" style="color:#3fb950;">Our Products</a>
+        <a href="/" style="color:#d29922;">OpsFlowBetter</a>
     </div>
     <div class="credits-badge">
         remove.bg: <span class="count" id="creditsCount">—</span> credits
@@ -365,7 +432,7 @@
             <div class="icon">&#128228;</div>
             <p>Drag & drop images here, paste (Ctrl+V), or click to browse</p>
             <p style="font-size:11px;color:#484f58;margin-top:6px;">Images upload to R2 immediately &bull; Background removal queued automatically</p>
-            <input type="file" id="fileInput" accept="image/*" multiple>
+            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff" multiple>
         </div>
 
         <!-- Queue Header -->
@@ -420,6 +487,16 @@
 
 </div>
 
+<!-- Image Preview Popup -->
+<div class="img-preview-overlay" id="imgPreview" onclick="closePreview(event)">
+    <div class="preview-close" onclick="closePreview(event)">&times;</div>
+    <img id="previewImg" src="" alt="Preview">
+    <div class="preview-info">
+        <span class="preview-label" id="previewLabel"></span>
+        <a class="preview-open" id="previewOpenLink" href="#" target="_blank" onclick="event.stopPropagation()">Open in new tab &#8599;</a>
+    </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -432,6 +509,30 @@ const R2_PUBLIC_BASE = 'https://images.opsflowbetter.com/';
 const R2_SECRET_KEY = 'opsflow_r2_secret';
 const QUEUE_STORAGE_KEY = 'opsflow_media_queue';
 const GALLERY_STORAGE_KEY = 'opsflow_media_gallery';
+
+// ── Image Preview Popup ──────────────────────────────────────────
+function showPreview(url, label) {
+    var overlay = document.getElementById('imgPreview');
+    var img = document.getElementById('previewImg');
+    var lbl = document.getElementById('previewLabel');
+    var link = document.getElementById('previewOpenLink');
+    img.src = url;
+    lbl.textContent = label || '';
+    link.href = url;
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePreview(e) {
+    if (e && e.target && (e.target.id === 'previewImg')) return; // don't close when clicking the image itself
+    document.getElementById('imgPreview').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePreview();
+});
 
 // ── State ────────────────────────────────────────────────────────
 var queue = [];        // Array of { id, product, fileName, r2Key, status, error, addedAt, processedAt }
@@ -634,6 +735,16 @@ function setupPaste() {
     });
 }
 
+// ── Allowed File Types ────────────────────────────────────────────
+var ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/tiff'];
+
+function isAllowedFile(file) {
+    if (ALLOWED_TYPES.indexOf(file.type) !== -1) return true;
+    // Fallback: check extension
+    var ext = (file.name || '').split('.').pop().toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'tif'].indexOf(ext) !== -1;
+}
+
 // ── Handle Files — Upload to R2 + Queue ──────────────────────────
 function handleFiles(fileList) {
     var secret = getR2Secret();
@@ -641,8 +752,14 @@ function handleFiles(fileList) {
     if (!secret) { showToast('R2 secret required', 'error'); return; }
 
     var product = getActiveProduct();
+    var rejected = 0;
 
     for (var i = 0; i < fileList.length; i++) {
+        if (!isAllowedFile(fileList[i])) {
+            rejected++;
+            showToast('Skipped "' + fileList[i].name + '" — only images allowed (JPG, PNG, GIF, WebP)', 'error');
+            continue;
+        }
         (function(file) {
             var suffix = file.name.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase() || 'image';
             var r2Key = makeSlug(product) + '/' + suffix + '.jpg';
@@ -674,7 +791,11 @@ function handleFiles(fileList) {
                         if (data.ok) {
                             job.status = 'pending';
                             job.url = data.url;
-                            showToast('Uploaded ' + file.name + ' — queued for cleanup', 'success');
+                            showToast('Uploaded ' + file.name + ' — auto-processing...', 'success');
+                            saveQueue();
+                            renderQueue();
+                            // Auto-process immediately after upload
+                            setTimeout(function() { processJob(job.id); }, 300);
                         } else {
                             job.status = 'failed';
                             job.error = data.error || 'Upload failed';
@@ -1034,20 +1155,22 @@ function renderQueue() {
 
         var actionsHtml = '';
         if (j.status === 'pending') {
-            actionsHtml = '<button class="btn-process" onclick="processJob(\'' + j.id + '\')">&#9654; Process</button> ';
-            actionsHtml += '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')">&#10005;</button>';
+            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in R2)">&#10005;</button> ';
+            actionsHtml += '<button class="btn-process" onclick="processJob(\'' + j.id + '\')">&#9654; Process</button>';
         } else if (j.status === 'failed') {
-            actionsHtml = '<button class="btn-process" onclick="processJob(\'' + j.id + '\')">&#8635; Retry</button> ';
-            actionsHtml += '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')">&#10005;</button>';
+            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in R2)">&#10005;</button> ';
+            actionsHtml += '<button class="btn-process" onclick="processJob(\'' + j.id + '\')">&#8635; Retry</button>';
         } else if (j.status === 'done') {
-            actionsHtml = '<a href="' + thumbUrl + '" target="_blank" style="color:#58a6ff;font-size:11px;text-decoration:none;">View &#8599;</a> ';
-            actionsHtml += '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')">&#10005;</button>';
+            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in R2)">&#10005;</button> ';
+            actionsHtml += '<a href="#" onclick="event.preventDefault();showPreview(\'' + thumbUrl.replace(/'/g, "\\'") + '\',\'' + (j.product + ' — ' + j.fileName).replace(/'/g, "\\'") + '\')" style="color:#58a6ff;font-size:11px;text-decoration:none;cursor:pointer;">View &#128065;</a>';
+        } else if (j.status === 'uploading') {
+            actionsHtml = '<span style="color:#f0883e;font-size:11px;">Uploading&hellip;</span>';
         } else {
             actionsHtml = '<span style="color:#8b949e;font-size:11px;">...</span>';
         }
 
         html += '<tr>';
-        html += '<td><img class="queue-thumb" src="' + thumbUrl + '" onerror="this.style.display=\'none\'"></td>';
+        html += '<td><img class="queue-thumb" src="' + thumbUrl + '" onerror="this.style.display=\'none\'" onclick="showPreview(\'' + thumbUrl.replace(/'/g, "\\'") + '\',\'' + (j.product + ' — ' + j.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview"></td>';
         html += '<td style="color:#e0e0e0;font-weight:500;">' + (j.product || '—') + '</td>';
         html += '<td style="color:#8b949e;">' + (j.fileName || j.r2Key) + '</td>';
         html += '<td>' + statusHtml + statusText + '</td>';
@@ -1082,7 +1205,7 @@ function renderGallery() {
         var url = g.url || (R2_PUBLIC_BASE + g.r2Key);
         var date = g.processedAt ? new Date(g.processedAt).toLocaleDateString() : '';
         html += '<div class="gallery-card">';
-        html += '<a href="' + url + '" target="_blank"><img src="' + url + '" alt="' + g.fileName + '"></a>';
+        html += '<img src="' + url + '" alt="' + g.fileName + '" onclick="showPreview(\'' + url.replace(/'/g, "\\'") + '\',\'' + (g.product + ' — ' + g.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview">';
         html += '<div class="info">';
         html += '<div class="name">' + g.product + '</div>';
         html += '<div class="meta">' + g.fileName + ' &bull; ' + date + '</div>';

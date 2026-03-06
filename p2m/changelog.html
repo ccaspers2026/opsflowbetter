@@ -245,20 +245,26 @@
         <div class="header">
             <h1>P2M Pipeline - Version History</h1>
             <p>Caspers Creations - Product to Market - Idea to Revenue</p>
-            <a class="back-link" href="index.html">&larr; Back to P2M Pipeline</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a class="back-link" href="/" style="color: #d29922;">⬡ OpsFlowBetter Suite</a>
+            <a class="back-link" href="index.html">&larr; Pipeline</a>
+            &nbsp;|&nbsp;
+            <a class="back-link" href="media-center.html" style="color: #f0883e;">Media Center</a>
+            &nbsp;|&nbsp;
+            <a class="back-link" href="workshop.html">Workshop</a>
+            &nbsp;|&nbsp;
+            <a class="back-link" href="/#portfolio" style="color: #3fb950;">Our Products</a>
+            &nbsp;|&nbsp;
+            <a class="back-link" href="/" style="color: #d29922;">OpsFlowBetter</a>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.34.0 - Product Marketing Modal</h2>
-            <p>Released March 5, 2026 &mdash; Consolidated tagline, image URL, Image Fixer, and color variants into a single polished &ldquo;Product Marketing&rdquo; modal. Drag-and-drop image upload with progress bar. Native color picker for variant swatches. One-click access from a clean summary bar in the product header.</p>
+            <h2>Version 0.43.0 - Auto-Process, File Validation &amp; UX Polish</h2>
+            <p>Released March 6, 2026 &mdash; Images auto-process after upload (no manual click). File validation rejects non-image uploads. Image preview popups replace new-tab behavior. Shared product list across pages. Server-side background removal + auto-crop &amp; center.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">51</div>
+                <div class="stat-value">53</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -280,6 +286,42 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.43.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.43.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Auto-Process, File Validation &amp; UX Polish</div>
+                <ul class="changes-list">
+                    <li>Images now auto-process immediately after upload &mdash; no manual &ldquo;Process&rdquo; button click needed</li>
+                    <li>File type validation rejects non-image files (MP4, PDF, etc.) with a clear toast message</li>
+                    <li>File browser dialog now only shows image file types</li>
+                    <li>Queue &ldquo;&times;&rdquo; button now shows tooltip: &ldquo;Remove from queue (image stays in R2)&rdquo;</li>
+                    <li>Action buttons reordered: delete left, primary action right</li>
+                    <li>Navigation standardized across Pipeline, Media Center, and Changelog pages</li>
+                    <li>Changelog CURRENT badge updated to reflect latest version</li>
+                </ul>
+            </div>
+
+            <!-- v0.42.1 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.42.1</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Image Preview Popup (No More New Tabs)</div>
+                <ul class="changes-list">
+                    <li>Clicking any image now opens a sleek overlay popup instead of a new browser tab</li>
+                    <li>Media Center: queue thumbnails, View links, and gallery cards all use the popup</li>
+                    <li>Pipeline: marketing bar thumb, modal image preview, and Image Fixer original/result all use the popup</li>
+                    <li>Popup shows product label, close button (&times; or Escape), and &ldquo;Open in new tab&rdquo; link if needed</li>
+                    <li>Click outside the image or press Escape to dismiss</li>
+                </ul>
+            </div>
 
             <!-- v0.42.0 -->
             <div class="version-entry">

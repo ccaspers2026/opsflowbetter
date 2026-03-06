@@ -2145,15 +2145,89 @@
                 padding: 6px 8px;
             }
         }
+
+        /* ── Image Preview Popup ───────────────────────────────── */
+        .img-preview-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 20000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .img-preview-overlay.show { display: flex; }
+        .img-preview-overlay img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 8px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            object-fit: contain;
+            background: #fff;
+        }
+        .img-preview-overlay .preview-info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .img-preview-overlay .preview-label {
+            color: #8b949e;
+            font-size: 12px;
+            background: rgba(22,27,34,0.9);
+            padding: 6px 14px;
+            border-radius: 6px;
+        }
+        .img-preview-overlay .preview-open {
+            color: #58a6ff;
+            font-size: 12px;
+            background: rgba(22,27,34,0.9);
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .img-preview-overlay .preview-open:hover { color: #79c0ff; }
+        .img-preview-overlay .preview-close {
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            color: #8b949e;
+            font-size: 28px;
+            cursor: pointer;
+            background: rgba(22,27,34,0.8);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        .img-preview-overlay .preview-close:hover { color: #fff; }
     </style>
 </head>
 <body>
+    <!-- Image Preview Popup -->
+    <div class="img-preview-overlay" id="imgPreview" onclick="closePipelinePreview(event)">
+        <div class="preview-close" onclick="closePipelinePreview(event)">&times;</div>
+        <img id="pipelinePreviewImg" src="" alt="Preview">
+        <div class="preview-info">
+            <span class="preview-label" id="pipelinePreviewLabel"></span>
+            <a class="preview-open" id="pipelinePreviewLink" href="#" target="_blank" onclick="event.stopPropagation()">Open in new tab &#8599;</a>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Header -->
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.42.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.43.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="media-center.html" style="color: #f0883e; text-decoration: none; font-size: 11px;">Media Center</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2181,7 +2255,7 @@
         <!-- Product Marketing Summary Bar (minimal — button moved below progress bar) -->
         <div id="marketingBar" style="padding:6px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:10px;min-height:28px;flex-wrap:wrap;">
             <span id="marketingBarSummary" style="font-size:11px;color:#8b949e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-            <img id="marketingBarThumb" src="" alt="" style="width:22px;height:22px;border-radius:3px;object-fit:cover;display:none;border:1px solid #30363d;">
+            <img id="marketingBarThumb" src="" alt="" style="width:22px;height:22px;border-radius:3px;object-fit:cover;display:none;border:1px solid #30363d;cursor:pointer;" onclick="if(this.src) showPipelinePreview(this.src, 'Product Image')" title="Click to preview">
         </div>
 
         <!-- Hidden elements still needed by existing functions -->
@@ -2222,7 +2296,7 @@
                             <input id="modalImageFilename" type="text" maxlength="300" placeholder="image-filename.jpg" style="flex:1;background:#161b22;border:1px solid #30363d;color:#58a6ff;font-size:13px;padding:10px 12px;border-radius:6px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#58a6ff'" onblur="this.style.borderColor='#30363d'">
                         </div>
                         <div id="modalImagePreviewContainer" style="margin-top:8px;display:none;">
-                            <img id="modalImagePreviewImg" src="" alt="" style="max-width:200px;max-height:140px;border-radius:6px;border:1px solid #30363d;">
+                            <img id="modalImagePreviewImg" src="" alt="" style="max-width:200px;max-height:140px;border-radius:6px;border:1px solid #30363d;cursor:pointer;" onclick="if(this.src) showPipelinePreview(this.src, 'Product Image')" title="Click to preview">
                         </div>
                     </div>
 
@@ -2250,12 +2324,12 @@
                             <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
                                 <div style="text-align:center;">
                                     <div style="font-size:10px;color:#8b949e;margin-bottom:4px;">ORIGINAL</div>
-                                    <img id="modalFixerOriginal" src="" alt="" style="max-width:160px;max-height:160px;border:1px solid #21262d;border-radius:6px;">
+                                    <img id="modalFixerOriginal" src="" alt="" style="max-width:160px;max-height:160px;border:1px solid #21262d;border-radius:6px;cursor:pointer;" onclick="if(this.src) showPipelinePreview(this.src, 'Original')" title="Click to preview">
                                 </div>
                                 <div style="display:flex;align-items:center;font-size:24px;color:#3fb950;padding-top:40px;">&#10140;</div>
                                 <div style="text-align:center;">
                                     <div style="font-size:10px;color:#3fb950;margin-bottom:4px;">AMAZON-READY</div>
-                                    <img id="modalFixerResult" src="" alt="" style="max-width:160px;max-height:160px;border:2px solid #3fb950;border-radius:6px;">
+                                    <img id="modalFixerResult" src="" alt="" style="max-width:160px;max-height:160px;border:2px solid #3fb950;border-radius:6px;cursor:pointer;" onclick="if(this.src) showPipelinePreview(this.src, 'Amazon-Ready')" title="Click to preview">
                                 </div>
                             </div>
                             <div id="modalFixerActions" style="margin-top:10px;display:flex;gap:8px;"></div>
@@ -2462,6 +2536,28 @@
         // LOCAL STORAGE PERSISTENCE
         // ============================================================================
         const STORAGE_KEY = 'p2m_pipeline_state';
+
+        // ── Image Preview Popup ──────────────────────────────────────────
+        function showPipelinePreview(url, label) {
+            var overlay = document.getElementById('imgPreview');
+            var img = document.getElementById('pipelinePreviewImg');
+            var lbl = document.getElementById('pipelinePreviewLabel');
+            var link = document.getElementById('pipelinePreviewLink');
+            img.src = url;
+            lbl.textContent = label || '';
+            link.href = url;
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        function closePipelinePreview(e) {
+            if (e && e.target && e.target.id === 'pipelinePreviewImg') return;
+            document.getElementById('imgPreview').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closePipelinePreview();
+        });
+
         const EDIT_LOCK_KEY = 'opsflow_edit_unlocked';
         const EDIT_PASSWORD = 'BlowMeAway!';
 
