@@ -329,7 +329,7 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.40.1</span>
+        <span class="topbar-version">Media Center v0.40.2</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
@@ -533,6 +533,21 @@ function checkProductSelected() {
     return true;
 }
 
+// Update the Pipeline's stored image URL so portfolio shows the fresh processed image
+function updatePipelineImageUrl(productName, newUrl) {
+    try {
+        var pState = JSON.parse(localStorage.getItem('p2m_pipeline_state'));
+        if (pState) {
+            if (!pState.imageUrls) pState.imageUrls = {};
+            pState.imageUrls[productName] = newUrl;
+            localStorage.setItem('p2m_pipeline_state', JSON.stringify(pState));
+            console.log('[Media] Updated pipeline image URL for', productName, '→', newUrl);
+        }
+    } catch (e) {
+        console.warn('[Media] Failed to update pipeline state:', e);
+    }
+}
+
 function makeSlug(name) {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
@@ -697,12 +712,19 @@ function processJob(jobId) {
             job.cleanSizeKB = data.cleanSizeKB;
             showToast('Background removed: ' + job.fileName, 'success');
 
+            // Cache-bust: append ?v=timestamp to the URL
+            var cacheBustUrl = data.url + '?v=' + Date.now();
+            job.url = cacheBustUrl;
+
+            // Update the Pipeline state so portfolio shows the fresh image
+            updatePipelineImageUrl(job.product, cacheBustUrl);
+
             // Add to gallery
             gallery.unshift({
                 r2Key: job.r2Key,
                 product: job.product,
                 fileName: job.fileName,
-                url: data.url,
+                url: cacheBustUrl,
                 processedAt: job.processedAt,
             });
             saveGallery();
@@ -754,7 +776,10 @@ function processAllPending() {
                 job.processedAt = new Date().toISOString();
                 job.rawSizeKB = data.rawSizeKB;
                 job.cleanSizeKB = data.cleanSizeKB;
-                gallery.unshift({ r2Key: job.r2Key, product: job.product, fileName: job.fileName, url: data.url, processedAt: job.processedAt });
+                var cbUrl = data.url + '?v=' + Date.now();
+                job.url = cbUrl;
+                updatePipelineImageUrl(job.product, cbUrl);
+                gallery.unshift({ r2Key: job.r2Key, product: job.product, fileName: job.fileName, url: cbUrl, processedAt: job.processedAt });
                 saveGallery();
                 renderGallery();
             } else {

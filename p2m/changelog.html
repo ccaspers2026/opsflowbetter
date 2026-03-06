@@ -281,6 +281,22 @@
 
         <div class="timeline">
 
+            <!-- v0.40.2 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.40.2</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">Image Cache-Busting After Processing</div>
+                <ul class="changes-list">
+                    <li>R2 uploads now set Cache-Control: max-age=60 so Cloudflare edge doesn't cache stale images forever</li>
+                    <li>After Media Center processes an image, URL gets ?v=timestamp to force browser refresh</li>
+                    <li>Media Center updates Pipeline state with fresh URL so portfolio shows the processed version</li>
+                    <li>Both single Process and Process All batch jobs now apply cache-busting</li>
+                </ul>
+            </div>
+
             <!-- v0.40.1 -->
             <div class="version-entry">
                 <div class="version-header">

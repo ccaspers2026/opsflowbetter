@@ -41,7 +41,10 @@ export default {
       const contentType = request.headers.get('Content-Type') || 'image/jpeg';
 
       await env.IMAGES.put(key, imageData, {
-        httpMetadata: { contentType },
+        httpMetadata: {
+          contentType,
+          cacheControl: 'public, max-age=60, s-maxage=60',
+        },
       });
 
       const publicUrl = `https://images.opsflowbetter.com/${key}`;
@@ -135,7 +138,10 @@ export default {
 
         // Step 3: Upload clean version back to R2 (overwrite same key)
         await env.IMAGES.put(r2Key, cleanImageData, {
-          httpMetadata: { contentType: 'image/jpeg' },
+          httpMetadata: {
+            contentType: 'image/jpeg',
+            cacheControl: 'public, max-age=60, s-maxage=60',
+          },
         });
 
         const publicUrl = `https://images.opsflowbetter.com/${r2Key}`;
