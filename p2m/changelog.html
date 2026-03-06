@@ -281,6 +281,23 @@
 
         <div class="timeline">
 
+            <!-- v0.38.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.38.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">AI Background Removal Fix &amp; Image Display</div>
+                <ul class="change-list">
+                    <li>Added cross-origin isolation service worker (coi-serviceworker.js) &mdash; enables SharedArrayBuffer required by the AI WASM engine on GitHub Pages</li>
+                    <li>Switched AI library CDN from jsDelivr to unpkg for more reliable module loading</li>
+                    <li>Fixed product image filling the entire browser window after Save &mdash; now capped at 200px height</li>
+                    <li>Removed confusing &ldquo;Use PhotoRoom&rdquo; manual fallback text &mdash; replaced with cleaner retry guidance</li>
+                    <li>Page will auto-reload once on first visit to activate the service worker (transparent to user)</li>
+                </ul>
+            </div>
+
             <!-- v0.37.0 -->
             <div class="version-entry">
                 <div class="version-header">

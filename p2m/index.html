@@ -7,9 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Caspers Creations - P2M Pipeline</title>
+    <!-- Cross-origin isolation service worker — enables SharedArrayBuffer for AI background removal -->
+    <script src="coi-serviceworker.js"></script>
     <script type="module">
         // Import background-removal library (loads AI model ~30MB on first use, then cached)
-        import imglyRemoveBackground from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/dist/index.js';
+        import imglyRemoveBackground from 'https://unpkg.com/@imgly/background-removal@1.5.5/dist/index.js';
         window.imglyRemoveBackground = imglyRemoveBackground;
         window._imglyLoaded = true;
     </script>
@@ -2158,7 +2160,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.37.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.38.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2192,7 +2194,7 @@
         <!-- Hidden elements still needed by existing functions -->
         <span id="taglineDisplay" style="display:none;"></span>
         <span id="imageUrlDisplay" style="display:none;"></span>
-        <img id="imageUrlPreview" src="" alt="" style="display:none;">
+        <img id="imageUrlPreview" src="" alt="" style="display:none;max-height:200px;max-width:100%;border-radius:6px;margin-top:6px;object-fit:contain;">
         <input type="file" id="imageFixerInput" accept="image/*" style="display:none;">
 
         <!-- Product Marketing Modal -->
@@ -3000,7 +3002,7 @@
                                     progressBar.style.width = '10%';
                                     progressPct.textContent = '10%';
                                     // Re-import the module
-                                    import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/dist/index.js').then(mod => {
+                                    import('https://unpkg.com/@imgly/background-removal@1.5.5/dist/index.js').then(mod => {
                                         window.imglyRemoveBackground = mod.default;
                                         window._imglyLoaded = true;
                                         doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
@@ -3123,7 +3125,7 @@
                 fixerPreview.style.display = 'block';
 
                 const actionsEl = document.getElementById('modalFixerActions');
-                actionsEl.innerHTML = '<span style="font-size:10px;color:#f0883e;">No background removal — resize only. Use <a href="https://www.photoroom.com" target="_blank" style="color:#58a6ff;">PhotoRoom</a> for bg removal first.</span> ';
+                actionsEl.innerHTML = '<span style="font-size:10px;color:#f0883e;">Resize only (AI background removal unavailable) — try clicking Retry above, or reload the page.</span> ';
 
                 // Still auto-upload the resized version to R2
                 uploadToR2(canvas, state.activeProduct, 'main', function(url, err) {
@@ -3426,7 +3428,7 @@
 
         function showManualFallback(file, origUrl, panel, status, preview, actions) {
             // Fallback: just resize and white-bg without background removal
-            status.innerHTML += '<br><span style="color:#8b949e;">Manual mode: resizing to 2000x2000 on white background (no background removal). You can remove the background externally with <a href="https://www.photoroom.com" target="_blank" style="color:#58a6ff;">PhotoRoom</a> first.</span>';
+            status.innerHTML += '<br><span style="color:#8b949e;">Manual mode: resizing to 2000x2000 on white background (AI background removal unavailable).</span>';
 
             const img = new Image();
             img.onload = function() {
