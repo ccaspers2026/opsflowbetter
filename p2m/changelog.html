@@ -258,7 +258,7 @@
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">49</div>
+                <div class="stat-value">51</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -280,6 +280,38 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.42.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.42.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Shared Product List (Single Source of Truth)</div>
+                <ul class="changes-list">
+                    <li>Pipeline now syncs product names to a shared <code>opsflow_products</code> localStorage key on every save and load</li>
+                    <li>Media Center reads from that one shared key instead of digging through Pipeline internals</li>
+                    <li>&ldquo;+ Add&rdquo; button also writes back to the shared list so products added from Media Center are visible everywhere</li>
+                    <li>Replaces the 3-source fallback hack with a clean single source of truth &mdash; ready for a future database migration</li>
+                </ul>
+            </div>
+
+            <!-- v0.41.1 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.41.1</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">Media Center Product Dropdown &amp; Upload Fix</div>
+                <ul class="changes-list">
+                    <li>Product dropdown now pulls from 3 sources: Pipeline state, queue history, and gallery &mdash; no longer empty when visiting Media Center directly</li>
+                    <li>Added &ldquo;+ Add&rdquo; button for manual product entry when no Pipeline products exist</li>
+                    <li>Auto-selects the only product if there&rsquo;s just one, so paste/drop/browse work immediately</li>
+                    <li>Fixes paste and file browse being silently blocked when dropdown was empty</li>
+                </ul>
+            </div>
 
             <!-- v0.41.0 -->
             <div class="version-entry">

@@ -2153,7 +2153,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.41.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.42.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="media-center.html" style="color: #f0883e; text-decoration: none; font-size: 11px;">Media Center</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -3626,6 +3626,8 @@
         function saveState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                // Sync shared product list for cross-page use (Media Center, etc.)
+                localStorage.setItem('opsflow_products', JSON.stringify(Object.keys(state.products)));
             } catch (e) {
                 // Silent fail — localStorage might be full or disabled
             }
@@ -3645,6 +3647,8 @@
                     if (parsed.colorVariants) state.colorVariants = parsed.colorVariants;
                     if (parsed.activeProduct) state.activeProduct = parsed.activeProduct;
                 }
+                // Sync shared product list on load for cross-page use
+                localStorage.setItem('opsflow_products', JSON.stringify(Object.keys(state.products)));
             } catch (e) {
                 // Silent fail — corrupted data, just use defaults
             }

@@ -329,7 +329,7 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.41.0</span>
+        <span class="topbar-version">Media Center v0.42.0</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
@@ -359,6 +359,7 @@
             <select id="uploadProductSelect" style="background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e0e0e0;padding:6px 10px;font-size:13px;flex:1;max-width:300px;">
                 <option value="">— Select a product —</option>
             </select>
+            <button onclick="addCustomProduct()" style="background:#21262d;border:1px solid #30363d;border-radius:4px;color:#8b949e;padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;" title="Add a product manually">+ Add</button>
         </div>
         <div class="drop-zone" id="dropZone" onclick="if(checkProductSelected()) document.getElementById('fileInput').click()">
             <div class="icon">&#128228;</div>
@@ -502,23 +503,68 @@ function getActiveProduct() {
 function populateProductSelector() {
     var sel = document.getElementById('uploadProductSelect');
     if (!sel) return;
+
+    // Read from shared product list (written by Pipeline on every save/load)
+    var products = [];
+    var activeProduct = null;
     try {
-        var pState = JSON.parse(localStorage.getItem('p2m_pipeline_state'));
-        if (pState && pState.products && pState.products.length) {
-            // Clear existing options except the placeholder
-            sel.innerHTML = '<option value="">— Select a product —</option>';
-            for (var i = 0; i < pState.products.length; i++) {
-                var opt = document.createElement('option');
-                opt.value = pState.products[i];
-                opt.textContent = pState.products[i];
-                sel.appendChild(opt);
-            }
-            // Pre-select the active product from pipeline
-            if (pState.activeProduct) {
-                sel.value = pState.activeProduct;
-            }
+        var stored = JSON.parse(localStorage.getItem('opsflow_products'));
+        if (Array.isArray(stored) && stored.length) {
+            products = stored.slice().sort();
         }
     } catch {}
+
+    // Get active product from Pipeline state for pre-selection
+    try {
+        var pState = JSON.parse(localStorage.getItem('p2m_pipeline_state'));
+        if (pState && pState.activeProduct) activeProduct = pState.activeProduct;
+    } catch {}
+
+    // Rebuild dropdown
+    sel.innerHTML = '<option value="">— Select a product —</option>';
+    for (var p = 0; p < products.length; p++) {
+        var opt = document.createElement('option');
+        opt.value = products[p];
+        opt.textContent = products[p];
+        sel.appendChild(opt);
+    }
+
+    // Pre-select active product, or first available if only one
+    if (activeProduct && products.indexOf(activeProduct) !== -1) {
+        sel.value = activeProduct;
+    } else if (products.length === 1) {
+        sel.value = products[0];
+    }
+}
+
+function addCustomProduct() {
+    var name = prompt('Enter product name:');
+    if (!name || !name.trim()) return;
+    name = name.trim();
+    var sel = document.getElementById('uploadProductSelect');
+    // Check if already exists in dropdown
+    for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === name) {
+            sel.value = name;
+            showToast('Product selected: ' + name, 'success');
+            return;
+        }
+    }
+    // Add to dropdown
+    var opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+    sel.value = name;
+    // Sync back to shared product list
+    try {
+        var products = JSON.parse(localStorage.getItem('opsflow_products')) || [];
+        if (products.indexOf(name) === -1) {
+            products.push(name);
+            localStorage.setItem('opsflow_products', JSON.stringify(products));
+        }
+    } catch {}
+    showToast('Product added: ' + name, 'success');
 }
 
 function checkProductSelected() {
