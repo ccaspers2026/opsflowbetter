@@ -2158,7 +2158,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.33.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.34.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2183,34 +2183,110 @@
             <span id="editLockIcon" onclick="toggleEditLock()" style="font-size:18px;cursor:pointer;margin-left:8px;transition:opacity 0.2s;">🔒</span>
         </div>
 
-        <!-- Product Tagline -->
-        <div id="taglineBar" style="padding:6px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:8px;min-height:28px;">
-            <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Portfolio tagline:</span>
-            <span id="taglineDisplay" style="font-size:12px;color:#c9d1d9;cursor:pointer;flex:1;font-style:italic;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Click to edit tagline"></span>
+        <!-- Product Marketing Summary Bar -->
+        <div id="marketingBar" style="padding:6px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:10px;min-height:28px;flex-wrap:wrap;">
+            <span id="marketingBarSummary" style="font-size:11px;color:#8b949e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+            <div id="marketingBarSwatches" style="display:flex;gap:3px;"></div>
+            <img id="marketingBarThumb" src="" alt="" style="width:22px;height:22px;border-radius:3px;object-fit:cover;display:none;border:1px solid #30363d;">
+            <button onclick="openProductMarketing()" style="padding:3px 12px;background:#238636;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap;">&#9998; Product Marketing</button>
         </div>
-        <div id="imageUrlBar" style="padding:4px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:8px;min-height:24px;flex-wrap:wrap;">
-            <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Product image:</span>
-            <span id="imageUrlDisplay" style="font-size:11px;color:#c9d1d9;cursor:pointer;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Click to set image URL"></span>
-            <img id="imageUrlPreview" src="" alt="" style="width:24px;height:24px;border-radius:3px;object-fit:cover;display:none;border:1px solid #30363d;">
-            <span id="imageReqsBtn" title="Image requirements (Amazon-ready specs)" style="font-size:11px;color:#6e7681;cursor:pointer;white-space:nowrap;user-select:none;" onclick="toggleImageReqs()">&#9432; Specs</span>
-            <span id="imageFixerBtn" title="Upload a raw photo — removes background, white bg, 2000x2000, Amazon-ready" style="font-size:11px;color:#3fb950;cursor:pointer;white-space:nowrap;user-select:none;font-weight:600;" onclick="openImageFixer()">&#9881; Image Fixer</span>
-            <input type="file" id="imageFixerInput" accept="image/*" style="display:none;" onchange="processImageFixer(this)">
-        </div>
-        <div id="imageReqsPanel" style="display:none;padding:8px 12px;background:#0d1117;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;font-size:11px;color:#8b949e;line-height:1.6;">
-            <strong style="color:#58a6ff;">Amazon-Ready Image Requirements</strong><br>
-            <span style="color:#c9d1d9;">Min 1600px</span> on longest side (2000x2000 recommended) &bull; <span style="color:#c9d1d9;">Max 10MB</span> &bull; JPEG preferred (PNG/TIFF accepted)<br>
-            <span style="color:#c9d1d9;">Pure white background</span> (RGB 255,255,255) &bull; Product fills <span style="color:#c9d1d9;">85%+</span> of frame &bull; No text/logos/watermarks<br>
-            <span style="color:#c9d1d9;">Square 1:1 ratio</span> for best display &bull; No packaging shown &bull; Flatten layers before export
-        </div>
-        <div id="imageFixerPanel" style="display:none;padding:12px;background:#0d1117;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;">
-            <div id="imageFixerStatus" style="font-size:12px;color:#8b949e;margin-bottom:8px;"></div>
-            <div id="imageFixerPreview" style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;"></div>
-            <div id="imageFixerActions" style="display:none;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;"></div>
-        </div>
-        <div id="colorVariantBar" style="padding:6px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:8px;min-height:28px;flex-wrap:wrap;">
-            <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Color variants:</span>
-            <div id="colorVariantSwatches" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"></div>
-            <span id="addVariantBtn" style="font-size:11px;color:#6e7681;cursor:pointer;white-space:nowrap;user-select:none;" title="Add color variant">+ Add</span>
+
+        <!-- Hidden elements still needed by existing functions -->
+        <span id="taglineDisplay" style="display:none;"></span>
+        <span id="imageUrlDisplay" style="display:none;"></span>
+        <img id="imageUrlPreview" src="" alt="" style="display:none;">
+        <input type="file" id="imageFixerInput" accept="image/*" style="display:none;">
+
+        <!-- Product Marketing Modal -->
+        <div id="productMarketingModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);overflow-y:auto;">
+            <div style="max-width:640px;margin:40px auto;background:#0d1117;border:1px solid #30363d;border-radius:12px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.5);">
+                <!-- Modal Header -->
+                <div style="padding:16px 20px;background:#161b22;border-bottom:1px solid #21262d;display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <div style="font-size:16px;font-weight:600;color:#e6edf3;">Product Marketing</div>
+                        <div id="modalProductName" style="font-size:12px;color:#58a6ff;margin-top:2px;"></div>
+                    </div>
+                    <span onclick="closeProductMarketing()" style="font-size:22px;color:#8b949e;cursor:pointer;line-height:1;padding:4px;" title="Close">&times;</span>
+                </div>
+
+                <!-- Modal Body -->
+                <div style="padding:20px;">
+
+                    <!-- Tagline Section -->
+                    <div style="margin-bottom:20px;">
+                        <label style="font-size:12px;color:#8b949e;display:block;margin-bottom:6px;font-weight:600;">PORTFOLIO TAGLINE</label>
+                        <input id="modalTagline" type="text" maxlength="120" placeholder="A catchy one-liner for the Portfolio card..." style="width:100%;background:#161b22;border:1px solid #30363d;color:#e6edf3;font-size:13px;padding:10px 12px;border-radius:6px;outline:none;font-style:italic;box-sizing:border-box;" onfocus="this.style.borderColor='#58a6ff'" onblur="this.style.borderColor='#30363d'">
+                        <div style="font-size:10px;color:#6e7681;margin-top:4px;">Displayed on the Portfolio card on the homepage</div>
+                    </div>
+
+                    <!-- Image URL Section -->
+                    <div style="margin-bottom:20px;">
+                        <label style="font-size:12px;color:#8b949e;display:block;margin-bottom:6px;font-weight:600;">PRODUCT IMAGE URL</label>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <select id="modalImageRoot" style="background:#161b22;border:1px solid #30363d;color:#8b949e;font-size:11px;padding:8px;border-radius:6px;max-width:240px;cursor:pointer;">
+                                <option value="__full__">Paste full URL</option>
+                            </select>
+                            <input id="modalImageFilename" type="text" maxlength="300" placeholder="image-filename.jpg" style="flex:1;background:#161b22;border:1px solid #30363d;color:#58a6ff;font-size:13px;padding:10px 12px;border-radius:6px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#58a6ff'" onblur="this.style.borderColor='#30363d'">
+                        </div>
+                        <div id="modalImagePreviewContainer" style="margin-top:8px;display:none;">
+                            <img id="modalImagePreviewImg" src="" alt="" style="max-width:200px;max-height:140px;border-radius:6px;border:1px solid #30363d;">
+                        </div>
+                    </div>
+
+                    <!-- Image Fixer / Drag & Drop -->
+                    <div style="margin-bottom:20px;">
+                        <label style="font-size:12px;color:#8b949e;display:block;margin-bottom:6px;font-weight:600;">IMAGE FIXER <span style="color:#3fb950;font-weight:400;">— AI Background Removal</span></label>
+                        <div id="modalDropZone" style="border:2px dashed #30363d;border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:#161b22;">
+                            <div style="font-size:28px;margin-bottom:6px;opacity:0.5;">&#128247;</div>
+                            <div style="font-size:13px;color:#c9d1d9;margin-bottom:4px;">Drag &amp; drop a raw product photo here</div>
+                            <div style="font-size:11px;color:#6e7681;">or click to browse &bull; Removes background, white bg, 2000&times;2000, Amazon-ready</div>
+                        </div>
+                        <input type="file" id="modalFileInput" accept="image/*" style="display:none;">
+                        <!-- Progress Bar -->
+                        <div id="modalProgressContainer" style="display:none;margin-top:10px;">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                <span id="modalProgressLabel" style="font-size:11px;color:#8b949e;">Processing...</span>
+                                <span id="modalProgressPct" style="font-size:11px;color:#58a6ff;">0%</span>
+                            </div>
+                            <div style="height:6px;background:#21262d;border-radius:3px;overflow:hidden;">
+                                <div id="modalProgressBar" style="height:100%;background:linear-gradient(90deg,#238636,#3fb950);border-radius:3px;width:0%;transition:width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <!-- Fixer Preview -->
+                        <div id="modalFixerPreview" style="display:none;margin-top:12px;">
+                            <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+                                <div style="text-align:center;">
+                                    <div style="font-size:10px;color:#8b949e;margin-bottom:4px;">ORIGINAL</div>
+                                    <img id="modalFixerOriginal" src="" alt="" style="max-width:160px;max-height:160px;border:1px solid #21262d;border-radius:6px;">
+                                </div>
+                                <div style="display:flex;align-items:center;font-size:24px;color:#3fb950;padding-top:40px;">&#10140;</div>
+                                <div style="text-align:center;">
+                                    <div style="font-size:10px;color:#3fb950;margin-bottom:4px;">AMAZON-READY</div>
+                                    <img id="modalFixerResult" src="" alt="" style="max-width:160px;max-height:160px;border:2px solid #3fb950;border-radius:6px;">
+                                </div>
+                            </div>
+                            <div id="modalFixerActions" style="margin-top:10px;display:flex;gap:8px;"></div>
+                        </div>
+                        <!-- Amazon Specs -->
+                        <div style="margin-top:8px;font-size:10px;color:#6e7681;line-height:1.5;">
+                            <strong style="color:#8b949e;">Amazon specs:</strong> 2000&times;2000px &bull; JPEG &bull; White bg (255,255,255) &bull; Product fills 85% &bull; No text/logos &bull; Max 10MB
+                        </div>
+                    </div>
+
+                    <!-- Color Variants Section -->
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:12px;color:#8b949e;display:block;margin-bottom:6px;font-weight:600;">COLOR VARIANTS</label>
+                        <div id="modalVariantList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+                        <button id="modalAddVariantBtn" onclick="modalAddVariant()" style="padding:6px 14px;background:#161b22;color:#8b949e;border:1px dashed #30363d;border-radius:6px;font-size:11px;cursor:pointer;width:100%;transition:all 0.2s;" onmouseover="this.style.borderColor='#58a6ff';this.style.color='#58a6ff'" onmouseout="this.style.borderColor='#30363d';this.style.color='#8b949e'">+ Add Color Variant</button>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div style="padding:14px 20px;background:#161b22;border-top:1px solid #21262d;display:flex;justify-content:flex-end;gap:8px;">
+                    <button onclick="closeProductMarketing()" style="padding:8px 18px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;font-size:12px;cursor:pointer;">Close</button>
+                    <button onclick="saveProductMarketing()" style="padding:8px 18px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">Save Changes</button>
+                </div>
+            </div>
         </div>
 
         <!-- Pipeline (desktop) -->
@@ -2546,12 +2622,433 @@
         }
 
         // ============================================================================
+        // PRODUCT MARKETING MODAL
+        // ============================================================================
+
+        var _modalFixerCanvas = null; // store canvas for download
+
+        function openProductMarketing() {
+            if (!requireEdit('edit product marketing')) return;
+            const modal = document.getElementById('productMarketingModal');
+            const nameEl = document.getElementById('modalProductName');
+            nameEl.textContent = state.activeProduct;
+
+            // Populate tagline
+            if (!state.taglines) state.taglines = {};
+            document.getElementById('modalTagline').value = state.taglines[state.activeProduct] || '';
+
+            // Populate image URL with root dropdown
+            if (!state.imageUrls) state.imageUrls = {};
+            const currentUrl = state.imageUrls[state.activeProduct] || '';
+            const currentParts = parseUrlParts(currentUrl);
+            const roots = getImageRoots();
+            const rootSelect = document.getElementById('modalImageRoot');
+            const filenameInput = document.getElementById('modalImageFilename');
+
+            // Rebuild root options
+            rootSelect.innerHTML = '<option value="__full__">Paste full URL</option>';
+            roots.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                try { const u = new URL(r); opt.textContent = u.hostname + u.pathname; } catch(e) { opt.textContent = r; }
+                rootSelect.appendChild(opt);
+            });
+            if (currentParts.root && roots.includes(currentParts.root)) {
+                rootSelect.value = currentParts.root;
+                filenameInput.value = currentParts.filename;
+                filenameInput.placeholder = 'image-filename.jpg';
+            } else if (currentUrl) {
+                rootSelect.value = '__full__';
+                filenameInput.value = currentUrl;
+                filenameInput.placeholder = 'https://images.example.com/photo.jpg';
+            } else {
+                rootSelect.value = roots.length > 0 ? roots[0] : '__full__';
+                filenameInput.value = '';
+                filenameInput.placeholder = rootSelect.value === '__full__' ? 'https://images.example.com/photo.jpg' : 'image-filename.jpg';
+            }
+
+            // Root dropdown change handler
+            rootSelect.onchange = function() {
+                filenameInput.placeholder = rootSelect.value === '__full__' ? 'https://images.example.com/photo.jpg' : 'image-filename.jpg';
+            };
+
+            // Image preview
+            updateModalImagePreview();
+            filenameInput.oninput = function() { updateModalImagePreview(); };
+            rootSelect.onchange = function() {
+                filenameInput.placeholder = rootSelect.value === '__full__' ? 'https://images.example.com/photo.jpg' : 'image-filename.jpg';
+                updateModalImagePreview();
+            };
+
+            // Populate color variants
+            renderModalVariants();
+
+            // Reset fixer state
+            document.getElementById('modalProgressContainer').style.display = 'none';
+            document.getElementById('modalFixerPreview').style.display = 'none';
+            _modalFixerCanvas = null;
+
+            // Setup drag & drop
+            setupModalDropZone();
+
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductMarketing() {
+            document.getElementById('productMarketingModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on Escape or backdrop click
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('productMarketingModal');
+                if (modal && modal.style.display === 'block') closeProductMarketing();
+            }
+        });
+        document.getElementById('productMarketingModal').addEventListener('click', (e) => {
+            if (e.target.id === 'productMarketingModal') closeProductMarketing();
+        });
+
+        function saveProductMarketing() {
+            if (!state.taglines) state.taglines = {};
+            if (!state.imageUrls) state.imageUrls = {};
+
+            // Save tagline
+            state.taglines[state.activeProduct] = document.getElementById('modalTagline').value.trim();
+
+            // Save image URL
+            const rootSelect = document.getElementById('modalImageRoot');
+            const filenameInput = document.getElementById('modalImageFilename');
+            let url = '';
+            if (rootSelect.value === '__full__') {
+                url = filenameInput.value.trim();
+            } else {
+                const fn = filenameInput.value.trim();
+                if (fn) url = rootSelect.value + fn;
+            }
+            if (url) {
+                const parts = parseUrlParts(url);
+                if (parts.root) addImageRoot(parts.root);
+            }
+            state.imageUrls[state.activeProduct] = url;
+
+            saveState();
+            renderMarketingBar();
+            renderTagline();
+            renderImageUrl();
+            renderColorVariants();
+            closeProductMarketing();
+            showPipelineToast('Product marketing saved');
+        }
+
+        function updateModalImagePreview() {
+            const rootSelect = document.getElementById('modalImageRoot');
+            const filenameInput = document.getElementById('modalImageFilename');
+            const container = document.getElementById('modalImagePreviewContainer');
+            const img = document.getElementById('modalImagePreviewImg');
+            let url = '';
+            if (rootSelect.value === '__full__') {
+                url = filenameInput.value.trim();
+            } else {
+                const fn = filenameInput.value.trim();
+                if (fn) url = rootSelect.value + fn;
+            }
+            if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                img.src = url;
+                img.onerror = function() { container.style.display = 'none'; };
+                img.onload = function() { container.style.display = 'block'; };
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function setupModalDropZone() {
+            const dropZone = document.getElementById('modalDropZone');
+            const fileInput = document.getElementById('modalFileInput');
+
+            // Remove old listeners by cloning
+            const newDrop = dropZone.cloneNode(true);
+            dropZone.parentNode.replaceChild(newDrop, dropZone);
+            const newFileInput = fileInput.cloneNode(true);
+            fileInput.parentNode.replaceChild(newFileInput, fileInput);
+
+            newDrop.addEventListener('click', () => newFileInput.click());
+
+            newDrop.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                newDrop.style.borderColor = '#3fb950';
+                newDrop.style.background = '#0d1117';
+            });
+            newDrop.addEventListener('dragleave', () => {
+                newDrop.style.borderColor = '#30363d';
+                newDrop.style.background = '#161b22';
+            });
+            newDrop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                newDrop.style.borderColor = '#30363d';
+                newDrop.style.background = '#161b22';
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    processModalImage(e.dataTransfer.files[0]);
+                }
+            });
+            newFileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    processModalImage(this.files[0]);
+                    this.value = '';
+                }
+            });
+        }
+
+        function processModalImage(file) {
+            if (!file.type.startsWith('image/')) {
+                showPipelineToast('Please select an image file');
+                return;
+            }
+
+            const progressContainer = document.getElementById('modalProgressContainer');
+            const progressBar = document.getElementById('modalProgressBar');
+            const progressLabel = document.getElementById('modalProgressLabel');
+            const progressPct = document.getElementById('modalProgressPct');
+            const fixerPreview = document.getElementById('modalFixerPreview');
+
+            progressContainer.style.display = 'block';
+            fixerPreview.style.display = 'none';
+            _modalFixerCanvas = null;
+
+            const origUrl = URL.createObjectURL(file);
+            document.getElementById('modalFixerOriginal').src = origUrl;
+
+            // Simulate progress for the AI processing
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                if (progress < 85) {
+                    progress += Math.random() * 8 + 2;
+                    if (progress > 85) progress = 85;
+                    progressBar.style.width = progress + '%';
+                    progressPct.textContent = Math.round(progress) + '%';
+                    if (progress < 20) progressLabel.textContent = 'Loading AI model...';
+                    else if (progress < 50) progressLabel.textContent = 'Analyzing image...';
+                    else if (progress < 80) progressLabel.textContent = 'Removing background...';
+                    else progressLabel.textContent = 'Almost done...';
+                }
+            }, 400);
+
+            // Check if imgly loaded
+            if (!window.imglyRemoveBackground) {
+                progressLabel.textContent = 'AI model loading (first use: ~30MB download)...';
+                let retries = 0;
+                const check = setInterval(() => {
+                    retries++;
+                    if (window.imglyRemoveBackground) {
+                        clearInterval(check);
+                        doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
+                    } else if (retries > 30) {
+                        clearInterval(check);
+                        clearInterval(progressInterval);
+                        progressLabel.textContent = 'AI model unavailable — using manual resize mode';
+                        progressBar.style.width = '100%';
+                        progressBar.style.background = 'linear-gradient(90deg,#f0883e,#f0883e)';
+                        progressPct.textContent = '100%';
+                        doModalFallback(origUrl, progressContainer, fixerPreview);
+                    }
+                }, 1000);
+            } else {
+                doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
+            }
+        }
+
+        function doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview) {
+            window.imglyRemoveBackground(origUrl, {
+                output: { format: 'image/png' }
+            }).then(blob => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '95%';
+                progressPct.textContent = '95%';
+                progressLabel.textContent = 'Compositing on white...';
+
+                const noBgUrl = URL.createObjectURL(blob);
+                compositeOnWhite(noBgUrl, function(canvas, dataUrl) {
+                    _modalFixerCanvas = canvas;
+                    progressBar.style.width = '100%';
+                    progressPct.textContent = '100%';
+                    progressLabel.textContent = 'Done!';
+                    progressLabel.style.color = '#3fb950';
+
+                    document.getElementById('modalFixerResult').src = dataUrl;
+                    fixerPreview.style.display = 'block';
+
+                    // Build action buttons
+                    const actionsEl = document.getElementById('modalFixerActions');
+                    actionsEl.innerHTML = '';
+                    const dlBtn = document.createElement('button');
+                    dlBtn.textContent = 'Download JPEG';
+                    dlBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
+                    dlBtn.addEventListener('click', () => {
+                        canvas.toBlob(jpegBlob => {
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(jpegBlob);
+                            const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
+                            a.download = pname + '_amazon_ready.jpg';
+                            a.click();
+                            showPipelineToast('Image downloaded — upload to R2 bucket');
+                        }, 'image/jpeg', 0.95);
+                    });
+                    actionsEl.appendChild(dlBtn);
+                });
+            }).catch(err => {
+                clearInterval(progressInterval);
+                progressLabel.textContent = 'Background removal failed — using manual resize';
+                progressLabel.style.color = '#f0883e';
+                progressBar.style.width = '100%';
+                progressBar.style.background = 'linear-gradient(90deg,#f0883e,#f0883e)';
+                progressPct.textContent = '100%';
+                doModalFallback(origUrl, progressContainer, fixerPreview);
+            });
+        }
+
+        function doModalFallback(origUrl, progressContainer, fixerPreview) {
+            compositeOnWhite(origUrl, function(canvas, dataUrl) {
+                _modalFixerCanvas = canvas;
+                document.getElementById('modalFixerResult').src = dataUrl;
+                fixerPreview.style.display = 'block';
+
+                const actionsEl = document.getElementById('modalFixerActions');
+                actionsEl.innerHTML = '<span style="font-size:10px;color:#f0883e;">No background removal — resize only. Use <a href="https://www.photoroom.com" target="_blank" style="color:#58a6ff;">PhotoRoom</a> for bg removal first.</span> ';
+                const dlBtn = document.createElement('button');
+                dlBtn.textContent = 'Download JPEG';
+                dlBtn.style.cssText = 'padding:6px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;';
+                dlBtn.addEventListener('click', () => {
+                    canvas.toBlob(jpegBlob => {
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(jpegBlob);
+                        const pname = (state.activeProduct || 'product').replace(/[^a-zA-Z0-9]/g, '_');
+                        a.download = pname + '_resized.jpg';
+                        a.click();
+                    }, 'image/jpeg', 0.95);
+                });
+                actionsEl.appendChild(dlBtn);
+            });
+        }
+
+        function renderModalVariants() {
+            const list = document.getElementById('modalVariantList');
+            if (!list) return;
+            if (!state.colorVariants) state.colorVariants = {};
+            const variants = state.colorVariants[state.activeProduct] || [];
+            list.innerHTML = '';
+
+            if (variants.length === 0) {
+                list.innerHTML = '<div style="font-size:11px;color:#6e7681;font-style:italic;padding:4px 0;">No color variants yet</div>';
+                return;
+            }
+
+            variants.forEach((v, idx) => {
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:#161b22;border:1px solid #21262d;border-radius:6px;';
+
+                // Color swatch
+                const swatch = document.createElement('input');
+                swatch.type = 'color';
+                swatch.value = v.hex || '#666666';
+                swatch.style.cssText = 'width:28px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0;background:none;';
+                swatch.addEventListener('change', () => { v.hex = swatch.value; });
+
+                // Name input
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = v.name;
+                nameInput.placeholder = 'Color name';
+                nameInput.style.cssText = 'flex:1;background:#0d1117;border:1px solid #30363d;color:#c9d1d9;font-size:12px;padding:6px 8px;border-radius:4px;outline:none;min-width:80px;';
+                nameInput.addEventListener('change', () => { v.name = nameInput.value.trim(); });
+
+                // Image URL input
+                const urlInput = document.createElement('input');
+                urlInput.type = 'text';
+                urlInput.value = v.imageUrl || '';
+                urlInput.placeholder = 'Variant image URL (optional)';
+                urlInput.style.cssText = 'flex:1;background:#0d1117;border:1px solid #30363d;color:#58a6ff;font-size:10px;padding:6px 8px;border-radius:4px;outline:none;min-width:100px;';
+                urlInput.addEventListener('change', () => { v.imageUrl = urlInput.value.trim(); });
+
+                // Remove button
+                const removeBtn = document.createElement('span');
+                removeBtn.textContent = '\u00d7';
+                removeBtn.style.cssText = 'color:#f85149;cursor:pointer;font-size:18px;line-height:1;padding:2px 4px;';
+                removeBtn.title = 'Remove variant';
+                removeBtn.addEventListener('click', () => {
+                    variants.splice(idx, 1);
+                    renderModalVariants();
+                });
+
+                row.appendChild(swatch);
+                row.appendChild(nameInput);
+                row.appendChild(urlInput);
+                row.appendChild(removeBtn);
+                list.appendChild(row);
+            });
+        }
+
+        function modalAddVariant() {
+            if (!state.colorVariants) state.colorVariants = {};
+            if (!state.colorVariants[state.activeProduct]) state.colorVariants[state.activeProduct] = [];
+            state.colorVariants[state.activeProduct].push({ name: '', hex: '#666666', imageUrl: '' });
+            renderModalVariants();
+            // Focus the last name input
+            const inputs = document.querySelectorAll('#modalVariantList input[type="text"]');
+            if (inputs.length > 0) inputs[inputs.length - 2].focus(); // second to last (name, not url)
+        }
+
+        function renderMarketingBar() {
+            const summary = document.getElementById('marketingBarSummary');
+            const swatches = document.getElementById('marketingBarSwatches');
+            const thumb = document.getElementById('marketingBarThumb');
+            if (!summary) return;
+
+            if (!state.taglines) state.taglines = {};
+            if (!state.imageUrls) state.imageUrls = {};
+            if (!state.colorVariants) state.colorVariants = {};
+
+            const tagline = state.taglines[state.activeProduct] || '';
+            const imgUrl = state.imageUrls[state.activeProduct] || '';
+            const variants = state.colorVariants[state.activeProduct] || [];
+
+            // Summary text
+            const parts = [];
+            if (tagline) parts.push('"' + (tagline.length > 40 ? tagline.substring(0, 38) + '...' : tagline) + '"');
+            if (imgUrl) parts.push('Image set');
+            if (variants.length > 0) parts.push(variants.length + ' color' + (variants.length > 1 ? 's' : ''));
+            summary.textContent = parts.length > 0 ? parts.join(' · ') : 'No marketing data yet — click to set up';
+            summary.style.color = parts.length > 0 ? '#c9d1d9' : '#6e7681';
+            if (tagline) summary.style.fontStyle = 'italic'; else summary.style.fontStyle = 'normal';
+
+            // Color swatches
+            swatches.innerHTML = '';
+            variants.slice(0, 5).forEach(v => {
+                const dot = document.createElement('span');
+                dot.style.cssText = 'width:10px;height:10px;border-radius:50%;border:1px solid #30363d;display:inline-block;';
+                dot.style.background = v.hex || '#666';
+                dot.title = v.name;
+                swatches.appendChild(dot);
+            });
+
+            // Thumbnail
+            if (imgUrl) {
+                thumb.src = imgUrl;
+                thumb.style.display = 'block';
+                thumb.onerror = function() { thumb.style.display = 'none'; };
+            } else {
+                thumb.style.display = 'none';
+            }
+        }
+
+        // ============================================================================
         // IMAGE FIXER — upload raw photo, remove bg, white bg, 2000x2000, Amazon-ready
         // ============================================================================
 
         function openImageFixer() {
-            if (!requireEdit('use Image Fixer')) return;
-            document.getElementById('imageFixerInput').click();
+            // Redirect to modal
+            openProductMarketing();
         }
 
         function processImageFixer(input) {
@@ -4006,6 +4503,7 @@
             renderTagline();
             renderImageUrl();
             renderColorVariants();
+            renderMarketingBar();
         }
 
         function updatePipelineCompletion() {
@@ -4998,9 +5496,7 @@
         renderTagline();
         renderImageUrl();
         renderColorVariants();
-        document.getElementById('taglineDisplay').addEventListener('click', startEditTagline);
-        document.getElementById('imageUrlDisplay').addEventListener('click', startEditImageUrl);
-        document.getElementById('addVariantBtn').addEventListener('click', addColorVariant);
+        renderMarketingBar();
         render();
     </script>
 </body>
