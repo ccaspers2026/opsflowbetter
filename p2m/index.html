@@ -2152,7 +2152,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.27.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.28.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2175,6 +2175,12 @@
             </div>
             <button class="reset-state-btn" onclick="resetState()" title="Reset all data to defaults" id="resetBtn">↺ Reset</button>
             <span id="editLockIcon" onclick="toggleEditLock()" style="font-size:18px;cursor:pointer;margin-left:8px;transition:opacity 0.2s;">🔒</span>
+        </div>
+
+        <!-- Product Tagline -->
+        <div id="taglineBar" style="padding:6px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:8px;min-height:28px;">
+            <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Portfolio tagline:</span>
+            <span id="taglineDisplay" style="font-size:12px;color:#c9d1d9;cursor:pointer;flex:1;font-style:italic;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Click to edit tagline"></span>
         </div>
 
         <!-- Pipeline (desktop) -->
@@ -2316,6 +2322,11 @@
                 }
             },
             gateSignatures: {},
+            taglines: {
+                '45 RPM Adaptor': '',
+                'RC Plane Hangar': '',
+                'Improbability Spinner': ''
+            },
             activeProduct: '45 RPM Adaptor'
         };
 
@@ -2375,6 +2386,70 @@
             if (isEditUnlocked()) return true;
             showPipelineToast('Read-only mode — unlock editing to ' + (actionName || 'make changes'));
             return false;
+        }
+
+        // ============================================================================
+        // PRODUCT TAGLINE
+        // ============================================================================
+
+        function renderTagline() {
+            const display = document.getElementById('taglineDisplay');
+            if (!display) return;
+            if (!state.taglines) state.taglines = {};
+            const tagline = state.taglines[state.activeProduct] || '';
+            if (tagline) {
+                display.textContent = tagline;
+                display.style.color = '#c9d1d9';
+            } else {
+                display.textContent = 'Click to add a tagline for the portfolio...';
+                display.style.color = '#484f58';
+            }
+        }
+
+        function startEditTagline() {
+            if (!requireEdit('edit tagline')) return;
+            const bar = document.getElementById('taglineBar');
+            const display = document.getElementById('taglineDisplay');
+            if (!bar || !display) return;
+
+            if (!state.taglines) state.taglines = {};
+            const current = state.taglines[state.activeProduct] || '';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = current;
+            input.maxLength = 120;
+            input.placeholder = 'e.g. Precision-machined adaptor for vintage turntable enthusiasts';
+            input.style.cssText = 'flex:1;background:#0d1117;border:1px solid #30363d;color:#c9d1d9;font-size:12px;padding:3px 8px;border-radius:4px;outline:none;font-style:italic;';
+
+            display.replaceWith(input);
+            input.focus();
+            input.select();
+
+            function save() {
+                const val = input.value.trim();
+                state.taglines[state.activeProduct] = val;
+                saveState();
+
+                const newDisplay = document.createElement('span');
+                newDisplay.id = 'taglineDisplay';
+                newDisplay.style.cssText = 'font-size:12px;cursor:pointer;flex:1;font-style:italic;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+                newDisplay.title = 'Click to edit tagline';
+                input.replaceWith(newDisplay);
+
+                newDisplay.addEventListener('click', startEditTagline);
+                renderTagline();
+
+                if (val) {
+                    showPipelineToast('Tagline saved');
+                }
+            }
+
+            input.addEventListener('blur', save);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+                if (e.key === 'Escape') { input.value = current; input.blur(); }
+            });
         }
 
         function saveState() {
@@ -2912,6 +2987,11 @@
                 delete productDetailContent[oldName];
             }
 
+            if (state.taglines && state.taglines[oldName] !== undefined) {
+                state.taglines[newName] = state.taglines[oldName];
+                delete state.taglines[oldName];
+            }
+
             if (state.activeProduct === oldName) {
                 state.activeProduct = newName;
             }
@@ -3243,6 +3323,7 @@
             renderMobileAccordion();
             renderProgressAndTracker();
             updatePipelineCompletion();
+            renderTagline();
         }
 
         function updatePipelineCompletion() {
@@ -4139,6 +4220,8 @@
                 });
                 state.products[name] = initialState;
                 state.checklists[name] = {};
+                if (!state.taglines) state.taglines = {};
+                state.taglines[name] = '';
                 productDetailContent[name] = {};
                 state.activeProduct = name;
                 saveState();
@@ -4175,6 +4258,7 @@
             // Remove from state
             delete state.products[name];
             delete state.checklists[name];
+            if (state.taglines) delete state.taglines[name];
             if (productDetailContent[name]) {
                 delete productDetailContent[name];
             }
@@ -4223,6 +4307,8 @@
         renderPhaseLegend();
         initGlossaryFloater();
         updateLockIcon();
+        renderTagline();
+        document.getElementById('taglineDisplay').addEventListener('click', startEditTagline);
         render();
     </script>
 </body>

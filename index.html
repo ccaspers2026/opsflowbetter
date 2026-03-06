@@ -1014,9 +1014,12 @@
                 });
                 dotsHtml += '</div>';
 
+                var tagline = (state.taglines && state.taglines[name]) ? state.taglines[name] : '';
+
                 card.innerHTML = imgHtml +
                     '<div class="portfolio-body">' +
                     '<h4>' + name + '</h4>' +
+                    (tagline ? '<div class="portfolio-concept">' + tagline + '</div>' : '') +
                     '<div class="portfolio-status-badge ' + statusInfo.badge + '">' +
                     '<span style="font-size:8px;">&#9679;</span> ' + statusInfo.label + '</div>' +
                     '<div class="portfolio-progress">' +
