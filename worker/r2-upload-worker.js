@@ -112,6 +112,8 @@ export default {
         formData.append('type', 'product');
         formData.append('bg_color', 'FFFFFF');
         formData.append('format', 'jpg');
+        formData.append('crop', 'true');
+        formData.append('crop_margin', '0');
 
         const removeBgResponse = await fetch('https://api.remove.bg/v1.0/removebg', {
           method: 'POST',

@@ -258,7 +258,7 @@
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">48</div>
+                <div class="stat-value">49</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -280,6 +280,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.41.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.41.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Auto-Crop &amp; Center After Background Removal</div>
+                <ul class="changes-list">
+                    <li>Worker now sends <code>crop: true</code> to remove.bg API so returned images are tightly cropped around the product</li>
+                    <li>Media Center adds a post-processing step: fetches the cropped image, scans for the product bounding box, and re-draws it centered on a clean 2000&times;2000 white canvas at ~90% fill</li>
+                    <li>Both single Process and batch Process All jobs now auto-crop before finalizing</li>
+                    <li>Products fill most of the frame instead of floating in excessive whitespace</li>
+                </ul>
+            </div>
 
             <!-- v0.40.2 -->
             <div class="version-entry">

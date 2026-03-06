@@ -329,7 +329,7 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.40.2</span>
+        <span class="topbar-version">Media Center v0.41.0</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
@@ -681,6 +681,118 @@ function compositeOnWhite(file, callback) {
     reader.readAsDataURL(file);
 }
 
+// ── Auto-Crop & Re-Center on Square Canvas ──────────────────────
+// After remove.bg returns a tightly cropped image, this fetches it,
+// detects the product bounding box, and re-draws centered on a
+// 2000x2000 white canvas at ~90% fill — then re-uploads to R2.
+function cropAndCenter(imageUrl, r2Key, secret, callback) {
+    console.log('[Media] cropAndCenter: fetching', imageUrl);
+
+    // Fetch image as blob to avoid CORS canvas tainting
+    fetch(imageUrl)
+    .then(function(r) {
+        if (!r.ok) throw new Error('Fetch failed: ' + r.status);
+        return r.blob();
+    })
+    .then(function(blob) {
+        var objUrl = URL.createObjectURL(blob);
+        var img = new Image();
+        img.onload = function() {
+            URL.revokeObjectURL(objUrl);
+
+            // Draw to temp canvas for pixel scanning
+            var tc = document.createElement('canvas');
+            tc.width = img.width;
+            tc.height = img.height;
+            var tctx = tc.getContext('2d');
+            tctx.drawImage(img, 0, 0);
+
+            var data = tctx.getImageData(0, 0, tc.width, tc.height).data;
+            var w = tc.width, h = tc.height;
+            var threshold = 245; // below this in any channel = "not white"
+
+            var top = h, bottom = 0, left = w, right = 0;
+
+            for (var y = 0; y < h; y++) {
+                for (var x = 0; x < w; x++) {
+                    var idx = (y * w + x) * 4;
+                    if (data[idx] < threshold || data[idx+1] < threshold || data[idx+2] < threshold) {
+                        if (y < top) top = y;
+                        if (y > bottom) bottom = y;
+                        if (x < left) left = x;
+                        if (x > right) right = x;
+                    }
+                }
+            }
+
+            // If no product found or trivial difference, skip cropping
+            if (top >= bottom || left >= right) {
+                console.log('[Media] cropAndCenter: no crop needed');
+                callback(false);
+                return;
+            }
+
+            var cropW = right - left + 1;
+            var cropH = bottom - top + 1;
+            console.log('[Media] cropAndCenter: product bounds', left, top, cropW, 'x', cropH, 'from', w, 'x', h);
+
+            // Create 2000x2000 canvas with product centered at 90% fill
+            var canvas = document.createElement('canvas');
+            canvas.width = 2000;
+            canvas.height = 2000;
+            var ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, 2000, 2000);
+
+            var maxDim = 1800; // 90% of 2000
+            var scale = Math.min(maxDim / cropW, maxDim / cropH);
+            // Don't upscale tiny crops beyond 2x
+            if (scale > 2) scale = 2;
+            var drawW = cropW * scale;
+            var drawH = cropH * scale;
+            var drawX = (2000 - drawW) / 2;
+            var drawY = (2000 - drawH) / 2;
+
+            ctx.drawImage(tc, left, top, cropW, cropH, drawX, drawY, drawW, drawH);
+
+            // Upload re-centered version back to R2
+            canvas.toBlob(function(uploadBlob) {
+                fetch(R2_UPLOAD_API + r2Key, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'image/jpeg', 'X-Upload-Secret': secret },
+                    body: uploadBlob,
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.ok) {
+                        var finalSizeKB = Math.round(uploadBlob.size / 1024);
+                        console.log('[Media] cropAndCenter: re-uploaded', r2Key, finalSizeKB + 'KB');
+                        callback(true, finalSizeKB);
+                    } else {
+                        console.warn('[Media] cropAndCenter: upload failed', result.error);
+                        callback(false);
+                    }
+                })
+                .catch(function(err) {
+                    console.warn('[Media] cropAndCenter: upload error', err.message);
+                    callback(false);
+                });
+            }, 'image/jpeg', 0.95);
+        };
+        img.onerror = function() {
+            URL.revokeObjectURL(objUrl);
+            console.warn('[Media] cropAndCenter: image load failed');
+            callback(false);
+        };
+        img.src = objUrl;
+    })
+    .catch(function(err) {
+        console.warn('[Media] cropAndCenter: fetch error', err.message);
+        callback(false);
+    });
+}
+
 // ── Process a Single Job ─────────────────────────────────────────
 function processJob(jobId) {
     var secret = getR2Secret();
@@ -706,37 +818,51 @@ function processJob(jobId) {
     .then(function(r) { return r.json(); })
     .then(function(data) {
         if (data.ok) {
-            job.status = 'done';
-            job.processedAt = new Date().toISOString();
             job.rawSizeKB = data.rawSizeKB;
             job.cleanSizeKB = data.cleanSizeKB;
-            showToast('Background removed: ' + job.fileName, 'success');
+            showToast('BG removed — now cropping & centering...', 'success');
 
-            // Cache-bust: append ?v=timestamp to the URL
-            var cacheBustUrl = data.url + '?v=' + Date.now();
-            job.url = cacheBustUrl;
+            // Step 2: Auto-crop and re-center on 2000x2000 canvas
+            var bgRemovedUrl = data.url + '?v=' + Date.now();
+            cropAndCenter(bgRemovedUrl, job.r2Key, secret, function(cropped, finalSizeKB) {
+                job.status = 'done';
+                job.processedAt = new Date().toISOString();
 
-            // Update the Pipeline state so portfolio shows the fresh image
-            updatePipelineImageUrl(job.product, cacheBustUrl);
+                // Cache-bust the final URL
+                var cacheBustUrl = data.url + '?v=' + Date.now();
+                job.url = cacheBustUrl;
 
-            // Add to gallery
-            gallery.unshift({
-                r2Key: job.r2Key,
-                product: job.product,
-                fileName: job.fileName,
-                url: cacheBustUrl,
-                processedAt: job.processedAt,
+                if (cropped) {
+                    job.cleanSizeKB = finalSizeKB;
+                    showToast('Cropped & centered: ' + job.fileName, 'success');
+                } else {
+                    showToast('Background removed: ' + job.fileName + ' (crop skipped)', 'success');
+                }
+
+                // Update Pipeline state so portfolio shows fresh image
+                updatePipelineImageUrl(job.product, cacheBustUrl);
+
+                // Add to gallery
+                gallery.unshift({
+                    r2Key: job.r2Key,
+                    product: job.product,
+                    fileName: job.fileName,
+                    url: cacheBustUrl,
+                    processedAt: job.processedAt,
+                });
+                saveGallery();
+                renderGallery();
+                checkCredits();
+                saveQueue();
+                renderQueue();
             });
-            saveGallery();
-            renderGallery();
-            checkCredits();
         } else {
             job.status = 'failed';
             job.error = data.error || 'Processing failed';
             showToast('Failed: ' + (data.error || 'Unknown error'), 'error');
+            saveQueue();
+            renderQueue();
         }
-        saveQueue();
-        renderQueue();
     })
     .catch(function(err) {
         job.status = 'failed';
@@ -753,11 +879,11 @@ function processAllPending() {
     if (!pending.length) { showToast('No pending jobs', 'error'); return; }
 
     // Process sequentially to avoid hammering the API
-    var i = 0;
+    var idx = 0;
     function next() {
-        if (i >= pending.length) return;
-        var job = pending[i];
-        i++;
+        if (idx >= pending.length) return;
+        var job = pending[idx];
+        idx++;
         job.status = 'processing';
         job.error = null;
         saveQueue();
@@ -772,25 +898,33 @@ function processAllPending() {
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.ok) {
-                job.status = 'done';
-                job.processedAt = new Date().toISOString();
                 job.rawSizeKB = data.rawSizeKB;
                 job.cleanSizeKB = data.cleanSizeKB;
-                var cbUrl = data.url + '?v=' + Date.now();
-                job.url = cbUrl;
-                updatePipelineImageUrl(job.product, cbUrl);
-                gallery.unshift({ r2Key: job.r2Key, product: job.product, fileName: job.fileName, url: cbUrl, processedAt: job.processedAt });
-                saveGallery();
-                renderGallery();
+
+                // Auto-crop & re-center
+                var bgRemovedUrl = data.url + '?v=' + Date.now();
+                cropAndCenter(bgRemovedUrl, job.r2Key, secret, function(cropped, finalSizeKB) {
+                    job.status = 'done';
+                    job.processedAt = new Date().toISOString();
+                    var cbUrl = data.url + '?v=' + Date.now();
+                    job.url = cbUrl;
+                    if (cropped) job.cleanSizeKB = finalSizeKB;
+                    updatePipelineImageUrl(job.product, cbUrl);
+                    gallery.unshift({ r2Key: job.r2Key, product: job.product, fileName: job.fileName, url: cbUrl, processedAt: job.processedAt });
+                    saveGallery();
+                    renderGallery();
+                    saveQueue();
+                    renderQueue();
+                    checkCredits();
+                    setTimeout(next, 500);
+                });
             } else {
                 job.status = 'failed';
                 job.error = data.error || 'Failed';
+                saveQueue();
+                renderQueue();
+                setTimeout(next, 500);
             }
-            saveQueue();
-            renderQueue();
-            checkCredits();
-            // Small delay between jobs
-            setTimeout(next, 500);
         })
         .catch(function(err) {
             job.status = 'failed';
