@@ -329,7 +329,7 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.40.0</span>
+        <span class="topbar-version">Media Center v0.40.1</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
@@ -353,8 +353,14 @@
     <!-- ── Queue Tab ─────────────────────────────────────────── -->
     <div id="tab-queue" class="tab-content active">
 
-        <!-- Drop Zone -->
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <!-- Product Selector + Drop Zone -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <label style="font-size:12px;color:#8b949e;white-space:nowrap;">Upload to product:</label>
+            <select id="uploadProductSelect" style="background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e0e0e0;padding:6px 10px;font-size:13px;flex:1;max-width:300px;">
+                <option value="">— Select a product —</option>
+            </select>
+        </div>
+        <div class="drop-zone" id="dropZone" onclick="if(checkProductSelected()) document.getElementById('fileInput').click()">
             <div class="icon">&#128228;</div>
             <p>Drag & drop images here, paste (Ctrl+V), or click to browse</p>
             <p style="font-size:11px;color:#484f58;margin-top:6px;">Images upload to R2 immediately &bull; Background removal queued automatically</p>
@@ -435,6 +441,7 @@ var isProcessing = false;
 function init() {
     loadQueue();
     loadGallery();
+    populateProductSelector();
     renderQueue();
     renderGallery();
     checkCredits();
@@ -486,12 +493,44 @@ function checkCredits() {
 
 // ── Product Detection ────────────────────────────────────────────
 function getActiveProduct() {
-    // Try to get from pipeline state
+    // Use the product selector dropdown
+    var sel = document.getElementById('uploadProductSelect');
+    if (sel && sel.value) return sel.value;
+    return 'unassigned';
+}
+
+function populateProductSelector() {
+    var sel = document.getElementById('uploadProductSelect');
+    if (!sel) return;
     try {
         var pState = JSON.parse(localStorage.getItem('p2m_pipeline_state'));
-        if (pState && pState.activeProduct) return pState.activeProduct;
+        if (pState && pState.products && pState.products.length) {
+            // Clear existing options except the placeholder
+            sel.innerHTML = '<option value="">— Select a product —</option>';
+            for (var i = 0; i < pState.products.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = pState.products[i];
+                opt.textContent = pState.products[i];
+                sel.appendChild(opt);
+            }
+            // Pre-select the active product from pipeline
+            if (pState.activeProduct) {
+                sel.value = pState.activeProduct;
+            }
+        }
     } catch {}
-    return 'unassigned';
+}
+
+function checkProductSelected() {
+    var sel = document.getElementById('uploadProductSelect');
+    if (!sel || !sel.value) {
+        showToast('Please select a product first', 'error');
+        sel.focus();
+        sel.style.borderColor = '#f85149';
+        setTimeout(function() { sel.style.borderColor = '#30363d'; }, 2000);
+        return false;
+    }
+    return true;
 }
 
 function makeSlug(name) {
@@ -508,10 +547,10 @@ function setupDropZone() {
     dz.addEventListener('drop', function(e) {
         e.preventDefault();
         dz.classList.remove('dragover');
-        handleFiles(e.dataTransfer.files);
+        if (checkProductSelected()) handleFiles(e.dataTransfer.files);
     });
     fi.addEventListener('change', function() {
-        if (fi.files.length) handleFiles(fi.files);
+        if (fi.files.length && checkProductSelected()) handleFiles(fi.files);
         fi.value = '';
     });
 }
@@ -529,7 +568,7 @@ function setupPaste() {
         }
         if (files.length) {
             e.preventDefault();
-            handleFiles(files);
+            if (checkProductSelected()) handleFiles(files);
         }
     });
 }
