@@ -71,6 +71,25 @@
         }
         .credits-badge .count { color: #3fb950; font-weight: 600; }
 
+        /* ── Tooltip Hint Icons ─────────────────────────────── */
+        .hint-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #8b949e;
+            border: 1px solid #484f58;
+            border-radius: 50%;
+            cursor: help;
+            vertical-align: middle;
+            margin-left: 4px;
+            transition: all 0.2s;
+        }
+        .hint-icon:hover { color: #e0e0e0; border-color: #8b949e; background: #21262d; }
+
         /* ── Main Layout ─────────────────────────────────────── */
         .main {
             max-width: 1200px;
@@ -424,7 +443,7 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.47.0</span>
+        <span class="topbar-version">Media Center v0.48.0</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
@@ -435,8 +454,9 @@
         <a href="/#portfolio" style="color:#3fb950;">Our Products</a>
         <a href="/" style="color:#d29922;">OpsFlowBetter</a>
     </div>
-    <div class="credits-badge" title="Background removal credits remaining (powered by remove.bg)">
+    <div class="credits-badge">
         BG Removal: <span class="count" id="creditsCount">—</span> credits
+        <span class="hint-icon" title="Background removal credits remaining (powered by remove.bg). When credits run out, processing will fail.">?</span>
     </div>
 </div>
 
@@ -445,7 +465,7 @@
 
     <!-- Tabs -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('queue')">&#9881; Processing Queue</button>
+        <button class="tab-btn active" onclick="switchTab('queue')">&#9881; Upload Status</button>
         <button class="tab-btn" onclick="switchTab('gallery')">&#128444; Media Gallery</button>
     </div>
 
@@ -469,13 +489,13 @@
 
         <!-- Queue Header -->
         <div class="section-header">
-            <h2>Processing Queue</h2>
+            <h2>Upload Status</h2>
             <div style="display:flex;gap:8px;align-items:center;">
                 <span class="badge badge-pending" id="pendingBadge">0 pending</span>
                 <span class="badge badge-processing" id="processingBadge">0 processing</span>
                 <span class="badge badge-done" id="doneBadge">0 done</span>
-                <button onclick="clearDone()" style="background:#21262d;border:1px solid #30363d;border-radius:4px;color:#8b949e;padding:6px 12px;font-size:11px;cursor:pointer;" title="Clear completed items from queue">Clear Done</button>
-                <button class="btn-process-all" id="processAllBtn" onclick="processAllPending()">&#9654; Process All</button>
+                <button onclick="clearDone()" style="background:#21262d;border:1px solid #30363d;border-radius:4px;color:#8b949e;padding:6px 12px;font-size:11px;cursor:pointer;">Dismiss Done</button><span class="hint-icon" title="Removes completed items from this view. Your images stay safe in cloud storage.">?</span>
+                <button class="btn-process-all" id="processAllBtn" onclick="processAllPending()">&#8635; Retry Failed</button><span class="hint-icon" title="Retries background removal on all failed items. Requires available BG Removal credits.">?</span>
             </div>
         </div>
 
@@ -850,6 +870,11 @@ function handleFiles(fileList) {
 
             // Composite on white 2000x2000, then upload
             compositeOnWhite(file, function(canvas) {
+                // Create local preview URL immediately (no CDN delay)
+                var localPreviewUrl = canvas.toDataURL('image/jpeg', 0.5);
+                job.localPreview = localPreviewUrl;
+                renderQueue(); // show thumbnail instantly
+
                 canvas.toBlob(function(blob) {
                     fetch(R2_UPLOAD_API + r2Key, {
                         method: 'PUT',
@@ -868,6 +893,7 @@ function handleFiles(fileList) {
                                 product: job.product,
                                 fileName: job.fileName,
                                 url: data.url,
+                                localPreview: localPreviewUrl,
                                 processedAt: null,
                                 raw: true,
                             });
@@ -1122,6 +1148,7 @@ function processJob(jobId) {
             showToast('Failed: ' + (data.error || 'Unknown error'), 'error');
             saveQueue();
             renderQueue();
+            scheduleAutoRetry(job);
         }
     })
     .catch(function(err) {
@@ -1130,7 +1157,48 @@ function processJob(jobId) {
         saveQueue();
         renderQueue();
         showToast('Error: ' + err.message, 'error');
+        scheduleAutoRetry(job);
     });
+}
+
+// ── Auto-Retry with Backoff ─────────────────────────────────────
+// Retries failed jobs automatically: 30s → 60s → gives up
+var autoRetryTimers = {};
+function scheduleAutoRetry(job) {
+    // Don't auto-retry credit errors (user action needed)
+    if (job.error && (job.error.toLowerCase().indexOf('credit') !== -1 || job.error.toLowerCase().indexOf('402') !== -1 || job.error.toLowerCase().indexOf('payment') !== -1)) {
+        job.error += ' (auto-retry skipped — credits needed)';
+        saveQueue();
+        renderQueue();
+        return;
+    }
+    // Track retry count
+    if (!job.retryCount) job.retryCount = 0;
+    if (job.retryCount >= 2) {
+        job.error += ' (auto-retry exhausted)';
+        saveQueue();
+        renderQueue();
+        showToast(job.fileName + ': auto-retry exhausted — use manual Retry', 'error');
+        return;
+    }
+    var delay = job.retryCount === 0 ? 30000 : 60000;
+    var delaySec = delay / 1000;
+    job.retryCount++;
+    job.error += ' (retrying in ' + delaySec + 's…)';
+    saveQueue();
+    renderQueue();
+    showToast(job.fileName + ': will auto-retry in ' + delaySec + 's', 'info');
+
+    // Clear any existing timer for this job
+    if (autoRetryTimers[job.id]) clearTimeout(autoRetryTimers[job.id]);
+    autoRetryTimers[job.id] = setTimeout(function() {
+        delete autoRetryTimers[job.id];
+        // Only retry if still in failed state (user might have manually retried)
+        if (job.status === 'failed') {
+            job.error = null;
+            processJob(job.id);
+        }
+    }, delay);
 }
 
 // ── Process All Pending ──────────────────────────────────────────
@@ -1245,7 +1313,7 @@ function renderQueue() {
     var html = '';
     for (var i = 0; i < queue.length; i++) {
         var j = queue[i];
-        var thumbUrl = j.url || (R2_PUBLIC_BASE + j.r2Key);
+        var thumbUrl = j.localPreview || j.url || (R2_PUBLIC_BASE + j.r2Key);
         var statusHtml = '<span class="status-dot ' + j.status + '"></span>';
 
         var statusText = j.status.charAt(0).toUpperCase() + j.status.slice(1);
@@ -1344,7 +1412,7 @@ function renderGallery() {
     var html = '';
     for (var i = 0; i < items.length; i++) {
         var g = items[i];
-        var url = g.url || (R2_PUBLIC_BASE + g.r2Key);
+        var url = g.localPreview || g.url || (R2_PUBLIC_BASE + g.r2Key);
         var date = g.processedAt ? new Date(g.processedAt).toLocaleDateString() : '';
         var rawBadge = g.raw ? '<span style="background:#f0883e;color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:6px;">Original</span>' : '';
         html += '<div class="gallery-card">';

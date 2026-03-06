@@ -262,13 +262,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.47.0 - Image Retry Engine, Credits Badge &amp; Gallery Dedup</h2>
-            <p>Released March 6, 2026 &mdash; Robust multi-step image retry for gallery thumbnails, queue thumbnails, and preview popup. Fixed gallery duplicate entries from processAll. Credits badge now says &ldquo;BG Removal&rdquo; instead of &ldquo;remove.bg&rdquo;.</p>
+            <h2>Version 0.48.0 - Local Previews, Auto-Retry, Tooltip Hints &amp; UX Renames</h2>
+            <p>Released March 6, 2026 &mdash; Instant image thumbnails via local canvas preview (no CDN delay). Auto-retry with backoff for failed processing jobs. Tooltip ? hint icons throughout Media Center. Tab and button renames for clarity.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">58</div>
+                <div class="stat-value">59</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -290,6 +290,25 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.48.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.48.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Local Previews, Auto-Retry, Tooltip Hints &amp; UX Renames</div>
+                <ul class="changes-list">
+                    <li>Instant image thumbnails via local canvas preview (<code>canvas.toDataURL</code>) &mdash; images appear immediately after upload, no CDN propagation delay</li>
+                    <li>Auto-retry with backoff for failed processing jobs (30s &rarr; 60s &rarr; gives up) &mdash; skips auto-retry when credits are exhausted</li>
+                    <li>Tooltip <strong>?</strong> hint icons added to credits badge, Dismiss Done, and Retry Failed buttons &mdash; hover to see what each element does</li>
+                    <li>&ldquo;Processing Queue&rdquo; tab renamed to &ldquo;Upload Status&rdquo;</li>
+                    <li>&ldquo;Clear Done&rdquo; renamed to &ldquo;Dismiss Done&rdquo; &mdash; clarifies images stay in cloud storage</li>
+                    <li>&ldquo;Process All&rdquo; renamed to &ldquo;Retry Failed&rdquo;</li>
+                    <li>Gallery and queue thumbnails now prefer local preview URL over CDN URL for immediate display</li>
+                </ul>
+            </div>
 
             <!-- v0.47.0 -->
             <div class="version-entry">
