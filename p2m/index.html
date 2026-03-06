@@ -2152,7 +2152,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.30.1</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.31.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2182,10 +2182,17 @@
             <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Portfolio tagline:</span>
             <span id="taglineDisplay" style="font-size:12px;color:#c9d1d9;cursor:pointer;flex:1;font-style:italic;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Click to edit tagline"></span>
         </div>
-        <div id="imageUrlBar" style="padding:4px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:8px;min-height:24px;">
+        <div id="imageUrlBar" style="padding:4px 12px;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;display:flex;align-items:center;gap:8px;min-height:24px;flex-wrap:wrap;">
             <span style="font-size:11px;color:#8b949e;white-space:nowrap;">Product image:</span>
             <span id="imageUrlDisplay" style="font-size:11px;color:#c9d1d9;cursor:pointer;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Click to set image URL"></span>
             <img id="imageUrlPreview" src="" alt="" style="width:24px;height:24px;border-radius:3px;object-fit:cover;display:none;border:1px solid #30363d;">
+            <span id="imageReqsBtn" title="Image requirements (Amazon-ready specs)" style="font-size:11px;color:#484f58;cursor:pointer;white-space:nowrap;user-select:none;" onclick="toggleImageReqs()">&#9432; Specs</span>
+        </div>
+        <div id="imageReqsPanel" style="display:none;padding:8px 12px;background:#0d1117;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;font-size:11px;color:#8b949e;line-height:1.6;">
+            <strong style="color:#58a6ff;">Amazon-Ready Image Requirements</strong><br>
+            <span style="color:#c9d1d9;">Min 1600px</span> on longest side (2000x2000 recommended) &bull; <span style="color:#c9d1d9;">Max 10MB</span> &bull; JPEG preferred (PNG/TIFF accepted)<br>
+            <span style="color:#c9d1d9;">Pure white background</span> (RGB 255,255,255) &bull; Product fills <span style="color:#c9d1d9;">85%+</span> of frame &bull; No text/logos/watermarks<br>
+            <span style="color:#c9d1d9;">Square 1:1 ratio</span> for best display &bull; No packaging shown &bull; Flatten layers before export
         </div>
 
         <!-- Pipeline (desktop) -->
@@ -2473,6 +2480,53 @@
         // PRODUCT IMAGE URL
         // ============================================================================
 
+        // ============================================================================
+        // IMAGE URL ROOTS — auto-learned from previous entries, stored in localStorage
+        // ============================================================================
+        const IMG_ROOTS_KEY = 'opsflow_image_roots';
+
+        function getImageRoots() {
+            try {
+                const raw = localStorage.getItem(IMG_ROOTS_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch(e) { return []; }
+        }
+
+        function addImageRoot(root) {
+            if (!root) return;
+            const roots = getImageRoots();
+            if (!roots.includes(root)) {
+                roots.unshift(root);
+                // Keep max 10 roots
+                if (roots.length > 10) roots.length = 10;
+                localStorage.setItem(IMG_ROOTS_KEY, JSON.stringify(roots));
+            }
+        }
+
+        function parseUrlParts(fullUrl) {
+            // Split a full URL into root (everything up to last /) and filename
+            if (!fullUrl) return { root: '', filename: '' };
+            const lastSlash = fullUrl.lastIndexOf('/');
+            if (lastSlash <= 8) return { root: '', filename: fullUrl }; // no meaningful path
+            return {
+                root: fullUrl.substring(0, lastSlash + 1),
+                filename: fullUrl.substring(lastSlash + 1)
+            };
+        }
+
+        function toggleImageReqs() {
+            const panel = document.getElementById('imageReqsPanel');
+            const btn = document.getElementById('imageReqsBtn');
+            if (!panel) return;
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                btn.style.color = '#58a6ff';
+            } else {
+                panel.style.display = 'none';
+                btn.style.color = '#484f58';
+            }
+        }
+
         function renderImageUrl() {
             const display = document.getElementById('imageUrlDisplay');
             const preview = document.getElementById('imageUrlPreview');
@@ -2480,8 +2534,13 @@
             if (!state.imageUrls) state.imageUrls = {};
             const url = state.imageUrls[state.activeProduct] || '';
             if (url) {
-                display.textContent = url;
-                display.style.color = '#58a6ff';
+                const parts = parseUrlParts(url);
+                if (parts.root && parts.filename) {
+                    display.innerHTML = '<span style="color:#484f58;">' + parts.root + '</span><span style="color:#58a6ff;">' + parts.filename + '</span>';
+                } else {
+                    display.textContent = url;
+                    display.style.color = '#58a6ff';
+                }
                 if (preview) {
                     preview.src = url;
                     preview.style.display = 'block';
@@ -2490,6 +2549,7 @@
             } else {
                 display.textContent = 'Click to add product image URL...';
                 display.style.color = '#484f58';
+                display.innerHTML = display.textContent;
                 if (preview) preview.style.display = 'none';
             }
         }
@@ -2501,20 +2561,100 @@
 
             if (!state.imageUrls) state.imageUrls = {};
             const current = state.imageUrls[state.activeProduct] || '';
+            const currentParts = parseUrlParts(current);
+            const roots = getImageRoots();
 
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = current;
-            input.maxLength = 500;
-            input.placeholder = 'https://example.com/product-image.jpg';
-            input.style.cssText = 'flex:1;background:#0d1117;border:1px solid #30363d;color:#58a6ff;font-size:11px;padding:3px 8px;border-radius:4px;outline:none;';
+            // Build edit UI: root dropdown + filename input
+            const container = document.createElement('div');
+            container.style.cssText = 'display:flex;align-items:center;gap:4px;flex:1;min-width:0;';
 
-            display.replaceWith(input);
-            input.focus();
-            input.select();
+            // Root dropdown
+            const rootSelect = document.createElement('select');
+            rootSelect.style.cssText = 'background:#0d1117;border:1px solid #30363d;color:#8b949e;font-size:10px;padding:2px 4px;border-radius:3px;max-width:220px;cursor:pointer;';
+            // Add "Full URL" option for manual entry
+            const optFull = document.createElement('option');
+            optFull.value = '__full__';
+            optFull.textContent = 'Paste full URL';
+            rootSelect.appendChild(optFull);
+            // Add known roots
+            roots.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                // Show shortened version in dropdown
+                try {
+                    const u = new URL(r);
+                    opt.textContent = u.hostname + u.pathname;
+                } catch(e) {
+                    opt.textContent = r.length > 40 ? '...' + r.slice(-38) : r;
+                }
+                rootSelect.appendChild(opt);
+            });
+            // Pre-select matching root
+            if (currentParts.root && roots.includes(currentParts.root)) {
+                rootSelect.value = currentParts.root;
+            }
+
+            // Filename input
+            const filenameInput = document.createElement('input');
+            filenameInput.type = 'text';
+            filenameInput.maxLength = 300;
+            filenameInput.style.cssText = 'flex:1;background:#0d1117;border:1px solid #30363d;color:#58a6ff;font-size:11px;padding:3px 8px;border-radius:4px;outline:none;min-width:80px;';
+
+            // If root selected, show filename only; otherwise show full URL
+            if (rootSelect.value !== '__full__' && currentParts.filename) {
+                filenameInput.value = currentParts.filename;
+                filenameInput.placeholder = 'image-filename.jpg';
+            } else {
+                filenameInput.value = current;
+                filenameInput.placeholder = 'https://images.example.com/photo.jpg';
+            }
+
+            // Toggle placeholder based on dropdown
+            rootSelect.addEventListener('change', function() {
+                if (rootSelect.value === '__full__') {
+                    filenameInput.placeholder = 'https://images.example.com/photo.jpg';
+                    // If switching to full URL mode, reconstruct full URL
+                    if (filenameInput.value && !filenameInput.value.startsWith('http')) {
+                        const prevRoot = currentParts.root || (roots.length > 0 ? roots[0] : '');
+                        if (prevRoot) filenameInput.value = prevRoot + filenameInput.value;
+                    }
+                } else {
+                    filenameInput.placeholder = 'image-filename.jpg';
+                    // If switching to root mode, strip root from value if present
+                    const val = filenameInput.value;
+                    if (val.startsWith(rootSelect.value)) {
+                        filenameInput.value = val.substring(rootSelect.value.length);
+                    } else if (val.startsWith('http')) {
+                        const p = parseUrlParts(val);
+                        filenameInput.value = p.filename;
+                    }
+                }
+                filenameInput.focus();
+            });
+
+            container.appendChild(rootSelect);
+            container.appendChild(filenameInput);
+            display.replaceWith(container);
+            filenameInput.focus();
+            filenameInput.select();
 
             function save() {
-                const val = input.value.trim();
+                let val = '';
+                if (rootSelect.value === '__full__') {
+                    val = filenameInput.value.trim();
+                } else {
+                    const filename = filenameInput.value.trim();
+                    if (filename) {
+                        val = rootSelect.value + filename;
+                    }
+                }
+
+                // Auto-learn root from saved URL
+                if (val) {
+                    const newParts = parseUrlParts(val);
+                    if (newParts.root) addImageRoot(newParts.root);
+                }
+
                 state.imageUrls[state.activeProduct] = val;
                 saveState();
 
@@ -2522,7 +2662,7 @@
                 newDisplay.id = 'imageUrlDisplay';
                 newDisplay.style.cssText = 'font-size:11px;cursor:pointer;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
                 newDisplay.title = 'Click to set image URL';
-                input.replaceWith(newDisplay);
+                container.replaceWith(newDisplay);
 
                 newDisplay.addEventListener('click', startEditImageUrl);
                 renderImageUrl();
@@ -2532,10 +2672,49 @@
                 }
             }
 
-            input.addEventListener('blur', save);
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-                if (e.key === 'Escape') { input.value = current; input.blur(); }
+            filenameInput.addEventListener('blur', function(e) {
+                // Don't save if focus moved to the dropdown
+                if (e.relatedTarget === rootSelect) return;
+                save();
+            });
+            rootSelect.addEventListener('blur', function(e) {
+                if (e.relatedTarget === filenameInput) return;
+                // Don't auto-save on dropdown blur if filename has focus
+            });
+            filenameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); filenameInput.blur(); setTimeout(save, 50); }
+                if (e.key === 'Escape') { filenameInput.value = currentParts.filename || current; filenameInput.blur(); setTimeout(save, 50); }
+            });
+            // Also handle pasting a full URL into filename field when in root mode
+            filenameInput.addEventListener('paste', function(e) {
+                setTimeout(() => {
+                    const pasted = filenameInput.value.trim();
+                    if (pasted.startsWith('http') && rootSelect.value !== '__full__') {
+                        // User pasted a full URL while in root mode — auto-parse it
+                        const p = parseUrlParts(pasted);
+                        if (p.root) {
+                            addImageRoot(p.root);
+                            // Refresh dropdown
+                            const newRoots = getImageRoots();
+                            // Check if this root is in the select
+                            let found = false;
+                            for (let i = 0; i < rootSelect.options.length; i++) {
+                                if (rootSelect.options[i].value === p.root) { found = true; rootSelect.selectedIndex = i; break; }
+                            }
+                            if (!found) {
+                                const opt = document.createElement('option');
+                                opt.value = p.root;
+                                try {
+                                    const u = new URL(p.root);
+                                    opt.textContent = u.hostname + u.pathname;
+                                } catch(e2) { opt.textContent = p.root; }
+                                rootSelect.insertBefore(opt, rootSelect.options[1]);
+                                rootSelect.value = p.root;
+                            }
+                            filenameInput.value = p.filename;
+                        }
+                    }
+                }, 50);
             });
         }
 
