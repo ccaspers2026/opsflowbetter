@@ -245,11 +245,15 @@
         <div class="header">
             <h1>P2M Pipeline - Version History</h1>
             <p>Caspers Creations - Product to Market - Idea to Revenue</p>
-            <a class="back-link" href="index.html">&larr; Pipeline</a>
+            <a class="back-link" href="index.html">Pipeline</a>
             &nbsp;|&nbsp;
             <a class="back-link" href="media-center.html" style="color: #f0883e;">Media Center</a>
             &nbsp;|&nbsp;
             <a class="back-link" href="workshop.html">Workshop</a>
+            &nbsp;|&nbsp;
+            <span style="color: #e0e0e0; font-weight: 600;">Changelog</span>
+            &nbsp;|&nbsp;
+            <a class="back-link" href="tasks.html" style="color: #bc8cff;">Tasks</a>
             &nbsp;|&nbsp;
             <a class="back-link" href="/#portfolio" style="color: #3fb950;">Our Products</a>
             &nbsp;|&nbsp;
@@ -258,13 +262,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.43.0 - Auto-Process, File Validation &amp; UX Polish</h2>
-            <p>Released March 6, 2026 &mdash; Images auto-process after upload (no manual click). File validation rejects non-image uploads. Image preview popups replace new-tab behavior. Shared product list across pages. Server-side background removal + auto-crop &amp; center.</p>
+            <h2>Version 0.45.0 - Preview Fix, Queue UX, Nav Standardization</h2>
+            <p>Released March 6, 2026 &mdash; Fixed broken image preview popup with error fallback. X button now available on stuck &ldquo;Uploading&rdquo; and &ldquo;Processing&rdquo; queue items. Toast notifications last longer (5s). All &ldquo;R2&rdquo; references replaced with user-friendly &ldquo;cloud storage&rdquo; terminology. Navigation fully standardized across all 5 pages with consistent order and current-page highlighting.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">53</div>
+                <div class="stat-value">56</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -286,6 +290,58 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.45.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.45.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">Preview Fix, Queue UX, Nav Standardization</div>
+                <ul class="changes-list">
+                    <li>Fixed broken image preview popup &mdash; now shows &ldquo;Image could not be loaded&rdquo; error message instead of broken icon</li>
+                    <li>X (remove) button now available on stuck &ldquo;Uploading&rdquo; and &ldquo;Processing&rdquo; queue items &mdash; no more orphaned entries</li>
+                    <li>Toast notification duration increased from 3s to 5s for better readability</li>
+                    <li>All user-facing &ldquo;R2&rdquo; references replaced with &ldquo;cloud storage&rdquo; &mdash; friendlier terminology</li>
+                    <li>Navigation fully standardized across Pipeline, Media Center, Workshop, Changelog, and Tasks &mdash; same order, same links, current page highlighted on every page</li>
+                </ul>
+            </div>
+
+            <!-- v0.44.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.44.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Workshop Card System Complete &amp; Nav Sync</div>
+                <ul class="changes-list">
+                    <li>Workshop fully redesigned as card-based system &mdash; 6 phases with LED indicators matching Pipeline visual language</li>
+                    <li>Detail panels with editable form fields, auto-save, and &ldquo;Mark as Complete&rdquo; verification for each card</li>
+                    <li>Dynamic cards for Fleet (7 printers pre-populated), Materials, and Software phases &mdash; add/remove as needed</li>
+                    <li>Machine Economics phase auto-calculates depreciation, maintenance, electricity, and blended hourly rate</li>
+                    <li>Navigation now consistent across all 5 pages: Pipeline, Media Center, Workshop, Changelog, Tasks</li>
+                    <li>Workshop version synced from v0.27.1 to v0.44.0</li>
+                </ul>
+            </div>
+
+            <!-- v0.43.1 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.43.1</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Gallery Cleanup, Task Tracker &amp; UX Fixes</div>
+                <ul class="changes-list">
+                    <li>Gallery cards now show &ldquo;Image unavailable&rdquo; fallback instead of broken thumbnails</li>
+                    <li>Hover any gallery card to reveal &times; remove button &mdash; cleans up junk entries</li>
+                    <li>Added &ldquo;Clear Gallery&rdquo; and &ldquo;Clear Done&rdquo; buttons for bulk cleanup</li>
+                    <li>New <a href="tasks.html" style="color:#bc8cff;">Task Tracker</a> page &mdash; living backlog with priorities, milestones, and stats</li>
+                    <li>Tasks link (purple) added to navigation on all pages</li>
+                </ul>
+            </div>
 
             <!-- v0.43.0 -->
             <div class="version-entry">

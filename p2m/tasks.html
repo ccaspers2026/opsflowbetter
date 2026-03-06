@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="300">
+    <title>P2M Tasks &amp; Backlog</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 30px 40px;
+            line-height: 1.6;
+        }
+
+        .header {
+            border-bottom: 2px solid #21262d;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .header h1 { font-size: 24px; color: #fff; margin-bottom: 4px; }
+        .header p { font-size: 12px; color: #8b949e; }
+        .header .nav {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .header .nav a {
+            color: #58a6ff;
+            text-decoration: none;
+            margin-right: 12px;
+        }
+        .header .nav a:hover { text-decoration: underline; }
+
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 12px 20px;
+            text-align: center;
+            min-width: 100px;
+        }
+        .stat-card .num { font-size: 28px; font-weight: 700; color: #fff; }
+        .stat-card .label { font-size: 10px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .section { margin-bottom: 32px; }
+        .section h2 {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section h2 .count {
+            font-size: 11px;
+            background: #21262d;
+            color: #8b949e;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .task {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .task:hover { border-color: #30363d; }
+        .task .priority {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        .priority.high { background: #f85149; }
+        .priority.medium { background: #f0883e; }
+        .priority.low { background: #58a6ff; }
+        .priority.done { background: #3fb950; }
+
+        .task .content { flex: 1; }
+        .task .title { font-size: 13px; color: #e0e0e0; font-weight: 500; }
+        .task .desc { font-size: 11px; color: #8b949e; margin-top: 3px; }
+        .task .meta { font-size: 10px; color: #484f58; margin-top: 4px; }
+        .task .tag {
+            display: inline-block;
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+        .tag-bug { background: #3d1519; color: #f85149; }
+        .tag-feature { background: #1c2333; color: #58a6ff; }
+        .tag-ux { background: #2a1f0d; color: #f0883e; }
+        .tag-infra { background: #0d2818; color: #3fb950; }
+        .tag-fun { background: #2d1b4e; color: #bc8cff; }
+
+        .completed-task .title { color: #484f58; text-decoration: line-through; }
+        .completed-task .desc { color: #30363d; }
+
+        .milestone {
+            background: linear-gradient(135deg, #161b22, #1a2332);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+        }
+        .milestone h3 { font-size: 14px; color: #58a6ff; margin-bottom: 4px; }
+        .milestone p { font-size: 12px; color: #8b949e; }
+        .milestone .progress-bar {
+            height: 6px;
+            background: #21262d;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .milestone .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #238636, #3fb950);
+        }
+
+        .refresh-note {
+            text-align: center;
+            font-size: 10px;
+            color: #30363d;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>P2M Task Tracker</h1>
+    <p>Living backlog for Caspers Creations &mdash; Auto-refreshes every 5 minutes</p>
+    <div class="nav">
+        <a href="index.html">Pipeline</a>
+        <a href="media-center.html" style="color:#f0883e;">Media Center</a>
+        <a href="workshop.html">Workshop</a>
+        <a href="changelog.html">Changelog</a>
+        <span style="color:#e0e0e0;font-weight:600;">Tasks</span>
+        <a href="/#portfolio" style="color:#3fb950;">Our Products</a>
+        <a href="/" style="color:#d29922;">OpsFlowBetter</a>
+    </div>
+</div>
+
+<!-- ── Stats ────────────────────────────────────────────────── -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="num" style="color:#f85149;">4</div>
+        <div class="label">Active Bugs</div>
+    </div>
+    <div class="stat-card">
+        <div class="num" style="color:#f0883e;">6</div>
+        <div class="label">In Progress</div>
+    </div>
+    <div class="stat-card">
+        <div class="num" style="color:#58a6ff;">8</div>
+        <div class="label">Backlog</div>
+    </div>
+    <div class="stat-card">
+        <div class="num" style="color:#3fb950;">53</div>
+        <div class="label">Versions Shipped</div>
+    </div>
+    <div class="stat-card">
+        <div class="num" style="color:#bc8cff;">10</div>
+        <div class="label">Days Since Launch</div>
+    </div>
+</div>
+
+<!-- ── Active / In Progress ─────────────────────────────────── -->
+<div class="section">
+    <h2>&#128293; Active &amp; In Progress <span class="count">6</span></h2>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">Broken gallery thumbnails after bad upload</div>
+            <div class="desc">MP4 upload created corrupted gallery entries. Added image error fallback + gallery remove buttons + Clear Gallery. Need to test v0.43.1.</div>
+            <div class="meta"><span class="tag tag-bug">BUG</span> Media Center &bull; v0.43.1</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">remove.bg credits at 0 &mdash; need plan for credit renewal</div>
+            <div class="desc">Free tier gives 50/month. Processing will fail until credits reset or account upgraded. Consider: buy credits, switch to free alternative, or batch processing strategy.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> Worker &bull; Blocking new processing</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Auto-crop + center after BG removal</div>
+            <div class="desc">v0.41.0 added crop:true to remove.bg + canvas-based re-centering on 2000&times;2000. Worker deployed. Needs testing with live credits.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Media Center + Worker &bull; v0.41.0</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Image preview popup</div>
+            <div class="desc">Dark overlay popup replaces new-tab behavior on both Pipeline and Media Center. Added in v0.42.1. Needs testing.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Pipeline + Media Center &bull; v0.42.1</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Auto-process after upload (no manual click)</div>
+            <div class="desc">v0.43.0 auto-triggers processJob() 300ms after successful R2 upload. File validation rejects non-images. Needs testing.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Media Center &bull; v0.43.0</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Workshop data review &amp; cleanup</div>
+            <div class="desc">User has asked multiple times: "We need to go back and do the Workshop again. We never finished making sure all the Workshop phases were good and the data was good."</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Workshop &bull; Recurring request</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Backlog ───────────────────────────────────────────────── -->
+<div class="section">
+    <h2>&#128203; Backlog <span class="count">8</span></h2>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Processing progress bar for batch jobs</div>
+            <div class="desc">Show "Processing 3 of 7..." with a visual progress bar when batch processing multiple images.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Media Center</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Retry count display on failed jobs</div>
+            <div class="desc">Show how many times a job has been retried. Make it informative and fun.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Media Center</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">R2 data cleanup tooling</div>
+            <div class="desc">No cleanup for orphaned R2 files right now. Not urgent (we overwrite at same paths + plenty of storage). Needed when app matures.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> Worker &bull; Future app milestone</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Product delete with relationship check</div>
+            <div class="desc">"+ Add" can create products but no delete yet. Delete needs to check for related queue entries, gallery items, and R2 files before removing.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Media Center</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Full application Design &amp; Spec document</div>
+            <div class="desc">Browser-based interactive document with flowcharts for entire application. Requested earlier in the project.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Documentation</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Update welcome.html version count</div>
+            <div class="desc">The About P2M page version stats are stale and need updating.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Welcome page</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Database migration (replace localStorage)</div>
+            <div class="desc">Current prototype uses localStorage for all state. Future state needs a proper database (Cloudflare D1, Supabase, etc.) for multi-device sync and data integrity.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> Architecture &bull; Major milestone</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Work pace &amp; stats dashboard</div>
+            <div class="desc">Fun metrics: lines of code per day, versions shipped per day, build timeline from Feb 27 flowchart to current. Just fun stuff to reflect on.</div>
+            <div class="meta"><span class="tag tag-fun">FUN</span> Dashboard</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Recently Completed ────────────────────────────────────── -->
+<div class="section">
+    <h2>&#9989; Recently Completed <span class="count">12</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Shared product list (opsflow_products)</div>
+            <div class="desc">Single source of truth for product names. Pipeline syncs on save/load. Media Center reads from one key.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.42.0 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">File type validation (reject MP4, etc.)</div>
+            <div class="desc">handleFiles() now checks MIME type and extension. Only JPG/PNG/GIF/WebP/BMP/TIFF allowed.</div>
+            <div class="meta"><span class="tag tag-bug">BUG</span> v0.43.0 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Navigation consistency across pages</div>
+            <div class="desc">Pipeline, Media Center, Changelog all now have matching nav links.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.43.0 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Changelog CURRENT badge (was stuck at v0.34.0)</div>
+            <div class="desc">Updated to reflect latest version.</div>
+            <div class="meta"><span class="tag tag-bug">BUG</span> v0.43.0 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Media Center + remove.bg API integration</div>
+            <div class="desc">Full Media Center page with queue, gallery, drop zone. Server-side BG removal via Cloudflare Worker.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.40.0 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Product selector for Media Center uploads</div>
+            <div class="desc">Dropdown to pick which product an upload belongs to. Validates before upload.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.40.1 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Image cache-busting after processing</div>
+            <div class="desc">R2 Cache-Control headers + ?v=timestamp on URLs. Pipeline state updated with fresh URLs.</div>
+            <div class="meta"><span class="tag tag-bug">BUG</span> v0.40.2 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Queue delete tooltip clarification</div>
+            <div class="desc">X button now says "Remove from queue (image stays in R2)" so users know the file is safe.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.43.0 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Pivoted from browser AI to remove.bg API</div>
+            <div class="desc">@imgly/background-removal couldn't load from any CDN. Replaced with remove.bg API via Worker.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> v0.40.0 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">"+ Add" button for custom products</div>
+            <div class="desc">Manual product entry in Media Center. Syncs back to shared opsflow_products key.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.41.1 &bull; March 6</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Product Marketing Modal</div>
+            <div class="desc">Consolidated tagline, image URL, Image Fixer, and color variants into one modal.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.34.0 &bull; March 5</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Portfolio with product cards on OpsFlowBetter.com</div>
+            <div class="desc">Live product portfolio with dynamic image display from R2.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Earlier &bull; March 5</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Milestones ────────────────────────────────────────────── -->
+<div class="section">
+    <h2>&#127919; Milestones</h2>
+
+    <div class="milestone">
+        <h3>Milestone 1: MVP Pipeline</h3>
+        <p>7-phase pipeline with Workshop integration, product management, and live portfolio</p>
+        <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
+        <div style="font-size:10px;color:#3fb950;margin-top:4px;">95% &mdash; Workshop data review remaining</div>
+    </div>
+
+    <div class="milestone">
+        <h3>Milestone 2: Media Pipeline</h3>
+        <p>Server-side BG removal, auto-crop, queue processing, Media Center gallery</p>
+        <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+        <div style="font-size:10px;color:#f0883e;margin-top:4px;">80% &mdash; Crop testing + credit renewal needed</div>
+    </div>
+
+    <div class="milestone">
+        <h3>Milestone 3: Production Ready</h3>
+        <p>Database migration, multi-device sync, R2 cleanup, user accounts</p>
+        <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
+        <div style="font-size:10px;color:#8b949e;margin-top:4px;">10% &mdash; Architecture planned, not started</div>
+    </div>
+</div>
+
+<div class="refresh-note">
+    This page auto-refreshes every 5 minutes &bull; Last updated: March 6, 2026
+</div>
+
+</body>
+</html>

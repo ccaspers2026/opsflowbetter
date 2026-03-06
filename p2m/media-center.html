@@ -238,11 +238,22 @@
             transition: border-color 0.2s;
         }
         .gallery-card:hover { border-color: #30363d; }
+        .gallery-card { position: relative; }
         .gallery-card img {
             width: 100%;
             height: 150px;
             object-fit: contain;
             background: #fff;
+        }
+        .gallery-card .img-error {
+            width: 100%;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #161b22;
+            color: #484f58;
+            font-size: 11px;
         }
         .gallery-card .info {
             padding: 8px 10px;
@@ -259,6 +270,25 @@
             color: #484f58;
             margin-top: 2px;
         }
+        .gallery-card .gallery-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(22,27,34,0.85);
+            color: #8b949e;
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        .gallery-card:hover .gallery-remove { display: flex; }
+        .gallery-card .gallery-remove:hover { color: #f85149; }
 
         /* ── Tabs ────────────────────────────────────────────── */
         .tabs {
@@ -393,13 +423,14 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.43.0</span>
+        <span class="topbar-version">Media Center v0.45.0</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
         <a href="media-center.html" class="active" style="color:#f0883e;">Media Center</a>
         <a href="workshop.html">Workshop</a>
         <a href="changelog.html">Changelog</a>
+        <a href="tasks.html" style="color:#bc8cff;">Tasks</a>
         <a href="/#portfolio" style="color:#3fb950;">Our Products</a>
         <a href="/" style="color:#d29922;">OpsFlowBetter</a>
     </div>
@@ -431,7 +462,7 @@
         <div class="drop-zone" id="dropZone" onclick="if(checkProductSelected()) document.getElementById('fileInput').click()">
             <div class="icon">&#128228;</div>
             <p>Drag & drop images here, paste (Ctrl+V), or click to browse</p>
-            <p style="font-size:11px;color:#484f58;margin-top:6px;">Images upload to R2 immediately &bull; Background removal queued automatically</p>
+            <p style="font-size:11px;color:#484f58;margin-top:6px;">Images upload to cloud storage &bull; Background removal + crop runs automatically</p>
             <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff" multiple>
         </div>
 
@@ -442,6 +473,7 @@
                 <span class="badge badge-pending" id="pendingBadge">0 pending</span>
                 <span class="badge badge-processing" id="processingBadge">0 processing</span>
                 <span class="badge badge-done" id="doneBadge">0 done</span>
+                <button onclick="clearDone()" style="background:#21262d;border:1px solid #30363d;border-radius:4px;color:#8b949e;padding:6px 12px;font-size:11px;cursor:pointer;" title="Clear completed items from queue">Clear Done</button>
                 <button class="btn-process-all" id="processAllBtn" onclick="processAllPending()">&#9654; Process All</button>
             </div>
         </div>
@@ -476,6 +508,9 @@
             <select id="galleryFilter" onchange="renderGallery()">
                 <option value="all">All Products</option>
             </select>
+            <div style="margin-left:auto;">
+                <button onclick="clearGallery()" style="background:#21262d;border:1px solid #30363d;border-radius:4px;color:#8b949e;padding:4px 10px;font-size:11px;cursor:pointer;" title="Remove all gallery entries (images stay in cloud storage)">Clear Gallery</button>
+            </div>
         </div>
         <div class="gallery-grid" id="galleryGrid"></div>
         <div class="empty-state" id="galleryEmpty">
@@ -490,7 +525,8 @@
 <!-- Image Preview Popup -->
 <div class="img-preview-overlay" id="imgPreview" onclick="closePreview(event)">
     <div class="preview-close" onclick="closePreview(event)">&times;</div>
-    <img id="previewImg" src="" alt="Preview">
+    <img id="previewImg" src="" alt="Preview" onerror="this.style.display='none';document.getElementById('previewError').style.display='block';" onload="this.style.display='';document.getElementById('previewError').style.display='none';">
+    <div id="previewError" style="display:none;color:#f85149;text-align:center;padding:40px;font-size:14px;">Image could not be loaded.<br><span style="font-size:11px;color:#8b949e;">The processed image may no longer be available in cloud storage.</span></div>
     <div class="preview-info">
         <span class="preview-label" id="previewLabel"></span>
         <a class="preview-open" id="previewOpenLink" href="#" target="_blank" onclick="event.stopPropagation()">Open in new tab &#8599;</a>
@@ -558,7 +594,7 @@ function getR2Secret() {
 }
 
 function promptR2Secret() {
-    var s = prompt('Enter your R2 upload secret:');
+    var s = prompt('Enter your upload secret:');
     if (s) localStorage.setItem(R2_SECRET_KEY, s);
     return s || '';
 }
@@ -749,7 +785,7 @@ function isAllowedFile(file) {
 function handleFiles(fileList) {
     var secret = getR2Secret();
     if (!secret) { secret = promptR2Secret(); }
-    if (!secret) { showToast('R2 secret required', 'error'); return; }
+    if (!secret) { showToast('Upload secret required', 'error'); return; }
 
     var product = getActiveProduct();
     var rejected = 0;
@@ -1155,16 +1191,20 @@ function renderQueue() {
 
         var actionsHtml = '';
         if (j.status === 'pending') {
-            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in R2)">&#10005;</button> ';
+            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in cloud storage)">&#10005;</button> ';
             actionsHtml += '<button class="btn-process" onclick="processJob(\'' + j.id + '\')">&#9654; Process</button>';
         } else if (j.status === 'failed') {
-            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in R2)">&#10005;</button> ';
+            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in cloud storage)">&#10005;</button> ';
             actionsHtml += '<button class="btn-process" onclick="processJob(\'' + j.id + '\')">&#8635; Retry</button>';
         } else if (j.status === 'done') {
-            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in R2)">&#10005;</button> ';
+            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove from queue (image stays in cloud storage)">&#10005;</button> ';
             actionsHtml += '<a href="#" onclick="event.preventDefault();showPreview(\'' + thumbUrl.replace(/'/g, "\\'") + '\',\'' + (j.product + ' — ' + j.fileName).replace(/'/g, "\\'") + '\')" style="color:#58a6ff;font-size:11px;text-decoration:none;cursor:pointer;">View &#128065;</a>';
         } else if (j.status === 'uploading') {
-            actionsHtml = '<span style="color:#f0883e;font-size:11px;">Uploading&hellip;</span>';
+            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove stuck upload">&#10005;</button> ';
+            actionsHtml += '<span style="color:#f0883e;font-size:11px;">Uploading&hellip;</span>';
+        } else if (j.status === 'processing') {
+            actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove stuck job">&#10005;</button> ';
+            actionsHtml += '<span style="color:#bc8cff;font-size:11px;">Processing&hellip;</span>';
         } else {
             actionsHtml = '<span style="color:#8b949e;font-size:11px;">...</span>';
         }
@@ -1205,13 +1245,30 @@ function renderGallery() {
         var url = g.url || (R2_PUBLIC_BASE + g.r2Key);
         var date = g.processedAt ? new Date(g.processedAt).toLocaleDateString() : '';
         html += '<div class="gallery-card">';
-        html += '<img src="' + url + '" alt="' + g.fileName + '" onclick="showPreview(\'' + url.replace(/'/g, "\\'") + '\',\'' + (g.product + ' — ' + g.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview">';
+        html += '<button class="gallery-remove" onclick="removeGalleryItem(' + i + ')" title="Remove from gallery">&times;</button>';
+        html += '<img src="' + url + '" alt="' + g.fileName + '" onclick="showPreview(\'' + url.replace(/'/g, "\\'") + '\',\'' + (g.product + ' — ' + g.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview" onerror="this.outerHTML=\'<div class=img-error>Image unavailable</div>\'">';
         html += '<div class="info">';
         html += '<div class="name">' + g.product + '</div>';
         html += '<div class="meta">' + g.fileName + ' &bull; ' + date + '</div>';
         html += '</div></div>';
     }
     grid.innerHTML = html;
+}
+
+function removeGalleryItem(index) {
+    gallery.splice(index, 1);
+    saveGallery();
+    renderGallery();
+    showToast('Removed from gallery', 'success');
+}
+
+function clearGallery() {
+    if (!gallery.length) { showToast('Gallery is already empty', 'error'); return; }
+    if (!confirm('Clear all ' + gallery.length + ' gallery entries?\n\n(Images stay in cloud storage — this just clears the local gallery view)')) return;
+    gallery = [];
+    saveGallery();
+    renderGallery();
+    showToast('Gallery cleared', 'success');
 }
 
 // ── Populate Product Filter ──────────────────────────────────────
@@ -1249,7 +1306,7 @@ function showToast(msg, type) {
     el.textContent = msg;
     el.className = 'toast ' + (type || '') + ' show';
     clearTimeout(el._timer);
-    el._timer = setTimeout(function() { el.classList.remove('show'); }, 3000);
+    el._timer = setTimeout(function() { el.classList.remove('show'); }, 5000);
 }
 
 // ── Public API for Pipeline Integration ──────────────────────────
