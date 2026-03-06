@@ -2158,7 +2158,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.36.0</p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.37.0</p>
                 <p>Product to Market — Idea to Revenue &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Workshop</a> &nbsp;|&nbsp; <a href="welcome.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">About P2M</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none; font-size: 11px;">Changelog</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none; font-size: 11px;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none; font-size: 11px;">⬡ OpsFlowBetter Suite</a></p>
             </div>
             <div class="header-right">
@@ -2236,8 +2236,8 @@
                         <label style="font-size:12px;color:#8b949e;display:block;margin-bottom:6px;font-weight:600;">IMAGE FIXER <span style="color:#3fb950;font-weight:400;">— AI Background Removal</span></label>
                         <div id="modalDropZone" style="border:2px dashed #30363d;border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:#161b22;">
                             <div style="font-size:28px;margin-bottom:6px;opacity:0.5;">&#128247;</div>
-                            <div style="font-size:13px;color:#c9d1d9;margin-bottom:4px;">Drag &amp; drop a raw product photo here</div>
-                            <div style="font-size:11px;color:#6e7681;">or click to browse &bull; Removes background, white bg, 2000&times;2000, Amazon-ready</div>
+                            <div style="font-size:13px;color:#c9d1d9;margin-bottom:4px;">Drag &amp; drop, paste (Ctrl+V), or click to browse</div>
+                            <div style="font-size:11px;color:#6e7681;">Removes background, white bg, 2000&times;2000, Amazon-ready</div>
                         </div>
                         <input type="file" id="modalFileInput" accept="image/*" style="display:none;">
                         <!-- Progress Bar -->
@@ -2641,24 +2641,27 @@
             return slug + '/' + (suffix || 'main') + '.jpg';
         }
 
+        var _pendingR2Upload = null; // holds {canvas, productName, suffix, onDone} for retry after secret entry
+
         function uploadToR2(canvas, productName, suffix, onDone) {
             const secret = getR2Secret();
             if (!secret) {
-                // First time — prompt for the upload secret
-                const entered = prompt('Enter your R2 upload secret (one-time setup, saved locally):');
-                if (!entered) {
-                    if (onDone) onDone(null, 'No secret provided');
-                    return;
-                }
-                setR2Secret(entered);
-                uploadToR2(canvas, productName, suffix, onDone); // retry
+                // Show inline secret entry instead of browser prompt
+                _pendingR2Upload = { canvas, productName, suffix, onDone };
+                showR2SecretInput();
                 return;
             }
 
             const key = makeR2Key(productName, suffix);
+            console.log('[R2] Uploading to:', R2_UPLOAD_API + key);
 
             canvas.toBlob(function(blob) {
-                if (!blob) { if (onDone) onDone(null, 'Canvas blob failed'); return; }
+                if (!blob) {
+                    console.error('[R2] Canvas toBlob returned null');
+                    if (onDone) onDone(null, 'Canvas blob failed');
+                    return;
+                }
+                console.log('[R2] Blob size:', blob.size, 'bytes');
 
                 fetch(R2_UPLOAD_API + key, {
                     method: 'PUT',
@@ -2668,25 +2671,66 @@
                     },
                     body: blob,
                 }).then(r => {
+                    console.log('[R2] Response status:', r.status);
                     if (r.status === 401) {
-                        // Bad secret — clear it and retry once
                         localStorage.removeItem(R2_SECRET_KEY);
-                        showPipelineToast('R2 secret rejected — please re-enter', true);
-                        uploadToR2(canvas, productName, suffix, onDone);
+                        showPipelineToast('R2 secret rejected — re-enter below', true);
+                        _pendingR2Upload = { canvas, productName, suffix, onDone };
+                        showR2SecretInput();
                         return;
                     }
                     return r.json().then(data => {
+                        console.log('[R2] Response data:', data);
                         if (data.ok) {
+                            showPipelineToast('Uploaded to R2: ' + key);
                             if (onDone) onDone(data.url, null);
                         } else {
+                            console.error('[R2] Server error:', data.error);
                             if (onDone) onDone(null, data.error || 'Upload failed');
                         }
                     });
                 }).catch(err => {
-                    console.warn('R2 upload failed:', err);
-                    if (onDone) onDone(null, err.message);
+                    console.error('[R2] Fetch failed:', err);
+                    if (onDone) onDone(null, 'Network error: ' + err.message);
                 });
             }, 'image/jpeg', 0.95);
+        }
+
+        function showR2SecretInput() {
+            // Show an inline secret entry field inside the modal actions area
+            const actionsEl = document.getElementById('modalFixerActions');
+            if (!actionsEl) return;
+            const existing = document.getElementById('r2SecretEntry');
+            if (existing) return; // already showing
+
+            const wrapper = document.createElement('div');
+            wrapper.id = 'r2SecretEntry';
+            wrapper.style.cssText = 'margin-top:8px;padding:8px;background:#1c2129;border:1px solid #f0883e;border-radius:6px;';
+            wrapper.innerHTML = '<div style="font-size:11px;color:#f0883e;margin-bottom:6px;font-weight:600;">R2 Upload Secret Required (one-time setup)</div>'
+                + '<div style="display:flex;gap:6px;">'
+                + '<input type="password" id="r2SecretInput" placeholder="Enter your upload secret..." style="flex:1;padding:5px 8px;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;font-size:12px;">'
+                + '<button id="r2SecretSaveBtn" style="padding:5px 12px;background:#238636;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:600;">Save &amp; Upload</button>'
+                + '</div>'
+                + '<div style="font-size:10px;color:#6e7681;margin-top:4px;">This is the UPLOAD_SECRET you set in your Cloudflare Worker. Saved locally in your browser.</div>';
+            actionsEl.appendChild(wrapper);
+
+            document.getElementById('r2SecretSaveBtn').addEventListener('click', function() {
+                const val = document.getElementById('r2SecretInput').value.trim();
+                if (!val) return;
+                setR2Secret(val);
+                wrapper.remove();
+                if (_pendingR2Upload) {
+                    const p = _pendingR2Upload;
+                    _pendingR2Upload = null;
+                    uploadToR2(p.canvas, p.productName, p.suffix, p.onDone);
+                }
+            });
+
+            document.getElementById('r2SecretInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') document.getElementById('r2SecretSaveBtn').click();
+            });
+
+            setTimeout(() => document.getElementById('r2SecretInput').focus(), 100);
         }
 
         // ============================================================================
@@ -2867,6 +2911,29 @@
                     this.value = '';
                 }
             });
+
+            // Clipboard paste support — Ctrl+V anywhere in the modal
+            const modal = document.getElementById('productMarketingModal');
+            // Remove old paste listener if any
+            if (modal._pasteHandler) modal.removeEventListener('paste', modal._pasteHandler);
+            modal._pasteHandler = function(e) {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        e.preventDefault();
+                        const file = items[i].getAsFile();
+                        if (file) {
+                            // Flash the drop zone to show we received it
+                            newDrop.style.borderColor = '#3fb950';
+                            newDrop.style.background = '#0d1117';
+                            setTimeout(() => { newDrop.style.borderColor = '#30363d'; newDrop.style.background = '#161b22'; }, 500);
+                            processModalImage(file);
+                        }
+                        return;
+                    }
+                }
+            };
+            modal.addEventListener('paste', modal._pasteHandler);
         }
 
         function processModalImage(file) {
@@ -2903,22 +2970,49 @@
                 }
             }, 400);
 
-            // Check if imgly loaded
+            // Check if imgly loaded — wait up to 60 seconds for first-time ~30MB download
             if (!window.imglyRemoveBackground) {
                 progressLabel.textContent = 'AI model loading (first use: ~30MB download)...';
                 let retries = 0;
+                const maxRetries = 60; // 60 seconds
                 const check = setInterval(() => {
                     retries++;
+                    if (retries % 10 === 0) progressLabel.textContent = 'Still loading AI model... (' + retries + 's)';
                     if (window.imglyRemoveBackground) {
                         clearInterval(check);
                         doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
-                    } else if (retries > 30) {
+                    } else if (retries > maxRetries) {
                         clearInterval(check);
                         clearInterval(progressInterval);
-                        progressLabel.textContent = 'AI model unavailable — using manual resize mode';
                         progressBar.style.width = '100%';
                         progressBar.style.background = 'linear-gradient(90deg,#f0883e,#f0883e)';
                         progressPct.textContent = '100%';
+                        progressLabel.innerHTML = 'AI model failed to load — <a href="#" id="retryAiBtn" style="color:#58a6ff;text-decoration:underline;cursor:pointer;">Retry</a> or using resize-only mode';
+
+                        // Retry button reloads the module and tries again
+                        setTimeout(() => {
+                            const retryBtn = document.getElementById('retryAiBtn');
+                            if (retryBtn) {
+                                retryBtn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    progressLabel.textContent = 'Retrying AI model load...';
+                                    progressBar.style.background = 'linear-gradient(90deg,#238636,#2ea043)';
+                                    progressBar.style.width = '10%';
+                                    progressPct.textContent = '10%';
+                                    // Re-import the module
+                                    import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/dist/index.js').then(mod => {
+                                        window.imglyRemoveBackground = mod.default;
+                                        window._imglyLoaded = true;
+                                        doModalRemoval(origUrl, progressInterval, progressBar, progressLabel, progressPct, progressContainer, fixerPreview);
+                                    }).catch(err => {
+                                        console.error('[AI] Retry failed:', err);
+                                        progressLabel.textContent = 'AI retry failed — ' + err.message;
+                                        doModalFallback(origUrl, progressContainer, fixerPreview);
+                                    });
+                                });
+                            }
+                        }, 50);
+
                         doModalFallback(origUrl, progressContainer, fixerPreview);
                     }
                 }, 1000);

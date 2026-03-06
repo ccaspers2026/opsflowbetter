@@ -281,6 +281,26 @@
 
         <div class="timeline">
 
+            <!-- v0.37.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.37.0</span>
+                    <span class="version-date">March 5, 2026</span>
+                    <span class="version-tag tag-enhancement">ENHANCEMENT</span>
+                </div>
+                <div class="version-title">Image Fixer Reliability &amp; Clipboard Paste</div>
+                <ul class="change-list">
+                    <li>R2 upload now shows visible error messages instead of failing silently</li>
+                    <li>Inline R2 secret entry field replaces unreliable browser prompt() &mdash; themed to match the modal, with Enter key support</li>
+                    <li>Console logging for R2 uploads (open DevTools → Console to debug if needed)</li>
+                    <li>AI background removal timeout increased from 30s to 60s for slow connections</li>
+                    <li>&ldquo;Retry&rdquo; link appears if AI model fails to load &mdash; re-imports module and retries without page reload</li>
+                    <li>Clipboard paste (Ctrl+V) support in the Image Fixer &mdash; paste an image from Phone Link, screenshot tools, etc.</li>
+                    <li>Drop zone text updated to show all three input methods: drag &amp; drop, paste, or click to browse</li>
+                    <li>Added .wrangler/ to .gitignore to keep Cloudflare cache out of the repo</li>
+                </ul>
+            </div>
+
             <!-- v0.36.0 -->
             <div class="version-entry">
                 <div class="version-header">

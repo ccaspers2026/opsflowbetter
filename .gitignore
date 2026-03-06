@@ -406,3 +406,7 @@ $RECYCLE.BIN/
 .AppleDouble
 .LSOverride
 ._*
+
+# Cloudflare Wrangler
+.wrangler/
+worker/.wrangler/
