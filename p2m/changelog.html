@@ -14,12 +14,12 @@
             font-family: 'Segoe UI', Arial, sans-serif;
             background-color: #0d1117;
             color: #c9d1d9;
-            padding: 40px;
+            padding: 24px 20px;
             line-height: 1.6;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -30,7 +30,7 @@
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 24px;
             color: #fff;
             margin-bottom: 4px;
         }
@@ -262,13 +262,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.45.0 - Preview Fix, Queue UX, Nav Standardization</h2>
-            <p>Released March 6, 2026 &mdash; Fixed broken image preview popup with error fallback. X button now available on stuck &ldquo;Uploading&rdquo; and &ldquo;Processing&rdquo; queue items. Toast notifications last longer (5s). All &ldquo;R2&rdquo; references replaced with user-friendly &ldquo;cloud storage&rdquo; terminology. Navigation fully standardized across all 5 pages with consistent order and current-page highlighting.</p>
+            <h2>Version 0.46.0 - Gallery UX, Preview Retry, Design Consistency</h2>
+            <p>Released March 6, 2026 &mdash; Uploaded images now appear in Media Gallery immediately (before BG removal). Preview popup retries without cache-bust before showing error. Nav left-aligned across all pages. Font, max-width, and spacing standardized site-wide.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">56</div>
+                <div class="stat-value">57</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -290,6 +290,26 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.46.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.46.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Gallery UX, Preview Retry, Design Consistency</div>
+                <ul class="changes-list">
+                    <li>Uploaded images now appear in Media Gallery immediately with &ldquo;Original&rdquo; badge &mdash; no more empty gallery after failed processing</li>
+                    <li>Gallery entries update in-place when BG removal succeeds &mdash; no duplicates</li>
+                    <li>Preview popup retries without cache-bust query params before showing error message</li>
+                    <li>Media Center nav left-aligned &mdash; nav links now cluster near logo instead of floating center</li>
+                    <li>Font stack standardized to &ldquo;Segoe UI&rdquo; across all pages (Workshop was using system font stack)</li>
+                    <li>Content max-width standardized to 1200px on Changelog and Tasks pages</li>
+                    <li>Padding and spacing normalized across all pages (24px 20px standard)</li>
+                    <li>Changelog h1 reduced from 28px to 24px to match other pages</li>
+                </ul>
+            </div>
 
             <!-- v0.45.0 -->
             <div class="version-entry">

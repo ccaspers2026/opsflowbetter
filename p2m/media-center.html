@@ -19,10 +19,10 @@
         .topbar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             padding: 10px 20px;
             background: #161b22;
             border-bottom: 1px solid #21262d;
+            gap: 16px;
         }
         .topbar-left {
             display: flex;
@@ -45,6 +45,7 @@
         .topbar-nav {
             display: flex;
             gap: 8px;
+            margin-right: auto;
         }
         .topbar-nav a {
             color: #8b949e;
@@ -423,7 +424,7 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.45.0</span>
+        <span class="topbar-version">Media Center v0.46.0</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
@@ -525,7 +526,7 @@
 <!-- Image Preview Popup -->
 <div class="img-preview-overlay" id="imgPreview" onclick="closePreview(event)">
     <div class="preview-close" onclick="closePreview(event)">&times;</div>
-    <img id="previewImg" src="" alt="Preview" onerror="this.style.display='none';document.getElementById('previewError').style.display='block';" onload="this.style.display='';document.getElementById('previewError').style.display='none';">
+    <img id="previewImg" src="" alt="Preview">
     <div id="previewError" style="display:none;color:#f85149;text-align:center;padding:40px;font-size:14px;">Image could not be loaded.<br><span style="font-size:11px;color:#8b949e;">The processed image may no longer be available in cloud storage.</span></div>
     <div class="preview-info">
         <span class="preview-label" id="previewLabel"></span>
@@ -550,8 +551,33 @@ const GALLERY_STORAGE_KEY = 'opsflow_media_gallery';
 function showPreview(url, label) {
     var overlay = document.getElementById('imgPreview');
     var img = document.getElementById('previewImg');
+    var errEl = document.getElementById('previewError');
     var lbl = document.getElementById('previewLabel');
     var link = document.getElementById('previewOpenLink');
+
+    // Reset state
+    img.style.display = '';
+    errEl.style.display = 'none';
+    img._retried = false;
+    img._originalUrl = url;
+
+    // On error: try stripping cache-bust params first, then show error
+    img.onerror = function() {
+        if (!img._retried && url.indexOf('?') !== -1) {
+            img._retried = true;
+            var cleanUrl = url.split('?')[0];
+            img.src = cleanUrl;
+            link.href = cleanUrl;
+            return;
+        }
+        img.style.display = 'none';
+        errEl.style.display = 'block';
+    };
+    img.onload = function() {
+        img.style.display = '';
+        errEl.style.display = 'none';
+    };
+
     img.src = url;
     lbl.textContent = label || '';
     link.href = url;
@@ -828,6 +854,20 @@ function handleFiles(fileList) {
                             job.status = 'pending';
                             job.url = data.url;
                             showToast('Uploaded ' + file.name + ' — auto-processing...', 'success');
+
+                            // Add to gallery immediately so user sees upload even if processing fails
+                            gallery.unshift({
+                                r2Key: job.r2Key,
+                                product: job.product,
+                                fileName: job.fileName,
+                                url: data.url,
+                                processedAt: null,
+                                raw: true,
+                            });
+                            saveGallery();
+                            renderGallery();
+                            populateProductFilter();
+
                             saveQueue();
                             renderQueue();
                             // Auto-process immediately after upload
@@ -1045,14 +1085,24 @@ function processJob(jobId) {
                 // Update Pipeline state so portfolio shows fresh image
                 updatePipelineImageUrl(job.product, cacheBustUrl);
 
-                // Add to gallery
-                gallery.unshift({
-                    r2Key: job.r2Key,
-                    product: job.product,
-                    fileName: job.fileName,
-                    url: cacheBustUrl,
-                    processedAt: job.processedAt,
-                });
+                // Update existing gallery entry (added at upload) or add new one
+                var existingIdx = -1;
+                for (var gi = 0; gi < gallery.length; gi++) {
+                    if (gallery[gi].r2Key === job.r2Key) { existingIdx = gi; break; }
+                }
+                if (existingIdx >= 0) {
+                    gallery[existingIdx].url = cacheBustUrl;
+                    gallery[existingIdx].processedAt = job.processedAt;
+                    gallery[existingIdx].raw = false;
+                } else {
+                    gallery.unshift({
+                        r2Key: job.r2Key,
+                        product: job.product,
+                        fileName: job.fileName,
+                        url: cacheBustUrl,
+                        processedAt: job.processedAt,
+                    });
+                }
                 saveGallery();
                 renderGallery();
                 checkCredits();
@@ -1244,12 +1294,13 @@ function renderGallery() {
         var g = items[i];
         var url = g.url || (R2_PUBLIC_BASE + g.r2Key);
         var date = g.processedAt ? new Date(g.processedAt).toLocaleDateString() : '';
+        var rawBadge = g.raw ? '<span style="background:#f0883e;color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:6px;">Original</span>' : '';
         html += '<div class="gallery-card">';
         html += '<button class="gallery-remove" onclick="removeGalleryItem(' + i + ')" title="Remove from gallery">&times;</button>';
         html += '<img src="' + url + '" alt="' + g.fileName + '" onclick="showPreview(\'' + url.replace(/'/g, "\\'") + '\',\'' + (g.product + ' — ' + g.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview" onerror="this.outerHTML=\'<div class=img-error>Image unavailable</div>\'">';
         html += '<div class="info">';
-        html += '<div class="name">' + g.product + '</div>';
-        html += '<div class="meta">' + g.fileName + ' &bull; ' + date + '</div>';
+        html += '<div class="name">' + g.product + rawBadge + '</div>';
+        html += '<div class="meta">' + g.fileName + ' &bull; ' + (date || 'Uploaded — not yet processed') + '</div>';
         html += '</div></div>';
     }
     grid.innerHTML = html;
