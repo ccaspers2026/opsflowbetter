@@ -21,6 +21,7 @@
             color: #e0e0e0;
             overflow: hidden;
             height: 100vh;
+            padding-top: 36px;
         }
 
         /* Main container */
@@ -59,16 +60,24 @@
             align-items: center;
         }
 
-        /* ── Suite Nav ─────────────────────────────────────── */
+        /* ── Suite Nav (fixed top bar) ────────────────────── */
         .suite-nav {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             font-size: 12px;
-            margin-top: 6px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            padding: 8px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
         }
         .suite-nav a { color: #58a6ff; text-decoration: none; }
-        .suite-nav a:hover { text-decoration: underline; }
+        .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
         .suite-nav .current { color: #e0e0e0; font-weight: 600; }
         .suite-nav .sep { color: #30363d; }
 
@@ -2235,22 +2244,24 @@
         </div>
     </div>
 
+    <!-- ── Suite Nav (fixed top bar — identical on all pages) ──────── -->
+    <div class="suite-nav">
+        <span class="current">Pipeline</span> <span class="sep">|</span>
+        <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
+        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+        <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+        <a href="tester.html">Tester</a> <span class="sep">|</span>
+        <a href="/#portfolio">Our Products</a> <span class="sep">|</span>
+        <a href="/">OpsFlowBetter</a>
+    </div>
+
     <div class="container">
         <!-- Header -->
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.51.0</p>
-                <div class="suite-nav">
-                    <span class="current">Pipeline</span> <span class="sep">|</span>
-                    <a href="media-center.html" style="color:#f0883e;">Media Pipeline</a> <span class="sep">|</span>
-                    <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-                    <a href="changelog.html">Changelog</a> <span class="sep">|</span>
-                    <a href="tasks.html" style="color:#bc8cff;">Tasks</a> <span class="sep">|</span>
-                    <a href="tester.html" style="color:#f0883e;">Tester</a> <span class="sep">|</span>
-                    <a href="/#portfolio" style="color:#3fb950;">Our Products</a> <span class="sep">|</span>
-                    <a href="/" style="color:#d29922;">OpsFlowBetter</a>
-                </div>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.52.0</p>
             </div>
             <div class="header-right">
                 <div class="phase-legend" id="phaseLegend"></div>

@@ -45,12 +45,20 @@
         .suite-nav {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             font-size: 12px;
-            margin-right: auto;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            padding: 8px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
         }
         .suite-nav a { color: #58a6ff; text-decoration: none; }
-        .suite-nav a:hover { text-decoration: underline; }
+        .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
         .suite-nav .current { color: #e0e0e0; font-weight: 600; }
         .suite-nav .sep { color: #30363d; }
 
@@ -481,23 +489,25 @@
         .img-preview-overlay .preview-close:hover { color: #fff; }
     </style>
 </head>
-<body>
+<body style="padding-top: 36px;">
+
+<!-- ── Suite Nav (fixed top bar — identical on all pages) ──────── -->
+<div class="suite-nav">
+    <a href="index.html">Pipeline</a> <span class="sep">|</span>
+    <span class="current">Media Pipeline</span> <span class="sep">|</span>
+    <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+    <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+    <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+    <a href="tester.html">Tester</a> <span class="sep">|</span>
+    <a href="/#portfolio">Our Products</a> <span class="sep">|</span>
+    <a href="/">OpsFlowBetter</a>
+</div>
 
 <!-- ── Top Bar ────────────────────────────────────────────────────── -->
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Pipeline v0.51.0</span>
-    </div>
-    <div class="suite-nav">
-        <a href="index.html">Pipeline</a> <span class="sep">|</span>
-        <span class="current" style="color:#f0883e;">Media Pipeline</span> <span class="sep">|</span>
-        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
-        <a href="tasks.html" style="color:#bc8cff;">Tasks</a> <span class="sep">|</span>
-        <a href="tester.html" style="color:#f0883e;">Tester</a> <span class="sep">|</span>
-        <a href="/#portfolio" style="color:#3fb950;">Our Products</a> <span class="sep">|</span>
-        <a href="/" style="color:#d29922;">OpsFlowBetter</a>
+        <span class="topbar-version">Media Pipeline v0.52.0</span>
     </div>
     <div class="toggle-wrap">
         <label class="toggle-switch" title="Toggle automatic background removal ON or OFF">
@@ -1248,6 +1258,13 @@ function processJob(jobId) {
                 checkCredits();
                 saveQueue();
                 renderQueue();
+
+                // Auto-toggle BG Removal OFF after credit use to prevent accidental burns
+                if (bgRemovalEnabled) {
+                    toggleBgRemoval(false);
+                    document.getElementById('bgRemovalToggle').checked = false;
+                    showToast('BG Removal auto-toggled OFF to protect credits', 'info');
+                }
             });
         } else {
             job.status = 'failed';

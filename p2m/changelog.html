@@ -43,12 +43,20 @@
         .suite-nav {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             font-size: 12px;
-            margin-top: 10px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            padding: 8px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
         }
         .suite-nav a { color: #58a6ff; text-decoration: none; }
-        .suite-nav a:hover { text-decoration: underline; }
+        .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
         .suite-nav .current { color: #e0e0e0; font-weight: 600; }
         .suite-nav .sep { color: #30363d; }
 
@@ -240,32 +248,34 @@
         }
     </style>
 </head>
-<body>
+<body style="padding-top: 36px;">
+    <!-- ── Suite Nav (fixed top bar — identical on all pages) ──────── -->
+    <div class="suite-nav">
+        <a href="index.html">Pipeline</a> <span class="sep">|</span>
+        <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
+        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <span class="current">Changelog</span> <span class="sep">|</span>
+        <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+        <a href="tester.html">Tester</a> <span class="sep">|</span>
+        <a href="/#portfolio">Our Products</a> <span class="sep">|</span>
+        <a href="/">OpsFlowBetter</a>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>P2M Pipeline - Version History</h1>
             <p>Caspers Creations - Product to Market - Idea to Revenue</p>
-            <div class="suite-nav">
-                <a href="index.html">Pipeline</a> <span class="sep">|</span>
-                <a href="media-center.html" style="color:#f0883e;">Media Pipeline</a> <span class="sep">|</span>
-                <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-                <span class="current">Changelog</span> <span class="sep">|</span>
-                <a href="tasks.html" style="color:#bc8cff;">Tasks</a> <span class="sep">|</span>
-                <a href="tester.html" style="color:#f0883e;">Tester</a> <span class="sep">|</span>
-                <a href="/#portfolio" style="color:#3fb950;">Our Products</a> <span class="sep">|</span>
-                <a href="/" style="color:#d29922;">OpsFlowBetter</a>
-            </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.51.0 - Standardized Nav, Inline Queue Buttons &amp; localStorage Data Layer</h2>
-            <p>Released March 7, 2026 &mdash; Suite nav standardized across all 6 pages (same class, layout, font, separators). Queue action buttons now sit inline. Tasks &amp; Tester data can be read/written via localStorage without code deploys.</p>
+            <h2>Version 0.52.0 - Fixed Nav Bar, No Skittles &amp; Auto-Toggle OFF</h2>
+            <p>Released March 7, 2026 &mdash; Suite nav is now a fixed bar at the top of every page (same position, same pixels, no eye-bouncing). All nav links are uniform blue (no more rainbow colors). BG Removal auto-toggles OFF after each credit use to prevent accidental burns.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">62</div>
+                <div class="stat-value">63</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -287,6 +297,23 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.52.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.52.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Fixed Nav Bar, Uniform Colors &amp; Auto-Toggle OFF</div>
+                <ul class="changes-list">
+                    <li>Suite nav is now <code>position: fixed</code> at the top of every page &mdash; centered, same height, same pixels across all 6 pages</li>
+                    <li>Body padding-top: 36px on all pages so content doesn&rsquo;t hide behind the nav</li>
+                    <li>All nav links are uniform blue (#58a6ff) &mdash; no more per-link rainbow colors</li>
+                    <li>Current page shown as white bold text (not a link)</li>
+                    <li>BG Removal toggle auto-flips to OFF after each successful credit use to prevent accidental burns</li>
+                </ul>
+            </div>
 
             <!-- v0.51.0 -->
             <div class="version-entry">

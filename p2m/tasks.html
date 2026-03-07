@@ -27,12 +27,20 @@
         .suite-nav {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             font-size: 12px;
-            margin-top: 8px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            padding: 8px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
         }
         .suite-nav a { color: #58a6ff; text-decoration: none; }
-        .suite-nav a:hover { text-decoration: underline; }
+        .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
         .suite-nav .current { color: #e0e0e0; font-weight: 600; }
         .suite-nav .sep { color: #30363d; }
 
@@ -156,21 +164,23 @@
         }
     </style>
 </head>
-<body>
+<body style="padding-top: 36px;">
+
+<!-- ── Suite Nav (fixed top bar — identical on all pages) ──────── -->
+<div class="suite-nav">
+    <a href="index.html">Pipeline</a> <span class="sep">|</span>
+    <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
+    <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+    <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+    <span class="current">Tasks</span> <span class="sep">|</span>
+    <a href="tester.html">Tester</a> <span class="sep">|</span>
+    <a href="/#portfolio">Our Products</a> <span class="sep">|</span>
+    <a href="/">OpsFlowBetter</a>
+</div>
 
 <div class="header">
     <h1>P2M Task Tracker</h1>
     <p>Living backlog for Caspers Creations &mdash; Updated every version &bull; Auto-refreshes every 5 minutes</p>
-    <div class="suite-nav">
-        <a href="index.html">Pipeline</a> <span class="sep">|</span>
-        <a href="media-center.html" style="color:#f0883e;">Media Pipeline</a> <span class="sep">|</span>
-        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
-        <span class="current">Tasks</span> <span class="sep">|</span>
-        <a href="tester.html" style="color:#f0883e;">Tester</a> <span class="sep">|</span>
-        <a href="/#portfolio" style="color:#3fb950;">Our Products</a> <span class="sep">|</span>
-        <a href="/" style="color:#d29922;">OpsFlowBetter</a>
-    </div>
 </div>
 
 <!-- ── Stats ────────────────────────────────────────────────── -->
@@ -188,7 +198,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">62</div>
+        <div class="num" style="color:#3fb950;">63</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -326,7 +336,16 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">26</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">27</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Fixed nav bar, uniform colors &amp; auto-toggle OFF</div>
+            <div class="desc">Suite nav now position:fixed at top of every page (same spot, no eye-bouncing). All links uniform blue. BG Removal auto-toggles OFF after credit use.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.52.0 &bull; March 7</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -604,7 +623,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.51.0 &mdash; March 7, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.52.0 &mdash; March 7, 2026
 </div>
 
 <script>
