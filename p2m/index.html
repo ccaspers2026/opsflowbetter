@@ -3445,9 +3445,10 @@
                     display.textContent = url;
                     display.style.color = '#58a6ff';
                 }
+                // Preview image kept hidden — marketing bar thumbnail handles display
                 if (preview) {
                     preview.src = url;
-                    preview.style.display = 'block';
+                    preview.style.display = 'none';
                     preview.onerror = function() { preview.style.display = 'none'; };
                 }
             } else {
