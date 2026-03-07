@@ -336,105 +336,15 @@
 
     <hr class="divider">
 
-    <!-- ── Tools & Services ──────────────────────────────── -->
+    <!-- ── Tools & Services (rendered by JS from localStorage or defaults) ── -->
     <div class="section-label">Tools &amp; Services</div>
-    <div class="sphere-grid">
-        <a href="https://www.helium10.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-helium"><span class="sphere-text">H10</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">Helium 10</div>
-            <div class="sphere-sublabel">&#8599; external</div>
-        </a>
-        <a href="https://www.remove.bg/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-removebg"><span class="sphere-text">rb</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">remove.bg</div>
-            <div class="sphere-sublabel">&#8599; external</div>
-        </a>
-        <a href="https://dash.cloudflare.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-cloudflare"><span class="sphere-text">CF</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">Cloudflare</div>
-            <div class="sphere-sublabel">&#8599; external</div>
-        </a>
-        <a href="https://github.com/ccasperslocal/opsflowbetter" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-github"><span class="sphere-text">GH</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">GitHub</div>
-            <div class="sphere-sublabel">&#8599; external</div>
-        </a>
-        <a href="https://images.opsflowbetter.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-r2"><span class="sphere-text">R2</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">Image CDN</div>
-            <div class="sphere-sublabel">&#8599; external</div>
-        </a>
-    </div>
+    <div class="sphere-grid" id="tools-grid"></div>
 
     <hr class="divider">
 
-    <!-- ── Personal ──────────────────────────────────────── -->
+    <!-- ── Personal (rendered by JS from localStorage or defaults) ── -->
     <div class="section-label">Personal</div>
-    <div class="sphere-grid">
-        <a href="https://tastytrade.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-tasty"><span class="sphere-text">TT</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">tastytrade</div>
-            <div class="sphere-sublabel">&#8599; trading</div>
-        </a>
-        <a href="https://www.truist.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-truist"><span class="sphere-text">T</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">Truist</div>
-            <div class="sphere-sublabel">&#8599; banking</div>
-        </a>
-        <a href="https://optionstrat.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-optionstrat"><span class="sphere-text">OS</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">OptionStrat</div>
-            <div class="sphere-sublabel">&#8599; options</div>
-        </a>
-        <a href="https://www.youtube.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-youtube"><span class="sphere-text">YT</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">YouTube</div>
-            <div class="sphere-sublabel">&#8599; media</div>
-        </a>
-        <a href="https://www.amazon.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-amazon"><span class="sphere-text">AMZ</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">Amazon</div>
-            <div class="sphere-sublabel">&#8599; shopping</div>
-        </a>
-        <a href="https://chatgpt.com/" class="sphere-item" target="_blank" rel="noopener">
-            <div class="sphere-wrap">
-                <div class="sphere sphere-chatgpt"><span class="sphere-text">AI</span></div>
-                <div class="sphere-shadow"></div>
-            </div>
-            <div class="sphere-label">ChatGPT</div>
-            <div class="sphere-sublabel">&#8599; ai</div>
-        </a>
-    </div>
+    <div class="sphere-grid" id="personal-grid"></div>
 
 </div>
 
@@ -443,13 +353,104 @@
 </div>
 
 <script>
-// ── Time-based greeting ──────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// LaunchPad — Data-driven sphere rendering
+//
+// Links are stored in localStorage key: opsflow_launchpad
+// Format: { tools: [...], personal: [...] }
+// Each item: { text, label, sublabel, url, color, bg?, glow? }
+//
+// "color" maps to a CSS class: sphere-{color}
+// OR provide "bg" (CSS background) + "glow" (CSS rgba) for
+// custom colors not defined in the stylesheet.
+//
+// To update links without pushing code, set localStorage from
+// the browser console or via the Tester page override pattern.
+// ══════════════════════════════════════════════════════════════
+
 (function() {
+
+    // ── Time-based greeting ──────────────────────────────────
     var h = new Date().getHours();
     var msg = 'Good evening';
     if (h >= 5 && h < 12) msg = 'Good morning';
     else if (h >= 12 && h < 17) msg = 'Good afternoon';
     document.getElementById('greeting').textContent = msg;
+
+    // ── Default link data ────────────────────────────────────
+    var DEFAULTS = {
+        tools: [
+            { text: 'H10',  label: 'Helium 10',   sublabel: '\u2197 external', url: 'https://www.helium10.com/',                       color: 'helium' },
+            { text: 'rb',   label: 'remove.bg',   sublabel: '\u2197 external', url: 'https://www.remove.bg/',                          color: 'removebg' },
+            { text: 'CF',   label: 'Cloudflare',   sublabel: '\u2197 external', url: 'https://dash.cloudflare.com/',                    color: 'cloudflare' },
+            { text: 'GH',   label: 'GitHub',       sublabel: '\u2197 external', url: 'https://github.com/ccasperslocal/opsflowbetter',  color: 'github' }
+        ],
+        personal: [
+            { text: 'TT',   label: 'tastytrade',   sublabel: '\u2197 trading',  url: 'https://tastytrade.com/',        color: 'tasty' },
+            { text: 'T',    label: 'Truist',        sublabel: '\u2197 banking',  url: 'https://www.truist.com/',        color: 'truist' },
+            { text: 'OS',   label: 'OptionStrat',   sublabel: '\u2197 options',  url: 'https://optionstrat.com/',       color: 'optionstrat' },
+            { text: 'YT',   label: 'YouTube',       sublabel: '\u2197 media',   url: 'https://www.youtube.com/',       color: 'youtube' },
+            { text: 'AMZ',  label: 'Amazon',        sublabel: '\u2197 shopping', url: 'https://www.amazon.com/',        color: 'amazon' },
+            { text: 'AI',   label: 'ChatGPT',       sublabel: '\u2197 ai',      url: 'https://chatgpt.com/',           color: 'chatgpt' }
+        ]
+    };
+
+    // ── Load from localStorage (override) or use defaults ────
+    var STORAGE_KEY = 'opsflow_launchpad';
+    var config;
+    try {
+        var stored = localStorage.getItem(STORAGE_KEY);
+        config = stored ? JSON.parse(stored) : null;
+    } catch(e) {
+        config = null;
+    }
+    if (!config) config = {};
+    var tools    = config.tools    || DEFAULTS.tools;
+    var personal = config.personal || DEFAULTS.personal;
+
+    // ── Render a single sphere item ──────────────────────────
+    function renderSphere(item) {
+        var a = document.createElement('a');
+        a.href = item.url;
+        a.className = 'sphere-item';
+        a.target = '_blank';
+        a.rel = 'noopener';
+
+        // Build sphere div — use CSS class if available, else inline bg/glow
+        var sphereClass = item.color ? ' sphere-' + item.color : '';
+        var inlineStyle = '';
+        if (item.bg) {
+            inlineStyle += 'background:' + item.bg + ';';
+        }
+        if (item.glow) {
+            inlineStyle += '--glow:' + item.glow + ';';
+        }
+
+        a.innerHTML =
+            '<div class="sphere-wrap">' +
+                '<div class="sphere' + sphereClass + '"' + (inlineStyle ? ' style="' + inlineStyle + '"' : '') + '>' +
+                    '<span class="sphere-text">' + item.text + '</span>' +
+                '</div>' +
+                '<div class="sphere-shadow"></div>' +
+            '</div>' +
+            '<div class="sphere-label">' + item.label + '</div>' +
+            '<div class="sphere-sublabel">' + item.sublabel + '</div>';
+
+        return a;
+    }
+
+    // ── Render grids ─────────────────────────────────────────
+    var toolsGrid    = document.getElementById('tools-grid');
+    var personalGrid = document.getElementById('personal-grid');
+
+    tools.forEach(function(item) {
+        toolsGrid.appendChild(renderSphere(item));
+    });
+
+    personal.forEach(function(item) {
+        personalGrid.appendChild(renderSphere(item));
+    });
+
 })();
 </script>
 </body>
