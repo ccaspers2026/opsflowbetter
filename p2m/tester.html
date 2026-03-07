@@ -450,7 +450,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.56.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.57.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; report bugs &amp; feedback below &bull; hit Complete when done</p>
     </div>
 </div>
@@ -521,49 +521,38 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.56.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.57.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'LaunchPad Page',
+        title: 'LaunchPad Link Expansion',
         priority: 'PRIMARY',
         items: [
-            'LaunchPad loads at /launchpad.html — page title shows "OpsFlowBetter — LaunchPad"',
-            'Time-based greeting shows correctly (Good morning before noon, Good afternoon noon-5pm, Good evening after 5pm)',
-            'SUITE section: P2M sphere (blue, clickable → /p2m/) and Services & Integrations sphere (purple, dimmed, labeled UP NEXT)',
-            'P2M sub-links panel shows all 6 P2M page links (Pipeline, Media Pipeline, Workshop, Changelog, Tasks, Tester) — each link works',
-            'TOOLS & SERVICES section: 4 spheres (Helium 10, remove.bg, Cloudflare, GitHub) — all open in new tab',
-            'PERSONAL section: 6 spheres (tastytrade, Truist, OptionStrat, YouTube, Amazon, ChatGPT) — all open in new tab',
-            'Links are data-driven: stored in localStorage key "opsflow_launchpad" — custom entries override defaults without code push',
+            'TOOLS section: 9 spheres — Helium 10, remove.bg, Cloudflare, GitHub, Seller Central, OnShape, Monday, Calendly, AutoFarm3D — all open correct URLs in new tab',
+            'PERSONAL section: 10 spheres — tastytrade, Truist, TradingView, OptionStrat, TraderSync, YouTube, Amazon, ChatGPT, Claude, Discord — all open correct URLs in new tab',
+            'GitHub sphere links to https://github.com/ccaspers2026/opsflowbetter (NOT ccasperslocal)',
+            'Claude sphere goes to https://claude.ai/',
+            'All new spheres have distinct, appropriate 3D colors and glow effects',
         ]
     },
     {
-        title: '3D Sphere Appearance & Interaction',
+        title: 'Capsule Pills & Ground Shadows',
         priority: 'PRIMARY',
         items: [
-            'Spheres at rest look 3D — bright highlight upper-left, dark shadow lower-right, specular white hot-spot visible',
-            'Each sphere has a ground shadow (dark ellipse) beneath it',
-            'Hovering a sphere: grows ~12%, colored glow appears around it, ground shadow spreads',
-            'Sphere labels and sublabels are readable and centered below each sphere',
-            'OpsFlowBetter brand text in top bar (Ops white, Flow blue, Better purple)',
-        ]
-    },
-    {
-        title: 'Nav & Navigation Updates',
-        priority: 'PRIMARY',
-        items: [
-            'Clicking OpsFlowBetter brand text in P2M nav goes to /launchpad.html (NOT / root) on ALL 6 P2M pages',
-            'Nav bar still stays fixed at top across all P2M pages',
-            'Current page still shown as white bold text on each P2M page',
-            'No leftover dock bar CSS visible at bottom of any P2M page',
+            'P2M sub-link capsule pills show full page names centered (Pipeline, Media Pipeline, Workshop, Changelog, Tasks, Tester) — no split words',
+            'Capsules still have two-tone blue coloring (dark left, light right) with seam line and specular highlight',
+            'Ground shadows beneath spheres are visibly darker and have a soft blur effect',
+            'Hover still works on capsule pills (scale up + blue glow)',
         ]
     },
     {
         title: 'Carry-Forward Features',
         priority: null,
         items: [
+            'LaunchPad loads at /launchpad.html with time-based greeting',
+            'SUITE section: P2M sphere (blue, clickable) and S&I sphere (purple, dimmed UP NEXT)',
+            'All P2M nav links still work, OpsFlowBetter brand goes to /launchpad.html',
             'BG Removal toggle still defaults OFF on Media Pipeline',
-            'Workshop cards, Pipeline phases, and all existing functionality still works',
             'Shared header component still pixel-identical across all 6 P2M pages',
         ]
     },
@@ -571,9 +560,9 @@ var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.se
         title: 'Versions',
         priority: null,
         items: [
-            'All 6 P2M pages show v0.56.0 in their version line',
-            'Changelog CURRENT shows v0.56.0, version count shows 67',
-            'Tasks page: "Versions Shipped" shows 67, completed shows 31, "Up Next" shows 2, "Pages in Suite" shows 9',
+            'All 6 P2M pages show v0.57.0 in their version line',
+            'Changelog CURRENT shows v0.57.0, version count shows 68',
+            'Tasks page: "Versions Shipped" shows 68, completed shows 36, "Up Next" shows 3, "Pages in Suite" shows 9',
         ]
     }
 ];

@@ -154,17 +154,19 @@
 
         /* Ground shadow */
         .sphere-shadow {
-            width: 60px;
-            height: 10px;
-            margin: 4px auto 0;
-            background: radial-gradient(ellipse, rgba(0,0,0,0.45) 0%, transparent 70%);
+            width: 64px;
+            height: 12px;
+            margin: 6px auto 0;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 40%, transparent 75%);
             border-radius: 50%;
+            filter: blur(2px);
             transition: all 0.35s ease;
         }
         .sphere-item:hover .sphere-shadow {
-            width: 70px;
-            height: 8px;
-            opacity: 0.7;
+            width: 76px;
+            height: 10px;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 40%, transparent 75%);
+            filter: blur(3px);
         }
 
         /* Sphere text */
@@ -266,6 +268,60 @@
                 radial-gradient(circle at 32% 25%, #90f8d0 0%, #20c090 30%, #109870 55%, #086850 80%, #043830 100%);
             --glow: rgba(16, 163, 127, 0.35);
         }
+        .sphere-claude {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #f0c878 0%, #d89840 30%, #b87020 55%, #784810 80%, #402408 100%);
+            --glow: rgba(217, 153, 61, 0.35);
+        }
+        .sphere-tradingview {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #70b8ff 0%, #2962ff 30%, #1848d0 55%, #0c2890 80%, #061440 100%);
+            --glow: rgba(41, 98, 255, 0.35);
+        }
+        .sphere-tradersync {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #80e8b8 0%, #38c878 30%, #20a058 55%, #107038 80%, #083820 100%);
+            --glow: rgba(56, 200, 120, 0.35);
+        }
+        .sphere-discord {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #a0a8ff 0%, #5865f2 30%, #404cc0 55%, #283080 80%, #141840 100%);
+            --glow: rgba(88, 101, 242, 0.35);
+        }
+        .sphere-onshape {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #90c8f0 0%, #4098d0 30%, #2870a8 55%, #184878 80%, #0c2840 100%);
+            --glow: rgba(64, 152, 208, 0.35);
+        }
+        .sphere-sellercentral {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #ffcc80 0%, #ff9900 30%, #d07800 55%, #8a5000 80%, #402800 100%);
+            --glow: rgba(255, 153, 0, 0.35);
+        }
+        .sphere-monday {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #ff90c0 0%, #f04088 30%, #c02068 55%, #801040 80%, #400820 100%);
+            --glow: rgba(240, 64, 136, 0.35);
+        }
+        .sphere-calendly {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #70c8ff 0%, #006bff 30%, #0050c8 55%, #003890 80%, #001c48 100%);
+            --glow: rgba(0, 107, 255, 0.35);
+        }
+        .sphere-autofarm {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #ffd060 0%, #e8a020 30%, #c07810 55%, #785008 80%, #402800 100%);
+            --glow: rgba(232, 160, 32, 0.35);
+        }
 
         /* ── P2M Sub-links (capsule pills) ──────────────────── */
         .p2m-sublinks {
@@ -280,7 +336,7 @@
         }
         .p2m-sublink:hover { transform: scale(1.08); }
 
-        /* The capsule: two halves side-by-side with full rounding */
+        /* The capsule: two-tone pill with centered text overlay */
         .capsule {
             display: flex; align-items: stretch;
             height: 28px; border-radius: 14px;
@@ -302,14 +358,12 @@
         /* Left half — darker shade */
         .capsule-left {
             background: linear-gradient(180deg, #2884e0 0%, #1560b0 50%, #0c3870 100%);
-            padding: 0 10px 0 14px;
-            display: flex; align-items: center;
+            width: 50%;
         }
         /* Right half — lighter shade */
         .capsule-right {
             background: linear-gradient(180deg, #60baff 0%, #3a90e8 50%, #1a6cc0 100%);
-            padding: 0 14px 0 10px;
-            display: flex; align-items: center;
+            width: 50%;
         }
         /* Seam line between halves */
         .capsule-left { border-right: 1px solid rgba(0,0,0,0.3); }
@@ -325,10 +379,14 @@
             z-index: 2;
         }
 
+        /* Full text centered over both halves */
         .capsule-text {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
             font-size: 10px; font-weight: 700; color: #fff;
             text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-            white-space: nowrap; position: relative; z-index: 3;
+            white-space: nowrap; z-index: 3;
+            padding: 0 14px;
         }
 
         .divider { border: none; border-top: 1px solid #21262d; margin: 0 0 40px; }
@@ -374,42 +432,48 @@
         </div>
     </div>
 
-    <!-- P2M Sub-links (capsule pills with text) -->
+    <!-- P2M Sub-links (capsule pills with centered text) -->
     <div class="p2m-sublinks">
         <a href="/p2m/index.html" class="p2m-sublink">
             <div class="capsule">
-                <div class="capsule-left"><span class="capsule-text">Pipe</span></div>
-                <div class="capsule-right"><span class="capsule-text">line</span></div>
+                <div class="capsule-left"></div>
+                <div class="capsule-right"></div>
+                <span class="capsule-text">Pipeline</span>
             </div>
         </a>
         <a href="/p2m/media-center.html" class="p2m-sublink">
             <div class="capsule">
-                <div class="capsule-left"><span class="capsule-text">Media</span></div>
-                <div class="capsule-right"><span class="capsule-text">Pipeline</span></div>
+                <div class="capsule-left"></div>
+                <div class="capsule-right"></div>
+                <span class="capsule-text">Media Pipeline</span>
             </div>
         </a>
         <a href="/p2m/workshop.html" class="p2m-sublink">
             <div class="capsule">
-                <div class="capsule-left"><span class="capsule-text">Work</span></div>
-                <div class="capsule-right"><span class="capsule-text">shop</span></div>
+                <div class="capsule-left"></div>
+                <div class="capsule-right"></div>
+                <span class="capsule-text">Workshop</span>
             </div>
         </a>
         <a href="/p2m/changelog.html" class="p2m-sublink">
             <div class="capsule">
-                <div class="capsule-left"><span class="capsule-text">Change</span></div>
-                <div class="capsule-right"><span class="capsule-text">log</span></div>
+                <div class="capsule-left"></div>
+                <div class="capsule-right"></div>
+                <span class="capsule-text">Changelog</span>
             </div>
         </a>
         <a href="/p2m/tasks.html" class="p2m-sublink">
             <div class="capsule">
-                <div class="capsule-left"><span class="capsule-text">Tas</span></div>
-                <div class="capsule-right"><span class="capsule-text">ks</span></div>
+                <div class="capsule-left"></div>
+                <div class="capsule-right"></div>
+                <span class="capsule-text">Tasks</span>
             </div>
         </a>
         <a href="/p2m/tester.html" class="p2m-sublink">
             <div class="capsule">
-                <div class="capsule-left"><span class="capsule-text">Tes</span></div>
-                <div class="capsule-right"><span class="capsule-text">ter</span></div>
+                <div class="capsule-left"></div>
+                <div class="capsule-right"></div>
+                <span class="capsule-text">Tester</span>
             </div>
         </a>
     </div>
@@ -460,18 +524,27 @@
     // ── Default link data ────────────────────────────────────
     var DEFAULTS = {
         tools: [
-            { text: 'H10',  label: 'Helium 10',   sublabel: '\u2197 external', url: 'https://www.helium10.com/',                       color: 'helium' },
-            { text: 'rb',   label: 'remove.bg',   sublabel: '\u2197 external', url: 'https://www.remove.bg/',                          color: 'removebg' },
-            { text: 'CF',   label: 'Cloudflare',   sublabel: '\u2197 external', url: 'https://dash.cloudflare.com/',                    color: 'cloudflare' },
-            { text: 'GH',   label: 'GitHub',       sublabel: '\u2197 external', url: 'https://github.com/ccasperslocal/opsflowbetter',  color: 'github' }
+            { text: 'H10',  label: 'Helium 10',      sublabel: '\u2197 research',   url: 'https://www.helium10.com/',                      color: 'helium' },
+            { text: 'rb',   label: 'remove.bg',      sublabel: '\u2197 images',     url: 'https://www.remove.bg/',                         color: 'removebg' },
+            { text: 'CF',   label: 'Cloudflare',     sublabel: '\u2197 infra',      url: 'https://dash.cloudflare.com/',                   color: 'cloudflare' },
+            { text: 'GH',   label: 'GitHub',          sublabel: '\u2197 code',       url: 'https://github.com/ccaspers2026/opsflowbetter', color: 'github' },
+            { text: 'SC',   label: 'Seller Central', sublabel: '\u2197 amazon',     url: 'https://sellercentral.amazon.com/',              color: 'sellercentral' },
+            { text: 'OS',   label: 'OnShape',         sublabel: '\u2197 cad',        url: 'https://www.onshape.com/',                       color: 'onshape' },
+            { text: 'M',    label: 'Monday',           sublabel: '\u2197 tasks',      url: 'https://monday.com/',                            color: 'monday' },
+            { text: 'Cal',  label: 'Calendly',        sublabel: '\u2197 schedule',   url: 'https://calendly.com/',                          color: 'calendly' },
+            { text: 'AF',   label: 'AutoFarm3D',     sublabel: '\u2197 print farm', url: 'http://192.168.100.144:8080/overview',           color: 'autofarm' }
         ],
         personal: [
-            { text: 'TT',   label: 'tastytrade',   sublabel: '\u2197 trading',  url: 'https://tastytrade.com/',        color: 'tasty' },
-            { text: 'T',    label: 'Truist',        sublabel: '\u2197 banking',  url: 'https://www.truist.com/',        color: 'truist' },
-            { text: 'OS',   label: 'OptionStrat',   sublabel: '\u2197 options',  url: 'https://optionstrat.com/',       color: 'optionstrat' },
-            { text: 'YT',   label: 'YouTube',       sublabel: '\u2197 media',   url: 'https://www.youtube.com/',       color: 'youtube' },
-            { text: 'AMZ',  label: 'Amazon',        sublabel: '\u2197 shopping', url: 'https://www.amazon.com/',        color: 'amazon' },
-            { text: 'AI',   label: 'ChatGPT',       sublabel: '\u2197 ai',      url: 'https://chatgpt.com/',           color: 'chatgpt' }
+            { text: 'TT',   label: 'tastytrade',     sublabel: '\u2197 trading',    url: 'https://tastytrade.com/',        color: 'tasty' },
+            { text: 'T',    label: 'Truist',           sublabel: '\u2197 banking',    url: 'https://www.truist.com/',        color: 'truist' },
+            { text: 'TV',   label: 'TradingView',    sublabel: '\u2197 charts',     url: 'https://www.tradingview.com/',   color: 'tradingview' },
+            { text: 'OStr', label: 'OptionStrat',     sublabel: '\u2197 options',    url: 'https://optionstrat.com/',       color: 'optionstrat' },
+            { text: 'TS',   label: 'TraderSync',      sublabel: '\u2197 journal',    url: 'https://www.tradersync.com/',    color: 'tradersync' },
+            { text: 'YT',   label: 'YouTube',          sublabel: '\u2197 media',      url: 'https://www.youtube.com/',       color: 'youtube' },
+            { text: 'AMZ',  label: 'Amazon',           sublabel: '\u2197 shopping',   url: 'https://www.amazon.com/',        color: 'amazon' },
+            { text: 'AI',   label: 'ChatGPT',          sublabel: '\u2197 ai',         url: 'https://chatgpt.com/',           color: 'chatgpt' },
+            { text: 'C',    label: 'Claude',            sublabel: '\u2197 ai',         url: 'https://claude.ai/',             color: 'claude' },
+            { text: 'DC',   label: 'Discord',          sublabel: '\u2197 community',  url: 'https://discord.com/channels/@me', color: 'discord' }
         ]
     };
 

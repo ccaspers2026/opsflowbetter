@@ -221,7 +221,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.56.0</p>
+        <p class="version">Tasks v0.57.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -233,7 +233,7 @@
         <div class="label">Active Bugs</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#f0883e;">2</div>
+        <div class="num" style="color:#f0883e;">3</div>
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
@@ -241,7 +241,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">67</div>
+        <div class="num" style="color:#3fb950;">68</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -252,10 +252,19 @@
 
 <!-- ── Priority Queue (ordered) ───────────────────────────────── -->
 <div class="section">
-    <h2>&#127919; Priority Queue &mdash; Up Next <span class="count">2</span></h2>
+    <h2>&#127919; Priority Queue &mdash; Up Next <span class="count">3</span></h2>
 
     <div class="task">
         <div class="order-num">1</div>
+        <div class="content">
+            <div class="title">localStorage defaults sync on commit</div>
+            <div class="desc">When committing a new version, update hardcoded JS defaults to match current localStorage state. If localStorage is lost, defaults reflect the last committed config. No-storage state falls back gracefully.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> LaunchPad &bull; v0.56.0 tester improvement</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <div class="order-num">2</div>
         <div class="content">
             <div class="title">Services &amp; Integrations page</div>
             <div class="desc">Third-party service dashboard: costs, credits remaining, subscription links, GO/NO-GO health indicators (green/yellow/red LEDs). Covers remove.bg, Helium 10, and future services. Research comprehensive image tool for Amazon listing images (Tier 2) during build.</div>
@@ -264,7 +273,7 @@
     </div>
 
     <div class="task">
-        <div class="order-num">2</div>
+        <div class="order-num">3</div>
         <div class="content">
             <div class="title">Phase 2: 45 RPM Adaptor</div>
             <div class="desc">Resume product pipeline work. Run the 45 RPM Adaptor through all 7 pipeline phases with real data, real images, and real Amazon listing prep.</div>
@@ -370,7 +379,52 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">31</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">36</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Rework capsule pill text display</div>
+            <div class="desc">Changed from split-word halves to full page name centered over the two-tone capsule. Text now reads naturally (Pipeline, Workshop, etc.) instead of split across halves (Pipe|line, Work|shop).</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.56.0 enhancement &bull; March 7</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Improve ground shadow visibility on spheres</div>
+            <div class="desc">Increased shadow opacity (0.45 &rarr; 0.7), added blur filter, wider spread with smoother falloff gradient. Shadows now visible on dark background.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.56.0 enhancement &bull; March 7</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Add Chrome nav links to LaunchPad</div>
+            <div class="desc">Added 8 new sphere links from Chrome homepage: Seller Central, OnShape, Monday, Calendly (Tools); TradingView, TraderSync, Discord, Claude (Personal). Omega Farm TBD &mdash; URL unknown.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.56.0 enhancement &bull; March 7</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Add Claude sphere to Personal section</div>
+            <div class="desc">Added Claude (claude.ai) sphere to Personal section defaults with warm amber color scheme.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.56.0 enhancement &bull; March 7</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Fix GitHub sphere URL (local &rarr; public)</div>
+            <div class="desc">GitHub sphere in Tools section pointed to ccasperslocal instead of ccaspers2026. Corrected URL in LaunchPad defaults.</div>
+            <div class="meta"><span class="tag tag-bug">BUG</span> v0.56.0 fix &bull; March 7</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -693,7 +747,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.56.0 &mdash; March 7, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.57.0 &mdash; March 7, 2026
 </div>
 
 <script>
