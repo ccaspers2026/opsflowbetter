@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Caspers Creations - Test Checklist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d1117;
+            color: #e0e0e0;
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* ── Header ─────────────────────────────────────────── */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-left h1 {
+            font-size: 22px;
+            color: #fff;
+        }
+        .header-left h1 span { color: #f0883e; }
+        .header-left .version-tag {
+            font-size: 12px;
+            background: #1c2333;
+            color: #58a6ff;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        .header-left .sub {
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+
+        /* ── Nav ────────────────────────────────────────────── */
+        .nav {
+            font-size: 11px;
+            margin-bottom: 20px;
+            color: #8b949e;
+        }
+        .nav a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        .nav a:hover { text-decoration: underline; }
+        .nav .active { color: #f0883e; font-weight: 600; }
+
+        /* ── Progress Bar ───────────────────────────────────── */
+        .progress-wrap {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .progress-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+        .progress-stats .stat { display: flex; align-items: center; gap: 6px; }
+        .stat-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .stat-dot.pass { background: #2ea44f; }
+        .stat-dot.fail { background: #f85149; }
+        .stat-dot.untested { background: #484f58; }
+        .stat-dot.skip { background: #d29922; }
+        .progress-bar {
+            height: 8px;
+            background: #21262d;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+        }
+        .progress-bar .seg-pass { background: #2ea44f; transition: width 0.3s; }
+        .progress-bar .seg-fail { background: #f85149; transition: width 0.3s; }
+        .progress-bar .seg-skip { background: #d29922; transition: width 0.3s; }
+
+        /* ── Section ────────────────────────────────────────── */
+        .section {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #1c2333;
+            cursor: pointer;
+            user-select: none;
+        }
+        .section-header:hover { background: #22293a; }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        .section-title .priority {
+            font-size: 10px;
+            background: #f85149;
+            color: #fff;
+            padding: 1px 6px;
+            border-radius: 8px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .section-badge {
+            font-size: 11px;
+            color: #8b949e;
+        }
+        .section-body { padding: 0; }
+        .section.collapsed .section-body { display: none; }
+
+        /* ── Test Item ──────────────────────────────────────── */
+        .test-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 16px;
+            border-bottom: 1px solid #21262d;
+            transition: background 0.15s;
+        }
+        .test-item:last-child { border-bottom: none; }
+        .test-item:hover { background: #1c2333; }
+        .test-item.status-pass { border-left: 3px solid #2ea44f; }
+        .test-item.status-fail { border-left: 3px solid #f85149; }
+        .test-item.status-skip { border-left: 3px solid #d29922; }
+
+        .test-num {
+            font-size: 11px;
+            color: #484f58;
+            min-width: 22px;
+            text-align: right;
+            padding-top: 2px;
+        }
+        .test-desc {
+            flex: 1;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .test-controls {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .btn-status {
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            background: #21262d;
+            color: #8b949e;
+            transition: all 0.15s;
+        }
+        .btn-status:hover { border-color: #8b949e; }
+        .btn-status.active-pass { background: #2ea44f; color: #fff; border-color: #2ea44f; }
+        .btn-status.active-fail { background: #f85149; color: #fff; border-color: #f85149; }
+        .btn-status.active-skip { background: #d29922; color: #fff; border-color: #d29922; }
+
+        .test-note {
+            width: 100%;
+            margin-top: 6px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 11px;
+            padding: 4px 8px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            resize: vertical;
+            min-height: 28px;
+        }
+        .test-note:focus { border-color: #58a6ff; outline: none; }
+        .test-note::placeholder { color: #484f58; }
+
+        /* ── Feedback Reporter ──────────────────────────────── */
+        .feedback-section {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #1c2333;
+        }
+        .feedback-header h2 {
+            font-size: 15px;
+            color: #f0883e;
+        }
+        .feedback-count {
+            font-size: 11px;
+            color: #8b949e;
+        }
+        .feedback-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #21262d;
+            align-items: center;
+        }
+        .feedback-category {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 12px;
+            padding: 8px 10px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            cursor: pointer;
+            min-width: 130px;
+        }
+        .feedback-category:focus { border-color: #58a6ff; outline: none; }
+        .feedback-text {
+            flex: 1;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 13px;
+            padding: 8px 10px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .feedback-text:focus { border-color: #58a6ff; outline: none; }
+        .feedback-text::placeholder { color: #484f58; }
+        .feedback-submit {
+            background: #238636;
+            border: 1px solid #2ea44f;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 16px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+        .feedback-submit:hover { background: #2ea44f; }
+
+        /* ── Feedback List ──────────────────────────────────── */
+        .feedback-list { padding: 0; }
+        .feedback-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 16px;
+            border-bottom: 1px solid #21262d;
+            transition: background 0.15s;
+        }
+        .feedback-item:last-child { border-bottom: none; }
+        .feedback-item:hover { background: #1c2333; }
+        .fb-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .fb-tag.bug { background: #f85149; color: #fff; }
+        .fb-tag.improvement { background: #d29922; color: #fff; }
+        .fb-tag.todo { background: #58a6ff; color: #fff; }
+        .fb-tag.question { background: #bc8cff; color: #fff; }
+        .fb-tag.note { background: #484f58; color: #e0e0e0; }
+        .fb-content {
+            flex: 1;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .fb-meta {
+            font-size: 10px;
+            color: #484f58;
+            margin-top: 2px;
+        }
+        .fb-remove {
+            background: none;
+            border: none;
+            color: #484f58;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 4px;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+        .fb-remove:hover { color: #f85149; }
+        .feedback-empty {
+            padding: 16px;
+            text-align: center;
+            color: #484f58;
+            font-size: 12px;
+        }
+
+        /* ── Complete Testing Button ───────────────────────── */
+        .complete-bar {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .complete-bar .info {
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .complete-bar .info strong { color: #e0e0e0; }
+        .btn-complete {
+            background: #238636;
+            border: 1px solid #2ea44f;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 24px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+        .btn-complete:hover { background: #2ea44f; }
+        .btn-complete:disabled { background: #21262d; border-color: #30363d; color: #484f58; cursor: not-allowed; }
+        .complete-banner {
+            background: #0d2818;
+            border: 1px solid #2ea44f;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+            display: none;
+        }
+        .complete-banner.show { display: block; }
+        .complete-banner h3 { color: #2ea44f; font-size: 16px; margin-bottom: 4px; }
+        .complete-banner p { color: #8b949e; font-size: 12px; }
+
+        /* ── Actions ────────────────────────────────────────── */
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #21262d;
+            color: #e0e0e0;
+            transition: all 0.15s;
+        }
+        .btn:hover { background: #30363d; }
+        .btn-danger { border-color: #f85149; color: #f85149; }
+        .btn-danger:hover { background: #f8514920; }
+
+        /* ── History ────────────────────────────────────────── */
+        .history {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        .history summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 8px;
+        }
+        .history-entry {
+            padding: 6px 0;
+            border-bottom: 1px solid #21262d;
+        }
+        .history-entry .ver { color: #58a6ff; font-weight: 600; }
+        .history-entry .result-pass { color: #2ea44f; }
+        .history-entry .result-fail { color: #f85149; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <h1>Test <span>Checklist</span> <span class="version-tag" id="versionTag">v0.49.0</span></h1>
+        <div class="sub">Click PASS / FAIL / SKIP per item &bull; Report bugs &amp; feedback below &bull; Hit Complete when done</div>
+    </div>
+</div>
+
+<div class="nav">
+    <a href="index.html">Pipeline</a> &nbsp;|&nbsp;
+    <a href="media-center.html" style="color:#f0883e;">Image Pipeline</a> &nbsp;|&nbsp;
+    <a href="workshop.html">Workshop</a> &nbsp;|&nbsp;
+    <a href="changelog.html">Changelog</a> &nbsp;|&nbsp;
+    <a href="tasks.html" style="color:#bc8cff;">Tasks</a> &nbsp;|&nbsp;
+    <span class="active">Tester</span> &nbsp;|&nbsp;
+    <a href="/#portfolio" style="color:#3fb950;">Our Products</a> &nbsp;|&nbsp;
+    <a href="/" style="color:#d29922;">OpsFlowBetter</a>
+</div>
+
+<div class="progress-wrap">
+    <div class="progress-stats" id="progressStats"></div>
+    <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div id="sectionsContainer"></div>
+
+<!-- ── Feedback Reporter ──────────────────────────────────────── -->
+<div class="feedback-section">
+    <div class="feedback-header">
+        <h2>Feedback &amp; Bug Reports</h2>
+        <span class="feedback-count" id="feedbackCount">0 items</span>
+    </div>
+    <div class="feedback-input-row">
+        <select class="feedback-category" id="fbCategory">
+            <option value="bug">Bug</option>
+            <option value="improvement">Improvement</option>
+            <option value="todo">Todo</option>
+            <option value="question">Question</option>
+            <option value="note">Note</option>
+        </select>
+        <input type="text" class="feedback-text" id="fbText" placeholder="Describe the issue or idea... (Enter to submit)" onkeydown="if(event.key==='Enter'){event.preventDefault();submitFeedback();}">
+        <button class="feedback-submit" onclick="submitFeedback()">Submit</button>
+    </div>
+    <div class="feedback-list" id="feedbackList"></div>
+</div>
+
+<!-- ── Complete Testing ───────────────────────────────────────── -->
+<div class="complete-bar" id="completeBar">
+    <div class="info" id="completeInfo">
+        Test all items and submit any feedback, then mark testing <strong>Complete</strong>.
+    </div>
+    <button class="btn-complete" id="completeBtn" onclick="completeTesting()">Complete Testing</button>
+</div>
+<div class="complete-banner" id="completeBanner">
+    <h3>Testing Complete</h3>
+    <p id="completeSummary"></p>
+</div>
+
+<!-- ── Admin Actions ──────────────────────────────────────────── -->
+<div class="actions">
+    <button class="btn" onclick="resetCurrent()">Reset Current Version</button>
+    <button class="btn btn-danger" onclick="clearAllHistory()">Clear All History</button>
+</div>
+
+<div class="history">
+    <details>
+        <summary>Test History</summary>
+        <div id="historyList"></div>
+    </details>
+</div>
+
+<script>
+// ── Test Data (updated each version by dev) ──────────────────────
+var TEST_VERSION = 'v0.49.0';
+
+var TEST_SECTIONS = [
+    {
+        title: 'BG Removal Toggle',
+        priority: 'TOP PRIORITY',
+        items: [
+            'Page loads with toggle OFF by default',
+            'Upload image with toggle OFF \u2192 no credits used, toast says "saved to cloud storage"',
+            'Click "Process" or "Retry Failed" with toggle OFF \u2192 toast says "BG Removal is OFF"',
+            'Turn toggle ON \u2192 toast confirms enabled',
+            'Toggle state persists after page refresh',
+            'Upload with toggle ON \u2192 credits used, processing runs',
+        ]
+    },
+    {
+        title: 'Image Pipeline Rename',
+        priority: null,
+        items: [
+            'All 5 page nav links say "Image Pipeline" (not "Media Center")',
+            'Image Pipeline page title says "Image Pipeline v0.49.0"',
+        ]
+    },
+    {
+        title: 'Gallery Dedup & Badges',
+        priority: null,
+        items: [
+            'Gallery filter dropdown shows each product only once',
+            'Gallery entries show green "Current" / gray "Older" badges',
+        ]
+    },
+    {
+        title: 'v0.48.0 Carry-Forward',
+        priority: null,
+        items: [
+            '? tooltip icons visible next to credits badge, Dismiss Done, Retry Failed',
+            'Hover over ? icons \u2192 tooltip text appears',
+            'Instant image thumbnail on upload (no blank/broken)',
+            'Version v0.49.0 on Pipeline, Image Pipeline, Workshop',
+            'Changelog shows v0.49.0 as CURRENT',
+        ]
+    }
+];
+
+// ── Storage ──────────────────────────────────────────────────────
+var STORAGE_KEY = 'opsflow_tester';
+var FEEDBACK_KEY = 'opsflow_tester_feedback';
+
+function loadData() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function getVersionData() {
+    var data = loadData();
+    if (!data[TEST_VERSION]) {
+        data[TEST_VERSION] = { results: {}, notes: {}, timestamp: null, completed: false };
+        saveData(data);
+    }
+    return data[TEST_VERSION];
+}
+
+function loadFeedback() {
+    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveFeedback(fb) {
+    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(fb));
+}
+function getVersionFeedback() {
+    var fb = loadFeedback();
+    if (!fb[TEST_VERSION]) { fb[TEST_VERSION] = []; saveFeedback(fb); }
+    return fb[TEST_VERSION];
+}
+
+// ── Test Results ─────────────────────────────────────────────────
+function setResult(idx, status) {
+    var data = loadData();
+    if (!data[TEST_VERSION]) data[TEST_VERSION] = { results: {}, notes: {}, timestamp: null, completed: false };
+    if (data[TEST_VERSION].results[idx] === status) {
+        delete data[TEST_VERSION].results[idx];
+    } else {
+        data[TEST_VERSION].results[idx] = status;
+    }
+    data[TEST_VERSION].timestamp = new Date().toISOString();
+    saveData(data);
+    render();
+}
+
+function setNote(idx, text) {
+    var data = loadData();
+    if (!data[TEST_VERSION]) data[TEST_VERSION] = { results: {}, notes: {}, timestamp: null, completed: false };
+    data[TEST_VERSION].notes[idx] = text;
+    data[TEST_VERSION].timestamp = new Date().toISOString();
+    saveData(data);
+}
+
+// ── Feedback ─────────────────────────────────────────────────────
+function submitFeedback() {
+    var cat = document.getElementById('fbCategory').value;
+    var text = document.getElementById('fbText').value.trim();
+    if (!text) return;
+
+    var fb = loadFeedback();
+    if (!fb[TEST_VERSION]) fb[TEST_VERSION] = [];
+    fb[TEST_VERSION].push({
+        id: Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+        category: cat,
+        text: text,
+        timestamp: new Date().toISOString(),
+    });
+    saveFeedback(fb);
+
+    document.getElementById('fbText').value = '';
+    document.getElementById('fbText').focus();
+    renderFeedback();
+}
+
+function removeFeedback(id) {
+    var fb = loadFeedback();
+    if (!fb[TEST_VERSION]) return;
+    fb[TEST_VERSION] = fb[TEST_VERSION].filter(function(f) { return f.id !== id; });
+    saveFeedback(fb);
+    renderFeedback();
+}
+
+function renderFeedback() {
+    var items = getVersionFeedback();
+    var list = document.getElementById('feedbackList');
+    var countEl = document.getElementById('feedbackCount');
+
+    var counts = { bug: 0, improvement: 0, todo: 0, question: 0, note: 0 };
+    for (var i = 0; i < items.length; i++) { counts[items[i].category] = (counts[items[i].category] || 0) + 1; }
+
+    var parts = [];
+    if (counts.bug) parts.push(counts.bug + ' bug' + (counts.bug > 1 ? 's' : ''));
+    if (counts.improvement) parts.push(counts.improvement + ' improvement' + (counts.improvement > 1 ? 's' : ''));
+    if (counts.todo) parts.push(counts.todo + ' todo' + (counts.todo > 1 ? 's' : ''));
+    if (counts.question) parts.push(counts.question + ' question' + (counts.question > 1 ? 's' : ''));
+    if (counts.note) parts.push(counts.note + ' note' + (counts.note > 1 ? 's' : ''));
+    countEl.textContent = parts.length ? parts.join(' \u00b7 ') : '0 items';
+
+    if (!items.length) {
+        list.innerHTML = '<div class="feedback-empty">No feedback yet \u2014 use the form above to report bugs, improvements, or notes.</div>';
+        return;
+    }
+
+    var html = '';
+    for (var i = 0; i < items.length; i++) {
+        var f = items[i];
+        var time = new Date(f.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        html += '<div class="feedback-item">';
+        html += '<span class="fb-tag ' + f.category + '">' + f.category.charAt(0).toUpperCase() + f.category.slice(1) + '</span>';
+        html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + time + '</div></div>';
+        html += '<button class="fb-remove" onclick="removeFeedback(\'' + f.id + '\')" title="Remove">\u00d7</button>';
+        html += '</div>';
+    }
+    list.innerHTML = html;
+}
+
+// ── Complete Testing ─────────────────────────────────────────────
+function completeTesting() {
+    var data = loadData();
+    if (!data[TEST_VERSION]) data[TEST_VERSION] = { results: {}, notes: {}, timestamp: null, completed: false };
+
+    var totalItems = 0;
+    for (var s = 0; s < TEST_SECTIONS.length; s++) totalItems += TEST_SECTIONS[s].items.length;
+    var tested = Object.keys(data[TEST_VERSION].results || {}).length;
+    var fb = getVersionFeedback();
+
+    if (tested < totalItems) {
+        if (!confirm('Only ' + tested + ' of ' + totalItems + ' items tested. Complete anyway?')) return;
+    }
+
+    data[TEST_VERSION].completed = true;
+    data[TEST_VERSION].completedAt = new Date().toISOString();
+    saveData(data);
+    render();
+}
+
+function renderCompleteState() {
+    var vd = getVersionData();
+    var banner = document.getElementById('completeBanner');
+    var bar = document.getElementById('completeBar');
+    var btn = document.getElementById('completeBtn');
+
+    if (vd.completed) {
+        banner.classList.add('show');
+        var totalItems = 0;
+        for (var s = 0; s < TEST_SECTIONS.length; s++) totalItems += TEST_SECTIONS[s].items.length;
+        var pass = 0, fail = 0;
+        var keys = Object.keys(vd.results || {});
+        for (var k = 0; k < keys.length; k++) {
+            if (vd.results[keys[k]] === 'pass') pass++;
+            else if (vd.results[keys[k]] === 'fail') fail++;
+        }
+        var fb = getVersionFeedback();
+        var dateStr = vd.completedAt ? new Date(vd.completedAt).toLocaleString() : '';
+        var summary = TEST_VERSION + ' \u2014 ' + pass + ' passed, ' + fail + ' failed, ' + fb.length + ' feedback items';
+        if (dateStr) summary += ' \u2014 Completed ' + dateStr;
+        document.getElementById('completeSummary').textContent = summary;
+        btn.textContent = '\u2713 Testing Complete';
+        btn.disabled = true;
+    } else {
+        banner.classList.remove('show');
+        btn.textContent = 'Complete Testing';
+        btn.disabled = false;
+    }
+}
+
+// ── Render ───────────────────────────────────────────────────────
+function render() {
+    var vd = getVersionData();
+    var container = document.getElementById('sectionsContainer');
+    var html = '';
+    var globalIdx = 0;
+    var totalPass = 0, totalFail = 0, totalSkip = 0, totalItems = 0;
+
+    for (var s = 0; s < TEST_SECTIONS.length; s++) {
+        var sec = TEST_SECTIONS[s];
+        var secPass = 0, secFail = 0, secTotal = sec.items.length;
+
+        for (var j = 0; j < sec.items.length; j++) {
+            var r = vd.results[globalIdx + j];
+            if (r === 'pass') secPass++;
+            else if (r === 'fail') secFail++;
+        }
+
+        var priorityHtml = sec.priority ? '<span class="priority">' + sec.priority + '</span>' : '';
+        var badgeText = secPass + '/' + secTotal + ' passed';
+        if (secFail > 0) badgeText += ' \u00b7 ' + secFail + ' failed';
+
+        html += '<div class="section">';
+        html += '<div class="section-header" onclick="toggleSection(this)">';
+        html += '<div class="section-title">' + sec.title + priorityHtml + '</div>';
+        html += '<div class="section-badge">' + badgeText + '</div>';
+        html += '</div>';
+        html += '<div class="section-body">';
+
+        for (var i = 0; i < sec.items.length; i++) {
+            var idx = globalIdx + i;
+            var result = vd.results[idx] || '';
+            var note = vd.notes[idx] || '';
+            var statusClass = result ? 'status-' + result : '';
+            totalItems++;
+            if (result === 'pass') totalPass++;
+            else if (result === 'fail') totalFail++;
+            else if (result === 'skip') totalSkip++;
+
+            html += '<div class="test-item ' + statusClass + '">';
+            html += '<div class="test-num">' + (idx + 1) + '</div>';
+            html += '<div class="test-desc">';
+            html += sec.items[i];
+            html += '<br><textarea class="test-note" placeholder="Add note..." rows="1" onchange="setNote(' + idx + ', this.value)" onfocus="this.rows=2" onblur="this.rows=1">' + escHtml(note) + '</textarea>';
+            html += '</div>';
+            html += '<div class="test-controls">';
+            html += '<button class="btn-status ' + (result === 'pass' ? 'active-pass' : '') + '" onclick="setResult(' + idx + ', \'pass\')">PASS</button>';
+            html += '<button class="btn-status ' + (result === 'fail' ? 'active-fail' : '') + '" onclick="setResult(' + idx + ', \'fail\')">FAIL</button>';
+            html += '<button class="btn-status ' + (result === 'skip' ? 'active-skip' : '') + '" onclick="setResult(' + idx + ', \'skip\')">SKIP</button>';
+            html += '</div>';
+            html += '</div>';
+        }
+
+        html += '</div></div>';
+        globalIdx += sec.items.length;
+    }
+
+    container.innerHTML = html;
+
+    // Progress
+    var tested = totalPass + totalFail + totalSkip;
+    var untested = totalItems - tested;
+    document.getElementById('progressStats').innerHTML =
+        '<div class="stat"><div class="stat-dot pass"></div> ' + totalPass + ' passed</div>' +
+        '<div class="stat"><div class="stat-dot fail"></div> ' + totalFail + ' failed</div>' +
+        '<div class="stat"><div class="stat-dot skip"></div> ' + totalSkip + ' skipped</div>' +
+        '<div class="stat"><div class="stat-dot untested"></div> ' + untested + ' untested</div>';
+
+    var bar = document.getElementById('progressBar');
+    var pPass = totalItems ? (totalPass / totalItems * 100) : 0;
+    var pFail = totalItems ? (totalFail / totalItems * 100) : 0;
+    var pSkip = totalItems ? (totalSkip / totalItems * 100) : 0;
+    bar.innerHTML =
+        '<div class="seg-pass" style="width:' + pPass + '%"></div>' +
+        '<div class="seg-fail" style="width:' + pFail + '%"></div>' +
+        '<div class="seg-skip" style="width:' + pSkip + '%"></div>';
+
+    document.getElementById('versionTag').textContent = TEST_VERSION;
+    renderFeedback();
+    renderCompleteState();
+    renderHistory();
+}
+
+function toggleSection(el) {
+    el.parentElement.classList.toggle('collapsed');
+}
+
+function escHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Actions ──────────────────────────────────────────────────────
+function resetCurrent() {
+    if (!confirm('Reset all test results AND feedback for ' + TEST_VERSION + '?')) return;
+    var data = loadData();
+    data[TEST_VERSION] = { results: {}, notes: {}, timestamp: null, completed: false };
+    saveData(data);
+    var fb = loadFeedback();
+    fb[TEST_VERSION] = [];
+    saveFeedback(fb);
+    render();
+}
+
+function clearAllHistory() {
+    if (!confirm('Clear ALL test history AND feedback for ALL versions? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(FEEDBACK_KEY);
+    render();
+}
+
+// ── History ──────────────────────────────────────────────────────
+function renderHistory() {
+    var data = loadData();
+    var fb = loadFeedback();
+    var versions = Object.keys(data).sort().reverse();
+    var el = document.getElementById('historyList');
+
+    if (!versions.length) {
+        el.innerHTML = '<div style="color:#484f58;padding:8px 0;">No test history yet.</div>';
+        return;
+    }
+
+    var html = '';
+    for (var v = 0; v < versions.length; v++) {
+        var ver = versions[v];
+        var vd = data[ver];
+        var pass = 0, fail = 0, total = 0;
+        if (vd.results) {
+            var keys = Object.keys(vd.results);
+            total = keys.length;
+            for (var k = 0; k < keys.length; k++) {
+                if (vd.results[keys[k]] === 'pass') pass++;
+                else if (vd.results[keys[k]] === 'fail') fail++;
+            }
+        }
+        var fbCount = (fb[ver] || []).length;
+        var dateStr = vd.completedAt ? 'Completed ' + new Date(vd.completedAt).toLocaleString() : (vd.timestamp ? 'Last tested ' + new Date(vd.timestamp).toLocaleString() : 'No tests yet');
+        var completedIcon = vd.completed ? '\u2705 ' : '';
+        html += '<div class="history-entry">';
+        html += completedIcon + '<span class="ver">' + ver + '</span> \u2014 ';
+        html += '<span class="result-pass">' + pass + ' pass</span>';
+        if (fail > 0) html += ' \u00b7 <span class="result-fail">' + fail + ' fail</span>';
+        html += ' \u00b7 ' + total + ' tested';
+        if (fbCount > 0) html += ' \u00b7 ' + fbCount + ' feedback';
+        html += ' \u2014 <span style="color:#484f58;">' + dateStr + '</span>';
+        html += '</div>';
+    }
+    el.innerHTML = html;
+}
+
+// ── Boot ─────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
