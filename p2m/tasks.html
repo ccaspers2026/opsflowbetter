@@ -35,8 +35,13 @@
             margin-right: 16px;
             text-decoration: none;
             flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 800;
         }
-        .suite-nav .suite-home:hover { opacity: 0.8; }
+        .suite-nav .suite-home:hover { opacity: 0.8; text-decoration: none; }
+        .suite-nav .brand-ops { color: #e6edf3; }
+        .suite-nav .brand-flow { color: #3b82f6; }
+        .suite-nav .brand-better { color: #8b5cf6; }
         .suite-nav .p2m-links {
             display: flex;
             align-items: center;
@@ -201,7 +206,7 @@
 <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
 <!-- ── P2M Suite Nav ─────────────────────────────────────── -->
 <div class="suite-nav">
-    <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#58a6ff"/><path d="M6 17L11 9l3 4 4-6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h3v3" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><span class="brand-ops">Ops</span><span class="brand-flow">Flow</span><span class="brand-better">Better</span></a>
     <div class="p2m-links">
         <a href="index.html">Pipeline</a> <span class="sep">|</span>
         <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
