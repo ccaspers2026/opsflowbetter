@@ -267,51 +267,69 @@
             --glow: rgba(16, 163, 127, 0.35);
         }
 
-        /* ── P2M Sub-links (mini spheres) ────────────────────── */
+        /* ── P2M Sub-links (capsule pills) ──────────────────── */
         .p2m-sublinks {
-            display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
+            display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
             margin-top: -36px; margin-bottom: 56px; padding: 20px 24px 16px;
             background: #161b22; border: 1px solid #21262d; border-radius: 10px;
-            max-width: 650px; margin-left: auto; margin-right: auto;
+            max-width: 720px; margin-left: auto; margin-right: auto;
         }
         .p2m-sublink {
-            display: flex; flex-direction: column; align-items: center;
-            gap: 5px; text-decoration: none; color: inherit;
+            display: flex; text-decoration: none; color: inherit;
             transition: transform 0.25s ease;
         }
-        .p2m-sublink:hover { transform: scale(1.1); }
-        .p2m-sublink .mini-sphere {
-            width: 38px; height: 38px; border-radius: 50%;
-            position: relative; overflow: hidden;
-            background:
-                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
-                radial-gradient(circle at 32% 25%, #60baff 0%, #2884e0 30%, #1560b0 55%, #0c3870 80%, #081e40 100%);
+        .p2m-sublink:hover { transform: scale(1.08); }
+
+        /* The capsule: two halves side-by-side with full rounding */
+        .capsule {
+            display: flex; align-items: stretch;
+            height: 28px; border-radius: 14px;
+            overflow: hidden; position: relative;
             box-shadow:
-                inset -5px -5px 14px rgba(0,0,0,0.7),
-                inset 3px 3px 8px rgba(255,255,255,0.07),
-                0 4px 12px rgba(0,0,0,0.5);
+                inset 0 -4px 10px rgba(0,0,0,0.5),
+                inset 0 3px 8px rgba(255,255,255,0.06),
+                0 4px 12px rgba(0,0,0,0.4);
             transition: box-shadow 0.25s ease;
         }
-        .p2m-sublink .mini-sphere::after {
-            content: '';
-            position: absolute; top: 10%; left: 16%;
-            width: 24%; height: 18%;
-            background: radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.2) 40%, transparent 70%);
-            border-radius: 50%; transform: rotate(-20deg);
-            pointer-events: none;
-        }
-        .p2m-sublink:hover .mini-sphere {
+        .p2m-sublink:hover .capsule {
             box-shadow:
-                inset -5px -5px 14px rgba(0,0,0,0.7),
-                inset 3px 3px 8px rgba(255,255,255,0.07),
-                0 4px 12px rgba(0,0,0,0.5),
+                inset 0 -4px 10px rgba(0,0,0,0.5),
+                inset 0 3px 8px rgba(255,255,255,0.06),
+                0 4px 12px rgba(0,0,0,0.4),
                 0 0 18px rgba(74,158,255,0.3);
         }
-        .p2m-sublink .mini-label {
-            font-size: 9px; color: #8b949e; font-weight: 600;
-            text-align: center; max-width: 70px; line-height: 1.2;
+
+        /* Left half — darker shade */
+        .capsule-left {
+            background: linear-gradient(180deg, #2884e0 0%, #1560b0 50%, #0c3870 100%);
+            padding: 0 10px 0 14px;
+            display: flex; align-items: center;
         }
-        .p2m-sublink:hover .mini-label { color: #c9d1d9; }
+        /* Right half — lighter shade */
+        .capsule-right {
+            background: linear-gradient(180deg, #60baff 0%, #3a90e8 50%, #1a6cc0 100%);
+            padding: 0 14px 0 10px;
+            display: flex; align-items: center;
+        }
+        /* Seam line between halves */
+        .capsule-left { border-right: 1px solid rgba(0,0,0,0.3); }
+
+        /* Specular highlight across the top */
+        .capsule::after {
+            content: '';
+            position: absolute; top: 0; left: 10%; right: 10%;
+            height: 40%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+            border-radius: 0 0 50% 50%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .capsule-text {
+            font-size: 10px; font-weight: 700; color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            white-space: nowrap; position: relative; z-index: 3;
+        }
 
         .divider { border: none; border-top: 1px solid #21262d; margin: 0 0 40px; }
 
@@ -356,31 +374,43 @@
         </div>
     </div>
 
-    <!-- P2M Sub-links (mini spheres) -->
+    <!-- P2M Sub-links (capsule pills with text) -->
     <div class="p2m-sublinks">
         <a href="/p2m/index.html" class="p2m-sublink">
-            <div class="mini-sphere"></div>
-            <div class="mini-label">Pipeline</div>
+            <div class="capsule">
+                <div class="capsule-left"><span class="capsule-text">Pipe</span></div>
+                <div class="capsule-right"><span class="capsule-text">line</span></div>
+            </div>
         </a>
         <a href="/p2m/media-center.html" class="p2m-sublink">
-            <div class="mini-sphere"></div>
-            <div class="mini-label">Media Pipeline</div>
+            <div class="capsule">
+                <div class="capsule-left"><span class="capsule-text">Media</span></div>
+                <div class="capsule-right"><span class="capsule-text">Pipeline</span></div>
+            </div>
         </a>
         <a href="/p2m/workshop.html" class="p2m-sublink">
-            <div class="mini-sphere"></div>
-            <div class="mini-label">Workshop</div>
+            <div class="capsule">
+                <div class="capsule-left"><span class="capsule-text">Work</span></div>
+                <div class="capsule-right"><span class="capsule-text">shop</span></div>
+            </div>
         </a>
         <a href="/p2m/changelog.html" class="p2m-sublink">
-            <div class="mini-sphere"></div>
-            <div class="mini-label">Changelog</div>
+            <div class="capsule">
+                <div class="capsule-left"><span class="capsule-text">Change</span></div>
+                <div class="capsule-right"><span class="capsule-text">log</span></div>
+            </div>
         </a>
         <a href="/p2m/tasks.html" class="p2m-sublink">
-            <div class="mini-sphere"></div>
-            <div class="mini-label">Tasks</div>
+            <div class="capsule">
+                <div class="capsule-left"><span class="capsule-text">Tas</span></div>
+                <div class="capsule-right"><span class="capsule-text">ks</span></div>
+            </div>
         </a>
         <a href="/p2m/tester.html" class="p2m-sublink">
-            <div class="mini-sphere"></div>
-            <div class="mini-label">Tester</div>
+            <div class="capsule">
+                <div class="capsule-left"><span class="capsule-text">Tes</span></div>
+                <div class="capsule-right"><span class="capsule-text">ter</span></div>
+            </div>
         </a>
     </div>
 
