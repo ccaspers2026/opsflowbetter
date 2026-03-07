@@ -33,34 +33,7 @@
             gap: 15px;
         }
 
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #21262d;
-            padding-bottom: 15px;
-        }
-
-        .header-left h1 {
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
-            margin-bottom: 3px;
-        }
-
-        .header-left p {
-            font-size: 12px;
-            color: #8b949e;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        /* ── Suite Nav (fixed top bar) ────────────────────── */
+        /* ═══ P2M SHARED COMPONENTS — identical on all P2M pages ═══ */
         .suite-nav {
             display: flex;
             align-items: center;
@@ -69,19 +42,17 @@
             border-bottom: 1px solid #21262d;
             padding: 8px 20px;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 9999;
         }
         .suite-nav .suite-home {
-            color: #8b949e;
-            text-decoration: none;
-            font-size: 11px;
+            display: flex;
+            align-items: center;
             margin-right: 16px;
-            white-space: nowrap;
+            text-decoration: none;
+            flex-shrink: 0;
         }
-        .suite-nav .suite-home:hover { color: #c9d1d9; text-decoration: underline; }
+        .suite-nav .suite-home:hover { opacity: 0.8; }
         .suite-nav .p2m-links {
             display: flex;
             align-items: center;
@@ -93,6 +64,39 @@
         .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
         .suite-nav .current { color: #e0e0e0; font-weight: 600; }
         .suite-nav .sep { color: #30363d; }
+
+        .p2m-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid #21262d;
+            margin-bottom: 15px;
+        }
+        .p2m-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+        }
+        .p2m-header .version {
+            font-size: 13px;
+            color: #58a6ff;
+            margin: 0 0 2px 0;
+        }
+        .p2m-header .tagline {
+            font-size: 12px;
+            color: #8b949e;
+            margin: 0;
+        }
+        /* ═══ END P2M SHARED COMPONENTS ═══ */
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
 
         .phase-legend {
             display: flex;
@@ -2257,9 +2261,9 @@
         </div>
     </div>
 
-    <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
+    <!-- ── P2M Suite Nav ─────────────────────────────────────── -->
     <div class="suite-nav">
-        <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><rect width="20" height="20" rx="4" fill="#58a6ff"/><text x="10" y="14" text-anchor="middle" font-size="9" font-weight="700" font-family="Segoe UI,Arial,sans-serif" fill="#0d1117">OFB</text></svg></a>
+        <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#58a6ff"/><path d="M6 17L11 9l3 4 4-6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h3v3" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         <div class="p2m-links">
             <span class="current">Pipeline</span> <span class="sep">|</span>
             <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
@@ -2271,12 +2275,12 @@
     </div>
 
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-left">
+        <!-- ── P2M Page Header ───────────────────────────────── -->
+        <div class="p2m-header">
+            <div>
                 <h1>Pipeline</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Pipeline v0.54.0</p>
-                <p style="font-size: 12px; color: #8b949e;">7-phase product pipeline &mdash; idea to revenue</p>
+                <p class="version">Pipeline v0.55.0</p>
+                <p class="tagline">7-phase product pipeline &mdash; idea to revenue</p>
             </div>
             <div class="header-right">
                 <div class="phase-legend" id="phaseLegend"></div>

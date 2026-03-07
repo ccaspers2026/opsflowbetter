@@ -23,23 +23,7 @@
             margin: 0 auto;
         }
 
-        .header {
-            border-bottom: 2px solid #21262d;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            color: #fff;
-            margin-bottom: 4px;
-        }
-
-        .header p {
-            font-size: 13px;
-            color: #8b949e;
-        }
-
+        /* ═══ P2M SHARED COMPONENTS — identical on all P2M pages ═══ */
         .suite-nav {
             display: flex;
             align-items: center;
@@ -48,19 +32,17 @@
             border-bottom: 1px solid #21262d;
             padding: 8px 20px;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 9999;
         }
         .suite-nav .suite-home {
-            color: #8b949e;
-            text-decoration: none;
-            font-size: 11px;
+            display: flex;
+            align-items: center;
             margin-right: 16px;
-            white-space: nowrap;
+            text-decoration: none;
+            flex-shrink: 0;
         }
-        .suite-nav .suite-home:hover { color: #c9d1d9; text-decoration: underline; }
+        .suite-nav .suite-home:hover { opacity: 0.8; }
         .suite-nav .p2m-links {
             display: flex;
             align-items: center;
@@ -72,6 +54,33 @@
         .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
         .suite-nav .current { color: #e0e0e0; font-weight: 600; }
         .suite-nav .sep { color: #30363d; }
+
+        .p2m-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid #21262d;
+            margin-bottom: 30px;
+        }
+        .p2m-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+        }
+        .p2m-header .version {
+            font-size: 13px;
+            color: #58a6ff;
+            margin: 0 0 2px 0;
+        }
+        .p2m-header .tagline {
+            font-size: 12px;
+            color: #8b949e;
+            margin: 0;
+        }
+        /* ═══ END P2M SHARED COMPONENTS ═══ */
 
         .current-version {
             background: linear-gradient(135deg, #161b22, #1a2332);
@@ -263,8 +272,9 @@
 </head>
 <body style="padding-top: 36px;">
     <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
+    <!-- ── P2M Suite Nav ─────────────────────────────────────── -->
     <div class="suite-nav">
-        <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><rect width="20" height="20" rx="4" fill="#58a6ff"/><text x="10" y="14" text-anchor="middle" font-size="9" font-weight="700" font-family="Segoe UI,Arial,sans-serif" fill="#0d1117">OFB</text></svg></a>
+        <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#58a6ff"/><path d="M6 17L11 9l3 4 4-6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h3v3" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         <div class="p2m-links">
             <a href="index.html">Pipeline</a> <span class="sep">|</span>
             <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
@@ -276,21 +286,24 @@
     </div>
 
     <div class="container">
-        <div class="header">
-            <h1>Changelog</h1>
-            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Changelog v0.54.0</p>
-            <p style="font-size: 12px; color: #8b949e;">Version history &mdash; every change, every commit</p>
+        <!-- ── P2M Page Header ───────────────────────────────── -->
+        <div class="p2m-header">
+            <div>
+                <h1>Changelog</h1>
+                <p class="version">Changelog v0.55.0</p>
+                <p class="tagline">Version history &mdash; every change, every commit</p>
+            </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.54.0 - Standardized Headers &amp; OFB Logo</h2>
-            <p>Released March 7, 2026 &mdash; All page headers standardized to Title + Version + Tagline format (Workshop pattern). OFB logo icon replaces &ldquo;&larr; Suite Home&rdquo; text in nav bar. Media Pipeline controls split into separate bar below header.</p>
+            <h2>Version 0.55.0 - Shared Nav+Header Component &amp; Professional Logo</h2>
+            <p>Released March 7, 2026 &mdash; Created P2M Shared Component CSS block (identical on all 6 pages) with standardized .p2m-header class. All headers now use exact same h1 (22px/600/#fff), version (13px/#58a6ff), and tagline (12px/#8b949e) styling. New upward-trending flow arrow SVG logo replaces old &ldquo;OFB&rdquo; text-in-a-box icon. All inline header styles eliminated.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">65</div>
+                <div class="stat-value">66</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -312,6 +325,24 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.55.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.55.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Shared Nav+Header Component &amp; Professional Logo</div>
+                <ul class="changes-list">
+                    <li>Created <strong>&ldquo;P2M Shared Components&rdquo;</strong> CSS block &mdash; identical on all 6 pages (nav + header)</li>
+                    <li>New <code>.p2m-header</code> class: h1 22px/600/#fff, version 13px/#58a6ff, tagline 12px/#8b949e</li>
+                    <li>All inline header styles eliminated &mdash; every page uses CSS classes only</li>
+                    <li>New upward-trending flow arrow SVG logo replaces old &ldquo;OFB&rdquo; text-in-a-box</li>
+                    <li>Logo: blue rounded square with white rising trend arrow (24x24)</li>
+                    <li>Nav .suite-home uses <code>display:flex; align-items:center</code> for clean logo alignment</li>
+                </ul>
+            </div>
 
             <!-- v0.54.0 -->
             <div class="version-entry">

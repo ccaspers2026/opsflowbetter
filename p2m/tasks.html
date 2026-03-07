@@ -17,13 +17,7 @@
             line-height: 1.6;
         }
 
-        .header {
-            border-bottom: 2px solid #21262d;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }
-        .header h1 { font-size: 24px; color: #fff; margin-bottom: 4px; }
-        .header p { font-size: 12px; color: #8b949e; }
+        /* ═══ P2M SHARED COMPONENTS — identical on all P2M pages ═══ */
         .suite-nav {
             display: flex;
             align-items: center;
@@ -32,19 +26,17 @@
             border-bottom: 1px solid #21262d;
             padding: 8px 20px;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 9999;
         }
         .suite-nav .suite-home {
-            color: #8b949e;
-            text-decoration: none;
-            font-size: 11px;
+            display: flex;
+            align-items: center;
             margin-right: 16px;
-            white-space: nowrap;
+            text-decoration: none;
+            flex-shrink: 0;
         }
-        .suite-nav .suite-home:hover { color: #c9d1d9; text-decoration: underline; }
+        .suite-nav .suite-home:hover { opacity: 0.8; }
         .suite-nav .p2m-links {
             display: flex;
             align-items: center;
@@ -56,6 +48,33 @@
         .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
         .suite-nav .current { color: #e0e0e0; font-weight: 600; }
         .suite-nav .sep { color: #30363d; }
+
+        .p2m-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid #21262d;
+            margin-bottom: 24px;
+        }
+        .p2m-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+        }
+        .p2m-header .version {
+            font-size: 13px;
+            color: #58a6ff;
+            margin: 0 0 2px 0;
+        }
+        .p2m-header .tagline {
+            font-size: 12px;
+            color: #8b949e;
+            margin: 0;
+        }
+        /* ═══ END P2M SHARED COMPONENTS ═══ */
 
         .stats-row {
             display: flex;
@@ -180,8 +199,9 @@
 <body style="padding-top: 36px;">
 
 <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
+<!-- ── P2M Suite Nav ─────────────────────────────────────── -->
 <div class="suite-nav">
-    <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><rect width="20" height="20" rx="4" fill="#58a6ff"/><text x="10" y="14" text-anchor="middle" font-size="9" font-weight="700" font-family="Segoe UI,Arial,sans-serif" fill="#0d1117">OFB</text></svg></a>
+    <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#58a6ff"/><path d="M6 17L11 9l3 4 4-6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h3v3" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <div class="p2m-links">
         <a href="index.html">Pipeline</a> <span class="sep">|</span>
         <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
@@ -192,10 +212,13 @@
     </div>
 </div>
 
-<div class="header">
-    <h1>Tasks</h1>
-    <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Tasks v0.54.0</p>
-    <p style="font-size: 12px; color: #8b949e;">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
+<!-- ── P2M Page Header ───────────────────────────────── -->
+<div class="p2m-header">
+    <div>
+        <h1>Tasks</h1>
+        <p class="version">Tasks v0.55.0</p>
+        <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
+    </div>
 </div>
 
 <!-- ── Stats ────────────────────────────────────────────────── -->
@@ -213,7 +236,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">65</div>
+        <div class="num" style="color:#3fb950;">66</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -351,7 +374,16 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">29</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">30</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Shared nav+header component &amp; professional logo</div>
+            <div class="desc">Created P2M Shared Component CSS block (identical on all 6 pages). Standardized .p2m-header with exact same h1/version/tagline sizing. New upward-trending flow arrow logo replaces old OFB text icon. All inline header styles eliminated.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.55.0 &bull; March 7</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -656,7 +688,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.54.0 &mdash; March 7, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.55.0 &mdash; March 7, 2026
 </div>
 
 <script>
