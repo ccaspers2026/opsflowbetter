@@ -43,8 +43,6 @@
         .suite-nav {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
             font-size: 12px;
             background: #0d1117;
             border-bottom: 1px solid #21262d;
@@ -54,6 +52,21 @@
             left: 0;
             right: 0;
             z-index: 9999;
+        }
+        .suite-nav .suite-home {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 11px;
+            margin-right: 16px;
+            white-space: nowrap;
+        }
+        .suite-nav .suite-home:hover { color: #c9d1d9; text-decoration: underline; }
+        .suite-nav .p2m-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
         }
         .suite-nav a { color: #58a6ff; text-decoration: none; }
         .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
@@ -249,16 +262,17 @@
     </style>
 </head>
 <body style="padding-top: 36px;">
-    <!-- ── Suite Nav (fixed top bar — identical on all pages) ──────── -->
+    <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
     <div class="suite-nav">
-        <a href="index.html">Pipeline</a> <span class="sep">|</span>
-        <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
-        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-        <span class="current">Changelog</span> <span class="sep">|</span>
-        <a href="tasks.html">Tasks</a> <span class="sep">|</span>
-        <a href="tester.html">Tester</a> <span class="sep">|</span>
-        <a href="/#portfolio">Our Products</a> <span class="sep">|</span>
-        <a href="/">OpsFlowBetter</a>
+        <a href="/" class="suite-home">&larr; Suite Home</a>
+        <div class="p2m-links">
+            <a href="index.html">Pipeline</a> <span class="sep">|</span>
+            <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
+            <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+            <span class="current">Changelog</span> <span class="sep">|</span>
+            <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+            <a href="tester.html">Tester</a>
+        </div>
     </div>
 
     <div class="container">
@@ -269,13 +283,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.52.0 - Fixed Nav Bar, No Skittles &amp; Auto-Toggle OFF</h2>
-            <p>Released March 7, 2026 &mdash; Suite nav is now a fixed bar at the top of every page (same position, same pixels, no eye-bouncing). All nav links are uniform blue (no more rainbow colors). BG Removal auto-toggles OFF after each credit use to prevent accidental burns.</p>
+            <h2>Version 0.53.0 - P2M-Only Nav &amp; Suite Home</h2>
+            <p>Released March 7, 2026 &mdash; Nav bar now only shows P2M pages (Pipeline, Media Pipeline, Workshop, Changelog, Tasks, Tester). Non-P2M links removed. &ldquo;Suite Home&rdquo; link in upper-left to return to opsflowbetter.com. Architecture: nav scopes to subdomain/subfolder.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">63</div>
+                <div class="stat-value">64</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -297,6 +311,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.53.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.53.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">P2M-Only Nav &amp; Suite Home</div>
+                <ul class="changes-list">
+                    <li>Removed &ldquo;Our Products&rdquo; and &ldquo;OpsFlowBetter&rdquo; from nav &mdash; non-P2M pages don&rsquo;t belong in P2M nav</li>
+                    <li>Added &ldquo;&larr; Suite Home&rdquo; link in upper-left corner of nav bar to return to opsflowbetter.com</li>
+                    <li>P2M links centered in nav: Pipeline | Media Pipeline | Workshop | Changelog | Tasks | Tester</li>
+                    <li>Architecture rule: nav only shows pages within its own application (subdomain/subfolder scoping)</li>
+                </ul>
+            </div>
 
             <!-- v0.52.0 -->
             <div class="version-entry">

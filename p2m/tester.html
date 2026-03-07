@@ -49,8 +49,6 @@
         .suite-nav {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
             font-size: 12px;
             background: #0d1117;
             border-bottom: 1px solid #21262d;
@@ -60,6 +58,21 @@
             left: 0;
             right: 0;
             z-index: 9999;
+        }
+        .suite-nav .suite-home {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 11px;
+            margin-right: 16px;
+            white-space: nowrap;
+        }
+        .suite-nav .suite-home:hover { color: #c9d1d9; text-decoration: underline; }
+        .suite-nav .p2m-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
         }
         .suite-nav a { color: #58a6ff; text-decoration: none; }
         .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
@@ -417,21 +430,22 @@
 </head>
 <body style="padding-top: 36px;">
 
-<!-- ── Suite Nav (fixed top bar — identical on all pages) ──────── -->
+<!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
 <div class="suite-nav">
-    <a href="index.html">Pipeline</a> <span class="sep">|</span>
-    <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
-    <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-    <a href="changelog.html">Changelog</a> <span class="sep">|</span>
-    <a href="tasks.html">Tasks</a> <span class="sep">|</span>
-    <span class="current">Tester</span> <span class="sep">|</span>
-    <a href="/#portfolio">Our Products</a> <span class="sep">|</span>
-    <a href="/">OpsFlowBetter</a>
+    <a href="/" class="suite-home">&larr; Suite Home</a>
+    <div class="p2m-links">
+        <a href="index.html">Pipeline</a> <span class="sep">|</span>
+        <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
+        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+        <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+        <span class="current">Tester</span>
+    </div>
 </div>
 
 <div class="header">
     <div class="header-left">
-        <h1>Test <span>Checklist</span> <span class="version-tag" id="versionTag">v0.52.0</span></h1>
+        <h1>Test <span>Checklist</span> <span class="version-tag" id="versionTag">v0.53.0</span></h1>
         <div class="sub">Click PASS / FAIL / SKIP per item &bull; Report bugs &amp; feedback below &bull; Hit Complete when done</div>
     </div>
 </div>
@@ -502,45 +516,37 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.52.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.53.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Fixed Nav Bar',
+        title: 'P2M-Only Nav & Suite Home',
         priority: 'PRIMARY',
         items: [
-            'Nav bar is fixed at the very top of every page (does not scroll away)',
-            'Nav stays in the EXACT same spot when clicking between pages \u2014 no eye-bouncing',
-            'All 6 nav links are the same blue color (no Skittles)',
+            '"Our Products" and "OpsFlowBetter" are GONE from the nav bar',
+            '"Suite Home" link visible in upper-left corner of nav on all 6 pages',
+            'Clicking "Suite Home" goes to opsflowbetter.com root',
+            'P2M links centered: Pipeline | Media Pipeline | Workshop | Changelog | Tasks | Tester',
+        ]
+    },
+    {
+        title: 'Nav Consistency',
+        priority: null,
+        items: [
+            'Nav stays in EXACT same spot when clicking between P2M pages',
             'Current page shown as white bold text, not a link',
-            'All nav links work correctly from every page',
-            'Page content does not hide behind the fixed nav (padding-top works)',
+            'All P2M nav links work from every page',
+            'No content hidden behind fixed nav',
         ]
     },
     {
-        title: 'Auto-Toggle OFF',
+        title: 'Versions & Carry-Forward',
         priority: null,
         items: [
-            'After processing an image with BG Removal ON, toggle auto-flips to OFF',
-            'Toast says "BG Removal auto-toggled OFF to protect credits"',
-            'Must manually toggle ON again to process next image',
-        ]
-    },
-    {
-        title: 'Queue Buttons & localStorage',
-        priority: null,
-        items: [
-            'X button and Process/Retry button sit side by side (inline)',
-            'Tasks page loads correctly',
-            'Tester page loads with v0.52.0 test items',
-        ]
-    },
-    {
-        title: 'Versions & Changelog',
-        priority: null,
-        items: [
-            'Pipeline v0.52.0, Media Pipeline v0.52.0, Workshop v0.52.0',
-            'Changelog CURRENT shows v0.52.0, version count shows 63',
+            'Pipeline v0.53.0, Media Pipeline v0.53.0, Workshop v0.53.0',
+            'Changelog CURRENT shows v0.53.0, version count shows 64',
+            'BG Removal toggle still defaults OFF',
+            'Queue X + Process buttons still sit inline',
         ]
     }
 ];

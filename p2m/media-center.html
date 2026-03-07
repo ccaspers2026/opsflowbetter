@@ -45,8 +45,6 @@
         .suite-nav {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
             font-size: 12px;
             background: #0d1117;
             border-bottom: 1px solid #21262d;
@@ -56,6 +54,21 @@
             left: 0;
             right: 0;
             z-index: 9999;
+        }
+        .suite-nav .suite-home {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 11px;
+            margin-right: 16px;
+            white-space: nowrap;
+        }
+        .suite-nav .suite-home:hover { color: #c9d1d9; text-decoration: underline; }
+        .suite-nav .p2m-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
         }
         .suite-nav a { color: #58a6ff; text-decoration: none; }
         .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
@@ -491,23 +504,24 @@
 </head>
 <body style="padding-top: 36px;">
 
-<!-- ── Suite Nav (fixed top bar — identical on all pages) ──────── -->
+<!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
 <div class="suite-nav">
-    <a href="index.html">Pipeline</a> <span class="sep">|</span>
-    <span class="current">Media Pipeline</span> <span class="sep">|</span>
-    <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-    <a href="changelog.html">Changelog</a> <span class="sep">|</span>
-    <a href="tasks.html">Tasks</a> <span class="sep">|</span>
-    <a href="tester.html">Tester</a> <span class="sep">|</span>
-    <a href="/#portfolio">Our Products</a> <span class="sep">|</span>
-    <a href="/">OpsFlowBetter</a>
+    <a href="/" class="suite-home">&larr; Suite Home</a>
+    <div class="p2m-links">
+        <a href="index.html">Pipeline</a> <span class="sep">|</span>
+        <span class="current">Media Pipeline</span> <span class="sep">|</span>
+        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+        <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+        <a href="tester.html">Tester</a>
+    </div>
 </div>
 
 <!-- ── Top Bar ────────────────────────────────────────────────────── -->
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Pipeline v0.52.0</span>
+        <span class="topbar-version">Media Pipeline v0.53.0</span>
     </div>
     <div class="toggle-wrap">
         <label class="toggle-switch" title="Toggle automatic background removal ON or OFF">
