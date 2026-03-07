@@ -264,7 +264,7 @@
 <body style="padding-top: 36px;">
     <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
     <div class="suite-nav">
-        <a href="/" class="suite-home">&larr; Suite Home</a>
+        <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><rect width="20" height="20" rx="4" fill="#58a6ff"/><text x="10" y="14" text-anchor="middle" font-size="9" font-weight="700" font-family="Segoe UI,Arial,sans-serif" fill="#0d1117">OFB</text></svg></a>
         <div class="p2m-links">
             <a href="index.html">Pipeline</a> <span class="sep">|</span>
             <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
@@ -277,19 +277,20 @@
 
     <div class="container">
         <div class="header">
-            <h1>P2M Pipeline - Version History</h1>
-            <p>Caspers Creations - Product to Market - Idea to Revenue</p>
+            <h1>Changelog</h1>
+            <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Changelog v0.54.0</p>
+            <p style="font-size: 12px; color: #8b949e;">Version history &mdash; every change, every commit</p>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.53.0 - P2M-Only Nav &amp; Suite Home</h2>
-            <p>Released March 7, 2026 &mdash; Nav bar now only shows P2M pages (Pipeline, Media Pipeline, Workshop, Changelog, Tasks, Tester). Non-P2M links removed. &ldquo;Suite Home&rdquo; link in upper-left to return to opsflowbetter.com. Architecture: nav scopes to subdomain/subfolder.</p>
+            <h2>Version 0.54.0 - Standardized Headers &amp; OFB Logo</h2>
+            <p>Released March 7, 2026 &mdash; All page headers standardized to Title + Version + Tagline format (Workshop pattern). OFB logo icon replaces &ldquo;&larr; Suite Home&rdquo; text in nav bar. Media Pipeline controls split into separate bar below header.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">64</div>
+                <div class="stat-value">65</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -311,6 +312,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.54.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.54.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Standardized Headers &amp; OFB Logo</div>
+                <ul class="changes-list">
+                    <li>All 6 page headers now follow same pattern: <strong>Title</strong> + <strong>Version tag</strong> (blue) + <strong>Tagline</strong> (gray)</li>
+                    <li>Media Pipeline: header and controls split into separate bars</li>
+                    <li>OFB logo icon (blue rounded square with &ldquo;OFB&rdquo;) replaces &ldquo;&larr; Suite Home&rdquo; text in nav</li>
+                    <li>Hovering OFB logo shows &ldquo;OpsFlowBetter Suite Home&rdquo; tooltip</li>
+                </ul>
+            </div>
 
             <!-- v0.53.0 -->
             <div class="version-entry">

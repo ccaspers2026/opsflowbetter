@@ -432,7 +432,7 @@
 
 <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
 <div class="suite-nav">
-    <a href="/" class="suite-home">&larr; Suite Home</a>
+    <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><rect width="20" height="20" rx="4" fill="#58a6ff"/><text x="10" y="14" text-anchor="middle" font-size="9" font-weight="700" font-family="Segoe UI,Arial,sans-serif" fill="#0d1117">OFB</text></svg></a>
     <div class="p2m-links">
         <a href="index.html">Pipeline</a> <span class="sep">|</span>
         <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
@@ -445,8 +445,9 @@
 
 <div class="header">
     <div class="header-left">
-        <h1>Test <span>Checklist</span> <span class="version-tag" id="versionTag">v0.53.0</span></h1>
-        <div class="sub">Click PASS / FAIL / SKIP per item &bull; Report bugs &amp; feedback below &bull; Hit Complete when done</div>
+        <h1>Tester</h1>
+        <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">Tester <span id="versionTag">v0.54.0</span></p>
+        <p style="font-size: 12px; color: #8b949e;">Click PASS / FAIL / SKIP per item &bull; report bugs &amp; feedback below &bull; hit Complete when done</p>
     </div>
 </div>
 
@@ -516,37 +517,48 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.53.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.54.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'P2M-Only Nav & Suite Home',
+        title: 'Standardized Headers',
         priority: 'PRIMARY',
         items: [
-            '"Our Products" and "OpsFlowBetter" are GONE from the nav bar',
-            '"Suite Home" link visible in upper-left corner of nav on all 6 pages',
-            'Clicking "Suite Home" goes to opsflowbetter.com root',
-            'P2M links centered: Pipeline | Media Pipeline | Workshop | Changelog | Tasks | Tester',
+            'All 6 pages show header format: Title (h1) + blue version line + gray tagline',
+            'Pipeline header: "Pipeline" / "Pipeline v0.54.0" / "7-phase product pipeline — idea to revenue"',
+            'Media Pipeline header: "Media Pipeline" / "Media Pipeline v0.54.0" / "Upload, process & manage product images"',
+            'Workshop header: "Workshop Setup" / version / tagline — consistent with others',
+            'Changelog header: "Changelog" / version / tagline',
+            'Tasks header: "Tasks" / "Tasks v0.54.0" / tagline with auto-refresh note',
+            'Tester header: "Tester" / version / tagline',
         ]
     },
     {
-        title: 'Nav Consistency',
-        priority: null,
+        title: 'OFB Logo & Nav',
+        priority: 'PRIMARY',
         items: [
+            'Blue square OFB logo visible in upper-left of nav on all 6 pages (replaces "← Suite Home" text)',
+            'Clicking OFB logo goes to opsflowbetter.com root',
             'Nav stays in EXACT same spot when clicking between P2M pages',
             'Current page shown as white bold text, not a link',
-            'All P2M nav links work from every page',
-            'No content hidden behind fixed nav',
+        ]
+    },
+    {
+        title: 'Media Pipeline Controls',
+        priority: null,
+        items: [
+            'BG Removal toggle and credits badge on a SEPARATE bar below the header (not crammed into title bar)',
+            'BG Removal toggle still defaults OFF',
+            'Queue X + Process buttons still sit inline to the right',
         ]
     },
     {
         title: 'Versions & Carry-Forward',
         priority: null,
         items: [
-            'Pipeline v0.53.0, Media Pipeline v0.53.0, Workshop v0.53.0',
-            'Changelog CURRENT shows v0.53.0, version count shows 64',
-            'BG Removal toggle still defaults OFF',
-            'Queue X + Process buttons still sit inline',
+            'Pipeline v0.54.0, Media Pipeline v0.54.0, Workshop v0.54.0, Tasks v0.54.0',
+            'Changelog CURRENT shows v0.54.0, version count shows 65',
+            'Tasks page: "Versions Shipped" stat shows 65, completed list shows 29 items',
         ]
     }
 ];

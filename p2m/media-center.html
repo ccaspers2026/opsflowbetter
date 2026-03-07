@@ -506,7 +506,7 @@
 
 <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
 <div class="suite-nav">
-    <a href="/" class="suite-home">&larr; Suite Home</a>
+    <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><rect width="20" height="20" rx="4" fill="#58a6ff"/><text x="10" y="14" text-anchor="middle" font-size="9" font-weight="700" font-family="Segoe UI,Arial,sans-serif" fill="#0d1117">OFB</text></svg></a>
     <div class="p2m-links">
         <a href="index.html">Pipeline</a> <span class="sep">|</span>
         <span class="current">Media Pipeline</span> <span class="sep">|</span>
@@ -517,12 +517,16 @@
     </div>
 </div>
 
-<!-- ── Top Bar ────────────────────────────────────────────────────── -->
+<!-- ── Page Header (standard format) ──────────────────────────────── -->
 <div class="topbar">
     <div class="topbar-left">
-        <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Pipeline v0.53.0</span>
+        <h1 style="font-size:20px;color:#fff;margin:0;">Media Pipeline</h1>
+        <span class="topbar-version">Media Pipeline v0.54.0</span>
     </div>
+    <div style="font-size:12px;color:#8b949e;">Upload, process &amp; manage product images</div>
+</div>
+<!-- ── Controls Bar ──────────────────────────────────────────────── -->
+<div class="topbar" style="padding:6px 20px;border-top:none;">
     <div class="toggle-wrap">
         <label class="toggle-switch" title="Toggle automatic background removal ON or OFF">
             <input type="checkbox" id="bgRemovalToggle" onchange="toggleBgRemoval(this.checked)">
