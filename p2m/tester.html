@@ -411,14 +411,14 @@
 
 <div class="header">
     <div class="header-left">
-        <h1>Test <span>Checklist</span> <span class="version-tag" id="versionTag">v0.49.0</span></h1>
+        <h1>Test <span>Checklist</span> <span class="version-tag" id="versionTag">v0.50.0</span></h1>
         <div class="sub">Click PASS / FAIL / SKIP per item &bull; Report bugs &amp; feedback below &bull; Hit Complete when done</div>
     </div>
 </div>
 
 <div class="nav">
     <a href="index.html">Pipeline</a> &nbsp;|&nbsp;
-    <a href="media-center.html" style="color:#f0883e;">Image Pipeline</a> &nbsp;|&nbsp;
+    <a href="media-center.html" style="color:#f0883e;">Media Pipeline</a> &nbsp;|&nbsp;
     <a href="workshop.html">Workshop</a> &nbsp;|&nbsp;
     <a href="changelog.html">Changelog</a> &nbsp;|&nbsp;
     <a href="tasks.html" style="color:#bc8cff;">Tasks</a> &nbsp;|&nbsp;
@@ -481,46 +481,53 @@
 
 <script>
 // ── Test Data (updated each version by dev) ──────────────────────
-var TEST_VERSION = 'v0.49.0';
+var TEST_VERSION = 'v0.50.0';
 
 var TEST_SECTIONS = [
     {
-        title: 'BG Removal Toggle',
-        priority: 'TOP PRIORITY',
+        title: 'Media Pipeline Rename',
+        priority: 'PRIMARY',
         items: [
-            'Page loads with toggle OFF by default',
-            'Upload image with toggle OFF \u2192 no credits used, toast says "saved to cloud storage"',
-            'Click "Process" or "Retry Failed" with toggle OFF \u2192 toast says "BG Removal is OFF"',
-            'Turn toggle ON \u2192 toast confirms enabled',
-            'Toggle state persists after page refresh',
-            'Upload with toggle ON \u2192 credits used, processing runs',
+            'All 6 page nav links say "Media Pipeline" (not "Image Pipeline")',
+            'Media Pipeline page title says "Media Pipeline v0.50.0"',
+            'Pipeline page topbar version shows v0.50.0',
+            'Workshop page version shows v0.50.0',
         ]
     },
     {
-        title: 'Image Pipeline Rename',
+        title: 'Tasks Page',
         priority: null,
         items: [
-            'All 5 page nav links say "Image Pipeline" (not "Media Center")',
-            'Image Pipeline page title says "Image Pipeline v0.49.0"',
+            'Tasks page: Priority #1 is now LaunchPad (not rename)',
+            'Tasks page: Recently Completed includes "Media Pipeline rename"',
+            'Tasks page: Stats show correct counts (3 up next, 25 completed)',
         ]
     },
     {
-        title: 'Gallery Dedup & Badges',
+        title: 'Changelog',
         priority: null,
         items: [
-            'Gallery filter dropdown shows each product only once',
-            'Gallery entries show green "Current" / gray "Older" badges',
+            'Changelog CURRENT badge shows v0.50.0',
+            'Changelog timeline has v0.50.0 entry at top',
+            'Changelog version count shows 61',
         ]
     },
     {
-        title: 'v0.48.0 Carry-Forward',
+        title: 'Carry-Forward (BG Toggle)',
         priority: null,
         items: [
-            '? tooltip icons visible next to credits badge, Dismiss Done, Retry Failed',
-            'Hover over ? icons \u2192 tooltip text appears',
-            'Instant image thumbnail on upload (no blank/broken)',
-            'Version v0.49.0 on Pipeline, Image Pipeline, Workshop',
-            'Changelog shows v0.49.0 as CURRENT',
+            'BG Removal toggle still defaults OFF on fresh load',
+            'Upload with toggle OFF \u2192 no credits used',
+            'Gallery filter dropdown still shows each product once',
+            'Gallery Current/Older badges still display',
+        ]
+    },
+    {
+        title: 'Navigation & General',
+        priority: null,
+        items: [
+            'All page links work: Pipeline, Media Pipeline, Workshop, Changelog, Tasks, Tester',
+            'Tester page loads with v0.50.0 test items',
         ]
     }
 ];
