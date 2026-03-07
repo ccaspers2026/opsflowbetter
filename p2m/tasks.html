@@ -24,16 +24,17 @@
         }
         .header h1 { font-size: 24px; color: #fff; margin-bottom: 4px; }
         .header p { font-size: 12px; color: #8b949e; }
-        .header .nav {
-            margin-top: 8px;
+        .suite-nav {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             font-size: 12px;
+            margin-top: 8px;
         }
-        .header .nav a {
-            color: #58a6ff;
-            text-decoration: none;
-            margin-right: 12px;
-        }
-        .header .nav a:hover { text-decoration: underline; }
+        .suite-nav a { color: #58a6ff; text-decoration: none; }
+        .suite-nav a:hover { text-decoration: underline; }
+        .suite-nav .current { color: #e0e0e0; font-weight: 600; }
+        .suite-nav .sep { color: #30363d; }
 
         .stats-row {
             display: flex;
@@ -160,14 +161,14 @@
 <div class="header">
     <h1>P2M Task Tracker</h1>
     <p>Living backlog for Caspers Creations &mdash; Updated every version &bull; Auto-refreshes every 5 minutes</p>
-    <div class="nav">
-        <a href="index.html">Pipeline</a>
-        <a href="media-center.html" style="color:#f0883e;">Media Pipeline</a>
-        <a href="workshop.html">Workshop</a>
-        <a href="changelog.html">Changelog</a>
-        <span style="color:#e0e0e0;font-weight:600;">Tasks</span>
-        <a href="tester.html" style="color:#f0883e;">Tester</a>
-        <a href="/#portfolio" style="color:#3fb950;">Our Products</a>
+    <div class="suite-nav">
+        <a href="index.html">Pipeline</a> <span class="sep">|</span>
+        <a href="media-center.html" style="color:#f0883e;">Media Pipeline</a> <span class="sep">|</span>
+        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+        <span class="current">Tasks</span> <span class="sep">|</span>
+        <a href="tester.html" style="color:#f0883e;">Tester</a> <span class="sep">|</span>
+        <a href="/#portfolio" style="color:#3fb950;">Our Products</a> <span class="sep">|</span>
         <a href="/" style="color:#d29922;">OpsFlowBetter</a>
     </div>
 </div>
@@ -187,7 +188,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">60</div>
+        <div class="num" style="color:#3fb950;">62</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -325,7 +326,16 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">25</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">26</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Standardized nav, inline queue buttons &amp; localStorage data layer</div>
+            <div class="desc">Suite nav (.suite-nav) standardized across all 6 pages. Queue action buttons display inline. Tasks &amp; Tester data driven by localStorage for remote updates.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.51.0 &bull; March 7</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -593,9 +603,116 @@
     </div>
 </div>
 
-<div class="refresh-note">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.50.0 &mdash; March 7, 2026
+<div class="refresh-note" id="refreshNote">
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.51.0 &mdash; March 7, 2026
 </div>
+
+<script>
+/* ── localStorage-driven rendering ─────────────────────────────────
+   If opsflow_tasks exists in localStorage, re-render all sections from
+   that JSON. Otherwise the static HTML above is shown as-is.
+   Structure: { stats:{bugs,upNext,backlog,versions,pages}, priority:[],
+                backlog:[], completed:[], milestones:[], lastUpdated:"" }
+──────────────────────────────────────────────────────────────────── */
+(function() {
+    var TASKS_KEY = 'opsflow_tasks';
+    var raw = localStorage.getItem(TASKS_KEY);
+    if (!raw) return; // no localStorage data — use static HTML
+
+    try { var data = JSON.parse(raw); } catch(e) { return; }
+
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    // ── Stats ──
+    if (data.stats) {
+        var statsEl = document.querySelector('.stats-row');
+        if (statsEl) {
+            var s = data.stats;
+            statsEl.innerHTML =
+                '<div class="stat-card"><div class="num" style="color:#f85149;">' + (s.bugs||0) + '</div><div class="label">Active Bugs</div></div>' +
+                '<div class="stat-card"><div class="num" style="color:#f0883e;">' + (s.upNext||0) + '</div><div class="label">Up Next</div></div>' +
+                '<div class="stat-card"><div class="num" style="color:#58a6ff;">' + (s.backlog||0) + '</div><div class="label">Backlog</div></div>' +
+                '<div class="stat-card"><div class="num" style="color:#3fb950;">' + (s.versions||0) + '</div><div class="label">Versions Shipped</div></div>' +
+                '<div class="stat-card"><div class="num" style="color:#bc8cff;">' + (s.pages||0) + '</div><div class="label">Pages in Suite</div></div>';
+        }
+    }
+
+    // ── Priority Queue ──
+    if (data.priority) {
+        var sections = document.querySelectorAll('.section');
+        if (sections[0]) {
+            var html = '<h2>&#127919; Priority Queue &mdash; Up Next <span class="count">' + data.priority.length + '</span></h2>';
+            for (var i = 0; i < data.priority.length; i++) {
+                var t = data.priority[i];
+                html += '<div class="task"><div class="order-num">' + (i+1) + '</div><div class="content">' +
+                    '<div class="title">' + esc(t.title) + '</div>' +
+                    '<div class="desc">' + esc(t.desc) + '</div>' +
+                    '<div class="meta"><span class="tag tag-' + (t.tag||'feature').toLowerCase() + '">' + esc((t.tag||'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta||'') + '</div>' +
+                    '</div></div>';
+            }
+            sections[0].innerHTML = html;
+        }
+    }
+
+    // ── Backlog ──
+    if (data.backlog) {
+        var sections = document.querySelectorAll('.section');
+        if (sections[1]) {
+            var html = '<h2>&#128203; Backlog <span class="count">' + data.backlog.length + '</span></h2>';
+            for (var i = 0; i < data.backlog.length; i++) {
+                var t = data.backlog[i];
+                var pri = t.priority || 'medium';
+                html += '<div class="task"><span class="priority ' + pri + '"></span><div class="content">' +
+                    '<div class="title">' + esc(t.title) + '</div>' +
+                    '<div class="desc">' + esc(t.desc) + '</div>' +
+                    '<div class="meta"><span class="tag tag-' + (t.tag||'feature').toLowerCase() + '">' + esc((t.tag||'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta||'') + '</div>' +
+                    '</div></div>';
+            }
+            sections[1].innerHTML = html;
+        }
+    }
+
+    // ── Completed ──
+    if (data.completed) {
+        var sections = document.querySelectorAll('.section');
+        if (sections[2]) {
+            var html = '<h2>&#9989; Recently Completed <span class="count">' + data.completed.length + '</span></h2>';
+            for (var i = 0; i < data.completed.length; i++) {
+                var t = data.completed[i];
+                html += '<div class="task completed-task"><span class="priority done"></span><div class="content">' +
+                    '<div class="title">' + esc(t.title) + '</div>' +
+                    '<div class="desc">' + esc(t.desc) + '</div>' +
+                    '<div class="meta"><span class="tag tag-' + (t.tag||'feature').toLowerCase() + '">' + esc((t.tag||'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta||'') + '</div>' +
+                    '</div></div>';
+            }
+            sections[2].innerHTML = html;
+        }
+    }
+
+    // ── Milestones ──
+    if (data.milestones) {
+        var sections = document.querySelectorAll('.section');
+        if (sections[3]) {
+            var html = '<h2>&#127919; Milestones</h2>';
+            for (var i = 0; i < data.milestones.length; i++) {
+                var m = data.milestones[i];
+                var pct = m.pct || 0;
+                var color = pct >= 90 ? '#3fb950' : pct >= 30 ? '#f0883e' : '#8b949e';
+                html += '<div class="milestone"><h3>' + esc(m.title) + '</h3><p>' + esc(m.desc) + '</p>' +
+                    '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+                    '<div style="font-size:10px;color:' + color + ';margin-top:4px;">' + pct + '% &mdash; ' + esc(m.note||'') + '</div></div>';
+            }
+            sections[3].innerHTML = html;
+        }
+    }
+
+    // ── Refresh Note ──
+    if (data.lastUpdated) {
+        var note = document.getElementById('refreshNote');
+        if (note) note.innerHTML = 'This page auto-refreshes every 5 minutes &bull; Last updated: ' + esc(data.lastUpdated);
+    }
+})();
+</script>
 
 </body>
 </html>

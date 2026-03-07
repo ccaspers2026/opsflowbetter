@@ -59,6 +59,19 @@
             align-items: center;
         }
 
+        /* ── Suite Nav ─────────────────────────────────────── */
+        .suite-nav {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+        .suite-nav a { color: #58a6ff; text-decoration: none; }
+        .suite-nav a:hover { text-decoration: underline; }
+        .suite-nav .current { color: #e0e0e0; font-weight: 600; }
+        .suite-nav .sep { color: #30363d; }
+
         .phase-legend {
             display: flex;
             gap: 8px;
@@ -2227,8 +2240,17 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.50.0</p>
-                <p style="font-size:11px;"><span style="color:#e0e0e0;font-weight:600;">Pipeline</span> &nbsp;|&nbsp; <a href="media-center.html" style="color: #f0883e; text-decoration: none;">Media Pipeline</a> &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none;">Workshop</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none;">Changelog</a> &nbsp;|&nbsp; <a href="tasks.html" style="color: #bc8cff; text-decoration: none;">Tasks</a> &nbsp;|&nbsp; <a href="tester.html" style="color: #f0883e; text-decoration: none;">Tester</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none;">OpsFlowBetter</a></p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.51.0</p>
+                <div class="suite-nav">
+                    <span class="current">Pipeline</span> <span class="sep">|</span>
+                    <a href="media-center.html" style="color:#f0883e;">Media Pipeline</a> <span class="sep">|</span>
+                    <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+                    <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+                    <a href="tasks.html" style="color:#bc8cff;">Tasks</a> <span class="sep">|</span>
+                    <a href="tester.html" style="color:#f0883e;">Tester</a> <span class="sep">|</span>
+                    <a href="/#portfolio" style="color:#3fb950;">Our Products</a> <span class="sep">|</span>
+                    <a href="/" style="color:#d29922;">OpsFlowBetter</a>
+                </div>
             </div>
             <div class="header-right">
                 <div class="phase-legend" id="phaseLegend"></div>

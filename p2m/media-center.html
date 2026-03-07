@@ -42,21 +42,17 @@
             padding: 2px 8px;
             border-radius: 10px;
         }
-        .topbar-nav {
+        .suite-nav {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
             margin-right: auto;
         }
-        .topbar-nav a {
-            color: #8b949e;
-            text-decoration: none;
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .topbar-nav a:hover { color: #e0e0e0; background: #21262d; }
-        .topbar-nav a.active { color: #58a6ff; background: #1c2333; }
+        .suite-nav a { color: #58a6ff; text-decoration: none; }
+        .suite-nav a:hover { text-decoration: underline; }
+        .suite-nav .current { color: #e0e0e0; font-weight: 600; }
+        .suite-nav .sep { color: #30363d; }
 
         /* ── Credits Badge ───────────────────────────────────── */
         .credits-badge {
@@ -209,6 +205,13 @@
             50% { opacity: 0.4; }
         }
 
+        .queue-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: flex-end;
+            white-space: nowrap;
+        }
         .queue-actions button {
             padding: 3px 10px;
             font-size: 11px;
@@ -484,16 +487,16 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Pipeline v0.50.0</span>
+        <span class="topbar-version">Media Pipeline v0.51.0</span>
     </div>
-    <div class="topbar-nav">
-        <a href="index.html">Pipeline</a>
-        <a href="media-center.html" class="active" style="color:#f0883e;">Media Pipeline</a>
-        <a href="workshop.html">Workshop</a>
-        <a href="changelog.html">Changelog</a>
-        <a href="tasks.html" style="color:#bc8cff;">Tasks</a>
-        <a href="tester.html" style="color:#f0883e;">Tester</a>
-        <a href="/#portfolio" style="color:#3fb950;">Our Products</a>
+    <div class="suite-nav">
+        <a href="index.html">Pipeline</a> <span class="sep">|</span>
+        <span class="current" style="color:#f0883e;">Media Pipeline</span> <span class="sep">|</span>
+        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+        <a href="tasks.html" style="color:#bc8cff;">Tasks</a> <span class="sep">|</span>
+        <a href="tester.html" style="color:#f0883e;">Tester</a> <span class="sep">|</span>
+        <a href="/#portfolio" style="color:#3fb950;">Our Products</a> <span class="sep">|</span>
         <a href="/" style="color:#d29922;">OpsFlowBetter</a>
     </div>
     <div class="toggle-wrap">

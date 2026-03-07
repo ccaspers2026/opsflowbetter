@@ -40,17 +40,17 @@
             color: #8b949e;
         }
 
-        .header .back-link {
-            display: inline-block;
+        .suite-nav {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
             margin-top: 10px;
-            color: #58a6ff;
-            text-decoration: none;
-            font-size: 13px;
         }
-
-        .header .back-link:hover {
-            text-decoration: underline;
-        }
+        .suite-nav a { color: #58a6ff; text-decoration: none; }
+        .suite-nav a:hover { text-decoration: underline; }
+        .suite-nav .current { color: #e0e0e0; font-weight: 600; }
+        .suite-nav .sep { color: #30363d; }
 
         .current-version {
             background: linear-gradient(135deg, #161b22, #1a2332);
@@ -245,32 +245,27 @@
         <div class="header">
             <h1>P2M Pipeline - Version History</h1>
             <p>Caspers Creations - Product to Market - Idea to Revenue</p>
-            <a class="back-link" href="index.html">Pipeline</a>
-            &nbsp;|&nbsp;
-            <a class="back-link" href="media-center.html" style="color: #f0883e;">Media Pipeline</a>
-            &nbsp;|&nbsp;
-            <a class="back-link" href="workshop.html">Workshop</a>
-            &nbsp;|&nbsp;
-            <span style="color: #e0e0e0; font-weight: 600;">Changelog</span>
-            &nbsp;|&nbsp;
-            <a class="back-link" href="tasks.html" style="color: #bc8cff;">Tasks</a>
-            &nbsp;|&nbsp;
-            <a class="back-link" href="tester.html" style="color: #f0883e;">Tester</a>
-            &nbsp;|&nbsp;
-            <a class="back-link" href="/#portfolio" style="color: #3fb950;">Our Products</a>
-            &nbsp;|&nbsp;
-            <a class="back-link" href="/" style="color: #d29922;">OpsFlowBetter</a>
+            <div class="suite-nav">
+                <a href="index.html">Pipeline</a> <span class="sep">|</span>
+                <a href="media-center.html" style="color:#f0883e;">Media Pipeline</a> <span class="sep">|</span>
+                <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+                <span class="current">Changelog</span> <span class="sep">|</span>
+                <a href="tasks.html" style="color:#bc8cff;">Tasks</a> <span class="sep">|</span>
+                <a href="tester.html" style="color:#f0883e;">Tester</a> <span class="sep">|</span>
+                <a href="/#portfolio" style="color:#3fb950;">Our Products</a> <span class="sep">|</span>
+                <a href="/" style="color:#d29922;">OpsFlowBetter</a>
+            </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.50.0 - &ldquo;Image Pipeline&rdquo; &rarr; &ldquo;Media Pipeline&rdquo;</h2>
-            <p>Released March 6, 2026 &mdash; Renamed &ldquo;Image Pipeline&rdquo; to &ldquo;Media Pipeline&rdquo; across all pages to future-proof for video support. Tasks page updated with new priority queue.</p>
+            <h2>Version 0.51.0 - Standardized Nav, Inline Queue Buttons &amp; localStorage Data Layer</h2>
+            <p>Released March 7, 2026 &mdash; Suite nav standardized across all 6 pages (same class, layout, font, separators). Queue action buttons now sit inline. Tasks &amp; Tester data can be read/written via localStorage without code deploys.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">61</div>
+                <div class="stat-value">62</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -292,6 +287,23 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.51.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.51.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Standardized Nav, Inline Queue Buttons &amp; localStorage Data Layer</div>
+                <ul class="changes-list">
+                    <li>Suite nav (<code>.suite-nav</code>) standardized across all 6 pages &mdash; same class, 12px font, flex layout, pipe separators, current-page highlight</li>
+                    <li>Queue action buttons (X + Process/Retry) now display inline via flexbox instead of stacking vertically</li>
+                    <li>Tasks page reads from <code>opsflow_tasks</code> localStorage if present &mdash; allows remote updates without code deploys</li>
+                    <li>Tester page loads TEST_VERSION &amp; TEST_SECTIONS from <code>opsflow_tester_config</code> localStorage if present</li>
+                    <li>Static HTML remains as fallback when no localStorage data exists</li>
+                </ul>
+            </div>
 
             <!-- v0.50.0 -->
             <div class="version-entry">
