@@ -95,6 +95,49 @@
             color: #8b949e;
             margin: 0;
         }
+        .launchpad-dock {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 9998;
+            background: #0d1117;
+            border-top: 1px solid #21262d;
+            padding: 6px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+        }
+        .launchpad-dock .dock-tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .launchpad-dock .dock-tools a {
+            color: #8b949e;
+            text-decoration: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+        .launchpad-dock .dock-tools a:hover {
+            color: #e0e0e0;
+            background: #21262d;
+        }
+        .launchpad-dock .dock-detach {
+            color: #58a6ff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 11px;
+            padding: 3px 10px;
+            border: 1px solid #21262d;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+        .launchpad-dock .dock-detach:hover {
+            background: #1c2333;
+            border-color: #58a6ff;
+        }
         /* ═══ END P2M SHARED COMPONENTS ═══ */
 
         .header-right {
