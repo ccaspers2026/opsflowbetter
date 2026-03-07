@@ -151,7 +151,7 @@
     <p>Living backlog for Caspers Creations &mdash; Auto-refreshes every 5 minutes</p>
     <div class="nav">
         <a href="index.html">Pipeline</a>
-        <a href="media-center.html" style="color:#f0883e;">Media Center</a>
+        <a href="media-center.html" style="color:#f0883e;">Image Pipeline</a>
         <a href="workshop.html">Workshop</a>
         <a href="changelog.html">Changelog</a>
         <span style="color:#e0e0e0;font-weight:600;">Tasks</span>
@@ -193,7 +193,7 @@
         <div class="content">
             <div class="title">Broken gallery thumbnails after bad upload</div>
             <div class="desc">MP4 upload created corrupted gallery entries. Added image error fallback + gallery remove buttons + Clear Gallery. Need to test v0.43.1.</div>
-            <div class="meta"><span class="tag tag-bug">BUG</span> Media Center &bull; v0.43.1</div>
+            <div class="meta"><span class="tag tag-bug">BUG</span> Image Pipeline &bull; v0.43.1</div>
         </div>
     </div>
 
@@ -211,7 +211,7 @@
         <div class="content">
             <div class="title">Auto-crop + center after BG removal</div>
             <div class="desc">v0.41.0 added crop:true to remove.bg + canvas-based re-centering on 2000&times;2000. Worker deployed. Needs testing with live credits.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Media Center + Worker &bull; v0.41.0</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Image Pipeline + Worker &bull; v0.41.0</div>
         </div>
     </div>
 
@@ -219,8 +219,8 @@
         <span class="priority medium"></span>
         <div class="content">
             <div class="title">Image preview popup</div>
-            <div class="desc">Dark overlay popup replaces new-tab behavior on both Pipeline and Media Center. Added in v0.42.1. Needs testing.</div>
-            <div class="meta"><span class="tag tag-ux">UX</span> Pipeline + Media Center &bull; v0.42.1</div>
+            <div class="desc">Dark overlay popup replaces new-tab behavior on both Pipeline and Image Pipeline. Added in v0.42.1. Needs testing.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Pipeline + Image Pipeline &bull; v0.42.1</div>
         </div>
     </div>
 
@@ -229,7 +229,7 @@
         <div class="content">
             <div class="title">Auto-process after upload (no manual click)</div>
             <div class="desc">v0.43.0 auto-triggers processJob() 300ms after successful R2 upload. File validation rejects non-images. Needs testing.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Media Center &bull; v0.43.0</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Image Pipeline &bull; v0.43.0</div>
         </div>
     </div>
 
@@ -252,7 +252,7 @@
         <div class="content">
             <div class="title">Processing progress bar for batch jobs</div>
             <div class="desc">Show "Processing 3 of 7..." with a visual progress bar when batch processing multiple images.</div>
-            <div class="meta"><span class="tag tag-ux">UX</span> Media Center</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Image Pipeline</div>
         </div>
     </div>
 
@@ -261,7 +261,7 @@
         <div class="content">
             <div class="title">Retry count display on failed jobs</div>
             <div class="desc">Show how many times a job has been retried. Make it informative and fun.</div>
-            <div class="meta"><span class="tag tag-ux">UX</span> Media Center</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Image Pipeline</div>
         </div>
     </div>
 
@@ -279,7 +279,7 @@
         <div class="content">
             <div class="title">Product delete with relationship check</div>
             <div class="desc">"+ Add" can create products but no delete yet. Delete needs to check for related queue entries, gallery items, and R2 files before removing.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Media Center</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Image Pipeline</div>
         </div>
     </div>
 
@@ -328,7 +328,7 @@
         <span class="priority done"></span>
         <div class="content">
             <div class="title">Shared product list (opsflow_products)</div>
-            <div class="desc">Single source of truth for product names. Pipeline syncs on save/load. Media Center reads from one key.</div>
+            <div class="desc">Single source of truth for product names. Pipeline syncs on save/load. Image Pipeline reads from one key.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.42.0 &bull; March 6</div>
         </div>
     </div>
@@ -346,7 +346,7 @@
         <span class="priority done"></span>
         <div class="content">
             <div class="title">Navigation consistency across pages</div>
-            <div class="desc">Pipeline, Media Center, Changelog all now have matching nav links.</div>
+            <div class="desc">Pipeline, Image Pipeline, Changelog all now have matching nav links.</div>
             <div class="meta"><span class="tag tag-ux">UX</span> v0.43.0 &bull; March 6</div>
         </div>
     </div>
@@ -363,8 +363,8 @@
     <div class="task completed-task">
         <span class="priority done"></span>
         <div class="content">
-            <div class="title">Media Center + remove.bg API integration</div>
-            <div class="desc">Full Media Center page with queue, gallery, drop zone. Server-side BG removal via Cloudflare Worker.</div>
+            <div class="title">Image Pipeline + remove.bg API integration</div>
+            <div class="desc">Full Image Pipeline page with queue, gallery, drop zone. Server-side BG removal via Cloudflare Worker.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.40.0 &bull; March 6</div>
         </div>
     </div>
@@ -372,7 +372,7 @@
     <div class="task completed-task">
         <span class="priority done"></span>
         <div class="content">
-            <div class="title">Product selector for Media Center uploads</div>
+            <div class="title">Product selector for Image Pipeline uploads</div>
             <div class="desc">Dropdown to pick which product an upload belongs to. Validates before upload.</div>
             <div class="meta"><span class="tag tag-ux">UX</span> v0.40.1 &bull; March 6</div>
         </div>
@@ -409,7 +409,7 @@
         <span class="priority done"></span>
         <div class="content">
             <div class="title">"+ Add" button for custom products</div>
-            <div class="desc">Manual product entry in Media Center. Syncs back to shared opsflow_products key.</div>
+            <div class="desc">Manual product entry in Image Pipeline. Syncs back to shared opsflow_products key.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.41.1 &bull; March 6</div>
         </div>
     </div>
@@ -446,7 +446,7 @@
 
     <div class="milestone">
         <h3>Milestone 2: Media Pipeline</h3>
-        <p>Server-side BG removal, auto-crop, queue processing, Media Center gallery</p>
+        <p>Server-side BG removal, auto-crop, queue processing, Image Pipeline gallery</p>
         <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
         <div style="font-size:10px;color:#f0883e;margin-top:4px;">80% &mdash; Crop testing + credit renewal needed</div>
     </div>

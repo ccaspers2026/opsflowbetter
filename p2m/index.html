@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Caspers Creations - P2M Pipeline</title>
-    <!-- Background removal now handled server-side via Media Center + remove.bg API -->
+    <!-- Background removal now handled server-side via Image Pipeline + remove.bg API -->
     <style>
         * {
             margin: 0;
@@ -2227,8 +2227,8 @@
         <div class="header">
             <div class="header-left">
                 <h1>CASPERS CREATIONS</h1>
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.48.0</p>
-                <p style="font-size:11px;"><span style="color:#e0e0e0;font-weight:600;">Pipeline</span> &nbsp;|&nbsp; <a href="media-center.html" style="color: #f0883e; text-decoration: none;">Media Center</a> &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none;">Workshop</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none;">Changelog</a> &nbsp;|&nbsp; <a href="tasks.html" style="color: #bc8cff; text-decoration: none;">Tasks</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none;">OpsFlowBetter</a></p>
+                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 2px;">P2M Pipeline v0.49.0</p>
+                <p style="font-size:11px;"><span style="color:#e0e0e0;font-weight:600;">Pipeline</span> &nbsp;|&nbsp; <a href="media-center.html" style="color: #f0883e; text-decoration: none;">Image Pipeline</a> &nbsp;|&nbsp; <a href="workshop.html" style="color: #58a6ff; text-decoration: none;">Workshop</a> &nbsp;|&nbsp; <a href="changelog.html" style="color: #58a6ff; text-decoration: none;">Changelog</a> &nbsp;|&nbsp; <a href="tasks.html" style="color: #bc8cff; text-decoration: none;">Tasks</a> &nbsp;|&nbsp; <a href="/#portfolio" style="color: #3fb950; text-decoration: none;">Our Products</a> &nbsp;|&nbsp; <a href="/" style="color: #d29922; text-decoration: none;">OpsFlowBetter</a></p>
             </div>
             <div class="header-right">
                 <div class="phase-legend" id="phaseLegend"></div>
@@ -2734,7 +2734,7 @@
 
         var _pendingR2Upload = null; // holds {canvas, productName, suffix, onDone} for retry after secret entry
 
-        // Queue an image for background removal in the Media Center
+        // Queue an image for background removal in the Image Pipeline
         function queueForMediaCenter(product, fileName, r2Key, url) {
             try {
                 var queueKey = 'opsflow_media_queue';
@@ -3072,7 +3072,7 @@
             const origUrl = URL.createObjectURL(file);
             document.getElementById('modalFixerOriginal').src = origUrl;
 
-            // Quick flow: composite on white → upload to R2 → queue for BG removal in Media Center
+            // Quick flow: composite on white → upload to R2 → queue for BG removal in Image Pipeline
             progressBar.style.width = '30%';
             progressPct.textContent = '30%';
             progressLabel.textContent = 'Compositing on white background...';
@@ -3087,7 +3087,7 @@
                 fixerPreview.style.display = 'block';
 
                 const actionsEl = document.getElementById('modalFixerActions');
-                actionsEl.innerHTML = '<span style="font-size:10px;color:#58a6ff;">Uploading to R2... BG removal will happen in Media Center.</span> ';
+                actionsEl.innerHTML = '<span style="font-size:10px;color:#58a6ff;">Uploading to R2... BG removal will happen in Image Pipeline.</span> ';
 
                 // Still auto-upload the resized version to R2
                 uploadToR2(canvas, state.activeProduct, 'main', function(url, err) {
@@ -3107,9 +3107,9 @@
                         actionsEl.insertAdjacentHTML('beforeend', '<br><span style="font-size:10px;color:#3fb950;">&#10003; Uploaded to R2 &amp; URL saved</span> ');
                         renderMarketingBar();
 
-                        // Auto-queue for background removal in Media Center
+                        // Auto-queue for background removal in Image Pipeline
                         queueForMediaCenter(state.activeProduct, 'main.jpg', makeR2Key(state.activeProduct, 'main'), url);
-                        actionsEl.insertAdjacentHTML('beforeend', '<br><span style="font-size:10px;color:#58a6ff;">&#9881; Queued for BG removal in <a href="media-center.html" target="_blank" style="color:#58a6ff;">Media Center</a></span>');
+                        actionsEl.insertAdjacentHTML('beforeend', '<br><span style="font-size:10px;color:#58a6ff;">&#9881; Queued for BG removal in <a href="media-center.html" target="_blank" style="color:#58a6ff;">Image Pipeline</a></span>');
                     }
 
                     // Always offer download too
@@ -3269,7 +3269,7 @@
             origLabel.appendChild(origImg);
             preview.appendChild(origLabel);
 
-            // Quick flow: composite on white → upload to R2 → queue BG removal for Media Center
+            // Quick flow: composite on white → upload to R2 → queue BG removal for Image Pipeline
             status.innerHTML = '<span style="color:#58a6ff;">&#9881; Compositing on white &amp; uploading to R2...</span>';
             showManualFallback(file, origUrl, panel, status, preview, actions);
 
@@ -3722,7 +3722,7 @@
         function saveState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                // Sync shared product list for cross-page use (Media Center, etc.)
+                // Sync shared product list for cross-page use (Image Pipeline, etc.)
                 localStorage.setItem('opsflow_products', JSON.stringify(Object.keys(state.products)));
             } catch (e) {
                 // Silent fail — localStorage might be full or disabled

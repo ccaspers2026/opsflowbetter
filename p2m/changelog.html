@@ -247,7 +247,7 @@
             <p>Caspers Creations - Product to Market - Idea to Revenue</p>
             <a class="back-link" href="index.html">Pipeline</a>
             &nbsp;|&nbsp;
-            <a class="back-link" href="media-center.html" style="color: #f0883e;">Media Center</a>
+            <a class="back-link" href="media-center.html" style="color: #f0883e;">Image Pipeline</a>
             &nbsp;|&nbsp;
             <a class="back-link" href="workshop.html">Workshop</a>
             &nbsp;|&nbsp;
@@ -262,13 +262,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.48.0 - Local Previews, Auto-Retry, Tooltip Hints &amp; UX Renames</h2>
-            <p>Released March 6, 2026 &mdash; Instant image thumbnails via local canvas preview (no CDN delay). Auto-retry with backoff for failed processing jobs. Tooltip ? hint icons throughout Media Center. Tab and button renames for clarity.</p>
+            <h2>Version 0.49.0 - BG Removal Toggle, Image Pipeline Rename &amp; Gallery Dedup</h2>
+            <p>Released March 6, 2026 &mdash; BG Removal ON/OFF toggle protects credits &mdash; uploads go to cloud storage without using credits when OFF. &ldquo;Media Center&rdquo; renamed to &ldquo;Image Pipeline&rdquo;. Gallery deduped with Current/Older badges. Credit errors now say &ldquo;Cropping bypassed&rdquo; instead of showing as failures.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">59</div>
+                <div class="stat-value">60</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -290,6 +290,26 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.49.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.49.0</span>
+                    <span class="version-date">March 6, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">BG Removal Toggle, Image Pipeline Rename &amp; Gallery Dedup</div>
+                <ul class="changes-list">
+                    <li><strong>BG Removal ON/OFF toggle</strong> in top bar &mdash; defaults to OFF so no credits are used on upload. Turn ON when ready to crop. Persists in localStorage.</li>
+                    <li>When toggle is OFF, uploads save to cloud storage only &mdash; no credits consumed, no auto-processing</li>
+                    <li>Process/Retry buttons blocked when toggle is OFF with clear toast message</li>
+                    <li>Credit-related errors now show &ldquo;Cropping bypassed &mdash; add credits and retry to crop&rdquo; instead of red error</li>
+                    <li>&ldquo;Media Center&rdquo; renamed to &ldquo;Image Pipeline&rdquo; across all 5 pages</li>
+                    <li>Gallery filter dropdown deduplicates properly &mdash; no more repeated product names</li>
+                    <li>Gallery entries show <strong>Current</strong> (green) or <strong>Older</strong> (gray) badge per product</li>
+                    <li>Upload flow deduplicates gallery entries by R2 key &mdash; re-uploads update instead of duplicating</li>
+                </ul>
+            </div>
 
             <!-- v0.48.0 -->
             <div class="version-entry">

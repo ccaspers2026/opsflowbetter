@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Caspers Creations - Media Center</title>
+    <title>Caspers Creations - Image Pipeline</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -89,6 +89,47 @@
             transition: all 0.2s;
         }
         .hint-icon:hover { color: #e0e0e0; border-color: #8b949e; background: #21262d; }
+
+        /* ── BG Removal Toggle ──────────────────────────────── */
+        .toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #8b949e;
+            background: #21262d;
+            padding: 4px 10px;
+            border-radius: 10px;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 32px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: #484f58;
+            border-radius: 18px;
+            transition: 0.2s;
+        }
+        .toggle-slider:before {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            left: 2px;
+            bottom: 2px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: #2ea44f; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(14px); }
+        .toggle-label-on { color: #3fb950; font-weight: 600; }
+        .toggle-label-off { color: #f85149; font-weight: 600; }
 
         /* ── Main Layout ─────────────────────────────────────── */
         .main {
@@ -443,20 +484,28 @@
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-logo">Caspers <span>Creations</span></div>
-        <span class="topbar-version">Media Center v0.48.0</span>
+        <span class="topbar-version">Image Pipeline v0.49.0</span>
     </div>
     <div class="topbar-nav">
         <a href="index.html">Pipeline</a>
-        <a href="media-center.html" class="active" style="color:#f0883e;">Media Center</a>
+        <a href="media-center.html" class="active" style="color:#f0883e;">Image Pipeline</a>
         <a href="workshop.html">Workshop</a>
         <a href="changelog.html">Changelog</a>
         <a href="tasks.html" style="color:#bc8cff;">Tasks</a>
         <a href="/#portfolio" style="color:#3fb950;">Our Products</a>
         <a href="/" style="color:#d29922;">OpsFlowBetter</a>
     </div>
+    <div class="toggle-wrap">
+        <label class="toggle-switch" title="Toggle automatic background removal ON or OFF">
+            <input type="checkbox" id="bgRemovalToggle" onchange="toggleBgRemoval(this.checked)">
+            <span class="toggle-slider"></span>
+        </label>
+        <span id="bgToggleLabel" class="toggle-label-off">BG Removal OFF</span>
+        <span class="hint-icon" title="When OFF, uploads go to cloud storage but background removal is skipped — no credits used. Turn ON when you're ready to use credits for cropping.">?</span>
+    </div>
     <div class="credits-badge">
-        BG Removal: <span class="count" id="creditsCount">—</span> credits
-        <span class="hint-icon" title="Background removal credits remaining (powered by remove.bg). When credits run out, processing will fail.">?</span>
+        <span class="count" id="creditsCount">—</span> credits
+        <span class="hint-icon" title="Background removal credits remaining (powered by remove.bg). Cropping is bypassed when credits run out or toggle is OFF.">?</span>
     </div>
 </div>
 
@@ -483,7 +532,7 @@
         <div class="drop-zone" id="dropZone" onclick="if(checkProductSelected()) document.getElementById('fileInput').click()">
             <div class="icon">&#128228;</div>
             <p>Drag & drop images here, paste (Ctrl+V), or click to browse</p>
-            <p style="font-size:11px;color:#484f58;margin-top:6px;">Images upload to cloud storage &bull; Background removal + crop runs automatically</p>
+            <p style="font-size:11px;color:#484f58;margin-top:6px;">Images upload to cloud storage &bull; BG removal runs only when toggle is ON</p>
             <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff" multiple>
         </div>
 
@@ -627,11 +676,44 @@ document.addEventListener('keydown', function(e) {
 var queue = [];        // Array of { id, product, fileName, r2Key, status, error, addedAt, processedAt }
 var gallery = [];      // Array of { r2Key, product, fileName, url, processedAt }
 var isProcessing = false;
+var bgRemovalEnabled = false; // Default OFF — protects credits
+
+// ── BG Removal Toggle ───────────────────────────────────────────
+function toggleBgRemoval(on) {
+    bgRemovalEnabled = on;
+    localStorage.setItem('opsflow_bg_removal_enabled', on ? '1' : '0');
+    var label = document.getElementById('bgToggleLabel');
+    if (on) {
+        label.textContent = 'BG Removal ON';
+        label.className = 'toggle-label-on';
+        showToast('BG Removal enabled — uploads will use credits for cropping', 'success');
+    } else {
+        label.textContent = 'BG Removal OFF';
+        label.className = 'toggle-label-off';
+        showToast('BG Removal disabled — uploads go to cloud storage only, no credits used', 'info');
+    }
+}
+
+function loadBgToggle() {
+    var saved = localStorage.getItem('opsflow_bg_removal_enabled');
+    bgRemovalEnabled = saved === '1';
+    var toggle = document.getElementById('bgRemovalToggle');
+    var label = document.getElementById('bgToggleLabel');
+    toggle.checked = bgRemovalEnabled;
+    if (bgRemovalEnabled) {
+        label.textContent = 'BG Removal ON';
+        label.className = 'toggle-label-on';
+    } else {
+        label.textContent = 'BG Removal OFF';
+        label.className = 'toggle-label-off';
+    }
+}
 
 // ── Init ─────────────────────────────────────────────────────────
 function init() {
     loadQueue();
     loadGallery();
+    loadBgToggle();
     populateProductSelector();
     renderQueue();
     renderGallery();
@@ -885,26 +967,42 @@ function handleFiles(fileList) {
                         if (data.ok) {
                             job.status = 'pending';
                             job.url = data.url;
-                            showToast('Uploaded ' + file.name + ' — auto-processing...', 'success');
+                            showToast('Uploaded ' + file.name + (bgRemovalEnabled ? ' — processing...' : ' — saved to cloud storage'), 'success');
 
-                            // Add to gallery immediately so user sees upload even if processing fails
-                            gallery.unshift({
-                                r2Key: job.r2Key,
-                                product: job.product,
-                                fileName: job.fileName,
-                                url: data.url,
-                                localPreview: localPreviewUrl,
-                                processedAt: null,
-                                raw: true,
-                            });
+                            // Add/update gallery entry so user sees upload even if processing fails
+                            var existIdx = -1;
+                            for (var gi = 0; gi < gallery.length; gi++) {
+                                if (gallery[gi].r2Key === job.r2Key) { existIdx = gi; break; }
+                            }
+                            if (existIdx >= 0) {
+                                // Update existing entry (re-upload of same file)
+                                gallery[existIdx].url = data.url;
+                                gallery[existIdx].localPreview = localPreviewUrl;
+                                gallery[existIdx].processedAt = null;
+                                gallery[existIdx].raw = true;
+                            } else {
+                                gallery.unshift({
+                                    r2Key: job.r2Key,
+                                    product: job.product,
+                                    fileName: job.fileName,
+                                    url: data.url,
+                                    localPreview: localPreviewUrl,
+                                    processedAt: null,
+                                    raw: true,
+                                });
+                            }
                             saveGallery();
                             renderGallery();
                             populateProductFilter();
 
                             saveQueue();
                             renderQueue();
-                            // Auto-process immediately after upload
-                            setTimeout(function() { processJob(job.id); }, 300);
+                            // Auto-process only if BG Removal is enabled
+                            if (bgRemovalEnabled) {
+                                setTimeout(function() { processJob(job.id); }, 300);
+                            } else {
+                                showToast('Uploaded to cloud storage — BG Removal is OFF, no credits used', 'info');
+                            }
                         } else {
                             job.status = 'failed';
                             job.error = data.error || 'Upload failed';
@@ -1071,6 +1169,11 @@ function cropAndCenter(imageUrl, r2Key, secret, callback) {
 
 // ── Process a Single Job ─────────────────────────────────────────
 function processJob(jobId) {
+    if (!bgRemovalEnabled) {
+        showToast('BG Removal is OFF — turn it on to process images', 'info');
+        return;
+    }
+
     var secret = getR2Secret();
     if (!secret) { secret = promptR2Secret(); }
     if (!secret) return;
@@ -1144,8 +1247,11 @@ function processJob(jobId) {
             });
         } else {
             job.status = 'failed';
-            job.error = data.error || 'Processing failed';
-            showToast('Failed: ' + (data.error || 'Unknown error'), 'error');
+            var errMsg = data.error || 'Processing failed';
+            // Friendlier wording for credit-related errors
+            var isCredits = errMsg.toLowerCase().indexOf('credit') !== -1 || errMsg.toLowerCase().indexOf('402') !== -1;
+            job.error = isCredits ? 'Cropping bypassed — add credits and retry to crop' : errMsg;
+            showToast(isCredits ? 'Cropping bypassed — no credits available' : ('Failed: ' + errMsg), isCredits ? 'info' : 'error');
             saveQueue();
             renderQueue();
             scheduleAutoRetry(job);
@@ -1167,7 +1273,7 @@ var autoRetryTimers = {};
 function scheduleAutoRetry(job) {
     // Don't auto-retry credit errors (user action needed)
     if (job.error && (job.error.toLowerCase().indexOf('credit') !== -1 || job.error.toLowerCase().indexOf('402') !== -1 || job.error.toLowerCase().indexOf('payment') !== -1)) {
-        job.error += ' (auto-retry skipped — credits needed)';
+        job.error = 'Cropping bypassed — add credits and retry to crop';
         saveQueue();
         renderQueue();
         return;
@@ -1203,6 +1309,10 @@ function scheduleAutoRetry(job) {
 
 // ── Process All Pending ──────────────────────────────────────────
 function processAllPending() {
+    if (!bgRemovalEnabled) {
+        showToast('BG Removal is OFF — turn it on to process images', 'info');
+        return;
+    }
     var pending = queue.filter(function(j) { return j.status === 'pending' || j.status === 'failed'; });
     if (!pending.length) { showToast('No pending jobs', 'error'); return; }
 
@@ -1409,17 +1519,27 @@ function renderGallery() {
     }
     emptyEl.style.display = 'none';
 
+    // Determine the "current" (most recent) entry per product for badge display
+    var latestPerProduct = {};
+    for (var li = 0; li < gallery.length; li++) {
+        var gp = gallery[li];
+        if (!latestPerProduct[gp.product]) latestPerProduct[gp.product] = li;
+    }
+
     var html = '';
     for (var i = 0; i < items.length; i++) {
         var g = items[i];
         var url = g.localPreview || g.url || (R2_PUBLIC_BASE + g.r2Key);
         var date = g.processedAt ? new Date(g.processedAt).toLocaleDateString() : '';
         var rawBadge = g.raw ? '<span style="background:#f0883e;color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:6px;">Original</span>' : '';
+        // Show "Current" badge on the most recent entry per product
+        var globalIdx = gallery.indexOf(g);
+        var currentBadge = (latestPerProduct[g.product] === globalIdx) ? '<span style="background:#2ea44f;color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:6px;" title="This is the image shown on the Products page">Current</span>' : '<span style="background:#484f58;color:#8b949e;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:6px;">Older</span>';
         html += '<div class="gallery-card">';
-        html += '<button class="gallery-remove" onclick="removeGalleryItem(' + i + ')" title="Remove from gallery">&times;</button>';
+        html += '<button class="gallery-remove" onclick="removeGalleryItem(' + i + ')" title="Dismiss from gallery (image stays in cloud storage)">&times;</button>';
         html += '<img src="' + url + '" alt="' + g.fileName + '" data-r2key="' + (g.r2Key || '') + '" onclick="showPreview(\'' + url.replace(/'/g, "\\'") + '\',\'' + (g.product + ' — ' + g.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview" onerror="retryImage(this, this.getAttribute(\'data-r2key\'))">';
         html += '<div class="info">';
-        html += '<div class="name">' + g.product + rawBadge + '</div>';
+        html += '<div class="name">' + g.product + rawBadge + currentBadge + '</div>';
         html += '<div class="meta">' + g.fileName + ' &bull; ' + (date || 'Uploaded — not yet processed') + '</div>';
         html += '</div></div>';
     }
@@ -1445,9 +1565,12 @@ function clearGallery() {
 // ── Populate Product Filter ──────────────────────────────────────
 function populateProductFilter() {
     var sel = document.getElementById('galleryFilter');
+    // Clear existing options, keep "All Products" default
+    var currentVal = sel.value;
+    sel.innerHTML = '<option value="all">All Products</option>';
     var products = {};
     for (var i = 0; i < gallery.length; i++) {
-        products[gallery[i].product] = true;
+        if (gallery[i].product) products[gallery[i].product] = true;
     }
     var keys = Object.keys(products).sort();
     for (var k = 0; k < keys.length; k++) {
@@ -1456,6 +1579,8 @@ function populateProductFilter() {
         opt.textContent = keys[k];
         sel.appendChild(opt);
     }
+    // Restore previous selection if it still exists
+    sel.value = products[currentVal] ? currentVal : 'all';
 }
 
 // ── Tabs ─────────────────────────────────────────────────────────
