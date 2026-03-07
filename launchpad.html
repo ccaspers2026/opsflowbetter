@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>OpsFlowBetter — LaunchPad</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,6 +15,7 @@
             background-color: #0d1117;
             color: #e0e0e0;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* ── Top Bar ─────────────────────────────────────────── */
@@ -20,242 +23,269 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 24px;
-            background: #0d1117;
+            padding: 14px 32px;
+            background: rgba(13, 17, 23, 0.95);
             border-bottom: 1px solid #21262d;
         }
         .brand {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
             text-decoration: none;
         }
-        .brand:hover { opacity: 0.8; }
+        .brand:hover { opacity: 0.85; }
         .brand .ops { color: #e6edf3; }
         .brand .flow { color: #3b82f6; }
         .brand .better { color: #8b5cf6; }
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        .topbar-meta {
             font-size: 12px;
-            color: #8b949e;
+            color: #484f58;
         }
-        .topbar-right a {
-            color: #58a6ff;
-            text-decoration: none;
-        }
-        .topbar-right a:hover { text-decoration: underline; }
 
-        /* ── Main Layout ─────────────────────────────────────── */
+        /* ── Main ────────────────────────────────────────────── */
         .main {
-            max-width: 960px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 40px 24px;
+            padding: 48px 32px 60px;
         }
 
         .greeting {
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 32px;
+            font-weight: 700;
             color: #fff;
             margin-bottom: 4px;
         }
         .greeting-sub {
-            font-size: 14px;
+            font-size: 15px;
             color: #8b949e;
-            margin-bottom: 32px;
+            margin-bottom: 48px;
         }
 
-        /* ── Section ─────────────────────────────────────────── */
+        /* ── Section Labels ──────────────────────────────────── */
         .section-label {
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             color: #8b949e;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
         }
 
-        /* ── Product Cards ───────────────────────────────────── */
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            margin-bottom: 40px;
-        }
-        .product-card {
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 10px;
-            padding: 20px;
-            transition: border-color 0.2s, transform 0.15s;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        .product-card:hover {
-            border-color: #58a6ff;
-            transform: translateY(-2px);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #fff;
-        }
-        .card-title .accent { color: #58a6ff; }
-        .card-badge {
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-        .badge-live { background: #0d2818; color: #3fb950; border: 1px solid #2ea44f; }
-        .badge-soon { background: #2a1f0d; color: #f0883e; border: 1px solid #d29922; }
-        .card-desc {
-            font-size: 13px;
-            color: #8b949e;
-            line-height: 1.5;
-            margin-bottom: 14px;
-        }
-        .card-links {
+        /* ── Sphere Grid ─────────────────────────────────────── */
+        .sphere-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-        }
-        .card-link {
-            font-size: 11px;
-            color: #58a6ff;
-            text-decoration: none;
-            background: #0d1117;
-            border: 1px solid #21262d;
-            padding: 3px 10px;
-            border-radius: 12px;
-            transition: all 0.15s;
-        }
-        .card-link:hover {
-            background: #1c2333;
-            border-color: #58a6ff;
-        }
-
-        /* ── Tools Section ───────────────────────────────────── */
-        .tools-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            user-select: none;
-            margin-bottom: 12px;
-            padding: 10px 16px;
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 8px;
-            transition: background 0.15s;
-        }
-        .tools-toggle:hover { background: #1c2333; }
-        .tools-toggle .arrow {
-            font-size: 10px;
-            color: #8b949e;
-            transition: transform 0.2s;
-        }
-        .tools-toggle.open .arrow { transform: rotate(90deg); }
-        .tools-toggle .label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #e0e0e0;
-            flex: 1;
-        }
-        .tools-toggle .count {
-            font-size: 11px;
-            color: #8b949e;
-        }
-
-        .tools-grid {
-            display: none;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 10px;
-            margin-bottom: 40px;
-        }
-        .tools-grid.open { display: grid; }
-
-        .tool-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 8px;
-            padding: 12px 16px;
-            text-decoration: none;
-            color: inherit;
-            transition: border-color 0.2s;
-        }
-        .tool-card:hover { border-color: #30363d; }
-        .tool-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
+            gap: 36px;
             justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .tool-info { flex: 1; min-width: 0; }
-        .tool-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #e0e0e0;
-        }
-        .tool-desc {
-            font-size: 11px;
-            color: #8b949e;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .tool-ext {
-            font-size: 9px;
-            color: #484f58;
-            flex-shrink: 0;
+            margin-bottom: 56px;
         }
 
-        /* ── Quick Links ─────────────────────────────────────── */
-        .quick-links {
+        .sphere-item {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 40px;
-        }
-        .quick-link {
-            font-size: 12px;
-            color: #8b949e;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
             text-decoration: none;
-            background: #161b22;
-            border: 1px solid #21262d;
-            padding: 6px 14px;
-            border-radius: 6px;
-            transition: all 0.15s;
+            color: inherit;
+            cursor: pointer;
+            transition: transform 0.35s ease;
         }
-        .quick-link:hover {
-            color: #58a6ff;
-            border-color: #30363d;
-            background: #1c2333;
+        .sphere-item:hover {
+            transform: scale(1.12);
         }
 
-        /* ── Footer ──────────────────────────────────────────── */
+        /* ══════════════════════════════════════════════════════════
+           3D SPHERE
+           - Two-layer radial gradient: main color + dark vignette
+           - Deep inset shadows for curvature
+           - Specular highlight (::after)
+           - Ground shadow (.sphere-shadow)
+           - Hover: scale + colored glow
+           ══════════════════════════════════════════════════════════ */
+
+        .sphere-wrap {
+            position: relative;
+            width: 88px;
+            height: 88px;
+        }
+
+        .sphere {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.35s ease;
+            box-shadow:
+                inset -12px -12px 30px rgba(0, 0, 0, 0.75),
+                inset 6px 6px 18px rgba(255, 255, 255, 0.08),
+                0 10px 30px rgba(0, 0, 0, 0.6),
+                0 3px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Hover glow */
+        .sphere-item:hover .sphere {
+            box-shadow:
+                inset -12px -12px 30px rgba(0, 0, 0, 0.75),
+                inset 6px 6px 18px rgba(255, 255, 255, 0.08),
+                0 10px 30px rgba(0, 0, 0, 0.6),
+                0 3px 10px rgba(0, 0, 0, 0.4),
+                0 0 40px var(--glow, rgba(88,166,255,0.3));
+        }
+
+        /* Specular highlight */
+        .sphere::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 16%;
+            width: 24%;
+            height: 18%;
+            background: radial-gradient(
+                ellipse at 50% 50%,
+                rgba(255, 255, 255, 0.7) 0%,
+                rgba(255, 255, 255, 0.3) 35%,
+                transparent 70%
+            );
+            border-radius: 50%;
+            transform: rotate(-20deg);
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Ground shadow */
+        .sphere-shadow {
+            width: 60px;
+            height: 10px;
+            margin: 4px auto 0;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.45) 0%, transparent 70%);
+            border-radius: 50%;
+            transition: all 0.35s ease;
+        }
+        .sphere-item:hover .sphere-shadow {
+            width: 70px;
+            height: 8px;
+            opacity: 0.7;
+        }
+
+        /* Sphere text */
+        .sphere-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            font-weight: 800;
+            font-size: 15px;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 3px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        .sphere-label {
+            font-size: 12px; font-weight: 600; color: #c9d1d9;
+            text-align: center; max-width: 90px; line-height: 1.3;
+        }
+        .sphere-item:hover .sphere-label { color: #fff; }
+        .sphere-sublabel { font-size: 10px; color: #484f58; }
+
+        /* ── Sphere Colors ───────────────────────────────────── */
+        .sphere-p2m {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #60baff 0%, #2884e0 30%, #1560b0 55%, #0c3870 80%, #081e40 100%);
+            --glow: rgba(74, 158, 255, 0.35);
+        }
+        .sphere-helium {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #ffaa70 0%, #e87028 30%, #c85010 55%, #7a3000 80%, #401a00 100%);
+            --glow: rgba(255, 140, 74, 0.35);
+        }
+        .sphere-removebg {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #78f0a8 0%, #3cc060 30%, #28904a 55%, #186030 80%, #0a3018 100%);
+            --glow: rgba(92, 224, 138, 0.35);
+        }
+        .sphere-cloudflare {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #ffd070 0%, #f89838 30%, #d07018 55%, #8a4808 80%, #402200 100%);
+            --glow: rgba(255, 184, 74, 0.35);
+        }
+        .sphere-github {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #999 0%, #666 30%, #444 55%, #222 80%, #0a0a0a 100%);
+            --glow: rgba(150, 150, 150, 0.3);
+        }
+        .sphere-r2 {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #90d0ff 0%, #60aaff 30%, #3888e0 55%, #205aa0 80%, #103060 100%);
+            --glow: rgba(122, 184, 255, 0.35);
+        }
+        .sphere-services {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #d8b8ff 0%, #a070f8 30%, #7848d0 55%, #5028a0 80%, #281060 100%);
+            --glow: rgba(139, 92, 246, 0.35);
+        }
+        .sphere-tasty {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #88ff88 0%, #38d860 30%, #20a840 55%, #107028 80%, #083818 100%);
+            --glow: rgba(34, 197, 94, 0.35);
+        }
+        .sphere-truist {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #dab0ff 0%, #9848d8 30%, #7028b8 55%, #481080 80%, #280848 100%);
+            --glow: rgba(123, 47, 190, 0.35);
+        }
+        .sphere-optionstrat {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #68f8f8 0%, #20c0e8 30%, #1090c0 55%, #086080 80%, #043040 100%);
+            --glow: rgba(14, 165, 233, 0.35);
+        }
+        .sphere-youtube {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #ff8080 0%, #e83838 30%, #c01818 55%, #801010 80%, #400808 100%);
+            --glow: rgba(220, 38, 38, 0.35);
+        }
+        .sphere-amazon {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #ffe088 0%, #f0a828 30%, #d08018 55%, #885008 80%, #402800 100%);
+            --glow: rgba(245, 158, 11, 0.35);
+        }
+        .sphere-chatgpt {
+            background:
+                radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
+                radial-gradient(circle at 32% 25%, #90f8d0 0%, #20c090 30%, #109870 55%, #086850 80%, #043830 100%);
+            --glow: rgba(16, 163, 127, 0.35);
+        }
+
+        /* ── P2M Sub-links ───────────────────────────────────── */
+        .p2m-sublinks {
+            display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+            margin-top: -40px; margin-bottom: 56px; padding: 16px;
+            background: #161b22; border: 1px solid #21262d; border-radius: 10px;
+            max-width: 600px; margin-left: auto; margin-right: auto;
+        }
+        .p2m-sublink {
+            font-size: 11px; color: #58a6ff; text-decoration: none;
+            background: #0d1117; border: 1px solid #21262d;
+            padding: 4px 12px; border-radius: 14px; transition: all 0.15s;
+        }
+        .p2m-sublink:hover { background: #1c2333; border-color: #58a6ff; }
+
+        .divider { border: none; border-top: 1px solid #21262d; margin: 0 0 40px; }
+
         .footer {
-            text-align: center;
-            padding: 24px;
-            font-size: 11px;
-            color: #484f58;
-            border-top: 1px solid #21262d;
+            text-align: center; padding: 24px; font-size: 11px;
+            color: #484f58; border-top: 1px solid #21262d;
         }
     </style>
 </head>
@@ -263,114 +293,147 @@
 
 <!-- ── Top Bar ──────────────────────────────────────────────── -->
 <div class="topbar">
-    <a href="/" class="brand"><span class="ops">Ops</span><span class="flow">Flow</span><span class="better">Better</span></a>
-    <div class="topbar-right">
-        <span>LaunchPad v0.56.0</span>
-        <a href="/">Home</a>
-    </div>
+    <a href="/launchpad.html" class="brand"><span class="ops">Ops</span><span class="flow">Flow</span><span class="better">Better</span></a>
+    <div class="topbar-meta">LaunchPad</div>
 </div>
 
 <!-- ── Main Content ────────────────────────────────────────── -->
 <div class="main">
 
     <div class="greeting" id="greeting">Good evening</div>
-    <div class="greeting-sub">Your OpsFlowBetter command center &mdash; everything in one place</div>
+    <div class="greeting-sub">Your command center &mdash; everything you need, nothing you don't</div>
 
-    <!-- ── Suite Products ──────────────────────────────────── -->
-    <div class="section-label">Suite Products</div>
-    <div class="product-grid">
-
-        <a href="/p2m/" class="product-card">
-            <div class="card-header">
-                <div class="card-title"><span class="accent">P2M</span> Pipeline</div>
-                <span class="card-badge badge-live">LIVE</span>
+    <!-- ── Suite ─────────────────────────────────────────── -->
+    <div class="section-label">Suite</div>
+    <div class="sphere-grid">
+        <a href="/p2m/" class="sphere-item">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-p2m"><span class="sphere-text">P2M</span></div>
+                <div class="sphere-shadow"></div>
             </div>
-            <div class="card-desc">Product to Market &mdash; 7-phase pipeline from idea to revenue. Manage products, media, workshop setup, and track progress.</div>
-            <div class="card-links">
-                <a href="/p2m/index.html" class="card-link" onclick="event.stopPropagation()">Pipeline</a>
-                <a href="/p2m/media-center.html" class="card-link" onclick="event.stopPropagation()">Media Pipeline</a>
-                <a href="/p2m/workshop.html" class="card-link" onclick="event.stopPropagation()">Workshop</a>
-                <a href="/p2m/changelog.html" class="card-link" onclick="event.stopPropagation()">Changelog</a>
-                <a href="/p2m/tasks.html" class="card-link" onclick="event.stopPropagation()">Tasks</a>
-                <a href="/p2m/tester.html" class="card-link" onclick="event.stopPropagation()">Tester</a>
-            </div>
+            <div class="sphere-label">P2M Pipeline</div>
+            <div class="sphere-sublabel">LIVE</div>
         </a>
-
-        <div class="product-card" style="opacity:0.5;cursor:default;">
-            <div class="card-header">
-                <div class="card-title">Services &amp; Integrations</div>
-                <span class="card-badge badge-soon">UP NEXT</span>
+        <div class="sphere-item" style="opacity:0.4;cursor:default;">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-services"><span class="sphere-text">S&I</span></div>
+                <div class="sphere-shadow"></div>
             </div>
-            <div class="card-desc">Costs, credits, subscription links, and GO/NO-GO status LEDs for all connected services.</div>
+            <div class="sphere-label">Services &amp; Integrations</div>
+            <div class="sphere-sublabel">UP NEXT</div>
         </div>
-
     </div>
 
-    <!-- ── Tools & Services ────────────────────────────────── -->
+    <!-- P2M Sub-links -->
+    <div class="p2m-sublinks">
+        <a href="/p2m/index.html" class="p2m-sublink">Pipeline</a>
+        <a href="/p2m/media-center.html" class="p2m-sublink">Media Pipeline</a>
+        <a href="/p2m/workshop.html" class="p2m-sublink">Workshop</a>
+        <a href="/p2m/changelog.html" class="p2m-sublink">Changelog</a>
+        <a href="/p2m/tasks.html" class="p2m-sublink">Tasks</a>
+        <a href="/p2m/tester.html" class="p2m-sublink">Tester</a>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ── Tools & Services ──────────────────────────────── -->
     <div class="section-label">Tools &amp; Services</div>
-    <div class="tools-toggle" id="toolsToggle" onclick="toggleTools()">
-        <span class="arrow">&#9654;</span>
-        <span class="label">3rd Party Tools</span>
-        <span class="count" id="toolsCount">5 services</span>
-    </div>
-    <div class="tools-grid" id="toolsGrid">
-
-        <a href="https://www.helium10.com/" class="tool-card" target="_blank" rel="noopener">
-            <div class="tool-icon" style="background:#ff6b35;color:#fff;">H10</div>
-            <div class="tool-info">
-                <div class="tool-name">Helium 10</div>
-                <div class="tool-desc">Amazon product research &amp; analytics</div>
+    <div class="sphere-grid">
+        <a href="https://www.helium10.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-helium"><span class="sphere-text">H10</span></div>
+                <div class="sphere-shadow"></div>
             </div>
-            <span class="tool-ext">&#8599;</span>
+            <div class="sphere-label">Helium 10</div>
+            <div class="sphere-sublabel">&#8599; external</div>
         </a>
-
-        <a href="https://www.remove.bg/" class="tool-card" target="_blank" rel="noopener">
-            <div class="tool-icon" style="background:#2ea44f;color:#fff;">rb</div>
-            <div class="tool-info">
-                <div class="tool-name">remove.bg</div>
-                <div class="tool-desc">Background removal API &mdash; 7/9 credits</div>
+        <a href="https://www.remove.bg/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-removebg"><span class="sphere-text">rb</span></div>
+                <div class="sphere-shadow"></div>
             </div>
-            <span class="tool-ext">&#8599;</span>
+            <div class="sphere-label">remove.bg</div>
+            <div class="sphere-sublabel">&#8599; external</div>
         </a>
-
-        <a href="https://dash.cloudflare.com/" class="tool-card" target="_blank" rel="noopener">
-            <div class="tool-icon" style="background:#f48120;color:#fff;">CF</div>
-            <div class="tool-info">
-                <div class="tool-name">Cloudflare</div>
-                <div class="tool-desc">R2 storage, Workers, DNS</div>
+        <a href="https://dash.cloudflare.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-cloudflare"><span class="sphere-text">CF</span></div>
+                <div class="sphere-shadow"></div>
             </div>
-            <span class="tool-ext">&#8599;</span>
+            <div class="sphere-label">Cloudflare</div>
+            <div class="sphere-sublabel">&#8599; external</div>
         </a>
-
-        <a href="https://github.com/ccasperslocal/opsflowbetter" class="tool-card" target="_blank" rel="noopener">
-            <div class="tool-icon" style="background:#333;color:#fff;">GH</div>
-            <div class="tool-info">
-                <div class="tool-name">GitHub Repo</div>
-                <div class="tool-desc">ccasperslocal/opsflowbetter</div>
+        <a href="https://github.com/ccasperslocal/opsflowbetter" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-github"><span class="sphere-text">GH</span></div>
+                <div class="sphere-shadow"></div>
             </div>
-            <span class="tool-ext">&#8599;</span>
+            <div class="sphere-label">GitHub</div>
+            <div class="sphere-sublabel">&#8599; external</div>
         </a>
-
-        <a href="https://images.opsflowbetter.com/" class="tool-card" target="_blank" rel="noopener">
-            <div class="tool-icon" style="background:#58a6ff;color:#0d1117;">R2</div>
-            <div class="tool-info">
-                <div class="tool-name">Image CDN</div>
-                <div class="tool-desc">images.opsflowbetter.com (R2 bucket)</div>
+        <a href="https://images.opsflowbetter.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-r2"><span class="sphere-text">R2</span></div>
+                <div class="sphere-shadow"></div>
             </div>
-            <span class="tool-ext">&#8599;</span>
+            <div class="sphere-label">Image CDN</div>
+            <div class="sphere-sublabel">&#8599; external</div>
         </a>
-
     </div>
 
-    <!-- ── Quick Links ─────────────────────────────────────── -->
-    <div class="section-label">Quick Links</div>
-    <div class="quick-links">
-        <a href="/" class="quick-link">OpsFlowBetter Home</a>
-        <a href="/p2m/" class="quick-link">P2M Pipeline</a>
-        <a href="/p2m/media-center.html" class="quick-link">Media Pipeline</a>
-        <a href="/p2m/workshop.html" class="quick-link">Workshop</a>
-        <a href="/p2m/changelog.html" class="quick-link">Changelog</a>
-        <a href="/p2m/tasks.html" class="quick-link">Tasks</a>
+    <hr class="divider">
+
+    <!-- ── Personal ──────────────────────────────────────── -->
+    <div class="section-label">Personal</div>
+    <div class="sphere-grid">
+        <a href="https://tastytrade.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-tasty"><span class="sphere-text">TT</span></div>
+                <div class="sphere-shadow"></div>
+            </div>
+            <div class="sphere-label">tastytrade</div>
+            <div class="sphere-sublabel">&#8599; trading</div>
+        </a>
+        <a href="https://www.truist.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-truist"><span class="sphere-text">T</span></div>
+                <div class="sphere-shadow"></div>
+            </div>
+            <div class="sphere-label">Truist</div>
+            <div class="sphere-sublabel">&#8599; banking</div>
+        </a>
+        <a href="https://optionstrat.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-optionstrat"><span class="sphere-text">OS</span></div>
+                <div class="sphere-shadow"></div>
+            </div>
+            <div class="sphere-label">OptionStrat</div>
+            <div class="sphere-sublabel">&#8599; options</div>
+        </a>
+        <a href="https://www.youtube.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-youtube"><span class="sphere-text">YT</span></div>
+                <div class="sphere-shadow"></div>
+            </div>
+            <div class="sphere-label">YouTube</div>
+            <div class="sphere-sublabel">&#8599; media</div>
+        </a>
+        <a href="https://www.amazon.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-amazon"><span class="sphere-text">AMZ</span></div>
+                <div class="sphere-shadow"></div>
+            </div>
+            <div class="sphere-label">Amazon</div>
+            <div class="sphere-sublabel">&#8599; shopping</div>
+        </a>
+        <a href="https://chatgpt.com/" class="sphere-item" target="_blank" rel="noopener">
+            <div class="sphere-wrap">
+                <div class="sphere sphere-chatgpt"><span class="sphere-text">AI</span></div>
+                <div class="sphere-shadow"></div>
+            </div>
+            <div class="sphere-label">ChatGPT</div>
+            <div class="sphere-sublabel">&#8599; ai</div>
+        </a>
     </div>
 
 </div>
@@ -388,14 +451,6 @@
     else if (h >= 12 && h < 17) msg = 'Good afternoon';
     document.getElementById('greeting').textContent = msg;
 })();
-
-// ── Tools toggle ─────────────────────────────────────────────
-function toggleTools() {
-    var toggle = document.getElementById('toolsToggle');
-    var grid = document.getElementById('toolsGrid');
-    toggle.classList.toggle('open');
-    grid.classList.toggle('open');
-}
 </script>
 </body>
 </html>

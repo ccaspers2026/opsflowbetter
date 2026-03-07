@@ -279,7 +279,7 @@
     <!-- ── Suite Nav (fixed top bar — identical on all P2M pages) ──── -->
     <!-- ── P2M Suite Nav ─────────────────────────────────────── -->
     <div class="suite-nav">
-        <a href="/" class="suite-home" title="OpsFlowBetter Suite Home"><span class="brand-ops">Ops</span><span class="brand-flow">Flow</span><span class="brand-better">Better</span></a>
+        <a href="/launchpad.html" class="suite-home" title="OpsFlowBetter Suite Home"><span class="brand-ops">Ops</span><span class="brand-flow">Flow</span><span class="brand-better">Better</span></a>
         <div class="p2m-links">
             <a href="index.html">Pipeline</a> <span class="sep">|</span>
             <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
@@ -295,20 +295,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.55.0</p>
+                <p class="version">Changelog v0.56.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.55.0 - Shared Nav+Header Component &amp; Professional Logo</h2>
-            <p>Released March 7, 2026 &mdash; Created P2M Shared Component CSS block (identical on all 6 pages) with standardized .p2m-header class. All headers now use exact same h1 (22px/600/#fff), version (13px/#58a6ff), and tagline (12px/#8b949e) styling. New upward-trending flow arrow SVG logo replaces old &ldquo;OFB&rdquo; text-in-a-box icon. All inline header styles eliminated.</p>
+            <h2>Version 0.56.0 - LaunchPad &amp; Suite Navigation</h2>
+            <p>Released March 7, 2026 &mdash; New LaunchPad page at root level with 3D sphere links for Suite products, business tools, and personal bookmarks. OpsFlowBetter brand link in P2M nav now routes to LaunchPad. Time-based greeting, ground shadows, hover glow effects. Cleaned up premature dock CSS from shared component block.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">66</div>
+                <div class="stat-value">67</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -330,6 +330,26 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.56.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.56.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">LaunchPad &amp; Suite Navigation</div>
+                <ul class="changes-list">
+                    <li>New <strong>LaunchPad</strong> page at root level (<code>/launchpad.html</code>) &mdash; future Chrome homepage</li>
+                    <li>3D sphere links with radial gradients, inset shadows, specular highlights, and ground shadows</li>
+                    <li>Three sections: <strong>Suite</strong> (P2M, Services &amp; Integrations), <strong>Tools &amp; Services</strong> (Helium 10, remove.bg, Cloudflare, GitHub, Image CDN), <strong>Personal</strong> (tastytrade, Truist, OptionStrat, YouTube, Amazon, ChatGPT)</li>
+                    <li>P2M sub-links panel below Suite spheres for quick navigation into P2M pages</li>
+                    <li>Time-based greeting (Good morning/afternoon/evening)</li>
+                    <li>Hover effect: scale up 12%, colored glow, ground shadow spreads</li>
+                    <li>OpsFlowBetter brand link in all P2M nav bars now routes to <code>/launchpad.html</code></li>
+                    <li>Cleaned up premature dock bar CSS from P2M shared component block</li>
+                </ul>
+            </div>
 
             <!-- v0.55.0 -->
             <div class="version-entry">
