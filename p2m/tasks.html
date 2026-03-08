@@ -211,6 +211,7 @@
         <a href="index.html">Pipeline</a> <span class="sep">|</span>
         <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
         <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <a href="services.html">Services</a> <span class="sep">|</span>
         <a href="changelog.html">Changelog</a> <span class="sep">|</span>
         <span class="current">Tasks</span> <span class="sep">|</span>
         <a href="tester.html">Tester</a>
@@ -221,7 +222,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.62.0</p>
+        <p class="version">Tasks v0.63.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -233,38 +234,29 @@
         <div class="label">Active Bugs</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#f0883e;">2</div>
+        <div class="num" style="color:#f0883e;">1</div>
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#58a6ff;">14</div>
+        <div class="num" style="color:#58a6ff;">19</div>
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">73</div>
+        <div class="num" style="color:#3fb950;">74</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#bc8cff;">9</div>
+        <div class="num" style="color:#bc8cff;">10</div>
         <div class="label">Pages in Suite</div>
     </div>
 </div>
 
 <!-- ── Priority Queue (ordered) ───────────────────────────────── -->
 <div class="section">
-    <h2>&#127919; Priority Queue &mdash; Up Next <span class="count">2</span></h2>
+    <h2>&#127919; Priority Queue &mdash; Up Next <span class="count">1</span></h2>
 
     <div class="task">
         <div class="order-num">1</div>
-        <div class="content">
-            <div class="title">Services &amp; Integrations page</div>
-            <div class="desc">Third-party service dashboard: costs, credits remaining, subscription links, GO/NO-GO health indicators (green/yellow/red LEDs). Covers remove.bg, Helium 10, and future services. Research comprehensive image tool for Amazon listing images (Tier 2) during build.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> New page &bull; High priority per user request</div>
-        </div>
-    </div>
-
-    <div class="task">
-        <div class="order-num">2</div>
         <div class="content">
             <div class="title">Phase 2: 45 RPM Adaptor</div>
             <div class="desc">Resume product pipeline work. Run the 45 RPM Adaptor through all 7 pipeline phases with real data, real images, and real Amazon listing prep.</div>
@@ -275,7 +267,7 @@
 
 <!-- ── Backlog ───────────────────────────────────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">14</span></h2>
+    <h2>&#128203; Backlog <span class="count">19</span></h2>
 
     <div class="task">
         <span class="priority medium"></span>
@@ -402,11 +394,65 @@
             <div class="meta"><span class="tag tag-fun">FUN</span> Dashboard</div>
         </div>
     </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Process Buttons layout on Media Pipeline</div>
+            <div class="desc">Process buttons should sit to the right of Actions, not below the X mark. Rework button placement for cleaner layout.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Media Pipeline &bull; v0.50.0 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">BG Removal toggle auto-off after processing</div>
+            <div class="desc">After toggling BG removal on and processing pictures (credits decrement), auto-flip the toggle back off so credits aren&rsquo;t used by mistake on the next batch.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Media Pipeline &bull; v0.51.0 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">OpsFlowBetter Icon/Logo</div>
+            <div class="desc">Design a proper icon/logo for OpsFlowBetter. Place it in the upper-left nav corner, clicking it goes to Suite Home. Use across favicon, spheres, and branding.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Branding &bull; v0.53.0 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Tighten up page layouts (reduce wasted space)</div>
+            <div class="desc">Current layouts use a lot of real estate. Review all pages and tighten spacing, padding, and component sizing for a more compact, efficient look.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> All pages &bull; v0.57.0 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">CSS color palette standardization</div>
+            <div class="desc">Grey text colors aren&rsquo;t consistent across pages. Standardize all dim/meta text to use CSS custom properties (--text-dim, --text-primary, --text-bright) site-wide.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> All pages &bull; v0.58.0 feedback</div>
+        </div>
+    </div>
 </div>
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">46</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">47</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Services &amp; Integrations page</div>
+            <div class="desc">New S&amp;I dashboard page with 7 service cards (remove.bg, Helium 10, Amazon Seller Central, Cloudflare, Onshape, Monday.com, Calendly). LED status indicators, cost/credit/renewal tracking, category grouping, add/edit/delete modal. LaunchPad sphere activated.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.63.0 &bull; March 7</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>

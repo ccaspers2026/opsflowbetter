@@ -521,6 +521,7 @@
         <a href="index.html">Pipeline</a> <span class="sep">|</span>
         <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
         <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <a href="services.html">Services</a> <span class="sep">|</span>
         <a href="changelog.html">Changelog</a> <span class="sep">|</span>
         <a href="tasks.html">Tasks</a> <span class="sep">|</span>
         <span class="current">Tester</span>
@@ -614,38 +615,40 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.62.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.63.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'v0.61.0 Fixes',
+        title: 'Services & Integrations Page',
         priority: 'PRIMARY',
         items: [
-            'Feedback meta text (version tag, date, priority) is readable \u2014 NOT too dark',
-            'All grey text on tester page is visible and readable (notes, timestamps, badges)',
-            'Complete Testing button/bar sits ABOVE the Feedback section (with test items)',
-            '"Clear All Feedback" dialog shows item count and detailed warning before deleting',
-            'Completed/duplicate feedback items have been cleaned up (should be ~10 remaining)',
+            'Services page loads at /p2m/services.html with correct P2M nav and header',
+            'Summary bar shows total services count and status breakdown (Good / Attention / Action Needed)',
+            '7 default services appear grouped by category: Production, Sales, Operations, Infrastructure',
+            'Each service card shows LED indicator, name, description, type badge, cost, and external link arrow',
+            'Click a service card to open Edit modal \u2014 all fields populate correctly',
+            '+ Add Service button opens blank modal, can add a new service',
+            'Delete button appears in Edit mode, removes service after confirmation',
+            'External link arrow (\u2197) opens service dashboard in new tab',
+            'LED auto-computes: set a renewal date within 7 days and LED turns yellow',
         ]
     },
     {
-        title: 'Carry-Forward',
-        priority: null,
+        title: 'LaunchPad & Navigation',
+        priority: 'PRIMARY',
         items: [
-            'Feedback form works anytime without triggering HALT',
-            'HALT LED: only PASS/FAIL/SKIP trigger RED, Complete \u2192 GREEN, Reset \u2192 grey',
-            'LaunchPad card-based layout still works',
-            'All P2M nav links work, OpsFlowBetter brand goes to /launchpad.html',
-            'Priority LED dropdown still works (Now / Soon / Later)',
+            'LaunchPad S&I sphere is LIVE (not greyed out), clicking it goes to /p2m/services.html',
+            '"Services" link appears in P2M nav bar on ALL pages (between Workshop and Changelog)',
+            'All P2M nav links still work, OpsFlowBetter brand goes to /launchpad.html',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 6 P2M pages show v0.62.0 in their version line',
-            'Changelog CURRENT shows v0.62.0, version count shows 73',
-            'Tasks page: "Versions Shipped" shows 73, completed shows 46, Backlog shows 14',
+            'All 7 P2M pages show v0.63.0 in their version line',
+            'Changelog CURRENT shows v0.63.0, version count shows 74',
+            'Tasks page: "Versions Shipped" shows 74, completed shows 47, Backlog shows 19, Pages shows 10',
         ]
     }
 ];

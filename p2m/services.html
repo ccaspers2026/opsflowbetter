@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Caspers Creations - Services &amp; Integrations</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            padding-top: 36px;
+            line-height: 1.6;
+        }
+
+        /* ═══ P2M SHARED COMPONENTS — identical on all P2M pages ═══ */
+        .suite-nav {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            padding: 8px 20px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 9999;
+        }
+        .suite-nav .suite-home {
+            display: flex;
+            align-items: center;
+            margin-right: 16px;
+            text-decoration: none;
+            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 800;
+        }
+        .suite-nav .suite-home:hover { opacity: 0.8; text-decoration: none; }
+        .suite-nav .brand-ops { color: #e6edf3; }
+        .suite-nav .brand-flow { color: #3b82f6; }
+        .suite-nav .brand-better { color: #8b5cf6; }
+        .suite-nav .p2m-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
+        }
+        .suite-nav a { color: #58a6ff; text-decoration: none; }
+        .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
+        .suite-nav .current { color: #e0e0e0; font-weight: 600; }
+        .suite-nav .sep { color: #30363d; }
+
+        .p2m-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid #21262d;
+            margin-bottom: 15px;
+        }
+        .p2m-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+        }
+        .p2m-header .version {
+            font-size: 13px;
+            color: #58a6ff;
+            margin: 0 0 2px 0;
+        }
+        .p2m-header .tagline {
+            font-size: 12px;
+            color: #8b949e;
+            margin: 0;
+        }
+        /* ═══ END P2M SHARED COMPONENTS ═══ */
+
+        /* ── Page layout ── */
+        .page-body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        /* ── Summary bar ── */
+        .summary-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .summary-stat {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 12px 20px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+        .summary-stat .num {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .summary-stat .label {
+            font-size: 11px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Service cards ── */
+        .service-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 10px;
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: border-color 0.2s;
+        }
+        .service-card:hover {
+            border-color: #30363d;
+        }
+
+        /* LED indicator */
+        .led {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .led-green { background: #3fb950; box-shadow: 0 0 6px rgba(63, 185, 80, 0.4); }
+        .led-yellow { background: #d29922; box-shadow: 0 0 6px rgba(210, 153, 34, 0.4); }
+        .led-red { background: #f85149; box-shadow: 0 0 6px rgba(248, 81, 73, 0.4); }
+        .led-grey { background: #484f58; }
+
+        /* Service info */
+        .svc-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .svc-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin-bottom: 2px;
+        }
+        .svc-desc {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        /* Service meta (right side) */
+        .svc-meta {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .meta-block {
+            text-align: right;
+            min-width: 90px;
+        }
+        .meta-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #c9d1d9;
+        }
+        .meta-label {
+            font-size: 11px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Type badges */
+        .svc-type {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .type-subscription { background: rgba(56, 139, 253, 0.15); color: #58a6ff; }
+        .type-credits { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+        .type-payg { background: rgba(210, 153, 34, 0.15); color: #d29922; }
+        .type-free { background: rgba(139, 148, 158, 0.15); color: #8b949e; }
+
+        /* Link button */
+        .svc-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            background: transparent;
+            color: #58a6ff;
+            text-decoration: none;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .svc-link:hover {
+            background: rgba(56, 139, 253, 0.1);
+            border-color: #58a6ff;
+        }
+
+        /* Section headers */
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 24px 0 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #21262d;
+        }
+        .section-label:first-of-type { margin-top: 0; }
+
+        /* Edit button */
+        .edit-btn {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .edit-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+
+        /* Modal overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 24px;
+            width: 440px;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h3 {
+            font-size: 16px;
+            color: #e6edf3;
+            margin-bottom: 16px;
+        }
+        .modal label {
+            display: block;
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 4px;
+            margin-top: 12px;
+        }
+        .modal label:first-of-type { margin-top: 0; }
+        .modal input, .modal select {
+            width: 100%;
+            padding: 8px 10px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 13px;
+        }
+        .modal input:focus, .modal select:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .modal-actions button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #30363d;
+        }
+        .btn-cancel { background: transparent; color: #8b949e; }
+        .btn-cancel:hover { border-color: #8b949e; }
+        .btn-save { background: #238636; border-color: #238636; color: #fff; }
+        .btn-save:hover { background: #2ea043; }
+        .btn-delete { background: transparent; border-color: #f85149; color: #f85149; }
+        .btn-delete:hover { background: rgba(248, 81, 73, 0.1); }
+    </style>
+</head>
+<body>
+
+<!-- ── Shared P2M Nav ──────────────────────────────────────── -->
+<div class="suite-nav">
+    <a href="/launchpad.html" class="suite-home" title="OpsFlowBetter Suite Home"><span class="brand-ops">Ops</span><span class="brand-flow">Flow</span><span class="brand-better">Better</span></a>
+    <div class="p2m-links">
+        <a href="index.html">Pipeline</a> <span class="sep">|</span>
+        <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
+        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <span class="current">Services</span> <span class="sep">|</span>
+        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+        <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+        <a href="tester.html">Tester</a>
+    </div>
+</div>
+
+<!-- ── Page Header ─────────────────────────────────────────── -->
+<div class="p2m-header">
+    <div>
+        <h1>Services &amp; Integrations</h1>
+        <p class="version">Services v0.63.0</p>
+        <p class="tagline">Third-party services, costs, credits &amp; renewal tracking</p>
+    </div>
+    <div>
+        <button class="edit-btn" onclick="openAddModal()">+ Add Service</button>
+    </div>
+</div>
+
+<div class="page-body">
+    <!-- ── Summary Stats ── -->
+    <div class="summary-bar" id="summaryBar"></div>
+
+    <!-- ── Service List ── -->
+    <div id="serviceList"></div>
+</div>
+
+<!-- ── Edit/Add Modal ── -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h3 id="modalTitle">Add Service</h3>
+        <input type="hidden" id="editId" value="">
+        <label>Service Name</label>
+        <input type="text" id="fName" placeholder="e.g. remove.bg">
+        <label>Description</label>
+        <input type="text" id="fDesc" placeholder="e.g. Background removal API">
+        <label>URL</label>
+        <input type="url" id="fUrl" placeholder="https://...">
+        <label>Billing Type</label>
+        <select id="fType">
+            <option value="subscription">Subscription (recurring)</option>
+            <option value="credits">Credits / Pay-as-you-go</option>
+            <option value="free">Free</option>
+        </select>
+        <label>Cost</label>
+        <input type="text" id="fCost" placeholder="e.g. $39/mo or $0.20/credit">
+        <label>Renewal / Next Payment</label>
+        <input type="date" id="fRenewal">
+        <label>Renewal Cycle</label>
+        <select id="fCycle">
+            <option value="">N/A</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+        </select>
+        <label>Credits Remaining (if applicable)</label>
+        <input type="text" id="fCredits" placeholder="e.g. 42">
+        <label>Status</label>
+        <select id="fStatus">
+            <option value="green">Green &mdash; All good</option>
+            <option value="yellow">Yellow &mdash; Attention soon</option>
+            <option value="red">Red &mdash; Action needed</option>
+            <option value="grey">Grey &mdash; Inactive / Unknown</option>
+        </select>
+        <label>Category</label>
+        <select id="fCategory">
+            <option value="production">Production Tools</option>
+            <option value="sales">Sales &amp; Marketing</option>
+            <option value="operations">Operations &amp; Planning</option>
+            <option value="infrastructure">Infrastructure</option>
+        </select>
+        <div class="modal-actions">
+            <button class="btn-delete" id="btnDelete" onclick="deleteService()" style="display:none; margin-right:auto;">Delete</button>
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-save" onclick="saveService()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── localStorage data layer ──────────────────────────────────
+var STORAGE_KEY = 'opsflow_services';
+
+function loadServices() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; }
+}
+function saveServices(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+// ── Seed default data if empty ───────────────────────────────
+(function seedDefaults() {
+    var existing = loadServices();
+    if (existing.length > 0) return;
+
+    var defaults = [
+        {
+            id: 's1', name: 'remove.bg', desc: 'Background removal API for product images',
+            url: 'https://www.remove.bg/dashboard', type: 'credits', cost: '$0.20/credit',
+            renewal: '', cycle: '', credits: '', status: 'green', category: 'production'
+        },
+        {
+            id: 's2', name: 'Helium 10', desc: 'Amazon seller research &amp; analytics suite',
+            url: 'https://www.helium10.com/', type: 'subscription', cost: '$39/mo',
+            renewal: '', cycle: 'monthly', credits: '', status: 'green', category: 'sales'
+        },
+        {
+            id: 's3', name: 'Amazon Seller Central', desc: 'Product listings, orders &amp; fulfillment',
+            url: 'https://sellercentral.amazon.com/', type: 'subscription', cost: '$39.99/mo',
+            renewal: '', cycle: 'monthly', credits: '', status: 'green', category: 'sales'
+        },
+        {
+            id: 's4', name: 'Cloudflare', desc: 'DNS, CDN, R2 storage &amp; domain management',
+            url: 'https://dash.cloudflare.com/', type: 'subscription', cost: 'Free tier + R2 usage',
+            renewal: '', cycle: '', credits: '', status: 'green', category: 'infrastructure'
+        },
+        {
+            id: 's5', name: 'Onshape', desc: 'CAD &amp; 3D modeling for product design',
+            url: 'https://www.onshape.com/', type: 'subscription', cost: '',
+            renewal: '', cycle: '', credits: '', status: 'green', category: 'production'
+        },
+        {
+            id: 's6', name: 'Monday.com', desc: 'Project &amp; task management',
+            url: 'https://casperscreations.monday.com/', type: 'subscription', cost: '',
+            renewal: '', cycle: '', credits: '', status: 'green', category: 'operations'
+        },
+        {
+            id: 's7', name: 'Calendly', desc: 'Scheduling &amp; appointment booking',
+            url: 'https://calendly.com/', type: 'subscription', cost: '',
+            renewal: '', cycle: '', credits: '', status: 'green', category: 'operations'
+        }
+    ];
+    saveServices(defaults);
+})();
+
+// ── Rendering ────────────────────────────────────────────────
+var CATEGORIES = {
+    production: 'Production Tools',
+    sales: 'Sales &amp; Marketing',
+    operations: 'Operations &amp; Planning',
+    infrastructure: 'Infrastructure'
+};
+
+var TYPE_LABELS = {
+    subscription: ['Subscription', 'type-subscription'],
+    credits: ['Credits', 'type-credits'],
+    payg: ['Pay-as-you-go', 'type-payg'],
+    free: ['Free', 'type-free']
+};
+
+function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+}
+
+function daysUntil(dateStr) {
+    if (!dateStr) return null;
+    var target = new Date(dateStr + 'T00:00:00');
+    var now = new Date();
+    now.setHours(0,0,0,0);
+    return Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function autoStatus(svc) {
+    // Auto-compute status from renewal date and credits
+    var days = daysUntil(svc.renewal);
+    if (days !== null) {
+        if (days < 0) return 'red';
+        if (days <= 7) return 'yellow';
+    }
+    if (svc.type === 'credits' && svc.credits !== '') {
+        var c = parseInt(svc.credits, 10);
+        if (!isNaN(c)) {
+            if (c <= 0) return 'red';
+            if (c <= 10) return 'yellow';
+        }
+    }
+    return svc.status || 'green';
+}
+
+function render() {
+    var services = loadServices();
+
+    // Summary
+    var total = services.length;
+    var greenCount = 0, yellowCount = 0, redCount = 0;
+    for (var i = 0; i < services.length; i++) {
+        var st = autoStatus(services[i]);
+        if (st === 'green') greenCount++;
+        else if (st === 'yellow') yellowCount++;
+        else if (st === 'red') redCount++;
+    }
+
+    document.getElementById('summaryBar').innerHTML =
+        '<div class="summary-stat"><div class="num" style="color:#c9d1d9;">' + total + '</div><div class="label">Services</div></div>' +
+        '<div class="summary-stat"><div class="num" style="color:#3fb950;">' + greenCount + '</div><div class="label">Good</div></div>' +
+        '<div class="summary-stat"><div class="num" style="color:#d29922;">' + yellowCount + '</div><div class="label">Attention</div></div>' +
+        '<div class="summary-stat"><div class="num" style="color:#f85149;">' + redCount + '</div><div class="label">Action Needed</div></div>';
+
+    // Group by category
+    var groups = {};
+    var catOrder = ['production', 'sales', 'operations', 'infrastructure'];
+    for (var c = 0; c < catOrder.length; c++) groups[catOrder[c]] = [];
+    for (var i = 0; i < services.length; i++) {
+        var cat = services[i].category || 'operations';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(services[i]);
+    }
+
+    var html = '';
+    for (var c = 0; c < catOrder.length; c++) {
+        var cat = catOrder[c];
+        var items = groups[cat];
+        if (items.length === 0) continue;
+
+        html += '<div class="section-label">' + CATEGORIES[cat] + '</div>';
+        for (var i = 0; i < items.length; i++) {
+            var s = items[i];
+            var status = autoStatus(s);
+            var tl = TYPE_LABELS[s.type] || TYPE_LABELS.subscription;
+            var days = daysUntil(s.renewal);
+
+            // Build meta blocks
+            var metaHtml = '';
+
+            // Type badge
+            metaHtml += '<div class="meta-block"><span class="svc-type ' + tl[1] + '">' + tl[0] + '</span></div>';
+
+            // Cost
+            if (s.cost) {
+                metaHtml += '<div class="meta-block"><div class="meta-value">' + escHtml(s.cost) + '</div><div class="meta-label">Cost</div></div>';
+            }
+
+            // Credits
+            if (s.type === 'credits' && s.credits !== '') {
+                metaHtml += '<div class="meta-block"><div class="meta-value">' + escHtml(s.credits) + '</div><div class="meta-label">Credits</div></div>';
+            }
+
+            // Renewal
+            if (s.renewal) {
+                var renewalColor = '#c9d1d9';
+                var renewalLabel = 'Renewal';
+                if (days !== null) {
+                    if (days < 0) { renewalColor = '#f85149'; renewalLabel = 'Overdue'; }
+                    else if (days === 0) { renewalColor = '#d29922'; renewalLabel = 'Today'; }
+                    else if (days <= 7) { renewalColor = '#d29922'; renewalLabel = days + 'd away'; }
+                    else { renewalLabel = days + 'd away'; }
+                }
+                metaHtml += '<div class="meta-block"><div class="meta-value" style="color:' + renewalColor + ';">' + formatDate(s.renewal) + '</div><div class="meta-label">' + renewalLabel + '</div></div>';
+            }
+
+            html += '<div class="service-card" onclick="openEditModal(\'' + s.id + '\')" style="cursor:pointer;">';
+            html += '<div class="led led-' + status + '"></div>';
+            html += '<div class="svc-info"><div class="svc-name">' + escHtml(s.name) + '</div><div class="svc-desc">' + (s.desc || '') + '</div></div>';
+            html += '<div class="svc-meta">' + metaHtml + '</div>';
+            html += '<a href="' + escHtml(s.url) + '" target="_blank" class="svc-link" title="Open dashboard" onclick="event.stopPropagation();">&#8599;</a>';
+            html += '</div>';
+        }
+    }
+
+    document.getElementById('serviceList').innerHTML = html;
+}
+
+// ── Modal logic ──────────────────────────────────────────────
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Add Service';
+    document.getElementById('editId').value = '';
+    document.getElementById('fName').value = '';
+    document.getElementById('fDesc').value = '';
+    document.getElementById('fUrl').value = '';
+    document.getElementById('fType').value = 'subscription';
+    document.getElementById('fCost').value = '';
+    document.getElementById('fRenewal').value = '';
+    document.getElementById('fCycle').value = '';
+    document.getElementById('fCredits').value = '';
+    document.getElementById('fStatus').value = 'green';
+    document.getElementById('fCategory').value = 'production';
+    document.getElementById('btnDelete').style.display = 'none';
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function openEditModal(id) {
+    var services = loadServices();
+    var svc = null;
+    for (var i = 0; i < services.length; i++) {
+        if (services[i].id === id) { svc = services[i]; break; }
+    }
+    if (!svc) return;
+
+    document.getElementById('modalTitle').textContent = 'Edit Service';
+    document.getElementById('editId').value = id;
+    document.getElementById('fName').value = svc.name || '';
+    document.getElementById('fDesc').value = (svc.desc || '').replace(/&amp;/g, '&');
+    document.getElementById('fUrl').value = svc.url || '';
+    document.getElementById('fType').value = svc.type || 'subscription';
+    document.getElementById('fCost').value = svc.cost || '';
+    document.getElementById('fRenewal').value = svc.renewal || '';
+    document.getElementById('fCycle').value = svc.cycle || '';
+    document.getElementById('fCredits').value = svc.credits || '';
+    document.getElementById('fStatus').value = svc.status || 'green';
+    document.getElementById('fCategory').value = svc.category || 'production';
+    document.getElementById('btnDelete').style.display = 'inline-block';
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+}
+
+function saveService() {
+    var id = document.getElementById('editId').value;
+    var svc = {
+        id: id || Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+        name: document.getElementById('fName').value.trim(),
+        desc: document.getElementById('fDesc').value.trim(),
+        url: document.getElementById('fUrl').value.trim(),
+        type: document.getElementById('fType').value,
+        cost: document.getElementById('fCost').value.trim(),
+        renewal: document.getElementById('fRenewal').value,
+        cycle: document.getElementById('fCycle').value,
+        credits: document.getElementById('fCredits').value.trim(),
+        status: document.getElementById('fStatus').value,
+        category: document.getElementById('fCategory').value
+    };
+
+    if (!svc.name) { alert('Service name is required.'); return; }
+
+    var services = loadServices();
+    if (id) {
+        for (var i = 0; i < services.length; i++) {
+            if (services[i].id === id) { services[i] = svc; break; }
+        }
+    } else {
+        services.push(svc);
+    }
+    saveServices(services);
+    closeModal();
+    render();
+}
+
+function deleteService() {
+    var id = document.getElementById('editId').value;
+    if (!id) return;
+    if (!confirm('Remove this service?')) return;
+    var services = loadServices();
+    services = services.filter(function(s) { return s.id !== id; });
+    saveServices(services);
+    closeModal();
+    render();
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// ── Init ──
+render();
+</script>
+</body>
+</html>
