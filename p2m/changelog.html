@@ -296,20 +296,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.64.2</p>
+                <p class="version">Changelog v0.64.3</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.64.2 - LED First-Click Visual Sync</h2>
-            <p>Released March 8, 2026 &mdash; LED click-to-cycle now reads the displayed auto-computed status instead of the stored status, so the first click always produces a visible change. Date advance logic also fixed to always push forward by one cycle on green.</p>
+            <h2>Version 0.64.3 - Tester Auto-Reset</h2>
+            <p>Released March 8, 2026 &mdash; Tester page now auto-detects when test sections change and resets to a fresh state. No more manual Reset Current Version needed after dev pushes updated test items.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">77</div>
+                <div class="stat-value">78</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -331,6 +331,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.64.3 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.64.3</span>
+                    <span class="version-date">March 8, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Tester Auto-Reset</div>
+                <ul class="changes-list">
+                    <li><strong>Auto-reset:</strong> Tester page generates a fingerprint from TEST_SECTIONS content; when sections change for the same version, test state and HALT auto-clear on page load</li>
+                    <li><strong>Fresh tests guaranteed:</strong> No more manual &ldquo;Reset Current Version&rdquo; needed after dev pushes updated test items</li>
+                    <li><strong>Feedback preserved:</strong> Auto-reset only clears test results and HALT &mdash; submitted feedback items are never lost</li>
+                    <li><strong>Changelog backfill:</strong> Added missing v0.64.1 and v0.64.2 entries, updated Milestones 3 (90%) and 4 (38%), bumped Versions Shipped to 78</li>
+                </ul>
+            </div>
 
             <!-- v0.64.2 -->
             <div class="version-entry">
