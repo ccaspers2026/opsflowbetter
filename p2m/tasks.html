@@ -221,7 +221,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.59.0</p>
+        <p class="version">Tasks v0.60.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -237,11 +237,11 @@
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#58a6ff;">12</div>
+        <div class="num" style="color:#58a6ff;">13</div>
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">70</div>
+        <div class="num" style="color:#3fb950;">71</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -284,7 +284,16 @@
 
 <!-- ── Backlog ───────────────────────────────────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">12</span></h2>
+    <h2>&#128203; Backlog <span class="count">13</span></h2>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Reduce repetitive manual testing</div>
+            <div class="desc">Carry-forward tests (links, versions, nav) are tedious to retest every version. Consider auto-testing repeatable items, batching repetitive tests after work sessions, or running them only before big ticket items. Less manual labor for the tester.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Tester &bull; v0.59.0 tester feedback</div>
+        </div>
+    </div>
 
     <div class="task">
         <span class="priority medium"></span>
@@ -397,7 +406,16 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">43</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">44</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">v0.59.0 test feedback &mdash; HALT indicator + priority LEDs</div>
+            <div class="desc">Added HALT state banner to Tester (RED pulsing = testing in progress, GREEN = ready for dev). Added priority LED dropdown (Now/Soon/Later) to feedback form. Priority LEDs display on submitted feedback items with color-coded dots and labels. HALT persists in localStorage per version.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.60.0 &bull; March 7</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -783,7 +801,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.59.0 &mdash; March 7, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.60.0 &mdash; March 7, 2026
 </div>
 
 <script>

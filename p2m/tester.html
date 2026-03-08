@@ -219,6 +219,59 @@
         .test-note:focus { border-color: #58a6ff; outline: none; }
         .test-note::placeholder { color: #484f58; }
 
+        /* ── HALT Indicator (Testing State LED) ────────────── */
+        .halt-banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .halt-banner .halt-led {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .halt-banner.state-idle {
+            background: #161b22;
+            border: 1px solid #21262d;
+            color: #484f58;
+        }
+        .halt-banner.state-idle .halt-led {
+            background: #484f58;
+            box-shadow: 0 0 4px #484f58;
+        }
+        .halt-banner.state-testing {
+            background: #3d1519;
+            border: 1px solid #f85149;
+            color: #f85149;
+            animation: halt-pulse 2s ease-in-out infinite;
+        }
+        .halt-banner.state-testing .halt-led {
+            background: #f85149;
+            box-shadow: 0 0 10px #f85149, 0 0 4px #f85149;
+        }
+        .halt-banner.state-complete {
+            background: #0d2818;
+            border: 1px solid #2ea44f;
+            color: #2ea44f;
+        }
+        .halt-banner.state-complete .halt-led {
+            background: #2ea44f;
+            box-shadow: 0 0 10px #2ea44f, 0 0 4px #2ea44f;
+        }
+        @keyframes halt-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         /* ── Feedback Reporter ──────────────────────────────── */
         .feedback-section {
             background: #161b22;
@@ -314,6 +367,34 @@
         .fb-tag.todo { background: #58a6ff; color: #fff; }
         .fb-tag.question { background: #bc8cff; color: #fff; }
         .fb-tag.note { background: #484f58; color: #e0e0e0; }
+
+        /* Priority LED indicators */
+        .fb-led {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+            box-shadow: 0 0 6px currentColor;
+        }
+        .fb-led.now    { background: #f85149; color: #f85149; box-shadow: 0 0 8px #f85149, 0 0 3px #f85149; }
+        .fb-led.soon   { background: #d29922; color: #d29922; box-shadow: 0 0 8px #d29922, 0 0 3px #d29922; }
+        .fb-led.later  { background: #58a6ff; color: #58a6ff; box-shadow: 0 0 8px #58a6ff, 0 0 3px #58a6ff; }
+
+        /* Priority select styling */
+        .feedback-priority {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 12px;
+            padding: 8px 10px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            cursor: pointer;
+            min-width: 100px;
+        }
+        .feedback-priority:focus { border-color: #58a6ff; outline: none; }
         .fb-content {
             flex: 1;
             font-size: 13px;
@@ -460,6 +541,12 @@
     <div class="progress-bar" id="progressBar"></div>
 </div>
 
+<!-- ── HALT Indicator ────────────────────────────────────────────── -->
+<div class="halt-banner state-idle" id="haltBanner">
+    <div class="halt-led"></div>
+    <span id="haltText">Waiting for tester activity</span>
+</div>
+
 <div id="sectionsContainer"></div>
 
 <!-- ── Feedback Reporter ──────────────────────────────────────── -->
@@ -475,6 +562,11 @@
             <option value="todo">Todo</option>
             <option value="question">Question</option>
             <option value="note">Note</option>
+        </select>
+        <select class="feedback-priority" id="fbPriority">
+            <option value="now">🔴 Now</option>
+            <option value="soon" selected>🟡 Soon</option>
+            <option value="later">🔵 Later</option>
         </select>
         <input type="text" class="feedback-text" id="fbText" placeholder="Describe the issue or idea... (Enter to submit)" onkeydown="if(event.key==='Enter'){event.preventDefault();submitFeedback();}">
         <button class="feedback-submit" onclick="submitFeedback()">Submit</button>
@@ -521,58 +613,85 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.59.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.60.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Card-Based Layout',
+        title: 'HALT Indicator',
         priority: 'PRIMARY',
         items: [
-            'LaunchPad uses full viewport width (no large empty space on sides) — layout is 1400px max',
-            'Tools & Services section is a full-width card with all 9 spheres',
-            'Personal groups are separate cards: Trading (4 spheres), Banking (1), Shopping (1), AI & Media (4)',
-            'Cards flow dynamically — resize browser to see responsive behavior (single column on narrow)',
-            'Cards have subtle dark background (#161b22) with border, hover border highlight',
+            'HALT banner visible at top of tester page (below progress bar)',
+            'Banner starts grey/idle ("Waiting for tester activity") before any interaction',
+            'Clicking any PASS/FAIL/SKIP flips banner to RED pulsing: "Testing In Progress — Do Not Modify"',
+            'Submitting feedback also flips banner to RED if not already',
+            'Clicking "Complete Testing" flips banner to GREEN: "Testing Complete — Ready for Dev"',
+            'Resetting current version flips banner back to grey/idle',
         ]
     },
     {
-        title: 'Sphere & Group Fixes',
+        title: 'Priority LED on Feedback',
         priority: 'PRIMARY',
         items: [
-            'Amazon is in "Shopping" card (not Finance/Banking)',
-            'Truist is in "Banking" card (alone)',
-            'Colored ground shadows visible beneath each sphere — glow matches sphere color',
-            'Grey text is consistent and readable (sublabels, card labels, footer all use #8b949e)',
-        ]
-    },
-    {
-        title: 'Capsule Pills & Suite',
-        priority: null,
-        items: [
-            'Suite section at top: P2M sphere (clickable) + S&I sphere (dimmed, "UP NEXT" visible)',
-            'Capsule pills below Suite show full names (Pipeline, Media Pipeline, Workshop, etc.)',
-            'Version in top-right shows "LaunchPad v0.59.0"',
+            'Feedback form has a priority dropdown next to the category dropdown: Now / Soon / Later',
+            'Priority dropdown defaults to "Soon" (yellow)',
+            'Submitted feedback items show a colored LED dot: red (Now), yellow (Soon), blue (Later)',
+            'Feedback meta line shows priority label (e.g. "Soon · 8:15 PM")',
         ]
     },
     {
         title: 'Carry-Forward',
         priority: null,
         items: [
-            'All 9 Tools spheres and 10 Personal spheres open correct URLs in new tabs',
-            'OpsFlowBetter brand goes to /launchpad.html',
-            'All P2M nav links work from any P2M page',
+            'LaunchPad card-based layout still works (Tools full-width, personal group cards)',
+            'All sphere links still open correct URLs',
+            'All P2M nav links work, OpsFlowBetter brand goes to /launchpad.html',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 6 P2M pages show v0.59.0 in their version line',
-            'Changelog CURRENT shows v0.59.0, version count shows 70',
-            'Tasks page: "Versions Shipped" shows 70, completed shows 43, "Up Next" shows 3, Backlog shows 12',
+            'All 6 P2M pages show v0.60.0 in their version line',
+            'Changelog CURRENT shows v0.60.0, version count shows 71',
+            'Tasks page: "Versions Shipped" shows 71, completed shows 44, Backlog shows 13',
         ]
     }
 ];
+
+// ── HALT State ──────────────────────────────────────────────────
+// States: 'idle' (no activity), 'testing' (user is testing — DO NOT MODIFY),
+//         'complete' (testing done — ready for dev)
+var HALT_KEY = 'opsflow_tester_halt';
+
+function getHaltState() {
+    try {
+        var raw = localStorage.getItem(HALT_KEY);
+        if (raw) {
+            var h = JSON.parse(raw);
+            if (h.version === TEST_VERSION) return h.state;
+        }
+    } catch(e) {}
+    return 'idle';
+}
+
+function setHaltState(state) {
+    localStorage.setItem(HALT_KEY, JSON.stringify({ version: TEST_VERSION, state: state, timestamp: new Date().toISOString() }));
+    renderHaltBanner();
+}
+
+function renderHaltBanner() {
+    var state = getHaltState();
+    var banner = document.getElementById('haltBanner');
+    var text = document.getElementById('haltText');
+    banner.className = 'halt-banner state-' + state;
+    if (state === 'testing') {
+        text.textContent = 'Testing In Progress \u2014 Do Not Modify';
+    } else if (state === 'complete') {
+        text.textContent = 'Testing Complete \u2014 Ready for Dev';
+    } else {
+        text.textContent = 'Waiting for tester activity';
+    }
+}
 
 // ── Storage ──────────────────────────────────────────────────────
 var STORAGE_KEY = 'opsflow_tester';
@@ -616,6 +735,7 @@ function setResult(idx, status) {
     }
     data[TEST_VERSION].timestamp = new Date().toISOString();
     saveData(data);
+    if (getHaltState() !== 'testing') setHaltState('testing');
     render();
 }
 
@@ -630,6 +750,7 @@ function setNote(idx, text) {
 // ── Feedback ─────────────────────────────────────────────────────
 function submitFeedback() {
     var cat = document.getElementById('fbCategory').value;
+    var pri = document.getElementById('fbPriority').value;
     var text = document.getElementById('fbText').value.trim();
     if (!text) return;
 
@@ -638,10 +759,12 @@ function submitFeedback() {
     fb[TEST_VERSION].push({
         id: Date.now() + '-' + Math.random().toString(36).substr(2, 4),
         category: cat,
+        priority: pri,
         text: text,
         timestamp: new Date().toISOString(),
     });
     saveFeedback(fb);
+    if (getHaltState() !== 'testing') setHaltState('testing');
 
     document.getElementById('fbText').value = '';
     document.getElementById('fbText').focus();
@@ -681,9 +804,12 @@ function renderFeedback() {
     for (var i = 0; i < items.length; i++) {
         var f = items[i];
         var time = new Date(f.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var pri = f.priority || 'soon';
+        var priLabel = pri === 'now' ? 'Now' : pri === 'soon' ? 'Soon' : 'Later';
         html += '<div class="feedback-item">';
+        html += '<span class="fb-led ' + pri + '" title="Priority: ' + priLabel + '"></span>';
         html += '<span class="fb-tag ' + f.category + '">' + f.category.charAt(0).toUpperCase() + f.category.slice(1) + '</span>';
-        html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + time + '</div></div>';
+        html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + priLabel + ' \u00b7 ' + time + '</div></div>';
         html += '<button class="fb-remove" onclick="removeFeedback(\'' + f.id + '\')" title="Remove">\u00d7</button>';
         html += '</div>';
     }
@@ -707,6 +833,7 @@ function completeTesting() {
     data[TEST_VERSION].completed = true;
     data[TEST_VERSION].completedAt = new Date().toISOString();
     saveData(data);
+    setHaltState('complete');
     render();
 }
 
@@ -820,6 +947,7 @@ function render() {
     document.getElementById('versionTag').textContent = TEST_VERSION;
     renderFeedback();
     renderCompleteState();
+    renderHaltBanner();
     renderHistory();
 }
 
@@ -840,6 +968,7 @@ function resetCurrent() {
     var fb = loadFeedback();
     fb[TEST_VERSION] = [];
     saveFeedback(fb);
+    setHaltState('idle');
     render();
 }
 
