@@ -615,40 +615,38 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.63.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Services & Integrations Page',
+        title: 'Interactive Tasks \u2014 Promote, Demote & Reorder',
         priority: 'PRIMARY',
         items: [
-            'Services page loads at /p2m/services.html with correct P2M nav and header',
-            'Summary bar shows total services count and status breakdown (Good / Attention / Action Needed)',
-            '7 default services appear grouped by category: Production, Sales, Operations, Infrastructure',
-            'Each service card shows LED indicator, name, description, type badge, cost, and external link arrow',
-            'Click a service card to open Edit modal \u2014 all fields populate correctly',
-            '+ Add Service button opens blank modal, can add a new service',
-            'Delete button appears in Edit mode, removes service after confirmation',
-            'External link arrow (\u2197) opens service dashboard in new tab',
-            'LED auto-computes: set a renewal date within 7 days and LED turns yellow',
+            'Tasks page loads at /p2m/tasks.html \u2014 Backlog items each show a green "\u2191 Promote" button',
+            'Click "\u2191 Promote" on a Backlog item \u2014 it moves to bottom of Priority Queue',
+            'PQ items show a position dropdown (1, 2, 3...) and an orange "\u2193 Backlog" button',
+            'Change position dropdown \u2014 PQ item reorders to new position',
+            'Click "\u2193 Backlog" on a PQ item \u2014 it moves to top of Backlog',
+            'Reload the page \u2014 all Promote/Demote/Reorder changes persist (localStorage)',
         ]
     },
     {
-        title: 'LaunchPad & Navigation',
+        title: 'Services LED Click-to-Cycle',
         priority: 'PRIMARY',
         items: [
-            'LaunchPad S&I sphere is LIVE (not greyed out), clicking it goes to /p2m/services.html',
-            '"Services" link appears in P2M nav bar on ALL pages (between Workshop and Changelog)',
-            'All P2M nav links still work, OpsFlowBetter brand goes to /launchpad.html',
+            'Services page: hover over any service LED \u2014 cursor changes to pointer and LED scales up',
+            'Click a LED \u2014 it cycles: green \u2192 yellow \u2192 red \u2192 green',
+            'Set a service with a renewal date and monthly cycle, click LED to green \u2014 renewal date auto-advances by 1 month',
+            'LED status persists after page reload',
         ]
     },
     {
-        title: 'Versions',
+        title: 'Versions & Carry-Forward',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.63.0 in their version line',
-            'Changelog CURRENT shows v0.63.0, version count shows 74',
-            'Tasks page: "Versions Shipped" shows 74, completed shows 47, Backlog shows 21, Pages shows 10',
+            'All 7 P2M pages show v0.64.0 in their version line',
+            'Changelog CURRENT shows v0.64.0, version count shows 75',
+            'Tasks page: "Versions Shipped" shows 75, completed shows 49, Pages shows 10',
         ]
     }
 ];

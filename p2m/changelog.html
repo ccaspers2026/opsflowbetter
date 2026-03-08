@@ -296,20 +296,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.63.0</p>
+                <p class="version">Changelog v0.64.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.63.0 - Services &amp; Integrations</h2>
-            <p>Released March 7, 2026 &mdash; New S&amp;I dashboard page with 7 service cards, LED status indicators, cost/credit/renewal tracking, and add/edit/delete management. LaunchPad sphere activated. Nav updated across all pages.</p>
+            <h2>Version 0.64.0 - Interactive Tasks &amp; LED Cycle</h2>
+            <p>Released March 7, 2026 &mdash; Tasks page now has interactive Promote, Demote, and Reorder controls. Services page LEDs are clickable with auto-advance renewal dates on green cycle.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">74</div>
+                <div class="stat-value">75</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -331,6 +331,25 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.64.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.64.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Interactive Tasks &amp; LED Cycle</div>
+                <ul class="changes-list">
+                    <li><strong>Promote:</strong> Backlog items now have &ldquo;&#8593; Promote&rdquo; button to move them into the Priority Queue</li>
+                    <li><strong>Demote:</strong> PQ items have &ldquo;&#8595; Backlog&rdquo; button to send them back to Backlog</li>
+                    <li><strong>Reorder:</strong> PQ items have position dropdown to change their order in the queue</li>
+                    <li><strong>Persistence:</strong> Task state stored in localStorage (opsflow_tasks_v2), seeds from static HTML on first load</li>
+                    <li><strong>LED click-to-cycle:</strong> Click any service LED to cycle green &rarr; yellow &rarr; red &rarr; green</li>
+                    <li><strong>Auto-advance renewal:</strong> When cycling a service LED back to green, renewal date auto-advances by billing cycle (monthly/yearly)</li>
+                    <li>Processed 3 v0.63.0 feedback items (all addressed by this version&rsquo;s interactive tasks feature)</li>
+                </ul>
+            </div>
 
             <!-- v0.63.0 -->
             <div class="version-entry">

@@ -199,6 +199,42 @@
             color: #30363d;
             margin-top: 20px;
         }
+
+        /* ── Interactive task buttons ── */
+        .task-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        .btn-promote, .btn-demote {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid #30363d;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-promote { color: #3fb950; }
+        .btn-promote:hover { background: rgba(63, 185, 80, 0.15); border-color: #3fb950; }
+        .btn-demote { color: #f0883e; }
+        .btn-demote:hover { background: rgba(240, 136, 62, 0.15); border-color: #f0883e; }
+        .pq-order-select {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            width: 38px;
+            text-align: center;
+        }
+        .pq-order-select:hover { border-color: #58a6ff; }
     </style>
 </head>
 <body style="padding-top: 36px;">
@@ -222,7 +258,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.63.0</p>
+        <p class="version">Tasks v0.64.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -242,7 +278,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">74</div>
+        <div class="num" style="color:#3fb950;">75</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -461,7 +497,25 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">47</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">49</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Interactive Tasks &mdash; Promote, Demote &amp; Reorder</div>
+            <div class="desc">Backlog items get &ldquo;&#8593; Promote&rdquo; button to move to Priority Queue. PQ items get position dropdown for reordering and &ldquo;&#8595; Backlog&rdquo; button to demote. All state persisted in localStorage. Seeded from static HTML on first load.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.64.0 &bull; March 7</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Services LED click-to-cycle with auto-advance renewal</div>
+            <div class="desc">Click any service LED to cycle green &rarr; yellow &rarr; red &rarr; green. When cycling back to green, auto-advances the renewal date by the billing cycle (monthly +1 month, yearly +1 year). Visual feedback on hover.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.64.0 &bull; March 7</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -887,110 +941,192 @@
 </div>
 
 <script>
-/* ── localStorage-driven rendering ─────────────────────────────────
-   If opsflow_tasks exists in localStorage, re-render all sections from
-   that JSON. Otherwise the static HTML above is shown as-is.
-   Structure: { stats:{bugs,upNext,backlog,versions,pages}, priority:[],
-                backlog:[], completed:[], milestones:[], lastUpdated:"" }
+/* ── Interactive Tasks with localStorage ───────────────────────────
+   On first load, parses PQ and Backlog from static HTML into localStorage.
+   Then renders interactive controls: Promote, Demote, Reorder.
+   Completed section and Milestones remain static HTML (dev-managed).
 ──────────────────────────────────────────────────────────────────── */
-(function() {
-    var TASKS_KEY = 'opsflow_tasks';
-    var raw = localStorage.getItem(TASKS_KEY);
-    if (!raw) return; // no localStorage data — use static HTML
+var TASKS_KEY = 'opsflow_tasks_v2';
 
-    try { var data = JSON.parse(raw); } catch(e) { return; }
+function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
-    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function loadTasks() {
+    try { return JSON.parse(localStorage.getItem(TASKS_KEY)); } catch(e) { return null; }
+}
+function saveTasks(data) {
+    localStorage.setItem(TASKS_KEY, JSON.stringify(data));
+}
 
-    // ── Stats ──
-    if (data.stats) {
-        var statsEl = document.querySelector('.stats-row');
-        if (statsEl) {
-            var s = data.stats;
-            statsEl.innerHTML =
-                '<div class="stat-card"><div class="num" style="color:#f85149;">' + (s.bugs||0) + '</div><div class="label">Active Bugs</div></div>' +
-                '<div class="stat-card"><div class="num" style="color:#f0883e;">' + (s.upNext||0) + '</div><div class="label">Up Next</div></div>' +
-                '<div class="stat-card"><div class="num" style="color:#58a6ff;">' + (s.backlog||0) + '</div><div class="label">Backlog</div></div>' +
-                '<div class="stat-card"><div class="num" style="color:#3fb950;">' + (s.versions||0) + '</div><div class="label">Versions Shipped</div></div>' +
-                '<div class="stat-card"><div class="num" style="color:#bc8cff;">' + (s.pages||0) + '</div><div class="label">Pages in Suite</div></div>';
+// ── Seed from static HTML on first load ──────────────────────────
+function seedFromHTML() {
+    var data = { priority: [], backlog: [] };
+    var sections = document.querySelectorAll('.section');
+
+    // Parse Priority Queue (section 0)
+    if (sections[0]) {
+        var tasks = sections[0].querySelectorAll('.task');
+        for (var i = 0; i < tasks.length; i++) {
+            var t = tasks[i];
+            var titleEl = t.querySelector('.title');
+            var descEl = t.querySelector('.desc');
+            var metaEl = t.querySelector('.meta');
+            var tagEl = t.querySelector('.tag');
+            if (titleEl) {
+                data.priority.push({
+                    id: 'pq_' + Date.now() + '_' + i,
+                    title: titleEl.textContent,
+                    desc: descEl ? descEl.textContent : '',
+                    tag: tagEl ? tagEl.textContent : 'FEATURE',
+                    meta: metaEl ? metaEl.textContent.replace(tagEl ? tagEl.textContent : '', '').trim() : ''
+                });
+            }
         }
+    }
+
+    // Parse Backlog (section 1)
+    if (sections[1]) {
+        var tasks = sections[1].querySelectorAll('.task');
+        for (var i = 0; i < tasks.length; i++) {
+            var t = tasks[i];
+            var titleEl = t.querySelector('.title');
+            var descEl = t.querySelector('.desc');
+            var metaEl = t.querySelector('.meta');
+            var tagEl = t.querySelector('.tag');
+            var priEl = t.querySelector('.priority');
+            var pri = 'medium';
+            if (priEl) {
+                if (priEl.classList.contains('high')) pri = 'high';
+                else if (priEl.classList.contains('low')) pri = 'low';
+            }
+            if (titleEl) {
+                data.backlog.push({
+                    id: 'bl_' + Date.now() + '_' + i,
+                    title: titleEl.textContent,
+                    desc: descEl ? descEl.textContent : '',
+                    tag: tagEl ? tagEl.textContent : 'FEATURE',
+                    meta: metaEl ? metaEl.textContent.replace(tagEl ? tagEl.textContent : '', '').trim() : '',
+                    priority: pri
+                });
+            }
+        }
+    }
+
+    saveTasks(data);
+    return data;
+}
+
+// ── Render interactive PQ and Backlog ────────────────────────────
+function renderTasks() {
+    var data = loadTasks();
+    if (!data) data = seedFromHTML();
+
+    var sections = document.querySelectorAll('.section');
+
+    // ── Update stats ──
+    var statsEl = document.querySelector('.stats-row');
+    if (statsEl) {
+        var statCards = statsEl.querySelectorAll('.stat-card');
+        if (statCards[1]) statCards[1].querySelector('.num').textContent = data.priority.length;
+        if (statCards[2]) statCards[2].querySelector('.num').textContent = data.backlog.length;
     }
 
     // ── Priority Queue ──
-    if (data.priority) {
-        var sections = document.querySelectorAll('.section');
-        if (sections[0]) {
-            var html = '<h2>&#127919; Priority Queue &mdash; Up Next <span class="count">' + data.priority.length + '</span></h2>';
-            for (var i = 0; i < data.priority.length; i++) {
-                var t = data.priority[i];
-                html += '<div class="task"><div class="order-num">' + (i+1) + '</div><div class="content">' +
-                    '<div class="title">' + esc(t.title) + '</div>' +
-                    '<div class="desc">' + esc(t.desc) + '</div>' +
-                    '<div class="meta"><span class="tag tag-' + (t.tag||'feature').toLowerCase() + '">' + esc((t.tag||'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta||'') + '</div>' +
-                    '</div></div>';
+    if (sections[0]) {
+        var html = '<h2>&#127919; Priority Queue &mdash; Up Next <span class="count">' + data.priority.length + '</span></h2>';
+        for (var i = 0; i < data.priority.length; i++) {
+            var t = data.priority[i];
+            // Position dropdown
+            var selectHtml = '<select class="pq-order-select" onchange="reorderPQ(\'' + t.id + '\', this.value)">';
+            for (var j = 1; j <= data.priority.length; j++) {
+                selectHtml += '<option value="' + j + '"' + (j === i + 1 ? ' selected' : '') + '>' + j + '</option>';
             }
-            sections[0].innerHTML = html;
+            selectHtml += '</select>';
+
+            html += '<div class="task">';
+            html += '<div class="order-num">' + selectHtml + '</div>';
+            html += '<div class="content">';
+            html += '<div class="title">' + esc(t.title) + '</div>';
+            html += '<div class="desc">' + esc(t.desc) + '</div>';
+            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
+            html += '</div>';
+            html += '<div class="task-actions"><button class="btn-demote" onclick="demoteToPQ(\'' + t.id + '\')" title="Move to Backlog">&darr; Backlog</button></div>';
+            html += '</div>';
         }
+        if (data.priority.length === 0) {
+            html += '<div style="color:#484f58; font-size:12px; padding:12px 16px;">No items in queue. Promote items from Backlog below.</div>';
+        }
+        sections[0].innerHTML = html;
     }
 
     // ── Backlog ──
-    if (data.backlog) {
-        var sections = document.querySelectorAll('.section');
-        if (sections[1]) {
-            var html = '<h2>&#128203; Backlog <span class="count">' + data.backlog.length + '</span></h2>';
-            for (var i = 0; i < data.backlog.length; i++) {
-                var t = data.backlog[i];
-                var pri = t.priority || 'medium';
-                html += '<div class="task"><span class="priority ' + pri + '"></span><div class="content">' +
-                    '<div class="title">' + esc(t.title) + '</div>' +
-                    '<div class="desc">' + esc(t.desc) + '</div>' +
-                    '<div class="meta"><span class="tag tag-' + (t.tag||'feature').toLowerCase() + '">' + esc((t.tag||'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta||'') + '</div>' +
-                    '</div></div>';
-            }
-            sections[1].innerHTML = html;
+    if (sections[1]) {
+        var html = '<h2>&#128203; Backlog <span class="count">' + data.backlog.length + '</span></h2>';
+        for (var i = 0; i < data.backlog.length; i++) {
+            var t = data.backlog[i];
+            var pri = t.priority || 'medium';
+            html += '<div class="task">';
+            html += '<span class="priority ' + pri + '"></span>';
+            html += '<div class="content">';
+            html += '<div class="title">' + esc(t.title) + '</div>';
+            html += '<div class="desc">' + esc(t.desc) + '</div>';
+            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
+            html += '</div>';
+            html += '<div class="task-actions"><button class="btn-promote" onclick="promoteToQueue(\'' + t.id + '\')" title="Move to Priority Queue">&uarr; Promote</button></div>';
+            html += '</div>';
         }
+        sections[1].innerHTML = html;
     }
+}
 
-    // ── Completed ──
-    if (data.completed) {
-        var sections = document.querySelectorAll('.section');
-        if (sections[2]) {
-            var html = '<h2>&#9989; Recently Completed <span class="count">' + data.completed.length + '</span></h2>';
-            for (var i = 0; i < data.completed.length; i++) {
-                var t = data.completed[i];
-                html += '<div class="task completed-task"><span class="priority done"></span><div class="content">' +
-                    '<div class="title">' + esc(t.title) + '</div>' +
-                    '<div class="desc">' + esc(t.desc) + '</div>' +
-                    '<div class="meta"><span class="tag tag-' + (t.tag||'feature').toLowerCase() + '">' + esc((t.tag||'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta||'') + '</div>' +
-                    '</div></div>';
-            }
-            sections[2].innerHTML = html;
-        }
+// ── Actions ──────────────────────────────────────────────────────
+function promoteToQueue(id) {
+    var data = loadTasks();
+    if (!data) return;
+    var idx = -1;
+    for (var i = 0; i < data.backlog.length; i++) {
+        if (data.backlog[i].id === id) { idx = i; break; }
     }
+    if (idx === -1) return;
+    var item = data.backlog.splice(idx, 1)[0];
+    item.id = 'pq_' + Date.now();
+    data.priority.push(item);
+    saveTasks(data);
+    renderTasks();
+}
 
-    // ── Milestones ──
-    if (data.milestones) {
-        var sections = document.querySelectorAll('.section');
-        if (sections[3]) {
-            var html = '<h2>&#127919; Milestones</h2>';
-            for (var i = 0; i < data.milestones.length; i++) {
-                var m = data.milestones[i];
-                var pct = m.pct || 0;
-                var color = pct >= 90 ? '#3fb950' : pct >= 30 ? '#f0883e' : '#8b949e';
-                html += '<div class="milestone"><h3>' + esc(m.title) + '</h3><p>' + esc(m.desc) + '</p>' +
-                    '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
-                    '<div style="font-size:10px;color:' + color + ';margin-top:4px;">' + pct + '% &mdash; ' + esc(m.note||'') + '</div></div>';
-            }
-            sections[3].innerHTML = html;
-        }
+function demoteToPQ(id) {
+    var data = loadTasks();
+    if (!data) return;
+    var idx = -1;
+    for (var i = 0; i < data.priority.length; i++) {
+        if (data.priority[i].id === id) { idx = i; break; }
     }
+    if (idx === -1) return;
+    var item = data.priority.splice(idx, 1)[0];
+    item.id = 'bl_' + Date.now();
+    item.priority = item.priority || 'medium';
+    data.backlog.unshift(item);
+    saveTasks(data);
+    renderTasks();
+}
 
-    // ── Refresh Note ──
-    if (data.lastUpdated) {
-        var note = document.getElementById('refreshNote');
-        if (note) note.innerHTML = 'This page auto-refreshes every 5 minutes &bull; Last updated: ' + esc(data.lastUpdated);
+function reorderPQ(id, newPos) {
+    var data = loadTasks();
+    if (!data) return;
+    newPos = parseInt(newPos, 10);
+    var oldIdx = -1;
+    for (var i = 0; i < data.priority.length; i++) {
+        if (data.priority[i].id === id) { oldIdx = i; break; }
     }
-})();
+    if (oldIdx === -1) return;
+    var item = data.priority.splice(oldIdx, 1)[0];
+    data.priority.splice(newPos - 1, 0, item);
+    saveTasks(data);
+    renderTasks();
+}
+
+// ── Init ──
+renderTasks();
 </script>
 
 </body>
