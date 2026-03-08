@@ -303,13 +303,13 @@
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.64.0 - Interactive Tasks &amp; LED Cycle</h2>
-            <p>Released March 7, 2026 &mdash; Tasks page now has interactive Promote, Demote, and Reorder controls. Services page LEDs are clickable with auto-advance renewal dates on green cycle.</p>
+            <h2>Version 0.64.2 - LED First-Click Visual Sync</h2>
+            <p>Released March 8, 2026 &mdash; LED click-to-cycle now reads the displayed auto-computed status instead of the stored status, so the first click always produces a visible change. Date advance logic also fixed to always push forward by one cycle on green.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">75</div>
+                <div class="stat-value">77</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -331,6 +331,35 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.64.2 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.64.2</span>
+                    <span class="version-date">March 8, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">LED First-Click Visual Sync</div>
+                <ul class="changes-list">
+                    <li><strong>First-click fix:</strong> cycleLED now reads the displayed auto-computed status (autoStatus) instead of the stored status, so the first click always produces a visible change</li>
+                    <li><strong>Visual consistency:</strong> Eliminates the &ldquo;phantom click&rdquo; where the first LED click appeared to do nothing because stored and displayed status were out of sync</li>
+                </ul>
+            </div>
+
+            <!-- v0.64.1 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.64.1</span>
+                    <span class="version-date">March 8, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">LED Date Advance &amp; Toast Notification</div>
+                <ul class="changes-list">
+                    <li><strong>Date advance fix:</strong> Cycling LED to green now always pushes the renewal date forward by one billing cycle, then catches up if still past due</li>
+                    <li><strong>Toast notification:</strong> When cycling a LED to green on a service without a renewal period set, a toast guides the user to configure Monthly/Yearly in the edit modal</li>
+                    <li><strong>Version bump:</strong> All P2M pages updated to v0.64.1</li>
+                </ul>
+            </div>
 
             <!-- v0.64.0 -->
             <div class="version-entry">
