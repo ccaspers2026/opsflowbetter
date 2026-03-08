@@ -615,43 +615,41 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.7';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.8';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Priority LED UX Fix (v0.64.7)',
+        title: 'Priority Sort Fix (v0.64.8)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page: Click a Backlog priority LED \u2014 it cycles in place (Now \u2192 Soon \u2192 Later) WITHOUT the item jumping away',
-            'Tasks page: After ~2 seconds of no clicks, the Backlog re-sorts by priority automatically',
-            'Tasks page: Click a PQ priority LED \u2014 it cycles in place (PQ does not re-sort)',
-            'Tasks page: Backlog still sorted correctly on page load (Now at top, Soon middle, Later bottom)',
+            'Tasks page: Click a Backlog LED to cycle to Now \u2014 after 2s it sorts to TOP of Backlog (above Soon and Later)',
+            'Tasks page: Click a Backlog LED to cycle to Later \u2014 after 2s it sorts to BOTTOM of Backlog (below Now and Soon)',
+            'Tasks page: Cycling stays in place (no jumping) then re-sorts after ~2 seconds of no clicks',
+            'Tasks page: PQ LED cycling works in place (no re-sort, just changes the label)',
         ]
     },
     {
-        title: 'Feedback \u2192 Backlog Pipeline (v0.64.7)',
+        title: 'Backlog Corrections (v0.64.8)',
         priority: null,
         items: [
-            'Tasks page: "Add \'X\' delete action to Backlog items" appears in Backlog with Soon (orange) priority',
-            'Tasks page: "Complete Testing button disabled until all items tested" appears in Backlog with Later (blue) priority',
-            'Tester page: "Complete Testing button should Disable" feedback item has been auto-cleared',
-            'Tester page: "Add \'X\' delete Action to Backlog items" feedback item has been auto-cleared',
+            'Tasks page: "Complete Testing button \u2014 2-state enable/disable" appears in Backlog (updated description mentions HALT trigger + all-tested enable)',
+            'Tasks page: "Architecture diagrams for entire application" appears in Backlog with Later (blue) priority',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.64.7 \u2014 Priority LED UX & Feedback Pipeline',
-            'Changelog: v0.64.7 entry exists with FIX tag and 4 bullets (debounced re-sort, PQ LEDs, feedback pipeline, dev self-testing)',
-            'Changelog: Versions Shipped stat reads 82',
+            'Changelog: current-version banner shows v0.64.8 \u2014 Sort Fix & Backlog Corrections',
+            'Changelog: v0.64.8 entry exists with FIX tag and 4 bullets (sort bug, debounce confirmed, backlog corrected, arch diagrams)',
+            'Changelog: Versions Shipped stat reads 83',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.64.7 in their version line',
+            'All 7 P2M pages show v0.64.8 in their version line',
         ]
     }
 ];

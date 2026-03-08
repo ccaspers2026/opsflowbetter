@@ -296,20 +296,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.64.7</p>
+                <p class="version">Changelog v0.64.8</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.64.7 - Priority LED UX &amp; Feedback Pipeline</h2>
-            <p>Released March 8, 2026 &mdash; Priority LED cycling now uses a 2-second debounce so items stay in place while you click, then re-sort smoothly. Two v0.64.6 feedback items triaged into Backlog and auto-cleared.</p>
+            <h2>Version 0.64.8 - Sort Fix &amp; Backlog Corrections</h2>
+            <p>Released March 8, 2026 &mdash; Fixed critical JS bug where priority sort treated Now (high=0) as falsy, preventing Now items from sorting above Soon. Corrected Complete Testing backlog item description. Added architecture diagrams to backlog.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">82</div>
+                <div class="stat-value">83</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -331,6 +331,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.64.8 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.64.8</span>
+                    <span class="version-date">March 8, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">Sort Fix &amp; Backlog Corrections</div>
+                <ul class="changes-list">
+                    <li><strong>Sort bug fixed:</strong> priOrder mapped high to 0 (falsy in JS) &mdash; <code>0 || 1</code> made Now items sort identically to Soon. Changed to { high:1, medium:2, low:3 } so all values are truthy</li>
+                    <li><strong>Debounce confirmed:</strong> 2-second deferred re-sort now works correctly for all priority transitions (Now &harr; Soon &harr; Later)</li>
+                    <li><strong>Backlog corrected:</strong> &ldquo;Complete Testing&rdquo; item updated to 2-state enable/disable spec matching user&rsquo;s intent (disabled during TESTING IN PROGRESS, enabled when all items tested)</li>
+                    <li><strong>Architecture diagrams:</strong> New backlog item for building interactive arch diagrams across the Suite (Later priority)</li>
+                </ul>
+            </div>
 
             <!-- v0.64.7 -->
             <div class="version-entry">

@@ -277,7 +277,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.64.7</p>
+        <p class="version">Tasks v0.64.8</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -584,8 +584,17 @@
     <div class="task">
         <span class="priority low"></span>
         <div class="content">
-            <div class="title">Complete Testing button disabled until all items tested</div>
-            <div class="desc">Disable the Complete Testing button on the Tester page until every test item has been marked Pass, Fail, or Skip. Prevents premature completion.</div>
+            <div class="title">Architecture diagrams for entire application</div>
+            <div class="desc">Build interactive architecture diagrams (like the Cloudflare Media Center diagram) for each major subsystem across the Suite. Visual documentation of how pages, APIs, storage, and services connect.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Documentation &bull; v0.64.7 user request</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Complete Testing button &mdash; 2-state enable/disable</div>
+            <div class="desc">Complete Testing button starts disabled. When TESTING IN PROGRESS triggers, button stays disabled. Only enables when ALL test items are marked Pass, Fail, or Skip. User can then click to complete. Two states, two events: HALT trigger disables, all-tested enables.</div>
             <div class="meta"><span class="tag tag-ux">UX</span> Tester &bull; v0.64.6 tester feedback</div>
         </div>
     </div>
@@ -1033,7 +1042,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.7 &mdash; March 8, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.8 &mdash; March 8, 2026
 </div>
 
 <script>
@@ -1160,9 +1169,9 @@ function renderTasks() {
     if (sections[1]) {
         // Sort only when NOT in the middle of cycling (debounce handles deferred sort)
         if (!window._skipBacklogSort) {
-            var priOrder = { high: 0, medium: 1, low: 2 };
+            var priOrder = { high: 1, medium: 2, low: 3 };
             data.backlog.sort(function(a, b) {
-                return (priOrder[a.priority || 'medium'] || 1) - (priOrder[b.priority || 'medium'] || 1);
+                return (priOrder[a.priority || 'medium'] || 2) - (priOrder[b.priority || 'medium'] || 2);
             });
             saveTasks(data); // persist sorted order
         }
@@ -1426,6 +1435,39 @@ function runMigrations() {
             }
         } catch(e) {}
         markMigrationRun('v0.64.7_clear_feedback');
+    }
+
+    // ── v0.64.8: Inject architecture diagrams backlog item ──
+    if (ran.indexOf('v0.64.8_arch_diagrams') === -1) {
+        var hasArch = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === 'backlog-arch-diagrams') { hasArch = true; break; }
+        }
+        if (!hasArch) {
+            data.backlog.push({
+                id: 'backlog-arch-diagrams',
+                title: 'Architecture diagrams for entire application',
+                desc: 'Build interactive architecture diagrams (like the Cloudflare Media Center diagram) for each major subsystem across the Suite. Visual documentation of how pages, APIs, storage, and services connect.',
+                tag: 'FEATURE',
+                meta: 'Documentation \u2022 v0.64.7 user request',
+                priority: 'low'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.64.8_arch_diagrams');
+    }
+
+    // ── v0.64.8: Update Complete Testing backlog item description ──
+    if (ran.indexOf('v0.64.8_fix_complete_desc') === -1) {
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === 'tester-complete-disable') {
+                data.backlog[i].title = 'Complete Testing button \u2014 2-state enable/disable';
+                data.backlog[i].desc = 'Complete Testing button starts disabled. When TESTING IN PROGRESS triggers, button stays disabled. Only enables when ALL test items are marked Pass, Fail, or Skip. User can then click to complete. Two states, two events: HALT trigger disables, all-tested enables.';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.64.8_fix_complete_desc');
     }
 
     if (changed) saveTasks(data);
