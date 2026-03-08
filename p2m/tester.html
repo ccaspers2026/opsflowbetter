@@ -104,7 +104,7 @@
         }
         .stat-dot.pass { background: #2ea44f; }
         .stat-dot.fail { background: #f85149; }
-        .stat-dot.untested { background: #484f58; }
+        .stat-dot.untested { background: #8b949e; }
         .stat-dot.skip { background: #d29922; }
         .progress-bar {
             height: 8px;
@@ -173,7 +173,7 @@
 
         .test-num {
             font-size: 11px;
-            color: #484f58;
+            color: #8b949e;
             min-width: 22px;
             text-align: right;
             padding-top: 2px;
@@ -217,7 +217,7 @@
             min-height: 28px;
         }
         .test-note:focus { border-color: #58a6ff; outline: none; }
-        .test-note::placeholder { color: #484f58; }
+        .test-note::placeholder { color: #8b949e; }
 
         /* ── HALT Indicator (Testing State LED) ────────────── */
         .halt-banner {
@@ -242,11 +242,11 @@
         .halt-banner.state-idle {
             background: #161b22;
             border: 1px solid #21262d;
-            color: #484f58;
+            color: #8b949e;
         }
         .halt-banner.state-idle .halt-led {
-            background: #484f58;
-            box-shadow: 0 0 4px #484f58;
+            background: #8b949e;
+            box-shadow: 0 0 4px #8b949e;
         }
         .halt-banner.state-testing {
             background: #3d1519;
@@ -326,7 +326,7 @@
             font-family: 'Segoe UI', Arial, sans-serif;
         }
         .feedback-text:focus { border-color: #58a6ff; outline: none; }
-        .feedback-text::placeholder { color: #484f58; }
+        .feedback-text::placeholder { color: #8b949e; }
         .feedback-submit {
             background: #238636;
             border: 1px solid #2ea44f;
@@ -366,7 +366,7 @@
         .fb-tag.improvement { background: #d29922; color: #fff; }
         .fb-tag.todo { background: #58a6ff; color: #fff; }
         .fb-tag.question { background: #bc8cff; color: #fff; }
-        .fb-tag.note { background: #484f58; color: #e0e0e0; }
+        .fb-tag.note { background: #8b949e; color: #e0e0e0; }
 
         /* Priority LED indicators */
         .fb-led {
@@ -402,13 +402,13 @@
         }
         .fb-meta {
             font-size: 10px;
-            color: #484f58;
+            color: #8b949e;
             margin-top: 2px;
         }
         .fb-remove {
             background: none;
             border: none;
-            color: #484f58;
+            color: #8b949e;
             font-size: 14px;
             cursor: pointer;
             padding: 0 4px;
@@ -419,7 +419,7 @@
         .feedback-empty {
             padding: 16px;
             text-align: center;
-            color: #484f58;
+            color: #8b949e;
             font-size: 12px;
         }
 
@@ -454,7 +454,7 @@
             transition: background 0.15s;
         }
         .btn-complete:hover { background: #2ea44f; }
-        .btn-complete:disabled { background: #21262d; border-color: #30363d; color: #484f58; cursor: not-allowed; }
+        .btn-complete:disabled { background: #21262d; border-color: #30363d; color: #8b949e; cursor: not-allowed; }
         .complete-banner {
             background: #0d2818;
             border: 1px solid #2ea44f;
@@ -549,7 +549,19 @@
 
 <div id="sectionsContainer"></div>
 
-<!-- ── Feedback Reporter ──────────────────────────────────────── -->
+<!-- ── Complete Testing ───────────────────────────────────────── -->
+<div class="complete-bar" id="completeBar">
+    <div class="info" id="completeInfo">
+        Test all items and submit any feedback, then mark testing <strong>Complete</strong>.
+    </div>
+    <button class="btn-complete" id="completeBtn" onclick="completeTesting()">Complete Testing</button>
+</div>
+<div class="complete-banner" id="completeBanner">
+    <h3>Testing Complete</h3>
+    <p id="completeSummary"></p>
+</div>
+
+<!-- ── Feedback Reporter (always accessible) ──────────────────── -->
 <div class="feedback-section">
     <div class="feedback-header">
         <h2>Feedback &amp; Bug Reports</h2>
@@ -572,18 +584,6 @@
         <button class="feedback-submit" onclick="submitFeedback()">Submit</button>
     </div>
     <div class="feedback-list" id="feedbackList"></div>
-</div>
-
-<!-- ── Complete Testing ───────────────────────────────────────── -->
-<div class="complete-bar" id="completeBar">
-    <div class="info" id="completeInfo">
-        Test all items and submit any feedback, then mark testing <strong>Complete</strong>.
-    </div>
-    <button class="btn-complete" id="completeBtn" onclick="completeTesting()">Complete Testing</button>
-</div>
-<div class="complete-banner" id="completeBanner">
-    <h3>Testing Complete</h3>
-    <p id="completeSummary"></p>
 </div>
 
 <!-- ── Admin Actions ──────────────────────────────────────────── -->
@@ -614,45 +614,27 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.61.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.62.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Always-On Feedback',
+        title: 'v0.61.0 Fixes',
         priority: 'PRIMARY',
         items: [
-            'Feedback form is accessible without starting a test session',
-            'Submitting feedback does NOT trigger the HALT red LED',
-            'Feedback items show version tag in meta line (e.g. "Soon \u00b7 v0.61.0 \u00b7 Mar 7")',
-            'Feedback items display newest first',
-            'Reset Current Version does NOT clear feedback items',
-            'Feedback persists after page reload',
-        ]
-    },
-    {
-        title: 'HALT Indicator',
-        priority: 'PRIMARY',
-        items: [
-            'Only PASS/FAIL/SKIP clicks trigger RED HALT (not feedback)',
-            'Clicking "Complete Testing" still flips to GREEN',
-            'Resetting current version still flips to grey/idle',
-        ]
-    },
-    {
-        title: 'Admin Actions',
-        priority: null,
-        items: [
-            '"Clear Test History" button clears test data only (not feedback)',
-            '"Clear All Feedback" button clears feedback only (not test data)',
-            'Both buttons show confirmation dialogs before clearing',
+            'Feedback meta text (version tag, date, priority) is readable \u2014 NOT too dark',
+            'All grey text on tester page is visible and readable (notes, timestamps, badges)',
+            'Complete Testing button/bar sits ABOVE the Feedback section (with test items)',
+            '"Clear All Feedback" dialog shows item count and detailed warning before deleting',
+            'Completed/duplicate feedback items have been cleaned up (should be ~10 remaining)',
         ]
     },
     {
         title: 'Carry-Forward',
         priority: null,
         items: [
-            'LaunchPad card-based layout still works (Tools full-width, personal group cards)',
-            'All sphere links still open correct URLs',
+            'Feedback form works anytime without triggering HALT',
+            'HALT LED: only PASS/FAIL/SKIP trigger RED, Complete \u2192 GREEN, Reset \u2192 grey',
+            'LaunchPad card-based layout still works',
             'All P2M nav links work, OpsFlowBetter brand goes to /launchpad.html',
             'Priority LED dropdown still works (Now / Soon / Later)',
         ]
@@ -661,9 +643,9 @@ var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.se
         title: 'Versions',
         priority: null,
         items: [
-            'All 6 P2M pages show v0.61.0 in their version line',
-            'Changelog CURRENT shows v0.61.0, version count shows 72',
-            'Tasks page: "Versions Shipped" shows 72, completed shows 45, Backlog shows 12',
+            'All 6 P2M pages show v0.62.0 in their version line',
+            'Changelog CURRENT shows v0.62.0, version count shows 73',
+            'Tasks page: "Versions Shipped" shows 73, completed shows 46, Backlog shows 14',
         ]
     }
 ];
@@ -989,7 +971,8 @@ function clearAllHistory() {
 }
 
 function clearAllFeedback() {
-    if (!confirm('Clear ALL feedback items? This cannot be undone.')) return;
+    var count = loadFeedback().length;
+    if (!confirm('Delete all ' + count + ' feedback items across all versions?\n\nThis removes ALL bugs, improvements, todos, questions, and notes.\nThis cannot be undone.')) return;
     localStorage.removeItem(FEEDBACK_KEY);
     renderFeedback();
 }
@@ -1002,7 +985,7 @@ function renderHistory() {
     var el = document.getElementById('historyList');
 
     if (!versions.length) {
-        el.innerHTML = '<div style="color:#484f58;padding:8px 0;">No test history yet.</div>';
+        el.innerHTML = '<div style="color:#8b949e;padding:8px 0;">No test history yet.</div>';
         return;
     }
 
@@ -1028,7 +1011,7 @@ function renderHistory() {
         if (fail > 0) html += ' \u00b7 <span class="result-fail">' + fail + ' fail</span>';
         html += ' \u00b7 ' + total + ' tested';
         if (fbCount > 0) html += ' \u00b7 ' + fbCount + ' feedback';
-        html += ' \u2014 <span style="color:#484f58;">' + dateStr + '</span>';
+        html += ' \u2014 <span style="color:#8b949e;">' + dateStr + '</span>';
         html += '</div>';
     }
     el.innerHTML = html;

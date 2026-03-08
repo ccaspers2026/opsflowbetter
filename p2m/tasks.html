@@ -221,7 +221,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.61.0</p>
+        <p class="version">Tasks v0.62.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -237,11 +237,11 @@
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#58a6ff;">13</div>
+        <div class="num" style="color:#58a6ff;">14</div>
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">72</div>
+        <div class="num" style="color:#3fb950;">73</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -275,7 +275,16 @@
 
 <!-- ── Backlog ───────────────────────────────────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">13</span></h2>
+    <h2>&#128203; Backlog <span class="count">14</span></h2>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Monday.com-style Workshop task manager</div>
+            <div class="desc">Build a task/project manager for the Workshop similar to Monday.com. Daily, weekly, monthly tasks that auto-repeat. Track workshop projects (storing filament, labeling cans, etc.). For Frances, Christian, and future workers. Could become its own sub-domain/app in the Suite.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Workshop &bull; v0.62.0 tester feedback</div>
+        </div>
+    </div>
 
     <div class="task">
         <span class="priority medium"></span>
@@ -397,14 +406,23 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">45</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">46</span></h2>
 
     <div class="task completed-task">
         <span class="priority done"></span>
         <div class="content">
-            <div class="title">v0.61.0 test feedback &mdash; Always-on feedback + localStorage sync resolved</div>
+            <div class="title">v0.62.0 test feedback &mdash; Grey text readability, layout fix, feedback cleanup</div>
+            <div class="desc">Brightened all grey meta text from #484f58 to #8b949e for readability (recurring feedback). Moved Complete Testing bar above Feedback section. Improved Clear All Feedback confirmation with item count. Cleaned 20 completed/duplicate feedback items (30 &rarr; 10).</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> v0.62.0 &bull; March 7</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">v0.60.0 test feedback &mdash; Always-on feedback + localStorage sync resolved</div>
             <div class="desc">Decoupled feedback from test sessions: feedback form works anytime without triggering HALT. Feedback stored in flat array (not version-bucketed) with version tags. Reset no longer clears feedback. Separated Clear Test History and Clear All Feedback buttons. One-time migration for old format. Resolved localStorage defaults sync as handled by build process.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.61.0 &bull; March 7</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.62.0 &bull; March 7</div>
         </div>
     </div>
 
@@ -413,7 +431,7 @@
         <div class="content">
             <div class="title">v0.59.0 test feedback &mdash; HALT indicator + priority LEDs</div>
             <div class="desc">Added HALT state banner to Tester (RED pulsing = testing in progress, GREEN = ready for dev). Added priority LED dropdown (Now/Soon/Later) to feedback form. Priority LEDs display on submitted feedback items with color-coded dots and labels. HALT persists in localStorage per version.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.61.0 &bull; March 7</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.62.0 &bull; March 7</div>
         </div>
     </div>
 
@@ -801,7 +819,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.61.0 &mdash; March 7, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.62.0 &mdash; March 7, 2026
 </div>
 
 <script>
