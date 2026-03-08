@@ -615,38 +615,24 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.1';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Interactive Tasks \u2014 Promote, Demote & Reorder',
+        title: 'LED Bugfixes (v0.64.1)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page loads at /p2m/tasks.html \u2014 Backlog items each show a green "\u2191 Promote" button',
-            'Click "\u2191 Promote" on a Backlog item \u2014 it moves to bottom of Priority Queue',
-            'PQ items show a position dropdown (1, 2, 3...) and an orange "\u2193 Backlog" button',
-            'Change position dropdown \u2014 PQ item reorders to new position',
-            'Click "\u2193 Backlog" on a PQ item \u2014 it moves to top of Backlog',
-            'Reload the page \u2014 all Promote/Demote/Reorder changes persist (localStorage)',
+            'Add a test service with a renewal date (e.g. tomorrow) and Monthly cycle \u2014 cycle LED to green \u2014 date advances by 1 month',
+            'Add a test service with a renewal date but NO cycle \u2014 cycle LED to green \u2014 amber toast appears: "Set a Renewal Cycle..."',
+            'Edit a service to add a cycle after creation \u2014 cycle LED to green \u2014 date now advances correctly',
+            'LED manual override persists after page reload',
         ]
     },
     {
-        title: 'Services LED Click-to-Cycle',
-        priority: 'PRIMARY',
-        items: [
-            'Services page: hover over any service LED \u2014 cursor changes to pointer and LED scales up',
-            'Click a LED \u2014 it cycles: green \u2192 yellow \u2192 red \u2192 green',
-            'Set a service with a renewal date and monthly cycle, click LED to green \u2014 renewal date auto-advances by 1 month',
-            'LED status persists after page reload',
-        ]
-    },
-    {
-        title: 'Versions & Carry-Forward',
+        title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.64.0 in their version line',
-            'Changelog CURRENT shows v0.64.0, version count shows 75',
-            'Tasks page: "Versions Shipped" shows 75, completed shows 49, Pages shows 10',
+            'All 7 P2M pages show v0.64.1 in their version line',
         ]
     }
 ];

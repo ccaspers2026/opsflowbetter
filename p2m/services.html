@@ -359,7 +359,7 @@
 <div class="p2m-header">
     <div>
         <h1>Services &amp; Integrations</h1>
-        <p class="version">Services v0.64.0</p>
+        <p class="version">Services v0.64.1</p>
         <p class="tagline">Third-party services, costs, credits &amp; renewal tracking</p>
     </div>
     <div>
@@ -738,6 +738,13 @@ function cycleLED(id) {
         if (svc.renewal && svc.cycle) {
             var d = new Date(svc.renewal + 'T00:00:00');
             if (!isNaN(d.getTime())) {
+                // Always advance by at least one cycle (user is confirming "paid, move forward")
+                if (svc.cycle === 'monthly') {
+                    d.setMonth(d.getMonth() + 1);
+                } else if (svc.cycle === 'yearly') {
+                    d.setFullYear(d.getFullYear() + 1);
+                }
+                // If still in the past, keep advancing until future
                 var today = new Date();
                 while (d <= today) {
                     if (svc.cycle === 'monthly') {
