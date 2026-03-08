@@ -615,42 +615,43 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.3';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.4';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Tester Auto-Reset (v0.64.3)',
+        title: 'Priority LED Labels (v0.64.4)',
         priority: 'PRIMARY',
         items: [
-            'Tester page loads fresh with all items untested (no stale results from previous push)',
-            'HALT banner shows idle state on fresh load (not stuck on Testing Complete from old version)',
+            'Tasks page: Backlog items show Now/Soon/Later text labels next to their priority dots',
+            'Tasks page: "Now" items (red dot + "Now" label) appear at top of Backlog \u2014 Workshop review and Priority LED feature',
+            'Tasks page: "Soon" items (orange dot + "Soon" label) appear in middle of Backlog',
+            'Tasks page: "Later" items (blue dot + "Later" label) appear at bottom of Backlog',
         ]
     },
     {
-        title: 'Changelog Updates',
+        title: 'Feedback \u2192 Backlog Pipeline',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.64.3 \u2014 Tester Auto-Reset',
-            'Changelog: v0.64.3 entry exists with FEATURE tag, auto-reset, fresh tests, feedback preserved, and changelog backfill bullets',
-            'Changelog: v0.64.2 entry exists with FIX tag, first-click fix and visual consistency bullets',
-            'Changelog: v0.64.1 entry exists with FIX tag, date advance fix, toast notification, and version bump bullets',
-            'Changelog: Versions Shipped stat reads 78',
+            'Tasks page: Workshop review item exists in Backlog with Now priority and UX tag',
+            'Tasks page: Priority LED feature item exists in Backlog with Now priority and FEATURE tag',
+            'Tasks page: Backlog count shows 27, Versions Shipped shows 78',
+            'Tester page: previous feedback item (Workshop review) has been cleared',
         ]
     },
     {
-        title: 'Milestones (Tasks page)',
+        title: 'Changelog',
         priority: null,
         items: [
-            'Tasks page: Milestone 3 (LaunchPad & Services) shows 90% with green progress bar',
-            'Tasks page: Milestone 4 (First Product End-to-End) shows 38% with Phases 1\u20132 complete note',
-            'Tasks page: footer reads v0.64.3 \u2014 March 8, 2026',
+            'Changelog: current-version banner shows v0.64.4 \u2014 Priority LED Labels & Feedback Pipeline',
+            'Changelog: v0.64.4 entry exists with FEATURE tag and 4 bullets (LEDs, pipeline, new items, workflow)',
+            'Changelog: Versions Shipped stat reads 79',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.64.3 in their version line',
+            'All 7 P2M pages show v0.64.4 in their version line',
         ]
     }
 ];
