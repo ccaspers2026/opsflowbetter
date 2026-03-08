@@ -521,54 +521,55 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.58.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.59.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Capsule Pills Fix',
+        title: 'Card-Based Layout',
         priority: 'PRIMARY',
         items: [
-            'P2M sub-link capsule pills show full page names (Pipeline, Media Pipeline, Workshop, Changelog, Tasks, Tester) — readable, not collapsed',
-            'Capsules have two-tone blue coloring (dark left, lighter right) with seam line and specular highlight',
-            'Capsule hover: scale up + blue glow effect works',
+            'LaunchPad uses full viewport width (no large empty space on sides) — layout is 1400px max',
+            'Tools & Services section is a full-width card with all 9 spheres',
+            'Personal groups are separate cards: Trading (4 spheres), Banking (1), Shopping (1), AI & Media (4)',
+            'Cards flow dynamically — resize browser to see responsive behavior (single column on narrow)',
+            'Cards have subtle dark background (#161b22) with border, hover border highlight',
         ]
     },
     {
-        title: 'LaunchPad Visual Fixes',
+        title: 'Sphere & Group Fixes',
         priority: 'PRIMARY',
         items: [
-            'S&I sphere label text ("Services & Integrations" and "UP NEXT") is readable — not washed out',
-            'Ground shadows beneath spheres have a subtle visible glow (light reflection on dark background)',
-            'Version number visible in LaunchPad top-right corner (shows "LaunchPad v0.58.0")',
-            'Layout is tighter — less wasted space between sections, greeting, and sphere grids',
+            'Amazon is in "Shopping" card (not Finance/Banking)',
+            'Truist is in "Banking" card (alone)',
+            'Colored ground shadows visible beneath each sphere — glow matches sphere color',
+            'Grey text is consistent and readable (sublabels, card labels, footer all use #8b949e)',
         ]
     },
     {
-        title: 'Personal Sphere Grouping',
-        priority: 'PRIMARY',
+        title: 'Capsule Pills & Suite',
+        priority: null,
         items: [
-            'Personal section shows group labels: "Trading", "Finance", "AI & Media"',
-            'Trading group: tastytrade, TradingView, OptionStrat, TraderSync',
-            'Finance group: Truist, Amazon',
-            'AI & Media group: ChatGPT, Claude, YouTube, Discord',
+            'Suite section at top: P2M sphere (clickable) + S&I sphere (dimmed, "UP NEXT" visible)',
+            'Capsule pills below Suite show full names (Pipeline, Media Pipeline, Workshop, etc.)',
+            'Version in top-right shows "LaunchPad v0.59.0"',
         ]
     },
     {
         title: 'Carry-Forward',
         priority: null,
         items: [
-            'All 9 Tools spheres and 10 Personal spheres still open correct URLs in new tabs',
-            'SUITE section: P2M sphere clickable, S&I sphere dimmed',
-            'All P2M nav links work, OpsFlowBetter brand goes to /launchpad.html',
+            'All 9 Tools spheres and 10 Personal spheres open correct URLs in new tabs',
+            'OpsFlowBetter brand goes to /launchpad.html',
+            'All P2M nav links work from any P2M page',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 6 P2M pages show v0.58.0 in their version line',
-            'Changelog CURRENT shows v0.58.0, version count shows 69',
-            'Tasks page: "Versions Shipped" shows 69, completed shows 42, "Up Next" shows 3, Backlog shows 12',
+            'All 6 P2M pages show v0.59.0 in their version line',
+            'Changelog CURRENT shows v0.59.0, version count shows 70',
+            'Tasks page: "Versions Shipped" shows 70, completed shows 43, "Up Next" shows 3, Backlog shows 12',
         ]
     }
 ];

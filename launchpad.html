@@ -8,12 +8,22 @@
     <meta http-equiv="Expires" content="0">
     <title>OpsFlowBetter — LaunchPad</title>
     <style>
+        :root {
+            --bg-page: #0d1117;
+            --bg-card: #161b22;
+            --border: #21262d;
+            --border-hover: #30363d;
+            --text-bright: #e6edf3;
+            --text-primary: #c9d1d9;
+            --text-dim: #8b949e;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            background-color: #0d1117;
-            color: #e0e0e0;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -25,7 +35,7 @@
             justify-content: space-between;
             padding: 14px 32px;
             background: rgba(13, 17, 23, 0.95);
-            border-bottom: 1px solid #21262d;
+            border-bottom: 1px solid var(--border);
         }
         .brand {
             font-size: 22px;
@@ -33,17 +43,14 @@
             text-decoration: none;
         }
         .brand:hover { opacity: 0.85; }
-        .brand .ops { color: #e6edf3; }
+        .brand .ops { color: var(--text-bright); }
         .brand .flow { color: #3b82f6; }
         .brand .better { color: #8b5cf6; }
-        .topbar-meta {
-            font-size: 12px;
-            color: #484f58;
-        }
+        .topbar-meta { font-size: 12px; color: var(--text-dim); }
 
         /* ── Main ────────────────────────────────────────────── */
         .main {
-            max-width: 1000px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 28px 32px 40px;
         }
@@ -56,7 +63,7 @@
         }
         .greeting-sub {
             font-size: 14px;
-            color: #8b949e;
+            color: var(--text-dim);
             margin-bottom: 28px;
         }
 
@@ -64,13 +71,13 @@
         .section-label {
             font-size: 11px;
             font-weight: 700;
-            color: #8b949e;
+            color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 14px;
         }
 
-        /* ── Sphere Grid ─────────────────────────────────────── */
+        /* ── Sphere Grid (Suite section — not in cards) ──────── */
         .sphere-grid {
             display: flex;
             flex-wrap: wrap;
@@ -78,6 +85,47 @@
             justify-content: center;
             margin-bottom: 36px;
         }
+
+        /* ── Card Grid ───────────────────────────────────────── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 20px 20px;
+            transition: border-color 0.25s ease;
+        }
+        .card:hover { border-color: var(--border-hover); }
+        .card-wide { grid-column: 1 / -1; }
+        .card-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .card-spheres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           3D SPHERE
+           - Two-layer radial gradient: main color + dark vignette
+           - Deep inset shadows for curvature
+           - Specular highlight (::after)
+           - Colored ground glow (.sphere-shadow)
+           - Hover: scale + colored glow
+           ══════════════════════════════════════════════════════════ */
 
         .sphere-item {
             display: flex;
@@ -92,15 +140,6 @@
         .sphere-item:hover {
             transform: scale(1.12);
         }
-
-        /* ══════════════════════════════════════════════════════════
-           3D SPHERE
-           - Two-layer radial gradient: main color + dark vignette
-           - Deep inset shadows for curvature
-           - Specular highlight (::after)
-           - Ground shadow (.sphere-shadow)
-           - Hover: scale + colored glow
-           ══════════════════════════════════════════════════════════ */
 
         .sphere-wrap {
             position: relative;
@@ -122,7 +161,7 @@
                 0 3px 10px rgba(0, 0, 0, 0.4);
         }
 
-        /* Hover glow */
+        /* Hover glow — uses --glow from sphere-item */
         .sphere-item:hover .sphere {
             box-shadow:
                 inset -12px -12px 30px rgba(0, 0, 0, 0.75),
@@ -152,21 +191,22 @@
             z-index: 3;
         }
 
-        /* Ground shadow — uses subtle light reflection instead of dark-on-dark */
+        /* Ground shadow — colored glow matching sphere color via --glow */
         .sphere-shadow {
             width: 60px;
-            height: 8px;
+            height: 10px;
             margin: 8px auto 0;
-            background: radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 50%, transparent 80%);
+            background: radial-gradient(ellipse,
+                var(--glow, rgba(88,166,255,0.2)) 0%,
+                transparent 70%);
             border-radius: 50%;
-            filter: blur(3px);
+            filter: blur(4px);
             transition: all 0.35s ease;
         }
         .sphere-item:hover .sphere-shadow {
             width: 72px;
-            height: 6px;
-            background: radial-gradient(ellipse, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 50%, transparent 80%);
-            filter: blur(4px);
+            height: 8px;
+            filter: blur(5px);
         }
 
         /* Sphere text */
@@ -183,151 +223,129 @@
         }
 
         .sphere-label {
-            font-size: 12px; font-weight: 600; color: #c9d1d9;
+            font-size: 12px; font-weight: 600; color: var(--text-primary);
             text-align: center; max-width: 90px; line-height: 1.3;
         }
         .sphere-item:hover .sphere-label { color: #fff; }
-        .sphere-sublabel { font-size: 10px; color: #484f58; }
+        .sphere-sublabel { font-size: 10px; color: var(--text-dim); }
 
         /* ── Sphere Colors ───────────────────────────────────── */
         .sphere-p2m {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #60baff 0%, #2884e0 30%, #1560b0 55%, #0c3870 80%, #081e40 100%);
-            --glow: rgba(74, 158, 255, 0.35);
         }
         .sphere-helium {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #ffaa70 0%, #e87028 30%, #c85010 55%, #7a3000 80%, #401a00 100%);
-            --glow: rgba(255, 140, 74, 0.35);
         }
         .sphere-removebg {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #78f0a8 0%, #3cc060 30%, #28904a 55%, #186030 80%, #0a3018 100%);
-            --glow: rgba(92, 224, 138, 0.35);
         }
         .sphere-cloudflare {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #ffd070 0%, #f89838 30%, #d07018 55%, #8a4808 80%, #402200 100%);
-            --glow: rgba(255, 184, 74, 0.35);
         }
         .sphere-github {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #999 0%, #666 30%, #444 55%, #222 80%, #0a0a0a 100%);
-            --glow: rgba(150, 150, 150, 0.3);
         }
         .sphere-r2 {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #90d0ff 0%, #60aaff 30%, #3888e0 55%, #205aa0 80%, #103060 100%);
-            --glow: rgba(122, 184, 255, 0.35);
         }
         .sphere-services {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #d8b8ff 0%, #a070f8 30%, #7848d0 55%, #5028a0 80%, #281060 100%);
-            --glow: rgba(139, 92, 246, 0.35);
         }
         .sphere-tasty {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #88ff88 0%, #38d860 30%, #20a840 55%, #107028 80%, #083818 100%);
-            --glow: rgba(34, 197, 94, 0.35);
         }
         .sphere-truist {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #dab0ff 0%, #9848d8 30%, #7028b8 55%, #481080 80%, #280848 100%);
-            --glow: rgba(123, 47, 190, 0.35);
         }
         .sphere-optionstrat {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #68f8f8 0%, #20c0e8 30%, #1090c0 55%, #086080 80%, #043040 100%);
-            --glow: rgba(14, 165, 233, 0.35);
         }
         .sphere-youtube {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #ff8080 0%, #e83838 30%, #c01818 55%, #801010 80%, #400808 100%);
-            --glow: rgba(220, 38, 38, 0.35);
         }
         .sphere-amazon {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #ffe088 0%, #f0a828 30%, #d08018 55%, #885008 80%, #402800 100%);
-            --glow: rgba(245, 158, 11, 0.35);
         }
         .sphere-chatgpt {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #90f8d0 0%, #20c090 30%, #109870 55%, #086850 80%, #043830 100%);
-            --glow: rgba(16, 163, 127, 0.35);
         }
         .sphere-claude {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #f0c878 0%, #d89840 30%, #b87020 55%, #784810 80%, #402408 100%);
-            --glow: rgba(217, 153, 61, 0.35);
         }
         .sphere-tradingview {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #70b8ff 0%, #2962ff 30%, #1848d0 55%, #0c2890 80%, #061440 100%);
-            --glow: rgba(41, 98, 255, 0.35);
         }
         .sphere-tradersync {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #80e8b8 0%, #38c878 30%, #20a058 55%, #107038 80%, #083820 100%);
-            --glow: rgba(56, 200, 120, 0.35);
         }
         .sphere-discord {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #a0a8ff 0%, #5865f2 30%, #404cc0 55%, #283080 80%, #141840 100%);
-            --glow: rgba(88, 101, 242, 0.35);
         }
         .sphere-onshape {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #90c8f0 0%, #4098d0 30%, #2870a8 55%, #184878 80%, #0c2840 100%);
-            --glow: rgba(64, 152, 208, 0.35);
         }
         .sphere-sellercentral {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #ffcc80 0%, #ff9900 30%, #d07800 55%, #8a5000 80%, #402800 100%);
-            --glow: rgba(255, 153, 0, 0.35);
         }
         .sphere-monday {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #ff90c0 0%, #f04088 30%, #c02068 55%, #801040 80%, #400820 100%);
-            --glow: rgba(240, 64, 136, 0.35);
         }
         .sphere-calendly {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #70c8ff 0%, #006bff 30%, #0050c8 55%, #003890 80%, #001c48 100%);
-            --glow: rgba(0, 107, 255, 0.35);
         }
         .sphere-autofarm {
             background:
                 radial-gradient(circle at 70% 75%, rgba(0,0,0,0.5) 0%, transparent 55%),
                 radial-gradient(circle at 32% 25%, #ffd060 0%, #e8a020 30%, #c07810 55%, #785008 80%, #402800 100%);
-            --glow: rgba(232, 160, 32, 0.35);
         }
 
         /* ── P2M Sub-links (capsule pills) ──────────────────── */
         .p2m-sublinks {
             display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
             margin-top: -28px; margin-bottom: 36px; padding: 16px 24px 12px;
-            background: #161b22; border: 1px solid #21262d; border-radius: 10px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
             max-width: 720px; margin-left: auto; margin-right: auto;
         }
         .p2m-sublink {
@@ -385,19 +403,11 @@
             white-space: nowrap;
         }
 
-        .divider { border: none; border-top: 1px solid #21262d; margin: 0 0 24px; }
-
-        .group-label {
-            width: 100%; text-align: center;
-            font-size: 10px; font-weight: 600; color: #484f58;
-            text-transform: uppercase; letter-spacing: 1px;
-            padding: 4px 0 0;
-        }
-        .group-label:first-child { padding-top: 0; }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 24px; }
 
         .footer {
             text-align: center; padding: 24px; font-size: 11px;
-            color: #484f58; border-top: 1px solid #21262d;
+            color: var(--text-dim); border-top: 1px solid var(--border);
         }
     </style>
 </head>
@@ -406,7 +416,7 @@
 <!-- ── Top Bar ──────────────────────────────────────────────── -->
 <div class="topbar">
     <a href="/launchpad.html" class="brand"><span class="ops">Ops</span><span class="flow">Flow</span><span class="better">Better</span></a>
-    <div class="topbar-meta">LaunchPad v0.58.0</div>
+    <div class="topbar-meta">LaunchPad v0.59.0</div>
 </div>
 
 <!-- ── Main Content ────────────────────────────────────────── -->
@@ -418,7 +428,7 @@
     <!-- ── Suite ─────────────────────────────────────────── -->
     <div class="section-label">Suite</div>
     <div class="sphere-grid">
-        <a href="/p2m/" class="sphere-item">
+        <a href="/p2m/" class="sphere-item" style="--glow: rgba(74, 158, 255, 0.35);">
             <div class="sphere-wrap">
                 <div class="sphere sphere-p2m"><span class="sphere-text">P2M</span></div>
                 <div class="sphere-shadow"></div>
@@ -426,13 +436,13 @@
             <div class="sphere-label">P2M Pipeline</div>
             <div class="sphere-sublabel">LIVE</div>
         </a>
-        <div class="sphere-item" style="cursor:default;">
+        <div class="sphere-item" style="cursor:default; --glow: rgba(139, 92, 246, 0.35);">
             <div class="sphere-wrap" style="opacity:0.4;">
                 <div class="sphere sphere-services"><span class="sphere-text">S&I</span></div>
                 <div class="sphere-shadow"></div>
             </div>
             <div class="sphere-label">Services &amp; Integrations</div>
-            <div class="sphere-sublabel" style="color:#8b949e;">UP NEXT</div>
+            <div class="sphere-sublabel" style="color:var(--text-dim);">UP NEXT</div>
         </div>
     </div>
 
@@ -448,15 +458,8 @@
 
     <hr class="divider">
 
-    <!-- ── Tools & Services (rendered by JS from localStorage or defaults) ── -->
-    <div class="section-label">Tools &amp; Services</div>
-    <div class="sphere-grid" id="tools-grid"></div>
-
-    <hr class="divider">
-
-    <!-- ── Personal (rendered by JS from localStorage or defaults) ── -->
-    <div class="section-label">Personal</div>
-    <div class="sphere-grid" id="personal-grid"></div>
+    <!-- ── Card Grid — Tools & Personal groups ──────────── -->
+    <div class="card-grid" id="card-grid"></div>
 
 </div>
 
@@ -466,18 +469,15 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════
-// LaunchPad — Data-driven sphere rendering
+// LaunchPad v0.59.0 — Card-based layout
 //
 // Links are stored in localStorage key: opsflow_launchpad
 // Format: { tools: [...], personal: [...] }
-// Each item: { text, label, sublabel, url, color, bg?, glow? }
+// Each tool item: { text, label, sublabel, url, color }
+// Personal items: { group: 'Name' } as separators, then sphere items
 //
 // "color" maps to a CSS class: sphere-{color}
-// OR provide "bg" (CSS background) + "glow" (CSS rgba) for
-// custom colors not defined in the stylesheet.
-//
-// To update links without pushing code, set localStorage from
-// the browser console or via the Tester page override pattern.
+// Custom colors: provide "bg" (CSS background) + "glow" (CSS rgba)
 // ══════════════════════════════════════════════════════════════
 
 (function() {
@@ -488,6 +488,32 @@
     if (h >= 5 && h < 12) msg = 'Good morning';
     else if (h >= 12 && h < 17) msg = 'Good afternoon';
     document.getElementById('greeting').textContent = msg;
+
+    // ── Glow color map (for --glow CSS variable on sphere-item) ──
+    var GLOW_MAP = {
+        p2m:           'rgba(74, 158, 255, 0.35)',
+        helium:        'rgba(255, 140, 74, 0.35)',
+        removebg:      'rgba(92, 224, 138, 0.35)',
+        cloudflare:    'rgba(255, 184, 74, 0.35)',
+        github:        'rgba(150, 150, 150, 0.25)',
+        r2:            'rgba(122, 184, 255, 0.35)',
+        services:      'rgba(139, 92, 246, 0.35)',
+        tasty:         'rgba(34, 197, 94, 0.35)',
+        truist:        'rgba(123, 47, 190, 0.35)',
+        optionstrat:   'rgba(14, 165, 233, 0.35)',
+        youtube:       'rgba(220, 38, 38, 0.35)',
+        amazon:        'rgba(245, 158, 11, 0.35)',
+        chatgpt:       'rgba(16, 163, 127, 0.35)',
+        claude:        'rgba(217, 153, 61, 0.35)',
+        tradingview:   'rgba(41, 98, 255, 0.35)',
+        tradersync:    'rgba(56, 200, 120, 0.35)',
+        discord:       'rgba(88, 101, 242, 0.35)',
+        onshape:       'rgba(64, 152, 208, 0.35)',
+        sellercentral: 'rgba(255, 153, 0, 0.35)',
+        monday:        'rgba(240, 64, 136, 0.35)',
+        calendly:      'rgba(0, 107, 255, 0.35)',
+        autofarm:      'rgba(232, 160, 32, 0.35)'
+    };
 
     // ── Default link data ────────────────────────────────────
     var DEFAULTS = {
@@ -508,8 +534,9 @@
             { text: 'TV',   label: 'TradingView',    sublabel: '\u2197 charts',     url: 'https://www.tradingview.com/',   color: 'tradingview' },
             { text: 'OStr', label: 'OptionStrat',     sublabel: '\u2197 options',    url: 'https://optionstrat.com/',       color: 'optionstrat' },
             { text: 'TS',   label: 'TraderSync',      sublabel: '\u2197 journal',    url: 'https://www.tradersync.com/',    color: 'tradersync' },
-            { group: 'Finance' },
+            { group: 'Banking' },
             { text: 'T',    label: 'Truist',           sublabel: '\u2197 banking',    url: 'https://www.truist.com/',        color: 'truist' },
+            { group: 'Shopping' },
             { text: 'AMZ',  label: 'Amazon',           sublabel: '\u2197 shopping',   url: 'https://www.amazon.com/',        color: 'amazon' },
             { group: 'AI & Media' },
             { text: 'AI',   label: 'ChatGPT',          sublabel: '\u2197 ai',         url: 'https://chatgpt.com/',           color: 'chatgpt' },
@@ -532,6 +559,22 @@
     var tools    = config.tools    || DEFAULTS.tools;
     var personal = config.personal || DEFAULTS.personal;
 
+    // ── Parse personal items into groups ──────────────────────
+    function parseGroups(items) {
+        var groups = [];
+        var current = { name: 'Personal', items: [] };
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].group) {
+                if (current.items.length > 0) groups.push(current);
+                current = { name: items[i].group, items: [] };
+            } else {
+                current.items.push(items[i]);
+            }
+        }
+        if (current.items.length > 0) groups.push(current);
+        return groups;
+    }
+
     // ── Render a single sphere item ──────────────────────────
     function renderSphere(item) {
         var a = document.createElement('a');
@@ -540,15 +583,14 @@
         a.target = '_blank';
         a.rel = 'noopener';
 
-        // Build sphere div — use CSS class if available, else inline bg/glow
+        // Set --glow on the sphere-item for both hover glow + ground shadow
+        var glowColor = GLOW_MAP[item.color] || item.glow || 'rgba(88,166,255,0.2)';
+        a.style.setProperty('--glow', glowColor);
+
+        // Build sphere div
         var sphereClass = item.color ? ' sphere-' + item.color : '';
         var inlineStyle = '';
-        if (item.bg) {
-            inlineStyle += 'background:' + item.bg + ';';
-        }
-        if (item.glow) {
-            inlineStyle += '--glow:' + item.glow + ';';
-        }
+        if (item.bg) inlineStyle += 'background:' + item.bg + ';';
 
         a.innerHTML =
             '<div class="sphere-wrap">' +
@@ -563,24 +605,37 @@
         return a;
     }
 
-    // ── Render grids ─────────────────────────────────────────
-    var toolsGrid    = document.getElementById('tools-grid');
-    var personalGrid = document.getElementById('personal-grid');
+    // ── Build a card element ─────────────────────────────────
+    function createCard(label, items, wide) {
+        var card = document.createElement('div');
+        card.className = 'card' + (wide ? ' card-wide' : '');
 
-    tools.forEach(function(item) {
-        toolsGrid.appendChild(renderSphere(item));
-    });
+        var lbl = document.createElement('div');
+        lbl.className = 'card-label';
+        lbl.textContent = label;
+        card.appendChild(lbl);
 
-    personal.forEach(function(item) {
-        if (item.group) {
-            var lbl = document.createElement('div');
-            lbl.className = 'group-label';
-            lbl.textContent = item.group;
-            personalGrid.appendChild(lbl);
-        } else {
-            personalGrid.appendChild(renderSphere(item));
+        var spheres = document.createElement('div');
+        spheres.className = 'card-spheres';
+        for (var i = 0; i < items.length; i++) {
+            spheres.appendChild(renderSphere(items[i]));
         }
-    });
+        card.appendChild(spheres);
+
+        return card;
+    }
+
+    // ── Render card grid ─────────────────────────────────────
+    var cardGrid = document.getElementById('card-grid');
+
+    // Tools card — full width since it has many spheres
+    cardGrid.appendChild(createCard('Tools & Services', tools, true));
+
+    // Personal group cards — one card per group, auto-flow
+    var personalGroups = parseGroups(personal);
+    for (var g = 0; g < personalGroups.length; g++) {
+        cardGrid.appendChild(createCard(personalGroups[g].name, personalGroups[g].items, false));
+    }
 
 })();
 </script>

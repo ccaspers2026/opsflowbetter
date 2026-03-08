@@ -295,20 +295,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.58.0</p>
+                <p class="version">Changelog v0.59.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.58.0 - LaunchPad Tester Feedback &amp; Layout Polish</h2>
-            <p>Released March 7, 2026 &mdash; Fixed capsule pills, brightened S&amp;I labels, tightened layout, grouped Personal spheres by category, added version to LaunchPad corner, improved ground shadows.</p>
+            <h2>Version 0.59.0 - Card-Based LaunchPad Redesign</h2>
+            <p>Released March 7, 2026 &mdash; Full layout redesign with dynamic card groups, wider viewport, colored ground shadows, Amazon regrouped, and standardized grey text.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">69</div>
+                <div class="stat-value">70</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -330,6 +330,26 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.59.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.59.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-enhancement">ENHANCEMENT</span>
+                </div>
+                <div class="version-title">Card-Based LaunchPad Redesign</div>
+                <ul class="changes-list">
+                    <li><strong>Card groups:</strong> Tools &amp; Personal sections now render as individual cards that dynamically flow via CSS Grid</li>
+                    <li>Layout widened from 1000px to 1400px &mdash; uses full viewport width</li>
+                    <li>Personal groups split into separate cards: <strong>Trading</strong>, <strong>Banking</strong>, <strong>Shopping</strong>, <strong>AI &amp; Media</strong></li>
+                    <li>Amazon moved from Finance to Shopping group (it&rsquo;s shopping, not banking)</li>
+                    <li><strong>Colored ground shadows:</strong> each sphere now casts a glow matching its color via CSS --glow variable</li>
+                    <li>Grey text standardized with CSS custom properties: --text-dim (#8b949e), --text-primary (#c9d1d9), --text-bright (#e6edf3)</li>
+                    <li>Responsive card grid: auto-fill with minmax(280px, 1fr) &mdash; flows on desktop, tablet, and mobile</li>
+                    <li>Glow map in JS propagates --glow to sphere-item level for both hover glow and ground shadow</li>
+                </ul>
+            </div>
 
             <!-- v0.58.0 -->
             <div class="version-entry">
