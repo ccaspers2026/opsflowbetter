@@ -277,7 +277,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.64.5</p>
+        <p class="version">Tasks v0.64.6</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -320,10 +320,11 @@
     </div>
 </div>
 
-<!-- ── Backlog ───────────────────────────────────────────────── -->
+<!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
 <div class="section">
     <h2>&#128203; Backlog <span class="count">27</span></h2>
 
+    <!-- ── NOW (high) ── -->
     <div class="task">
         <span class="priority high"></span>
         <div class="content">
@@ -342,6 +343,7 @@
         </div>
     </div>
 
+    <!-- ── SOON (medium) ── -->
     <div class="task">
         <span class="priority medium"></span>
         <div class="content">
@@ -424,6 +426,34 @@
     </div>
 
     <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">CSS color palette standardization</div>
+            <div class="desc">Grey text colors aren&rsquo;t consistent across pages. Standardize all dim/meta text to use CSS custom properties (--text-dim, --text-primary, --text-bright) site-wide.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> All pages &bull; v0.58.0 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Company Profile &amp; Team page</div>
+            <div class="desc">Add a Company Profile section to the Suite &mdash; Caspers Creations LLC overview, mission, team bios (Christian, Frances, future workers). Could live on Suite Home or be its own page. Useful for AI context, proposals, About pages, and grounding the platform in who we are. May also tie into Services for a &ldquo;what we use&rdquo; angle.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Suite &bull; v0.64.0 user request</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Replace native confirm() dialogs with styled modals</div>
+            <div class="desc">Delete Service uses a 1980s-style browser popup for confirmation. Replace all native confirm/alert dialogs with styled modals matching the Suite&rsquo;s dark theme.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Services &bull; v0.64.1 tester feedback</div>
+        </div>
+    </div>
+
+    <!-- ── LATER (low) ── -->
+    <div class="task">
         <span class="priority low"></span>
         <div class="content">
             <div class="title">System GO/NO-GO indicator on page headers</div>
@@ -505,15 +535,6 @@
     </div>
 
     <div class="task">
-        <span class="priority medium"></span>
-        <div class="content">
-            <div class="title">CSS color palette standardization</div>
-            <div class="desc">Grey text colors aren&rsquo;t consistent across pages. Standardize all dim/meta text to use CSS custom properties (--text-dim, --text-primary, --text-bright) site-wide.</div>
-            <div class="meta"><span class="tag tag-ux">UX</span> All pages &bull; v0.58.0 feedback</div>
-        </div>
-    </div>
-
-    <div class="task">
         <span class="priority low"></span>
         <div class="content">
             <div class="title">Calendly API integration for Suite</div>
@@ -532,29 +553,11 @@
     </div>
 
     <div class="task">
-        <span class="priority medium"></span>
-        <div class="content">
-            <div class="title">Company Profile &amp; Team page</div>
-            <div class="desc">Add a Company Profile section to the Suite &mdash; Caspers Creations LLC overview, mission, team bios (Christian, Frances, future workers). Could live on Suite Home or be its own page. Useful for AI context, proposals, About pages, and grounding the platform in who we are. May also tie into Services for a &ldquo;what we use&rdquo; angle.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Suite &bull; v0.64.0 user request</div>
-        </div>
-    </div>
-
-    <div class="task">
         <span class="priority low"></span>
         <div class="content">
             <div class="title">Data input validation across Suite</div>
             <div class="desc">Add proper input validation to forms and fields across all pages. Big subject &mdash; discuss approach when pulled to Up Next.</div>
             <div class="meta"><span class="tag tag-ux">UX</span> All pages &bull; v0.64.0 tester feedback</div>
-        </div>
-    </div>
-
-    <div class="task">
-        <span class="priority medium"></span>
-        <div class="content">
-            <div class="title">Replace native confirm() dialogs with styled modals</div>
-            <div class="desc">Delete Service uses a 1980s-style browser popup for confirmation. Replace all native confirm/alert dialogs with styled modals matching the Suite&rsquo;s dark theme.</div>
-            <div class="meta"><span class="tag tag-ux">UX</span> Services &bull; v0.64.1 tester feedback</div>
         </div>
     </div>
 
@@ -1010,7 +1013,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.5 &mdash; March 8, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.6 &mdash; March 8, 2026
 </div>
 
 <script>
@@ -1115,8 +1118,10 @@ function renderTasks() {
             }
             selectHtml += '</select>';
 
+            var pqPri = t.priority || 'medium';
             html += '<div class="task">';
             html += '<div class="order-num">' + selectHtml + '</div>';
+            html += '<span class="priority ' + pqPri + '" onclick="cyclePQPriority(\'' + t.id + '\')" title="Click to change priority" style="cursor:pointer;"></span>';
             html += '<div class="content">';
             html += '<div class="title">' + esc(t.title) + '</div>';
             html += '<div class="desc">' + esc(t.desc) + '</div>';
@@ -1131,14 +1136,21 @@ function renderTasks() {
         sections[0].innerHTML = html;
     }
 
-    // ── Backlog ──
+    // ── Backlog (sorted: Now > Soon > Later) ──
     if (sections[1]) {
+        // Sort by priority: high (Now) first, medium (Soon) middle, low (Later) last
+        var priOrder = { high: 0, medium: 1, low: 2 };
+        data.backlog.sort(function(a, b) {
+            return (priOrder[a.priority || 'medium'] || 1) - (priOrder[b.priority || 'medium'] || 1);
+        });
+        saveTasks(data); // persist sorted order
+
         var html = '<h2>&#128203; Backlog <span class="count">' + data.backlog.length + '</span></h2>';
         for (var i = 0; i < data.backlog.length; i++) {
             var t = data.backlog[i];
             var pri = t.priority || 'medium';
             html += '<div class="task">';
-            html += '<span class="priority ' + pri + '"></span>';
+            html += '<span class="priority ' + pri + '" onclick="cyclePriority(\'' + t.id + '\')" title="Click to change priority" style="cursor:pointer;"></span>';
             html += '<div class="content">';
             html += '<div class="title">' + esc(t.title) + '</div>';
             html += '<div class="desc">' + esc(t.desc) + '</div>';
@@ -1194,6 +1206,38 @@ function reorderPQ(id, newPos) {
     if (oldIdx === -1) return;
     var item = data.priority.splice(oldIdx, 1)[0];
     data.priority.splice(newPos - 1, 0, item);
+    saveTasks(data);
+    renderTasks();
+}
+
+// ── Click-to-cycle priority LED ──────────────────────────────────
+// Cycles: high (Now) → medium (Soon) → low (Later) → high (Now)
+function cyclePriority(id) {
+    var data = loadTasks();
+    if (!data) return;
+    var cycle = { high: 'medium', medium: 'low', low: 'high' };
+    for (var i = 0; i < data.backlog.length; i++) {
+        if (data.backlog[i].id === id) {
+            var current = data.backlog[i].priority || 'medium';
+            data.backlog[i].priority = cycle[current] || 'medium';
+            break;
+        }
+    }
+    saveTasks(data);
+    renderTasks();
+}
+
+function cyclePQPriority(id) {
+    var data = loadTasks();
+    if (!data) return;
+    var cycle = { high: 'medium', medium: 'low', low: 'high' };
+    for (var i = 0; i < data.priority.length; i++) {
+        if (data.priority[i].id === id) {
+            var current = data.priority[i].priority || 'medium';
+            data.priority[i].priority = cycle[current] || 'medium';
+            break;
+        }
+    }
     saveTasks(data);
     renderTasks();
 }
@@ -1279,6 +1323,23 @@ function runMigrations() {
             }
         } catch(e) {}
         markMigrationRun('v0.64.4_clear_workshop_feedback');
+    }
+
+    // ── v0.64.6: Clear sort & click-to-cycle feedback (both addressed by code) ──
+    if (ran.indexOf('v0.64.6_clear_sort_feedback') === -1) {
+        try {
+            var fb = JSON.parse(localStorage.getItem('opsflow_feedback')) || [];
+            var filtered = [];
+            for (var i = 0; i < fb.length; i++) {
+                if (fb[i].text && fb[i].text.indexOf('Sort the Task list Backlog') !== -1) continue;
+                if (fb[i].text && fb[i].text.indexOf('Allow me to update the LED Status') !== -1) continue;
+                filtered.push(fb[i]);
+            }
+            if (filtered.length !== fb.length) {
+                localStorage.setItem('opsflow_feedback', JSON.stringify(filtered));
+            }
+        } catch(e) {}
+        markMigrationRun('v0.64.6_clear_sort_feedback');
     }
 
     if (changed) saveTasks(data);

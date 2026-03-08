@@ -615,42 +615,42 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.5';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.6';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'localStorage Migrations (v0.64.5)',
+        title: 'Backlog Sort & Click-to-Cycle (v0.64.6)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page: Workshop review item appears in Backlog with Now (red) LED label and UX tag \u2014 auto-injected via migration',
-            'Tasks page: Priority LED feature item appears in Backlog with Now (red) LED label and FEATURE tag \u2014 auto-injected via migration',
-            'Tasks page: Backlog count updates to reflect the 2 new items (should be 27)',
-            'Tester page: Workshop feedback item has been auto-cleared (no longer in Feedback section)',
+            'Tasks page: Backlog is sorted Now (red) at top, Soon (orange) in middle, Later (blue) at bottom \u2014 no mixed ordering',
+            'Tasks page: Click any Backlog priority LED \u2014 it cycles Now \u2192 Soon \u2192 Later \u2192 Now and re-sorts',
+            'Tasks page: Now/Soon/Later text labels display next to every priority dot in Backlog',
+            'Tasks page: Priority Queue items also show priority LED labels (carried over from Backlog on promote)',
+            'Tasks page: Click a PQ priority LED \u2014 it cycles just like Backlog LEDs',
         ]
     },
     {
-        title: 'Priority LED Labels (v0.64.4)',
+        title: 'Feedback Cleared',
         priority: null,
         items: [
-            'Tasks page: Backlog items show Now/Soon/Later text labels next to their priority dots',
-            'Tasks page: "Soon" items (orange dot + "Soon") in middle, "Later" items (blue dot + "Later") at bottom',
+            'Tester page: "Sort the Task list Backlog" feedback item has been auto-cleared',
+            'Tester page: "Allow me to update the LED Status" feedback item has been auto-cleared',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.64.5 \u2014 localStorage Migrations',
-            'Changelog: v0.64.5 entry exists with FEATURE tag and 3 bullets (migration system, first migrations, tracking)',
-            'Changelog: v0.64.4 entry exists with FEATURE tag (Priority LED Labels & Feedback Pipeline)',
-            'Changelog: Versions Shipped stat reads 80',
+            'Changelog: current-version banner shows v0.64.6 \u2014 Backlog Sort & Clickable Priority LEDs',
+            'Changelog: v0.64.6 entry exists with FEATURE tag and 4 bullets (auto-sort, click-to-cycle, HTML sorted, feedback processed)',
+            'Changelog: Versions Shipped stat reads 81',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.64.5 in their version line',
+            'All 7 P2M pages show v0.64.6 in their version line',
         ]
     }
 ];

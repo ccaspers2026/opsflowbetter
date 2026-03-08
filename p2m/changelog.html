@@ -296,20 +296,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.64.5</p>
+                <p class="version">Changelog v0.64.6</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.64.5 - localStorage Migrations</h2>
-            <p>Released March 8, 2026 &mdash; Added migration system to Tasks page for injecting new backlog items and clearing processed feedback directly into localStorage. No more manual resets needed when dev pushes new task items.</p>
+            <h2>Version 0.64.6 - Backlog Sort &amp; Clickable Priority LEDs</h2>
+            <p>Released March 8, 2026 &mdash; Backlog now auto-sorts by priority (Now &rarr; Soon &rarr; Later). Click any priority LED to cycle its status. Two feedback items processed and addressed by code. HTML defaults reordered to match.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">80</div>
+                <div class="stat-value">81</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -331,6 +331,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.64.6 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.64.6</span>
+                    <span class="version-date">March 8, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Backlog Sort &amp; Clickable Priority LEDs</div>
+                <ul class="changes-list">
+                    <li><strong>Auto-sort:</strong> Backlog renders in priority order &mdash; Now (high) first, Soon (medium) middle, Later (low) last &mdash; sorted on every render and persisted</li>
+                    <li><strong>Click-to-cycle:</strong> Click any Backlog priority LED to cycle Now &rarr; Soon &rarr; Later &rarr; Now. Re-sorts automatically after change</li>
+                    <li><strong>HTML defaults sorted:</strong> Static HTML backlog reordered with Now/Soon/Later section comments for clean fallback seeding</li>
+                    <li><strong>Feedback processed:</strong> 2 improvement items (sort request + LED click request) addressed by this version&rsquo;s code, auto-cleared via migration</li>
+                </ul>
+            </div>
 
             <!-- v0.64.5 -->
             <div class="version-entry">
