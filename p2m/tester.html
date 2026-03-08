@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Caspers Creations - Test Checklist</title>
+    <title>Caspers Creations - Test &amp; Feedback</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -532,7 +532,7 @@
     <div>
         <h1>Tester</h1>
         <p class="version">Tester <span id="versionTag">v0.58.0</span></p>
-        <p class="tagline">Click PASS / FAIL / SKIP per item &bull; report bugs &amp; feedback below &bull; hit Complete when done</p>
+        <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
 
@@ -589,7 +589,8 @@
 <!-- ── Admin Actions ──────────────────────────────────────────── -->
 <div class="actions">
     <button class="btn" onclick="resetCurrent()">Reset Current Version</button>
-    <button class="btn btn-danger" onclick="clearAllHistory()">Clear All History</button>
+    <button class="btn btn-danger" onclick="clearAllHistory()">Clear Test History</button>
+    <button class="btn btn-danger" onclick="clearAllFeedback()">Clear All Feedback</button>
 </div>
 
 <div class="history">
@@ -613,29 +614,37 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.60.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.61.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
+    {
+        title: 'Always-On Feedback',
+        priority: 'PRIMARY',
+        items: [
+            'Feedback form is accessible without starting a test session',
+            'Submitting feedback does NOT trigger the HALT red LED',
+            'Feedback items show version tag in meta line (e.g. "Soon \u00b7 v0.61.0 \u00b7 Mar 7")',
+            'Feedback items display newest first',
+            'Reset Current Version does NOT clear feedback items',
+            'Feedback persists after page reload',
+        ]
+    },
     {
         title: 'HALT Indicator',
         priority: 'PRIMARY',
         items: [
-            'HALT banner visible at top of tester page (below progress bar)',
-            'Banner starts grey/idle ("Waiting for tester activity") before any interaction',
-            'Clicking any PASS/FAIL/SKIP flips banner to RED pulsing: "Testing In Progress — Do Not Modify"',
-            'Submitting feedback also flips banner to RED if not already',
-            'Clicking "Complete Testing" flips banner to GREEN: "Testing Complete — Ready for Dev"',
-            'Resetting current version flips banner back to grey/idle',
+            'Only PASS/FAIL/SKIP clicks trigger RED HALT (not feedback)',
+            'Clicking "Complete Testing" still flips to GREEN',
+            'Resetting current version still flips to grey/idle',
         ]
     },
     {
-        title: 'Priority LED on Feedback',
-        priority: 'PRIMARY',
+        title: 'Admin Actions',
+        priority: null,
         items: [
-            'Feedback form has a priority dropdown next to the category dropdown: Now / Soon / Later',
-            'Priority dropdown defaults to "Soon" (yellow)',
-            'Submitted feedback items show a colored LED dot: red (Now), yellow (Soon), blue (Later)',
-            'Feedback meta line shows priority label (e.g. "Soon · 8:15 PM")',
+            '"Clear Test History" button clears test data only (not feedback)',
+            '"Clear All Feedback" button clears feedback only (not test data)',
+            'Both buttons show confirmation dialogs before clearing',
         ]
     },
     {
@@ -645,15 +654,16 @@ var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.se
             'LaunchPad card-based layout still works (Tools full-width, personal group cards)',
             'All sphere links still open correct URLs',
             'All P2M nav links work, OpsFlowBetter brand goes to /launchpad.html',
+            'Priority LED dropdown still works (Now / Soon / Later)',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 6 P2M pages show v0.60.0 in their version line',
-            'Changelog CURRENT shows v0.60.0, version count shows 71',
-            'Tasks page: "Versions Shipped" shows 71, completed shows 44, Backlog shows 13',
+            'All 6 P2M pages show v0.61.0 in their version line',
+            'Changelog CURRENT shows v0.61.0, version count shows 72',
+            'Tasks page: "Versions Shipped" shows 72, completed shows 45, Backlog shows 12',
         ]
     }
 ];
@@ -695,7 +705,7 @@ function renderHaltBanner() {
 
 // ── Storage ──────────────────────────────────────────────────────
 var STORAGE_KEY = 'opsflow_tester';
-var FEEDBACK_KEY = 'opsflow_tester_feedback';
+var FEEDBACK_KEY = 'opsflow_feedback';
 
 function loadData() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
@@ -712,16 +722,17 @@ function getVersionData() {
     return data[TEST_VERSION];
 }
 
+// ── Feedback (independent of test sessions) ──────────────────────
+// Flat array of items, each tagged with version for context.
+// Persists across test resets — not tied to any version lifecycle.
 function loadFeedback() {
-    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || {}; } catch(e) { return {}; }
+    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; } catch(e) { return []; }
 }
 function saveFeedback(fb) {
     localStorage.setItem(FEEDBACK_KEY, JSON.stringify(fb));
 }
 function getVersionFeedback() {
-    var fb = loadFeedback();
-    if (!fb[TEST_VERSION]) { fb[TEST_VERSION] = []; saveFeedback(fb); }
-    return fb[TEST_VERSION];
+    return loadFeedback().filter(function(f) { return f.version === TEST_VERSION; });
 }
 
 // ── Test Results ─────────────────────────────────────────────────
@@ -755,16 +766,16 @@ function submitFeedback() {
     if (!text) return;
 
     var fb = loadFeedback();
-    if (!fb[TEST_VERSION]) fb[TEST_VERSION] = [];
-    fb[TEST_VERSION].push({
+    fb.push({
         id: Date.now() + '-' + Math.random().toString(36).substr(2, 4),
         category: cat,
         priority: pri,
         text: text,
+        version: TEST_VERSION,
         timestamp: new Date().toISOString(),
     });
     saveFeedback(fb);
-    if (getHaltState() !== 'testing') setHaltState('testing');
+    // NOTE: Feedback does NOT trigger HALT — only test interactions do
 
     document.getElementById('fbText').value = '';
     document.getElementById('fbText').focus();
@@ -773,19 +784,18 @@ function submitFeedback() {
 
 function removeFeedback(id) {
     var fb = loadFeedback();
-    if (!fb[TEST_VERSION]) return;
-    fb[TEST_VERSION] = fb[TEST_VERSION].filter(function(f) { return f.id !== id; });
+    fb = fb.filter(function(f) { return f.id !== id; });
     saveFeedback(fb);
     renderFeedback();
 }
 
 function renderFeedback() {
-    var items = getVersionFeedback();
+    var allItems = loadFeedback();
     var list = document.getElementById('feedbackList');
     var countEl = document.getElementById('feedbackCount');
 
     var counts = { bug: 0, improvement: 0, todo: 0, question: 0, note: 0 };
-    for (var i = 0; i < items.length; i++) { counts[items[i].category] = (counts[items[i].category] || 0) + 1; }
+    for (var i = 0; i < allItems.length; i++) { counts[allItems[i].category] = (counts[allItems[i].category] || 0) + 1; }
 
     var parts = [];
     if (counts.bug) parts.push(counts.bug + ' bug' + (counts.bug > 1 ? 's' : ''));
@@ -795,21 +805,25 @@ function renderFeedback() {
     if (counts.note) parts.push(counts.note + ' note' + (counts.note > 1 ? 's' : ''));
     countEl.textContent = parts.length ? parts.join(' \u00b7 ') : '0 items';
 
-    if (!items.length) {
-        list.innerHTML = '<div class="feedback-empty">No feedback yet \u2014 use the form above to report bugs, improvements, or notes.</div>';
+    if (!allItems.length) {
+        list.innerHTML = '<div class="feedback-empty">No feedback yet \u2014 drop ideas, bugs, or notes anytime using the form above.</div>';
         return;
     }
 
+    // Show newest first
+    var sorted = allItems.slice().reverse();
     var html = '';
-    for (var i = 0; i < items.length; i++) {
-        var f = items[i];
-        var time = new Date(f.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    for (var i = 0; i < sorted.length; i++) {
+        var f = sorted[i];
+        var date = new Date(f.timestamp);
+        var time = date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         var pri = f.priority || 'soon';
         var priLabel = pri === 'now' ? 'Now' : pri === 'soon' ? 'Soon' : 'Later';
+        var verTag = f.version ? ' \u00b7 ' + f.version : '';
         html += '<div class="feedback-item">';
         html += '<span class="fb-led ' + pri + '" title="Priority: ' + priLabel + '"></span>';
         html += '<span class="fb-tag ' + f.category + '">' + f.category.charAt(0).toUpperCase() + f.category.slice(1) + '</span>';
-        html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + priLabel + ' \u00b7 ' + time + '</div></div>';
+        html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + priLabel + verTag + ' \u00b7 ' + time + '</div></div>';
         html += '<button class="fb-remove" onclick="removeFeedback(\'' + f.id + '\')" title="Remove">\u00d7</button>';
         html += '</div>';
     }
@@ -824,7 +838,6 @@ function completeTesting() {
     var totalItems = 0;
     for (var s = 0; s < TEST_SECTIONS.length; s++) totalItems += TEST_SECTIONS[s].items.length;
     var tested = Object.keys(data[TEST_VERSION].results || {}).length;
-    var fb = getVersionFeedback();
 
     if (tested < totalItems) {
         if (!confirm('Only ' + tested + ' of ' + totalItems + ' items tested. Complete anyway?')) return;
@@ -853,9 +866,9 @@ function renderCompleteState() {
             if (vd.results[keys[k]] === 'pass') pass++;
             else if (vd.results[keys[k]] === 'fail') fail++;
         }
-        var fb = getVersionFeedback();
+        var vfb = getVersionFeedback();
         var dateStr = vd.completedAt ? new Date(vd.completedAt).toLocaleString() : '';
-        var summary = TEST_VERSION + ' \u2014 ' + pass + ' passed, ' + fail + ' failed, ' + fb.length + ' feedback items';
+        var summary = TEST_VERSION + ' \u2014 ' + pass + ' passed, ' + fail + ' failed, ' + vfb.length + ' feedback items';
         if (dateStr) summary += ' \u2014 Completed ' + dateStr;
         document.getElementById('completeSummary').textContent = summary;
         btn.textContent = '\u2713 Testing Complete';
@@ -961,28 +974,30 @@ function escHtml(str) {
 
 // ── Actions ──────────────────────────────────────────────────────
 function resetCurrent() {
-    if (!confirm('Reset all test results AND feedback for ' + TEST_VERSION + '?')) return;
+    if (!confirm('Reset all test results for ' + TEST_VERSION + '? (Feedback items are preserved)')) return;
     var data = loadData();
     data[TEST_VERSION] = { results: {}, notes: {}, timestamp: null, completed: false };
     saveData(data);
-    var fb = loadFeedback();
-    fb[TEST_VERSION] = [];
-    saveFeedback(fb);
     setHaltState('idle');
     render();
 }
 
 function clearAllHistory() {
-    if (!confirm('Clear ALL test history AND feedback for ALL versions? This cannot be undone.')) return;
+    if (!confirm('Clear ALL test history for ALL versions? This cannot be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(FEEDBACK_KEY);
     render();
+}
+
+function clearAllFeedback() {
+    if (!confirm('Clear ALL feedback items? This cannot be undone.')) return;
+    localStorage.removeItem(FEEDBACK_KEY);
+    renderFeedback();
 }
 
 // ── History ──────────────────────────────────────────────────────
 function renderHistory() {
     var data = loadData();
-    var fb = loadFeedback();
+    var allFb = loadFeedback();
     var versions = Object.keys(data).sort().reverse();
     var el = document.getElementById('historyList');
 
@@ -1004,7 +1019,7 @@ function renderHistory() {
                 else if (vd.results[keys[k]] === 'fail') fail++;
             }
         }
-        var fbCount = (fb[ver] || []).length;
+        var fbCount = allFb.filter(function(f) { return f.version === ver; }).length;
         var dateStr = vd.completedAt ? 'Completed ' + new Date(vd.completedAt).toLocaleString() : (vd.timestamp ? 'Last tested ' + new Date(vd.timestamp).toLocaleString() : 'No tests yet');
         var completedIcon = vd.completed ? '\u2705 ' : '';
         html += '<div class="history-entry">';
@@ -1018,6 +1033,35 @@ function renderHistory() {
     }
     el.innerHTML = html;
 }
+
+// ── Migrate old feedback format (one-time) ──────────────────────
+// Old key: opsflow_tester_feedback (object keyed by version)
+// New key: opsflow_feedback (flat array with version tag per item)
+(function migrateFeedback() {
+    var OLD_KEY = 'opsflow_tester_feedback';
+    try {
+        var raw = localStorage.getItem(OLD_KEY);
+        if (!raw) return;
+        var old = JSON.parse(raw);
+        if (!old || typeof old !== 'object' || Array.isArray(old)) return;
+        var migrated = [];
+        var versions = Object.keys(old);
+        for (var v = 0; v < versions.length; v++) {
+            var items = old[versions[v]];
+            if (!Array.isArray(items)) continue;
+            for (var i = 0; i < items.length; i++) {
+                var f = items[i];
+                f.version = f.version || versions[v];
+                migrated.push(f);
+            }
+        }
+        if (migrated.length > 0) {
+            var existing = loadFeedback();
+            saveFeedback(existing.concat(migrated));
+        }
+        localStorage.removeItem(OLD_KEY);
+    } catch(e) {}
+})();
 
 // ── Boot ─────────────────────────────────────────────────────────
 render();

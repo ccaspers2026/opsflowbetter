@@ -295,20 +295,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.60.0</p>
+                <p class="version">Changelog v0.61.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.60.0 - Tester HALT Indicator &amp; Priority LEDs</h2>
-            <p>Released March 7, 2026 &mdash; Added HALT state banner (RED/GREEN LED), priority dropdown with LED indicators on feedback items, improved tester-to-dev workflow.</p>
+            <h2>Version 0.61.0 - Always-On Feedback</h2>
+            <p>Released March 7, 2026 &mdash; Decoupled feedback from test sessions so ideas can be captured anytime. Feedback no longer triggers HALT. localStorage sync resolved as build process.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">71</div>
+                <div class="stat-value">72</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -330,6 +330,25 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.61.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.61.0</span>
+                    <span class="version-date">March 7, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Always-On Feedback</div>
+                <ul class="changes-list">
+                    <li><strong>Feedback decoupled from test sessions:</strong> submit ideas, bugs, or notes anytime without starting a test</li>
+                    <li>Feedback no longer triggers HALT state &mdash; only PASS/FAIL/SKIP test interactions do</li>
+                    <li><strong>New storage format:</strong> flat array with version tags per item (migrates old format automatically)</li>
+                    <li>Feedback items now display newest first with date + version in meta line</li>
+                    <li>&ldquo;Reset Current Version&rdquo; no longer clears feedback &mdash; test data and feedback are independent</li>
+                    <li>Separated admin actions: &ldquo;Clear Test History&rdquo; and &ldquo;Clear All Feedback&rdquo; as distinct buttons</li>
+                    <li>Resolved localStorage defaults sync (Priority Queue #1) &mdash; already handled by build process</li>
+                </ul>
+            </div>
 
             <!-- v0.60.0 -->
             <div class="version-entry">
