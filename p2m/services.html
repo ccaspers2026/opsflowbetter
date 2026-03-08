@@ -358,7 +358,7 @@
         <input type="text" id="fName" placeholder="e.g. remove.bg">
         <label>Description</label>
         <input type="text" id="fDesc" placeholder="e.g. Background removal API">
-        <label>URL</label>
+        <label>Billing URL</label>
         <input type="url" id="fUrl" placeholder="https://...">
         <label>Billing Type</label>
         <select id="fType">
@@ -444,12 +444,12 @@ function saveServices(list) {
         },
         {
             id: 's6', name: 'Monday.com', desc: 'Project &amp; task management',
-            url: 'https://casperscreations.monday.com/', type: 'subscription', cost: '',
+            url: 'https://casperscreations.monday.com/admin/billing/overview', type: 'subscription', cost: '$42/mo',
             renewal: '', cycle: '', credits: '', status: 'green', category: 'operations'
         },
         {
             id: 's7', name: 'Calendly', desc: 'Scheduling &amp; appointment booking',
-            url: 'https://calendly.com/', type: 'subscription', cost: '',
+            url: 'https://calendly.com/app/admin/billing', type: 'subscription', cost: '$12/mo',
             renewal: '', cycle: '', credits: '', status: 'green', category: 'operations'
         }
     ];
@@ -583,7 +583,7 @@ function render() {
             html += '<div class="led led-' + status + '"></div>';
             html += '<div class="svc-info"><div class="svc-name">' + escHtml(s.name) + '</div><div class="svc-desc">' + (s.desc || '') + '</div></div>';
             html += '<div class="svc-meta">' + metaHtml + '</div>';
-            html += '<a href="' + escHtml(s.url) + '" target="_blank" class="svc-link" title="Open dashboard" onclick="event.stopPropagation();">&#8599;</a>';
+            html += '<a href="' + escHtml(s.url) + '" target="_blank" class="svc-link" title="Open dashboard" onclick="event.stopPropagation();">&#127760;</a>';
             html += '</div>';
         }
     }

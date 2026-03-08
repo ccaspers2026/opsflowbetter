@@ -238,7 +238,7 @@
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#58a6ff;">19</div>
+        <div class="num" style="color:#58a6ff;">21</div>
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
@@ -267,7 +267,7 @@
 
 <!-- ── Backlog ───────────────────────────────────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">19</span></h2>
+    <h2>&#128203; Backlog <span class="count">21</span></h2>
 
     <div class="task">
         <span class="priority medium"></span>
@@ -437,6 +437,24 @@
             <div class="title">CSS color palette standardization</div>
             <div class="desc">Grey text colors aren&rsquo;t consistent across pages. Standardize all dim/meta text to use CSS custom properties (--text-dim, --text-primary, --text-bright) site-wide.</div>
             <div class="meta"><span class="tag tag-ux">UX</span> All pages &bull; v0.58.0 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Calendly API integration for Suite</div>
+            <div class="desc">Calendly has a solid API (events, availability, invitees, webhooks). Could show upcoming appointments on LaunchPad, embed scheduling links, or feed meeting data into Pipeline for sales tracking. No billing endpoint though &mdash; S&amp;I card stays manual for cost.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Suite &bull; v0.63.0 research</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Wire S&amp;I services to live APIs</div>
+            <div class="desc">Auto-pull billing, credits, and renewal data via APIs. Best candidates: remove.bg (credits), Monday.com (subscription/renewal via GraphQL), Cloudflare (billing/subscriptions). Requires a Cloudflare Worker as secure API proxy. Helium 10 has no public billing API.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Services &bull; v0.63.0 research</div>
         </div>
     </div>
 </div>
