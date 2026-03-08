@@ -277,7 +277,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.64.4</p>
+        <p class="version">Tasks v0.64.5</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -1010,7 +1010,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.4 &mdash; March 8, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.5 &mdash; March 8, 2026
 </div>
 
 <script>
@@ -1198,7 +1198,94 @@ function reorderPQ(id, newPos) {
     renderTasks();
 }
 
+// ── Migrations ───────────────────────────────────────────────────
+// Dev-managed: inject new backlog items and clear processed feedback.
+// Each migration has a unique key. Runs once per browser, then skips.
+// This is how the "backend" (Claude) pushes data into localStorage
+// without requiring the user to reset or clear anything.
+// ─────────────────────────────────────────────────────────────────
+var MIGRATIONS_KEY = 'opsflow_tasks_migrations';
+
+function getRunMigrations() {
+    try { return JSON.parse(localStorage.getItem(MIGRATIONS_KEY)) || []; } catch(e) { return []; }
+}
+function markMigrationRun(key) {
+    var ran = getRunMigrations();
+    if (ran.indexOf(key) === -1) ran.push(key);
+    localStorage.setItem(MIGRATIONS_KEY, JSON.stringify(ran));
+}
+
+function runMigrations() {
+    var data = loadTasks();
+    if (!data) return; // will seed from HTML first
+    var ran = getRunMigrations();
+    var changed = false;
+
+    // ── v0.64.4: Add Workshop review & Priority LED feature to backlog ──
+    if (ran.indexOf('v0.64.4_workshop_review') === -1) {
+        var exists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].title.indexOf('Workshop review') !== -1) { exists = true; break; }
+        }
+        if (!exists) {
+            data.backlog.unshift({
+                id: 'bl_v0644_workshop',
+                title: 'Workshop review & process update for all Cards',
+                desc: 'Review all Workshop cards (every phase, every step) and update content, process, and data before resuming the 45 RPM Adaptor pipeline walkthrough. Ensures the Workshop foundation is solid before the product runs through it.',
+                tag: 'UX',
+                meta: 'Workshop \u2022 v0.64.3 tester feedback',
+                priority: 'high'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.64.4_workshop_review');
+    }
+
+    if (ran.indexOf('v0.64.4_priority_led') === -1) {
+        var exists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].title.indexOf('Priority LED') !== -1) { exists = true; break; }
+        }
+        if (!exists) {
+            // Insert at position 1 (after Workshop review)
+            var insertIdx = 0;
+            for (var i = 0; i < data.backlog.length; i++) {
+                if (data.backlog[i].id === 'bl_v0644_workshop') { insertIdx = i + 1; break; }
+            }
+            data.backlog.splice(insertIdx, 0, {
+                id: 'bl_v0644_priority_led',
+                title: 'Priority LED labels on Backlog & PQ items',
+                desc: 'Add visible Now/Soon/Later text labels next to priority LED dots on all Backlog and Priority Queue items. Makes it immediately clear which items are urgent without relying on color alone. Labels should be manually changeable by the user.',
+                tag: 'FEATURE',
+                meta: 'Tasks \u2022 v0.64.3 workflow improvement',
+                priority: 'high'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.64.4_priority_led');
+    }
+
+    // ── v0.64.4: Clear processed feedback (Workshop review) ──
+    if (ran.indexOf('v0.64.4_clear_workshop_feedback') === -1) {
+        try {
+            var fb = JSON.parse(localStorage.getItem('opsflow_feedback')) || [];
+            var filtered = [];
+            for (var i = 0; i < fb.length; i++) {
+                if (fb[i].text && fb[i].text.indexOf('Workshop needs to be reviewed') !== -1) continue;
+                filtered.push(fb[i]);
+            }
+            if (filtered.length !== fb.length) {
+                localStorage.setItem('opsflow_feedback', JSON.stringify(filtered));
+            }
+        } catch(e) {}
+        markMigrationRun('v0.64.4_clear_workshop_feedback');
+    }
+
+    if (changed) saveTasks(data);
+}
+
 // ── Init ──
+runMigrations();
 renderTasks();
 </script>
 

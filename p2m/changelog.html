@@ -296,20 +296,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.64.4</p>
+                <p class="version">Changelog v0.64.5</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.64.4 - Priority LED Labels &amp; Feedback Pipeline</h2>
-            <p>Released March 8, 2026 &mdash; Backlog items now show Now/Soon/Later text labels next to priority LEDs. Feedback-to-Backlog pipeline established: tester feedback triaged into Backlog at priority-appropriate positions.</p>
+            <h2>Version 0.64.5 - localStorage Migrations</h2>
+            <p>Released March 8, 2026 &mdash; Added migration system to Tasks page for injecting new backlog items and clearing processed feedback directly into localStorage. No more manual resets needed when dev pushes new task items.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">79</div>
+                <div class="stat-value">80</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -331,6 +331,21 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.64.5 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.64.5</span>
+                    <span class="version-date">March 8, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">localStorage Migrations</div>
+                <ul class="changes-list">
+                    <li><strong>Migration system:</strong> Tasks page now runs keyed migrations on load &mdash; injects new backlog items and clears processed feedback directly into localStorage without requiring manual resets</li>
+                    <li><strong>First migrations:</strong> Workshop review (Now) and Priority LED feature (Now) injected into Backlog; Workshop feedback item auto-cleared from tester feedback</li>
+                    <li><strong>Migration tracking:</strong> Each migration runs once per browser via opsflow_tasks_migrations key &mdash; safe to re-run, idempotent, won&rsquo;t duplicate items</li>
+                </ul>
+            </div>
 
             <!-- v0.64.4 -->
             <div class="version-entry">
