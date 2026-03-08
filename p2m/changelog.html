@@ -296,20 +296,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.64.8</p>
+                <p class="version">Changelog v0.65.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.64.8 - Sort Fix &amp; Backlog Corrections</h2>
-            <p>Released March 8, 2026 &mdash; Fixed critical JS bug where priority sort treated Now (high=0) as falsy, preventing Now items from sorting above Soon. Corrected Complete Testing backlog item description. Added architecture diagrams to backlog.</p>
+            <h2>Version 0.65.0 - Backlog Delete Action</h2>
+            <p>Released March 8, 2026 &mdash; Added X button to Backlog items for removing unwanted tasks. Confirm dialog prevents accidental deletes. First Up Next item completed from Priority Queue.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">83</div>
+                <div class="stat-value">84</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -331,6 +331,21 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.65.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.65.0</span>
+                    <span class="version-date">March 8, 2026</span>
+                    <span class="version-tag tag-feature">FEATURE</span>
+                </div>
+                <div class="version-title">Backlog Delete Action</div>
+                <ul class="changes-list">
+                    <li><strong>X delete button:</strong> Every Backlog card now has a red &times; button to remove unwanted items. Positioned before the Promote button for quick access</li>
+                    <li><strong>Confirm dialog:</strong> Browser confirm() prevents accidental deletes &mdash; shows item title so you know exactly what you&rsquo;re removing</li>
+                    <li><strong>Auto-cleanup:</strong> The &ldquo;Add X delete action&rdquo; backlog item removed itself via migration &mdash; first completed Up Next item from the Priority Queue</li>
+                </ul>
+            </div>
 
             <!-- v0.64.8 -->
             <div class="version-entry">

@@ -242,6 +242,19 @@
         .btn-promote:hover { background: rgba(63, 185, 80, 0.15); border-color: #3fb950; }
         .btn-demote { color: #f0883e; }
         .btn-demote:hover { background: rgba(240, 136, 62, 0.15); border-color: #f0883e; }
+        .btn-delete {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #30363d;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            color: #f85149;
+        }
+        .btn-delete:hover { background: rgba(248, 81, 73, 0.15); border-color: #f85149; }
         .pq-order-select {
             background: #0d1117;
             border: 1px solid #30363d;
@@ -277,7 +290,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.64.8</p>
+        <p class="version">Tasks v0.65.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -297,7 +310,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">78</div>
+        <div class="num" style="color:#3fb950;">84</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -570,16 +583,6 @@
         </div>
     </div>
 
-    <!-- ── SOON (medium) — v0.64.7 feedback ── -->
-    <div class="task">
-        <span class="priority medium"></span>
-        <div class="content">
-            <div class="title">Add &lsquo;X&rsquo; delete action to Backlog items</div>
-            <div class="desc">Allow user to remove unwanted or no-longer-needed items from the Backlog via an X button on each task card.</div>
-            <div class="meta"><span class="tag tag-ux">UX</span> Tasks &bull; v0.64.6 tester feedback</div>
-        </div>
-    </div>
-
     <!-- ── LATER (low) — v0.64.7 feedback ── -->
     <div class="task">
         <span class="priority low"></span>
@@ -602,7 +605,16 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">49</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">50</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Add &lsquo;X&rsquo; delete action to Backlog items</div>
+            <div class="desc">Red &times; button on every Backlog card to remove unwanted items. Browser confirm dialog prevents accidental deletes. First Up Next item completed from Priority Queue.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.65.0 &bull; March 8</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -1042,7 +1054,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.8 &mdash; March 8, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.65.0 &mdash; March 8, 2026
 </div>
 
 <script>
@@ -1187,7 +1199,7 @@ function renderTasks() {
             html += '<div class="desc">' + esc(t.desc) + '</div>';
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
             html += '</div>';
-            html += '<div class="task-actions"><button class="btn-promote" onclick="promoteToQueue(\'' + t.id + '\')" title="Move to Priority Queue">&uarr; Promote</button></div>';
+            html += '<div class="task-actions"><button class="btn-delete" onclick="deleteBacklogItem(\'' + t.id + '\')" title="Remove from Backlog">&times;</button><button class="btn-promote" onclick="promoteToQueue(\'' + t.id + '\')" title="Move to Priority Queue">&uarr; Promote</button></div>';
             html += '</div>';
         }
         sections[1].innerHTML = html;
@@ -1222,6 +1234,21 @@ function demoteToPQ(id) {
     item.id = 'bl_' + Date.now();
     item.priority = item.priority || 'medium';
     data.backlog.unshift(item);
+    saveTasks(data);
+    renderTasks();
+}
+
+function deleteBacklogItem(id) {
+    var data = loadTasks();
+    if (!data) return;
+    var idx = -1;
+    for (var i = 0; i < data.backlog.length; i++) {
+        if (data.backlog[i].id === id) { idx = i; break; }
+    }
+    if (idx === -1) return;
+    var title = data.backlog[idx].title;
+    if (!confirm('Remove \u201c' + title + '\u201d from Backlog?')) return;
+    data.backlog.splice(idx, 1);
     saveTasks(data);
     renderTasks();
 }
@@ -1437,8 +1464,8 @@ function runMigrations() {
         markMigrationRun('v0.64.7_clear_feedback');
     }
 
-    // ── v0.64.8: Inject architecture diagrams backlog item ──
-    if (ran.indexOf('v0.64.8_arch_diagrams') === -1) {
+    // ── v0.65.0: Inject architecture diagrams backlog item ──
+    if (ran.indexOf('v0.65.0_arch_diagrams') === -1) {
         var hasArch = false;
         for (var i = 0; i < data.backlog.length; i++) {
             if (data.backlog[i].id === 'backlog-arch-diagrams') { hasArch = true; break; }
@@ -1454,11 +1481,11 @@ function runMigrations() {
             });
             changed = true;
         }
-        markMigrationRun('v0.64.8_arch_diagrams');
+        markMigrationRun('v0.65.0_arch_diagrams');
     }
 
-    // ── v0.64.8: Update Complete Testing backlog item description ──
-    if (ran.indexOf('v0.64.8_fix_complete_desc') === -1) {
+    // ── v0.65.0: Update Complete Testing backlog item description ──
+    if (ran.indexOf('v0.65.0_fix_complete_desc') === -1) {
         for (var i = 0; i < data.backlog.length; i++) {
             if (data.backlog[i].id === 'tester-complete-disable') {
                 data.backlog[i].title = 'Complete Testing button \u2014 2-state enable/disable';
@@ -1467,7 +1494,26 @@ function runMigrations() {
                 break;
             }
         }
-        markMigrationRun('v0.64.8_fix_complete_desc');
+        markMigrationRun('v0.65.0_fix_complete_desc');
+    }
+
+    // ── v0.65.0: Remove completed 'X delete action' item from Backlog AND PQ (now implemented!) ──
+    if (ran.indexOf('v0.65.0_remove_delete_item') === -1) {
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === 'backlog-delete-action' || (data.backlog[i].title && data.backlog[i].title.indexOf('delete action to Backlog') !== -1)) {
+                data.backlog.splice(i, 1);
+                changed = true;
+                break;
+            }
+        }
+        for (var i = 0; i < data.priority.length; i++) {
+            if (data.priority[i].title && data.priority[i].title.indexOf('delete action to Backlog') !== -1) {
+                data.priority.splice(i, 1);
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.65.0_remove_delete_item');
     }
 
     if (changed) saveTasks(data);

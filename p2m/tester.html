@@ -615,41 +615,41 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.8';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Priority Sort Fix (v0.64.8)',
+        title: 'Backlog Delete (v0.65.0)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page: Click a Backlog LED to cycle to Now \u2014 after 2s it sorts to TOP of Backlog (above Soon and Later)',
-            'Tasks page: Click a Backlog LED to cycle to Later \u2014 after 2s it sorts to BOTTOM of Backlog (below Now and Soon)',
-            'Tasks page: Cycling stays in place (no jumping) then re-sorts after ~2 seconds of no clicks',
-            'Tasks page: PQ LED cycling works in place (no re-sort, just changes the label)',
+            'Tasks page: Red \u00d7 button visible on every Backlog card (left of Promote button)',
+            'Tasks page: Clicking \u00d7 shows browser confirm dialog with item title',
+            'Tasks page: Confirming delete removes item from Backlog (count decreases by 1)',
+            'Tasks page: Canceling confirm keeps item in place (no change)',
+            'Tasks page: PQ items do NOT have an \u00d7 delete button (Backlog only)',
         ]
     },
     {
-        title: 'Backlog Corrections (v0.64.8)',
+        title: 'Auto-cleanup',
         priority: null,
         items: [
-            'Tasks page: "Complete Testing button \u2014 2-state enable/disable" appears in Backlog (updated description mentions HALT trigger + all-tested enable)',
-            'Tasks page: "Architecture diagrams for entire application" appears in Backlog with Later (blue) priority',
+            'Tasks page: "Add X delete action to Backlog items" is no longer in the Backlog (removed by migration \u2014 it\u2019s implemented!)',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.64.8 \u2014 Sort Fix & Backlog Corrections',
-            'Changelog: v0.64.8 entry exists with FIX tag and 4 bullets (sort bug, debounce confirmed, backlog corrected, arch diagrams)',
-            'Changelog: Versions Shipped stat reads 83',
+            'Changelog: current-version banner shows v0.65.0 \u2014 Backlog Delete Action',
+            'Changelog: v0.65.0 entry exists with FEATURE tag and 3 bullets',
+            'Changelog: Versions Shipped stat reads 84',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.64.8 in their version line',
+            'All 7 P2M pages show v0.65.0 in their version line',
         ]
     }
 ];
