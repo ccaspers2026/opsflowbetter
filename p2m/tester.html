@@ -450,7 +450,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.57.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.58.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; report bugs &amp; feedback below &bull; hit Complete when done</p>
     </div>
 </div>
@@ -521,48 +521,54 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.57.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.58.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'LaunchPad Link Expansion',
+        title: 'Capsule Pills Fix',
         priority: 'PRIMARY',
         items: [
-            'TOOLS section: 9 spheres — Helium 10, remove.bg, Cloudflare, GitHub, Seller Central, OnShape, Monday, Calendly, AutoFarm3D — all open correct URLs in new tab',
-            'PERSONAL section: 10 spheres — tastytrade, Truist, TradingView, OptionStrat, TraderSync, YouTube, Amazon, ChatGPT, Claude, Discord — all open correct URLs in new tab',
-            'GitHub sphere links to https://github.com/ccaspers2026/opsflowbetter (NOT ccasperslocal)',
-            'Claude sphere goes to https://claude.ai/',
-            'All new spheres have distinct, appropriate 3D colors and glow effects',
+            'P2M sub-link capsule pills show full page names (Pipeline, Media Pipeline, Workshop, Changelog, Tasks, Tester) — readable, not collapsed',
+            'Capsules have two-tone blue coloring (dark left, lighter right) with seam line and specular highlight',
+            'Capsule hover: scale up + blue glow effect works',
         ]
     },
     {
-        title: 'Capsule Pills & Ground Shadows',
+        title: 'LaunchPad Visual Fixes',
         priority: 'PRIMARY',
         items: [
-            'P2M sub-link capsule pills show full page names centered (Pipeline, Media Pipeline, Workshop, Changelog, Tasks, Tester) — no split words',
-            'Capsules still have two-tone blue coloring (dark left, light right) with seam line and specular highlight',
-            'Ground shadows beneath spheres are visibly darker and have a soft blur effect',
-            'Hover still works on capsule pills (scale up + blue glow)',
+            'S&I sphere label text ("Services & Integrations" and "UP NEXT") is readable — not washed out',
+            'Ground shadows beneath spheres have a subtle visible glow (light reflection on dark background)',
+            'Version number visible in LaunchPad top-right corner (shows "LaunchPad v0.58.0")',
+            'Layout is tighter — less wasted space between sections, greeting, and sphere grids',
         ]
     },
     {
-        title: 'Carry-Forward Features',
+        title: 'Personal Sphere Grouping',
+        priority: 'PRIMARY',
+        items: [
+            'Personal section shows group labels: "Trading", "Finance", "AI & Media"',
+            'Trading group: tastytrade, TradingView, OptionStrat, TraderSync',
+            'Finance group: Truist, Amazon',
+            'AI & Media group: ChatGPT, Claude, YouTube, Discord',
+        ]
+    },
+    {
+        title: 'Carry-Forward',
         priority: null,
         items: [
-            'LaunchPad loads at /launchpad.html with time-based greeting',
-            'SUITE section: P2M sphere (blue, clickable) and S&I sphere (purple, dimmed UP NEXT)',
-            'All P2M nav links still work, OpsFlowBetter brand goes to /launchpad.html',
-            'BG Removal toggle still defaults OFF on Media Pipeline',
-            'Shared header component still pixel-identical across all 6 P2M pages',
+            'All 9 Tools spheres and 10 Personal spheres still open correct URLs in new tabs',
+            'SUITE section: P2M sphere clickable, S&I sphere dimmed',
+            'All P2M nav links work, OpsFlowBetter brand goes to /launchpad.html',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 6 P2M pages show v0.57.0 in their version line',
-            'Changelog CURRENT shows v0.57.0, version count shows 68',
-            'Tasks page: "Versions Shipped" shows 68, completed shows 36, "Up Next" shows 3, "Pages in Suite" shows 9',
+            'All 6 P2M pages show v0.58.0 in their version line',
+            'Changelog CURRENT shows v0.58.0, version count shows 69',
+            'Tasks page: "Versions Shipped" shows 69, completed shows 42, "Up Next" shows 3, Backlog shows 12',
         ]
     }
 ];

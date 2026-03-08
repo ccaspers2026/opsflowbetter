@@ -45,19 +45,19 @@
         .main {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 48px 32px 60px;
+            padding: 28px 32px 40px;
         }
 
         .greeting {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .greeting-sub {
-            font-size: 15px;
+            font-size: 14px;
             color: #8b949e;
-            margin-bottom: 48px;
+            margin-bottom: 28px;
         }
 
         /* ── Section Labels ──────────────────────────────────── */
@@ -67,16 +67,16 @@
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
 
         /* ── Sphere Grid ─────────────────────────────────────── */
         .sphere-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 36px;
+            gap: 28px;
             justify-content: center;
-            margin-bottom: 56px;
+            margin-bottom: 36px;
         }
 
         .sphere-item {
@@ -152,21 +152,21 @@
             z-index: 3;
         }
 
-        /* Ground shadow */
+        /* Ground shadow — uses subtle light reflection instead of dark-on-dark */
         .sphere-shadow {
-            width: 64px;
-            height: 12px;
-            margin: 6px auto 0;
-            background: radial-gradient(ellipse, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 40%, transparent 75%);
+            width: 60px;
+            height: 8px;
+            margin: 8px auto 0;
+            background: radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 50%, transparent 80%);
             border-radius: 50%;
-            filter: blur(2px);
+            filter: blur(3px);
             transition: all 0.35s ease;
         }
         .sphere-item:hover .sphere-shadow {
-            width: 76px;
-            height: 10px;
-            background: radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 40%, transparent 75%);
-            filter: blur(3px);
+            width: 72px;
+            height: 6px;
+            background: radial-gradient(ellipse, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 50%, transparent 80%);
+            filter: blur(4px);
         }
 
         /* Sphere text */
@@ -326,7 +326,7 @@
         /* ── P2M Sub-links (capsule pills) ──────────────────── */
         .p2m-sublinks {
             display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
-            margin-top: -36px; margin-bottom: 56px; padding: 20px 24px 16px;
+            margin-top: -28px; margin-bottom: 36px; padding: 16px 24px 12px;
             background: #161b22; border: 1px solid #21262d; border-radius: 10px;
             max-width: 720px; margin-left: auto; margin-right: auto;
         }
@@ -336,16 +336,28 @@
         }
         .p2m-sublink:hover { transform: scale(1.08); }
 
-        /* The capsule: two-tone pill with centered text overlay */
+        /* The capsule: two-tone pill via split gradient, text sizes the pill */
         .capsule {
-            display: flex; align-items: stretch;
+            display: inline-flex; align-items: center; justify-content: center;
             height: 28px; border-radius: 14px;
-            overflow: hidden; position: relative;
+            padding: 0 16px;
+            position: relative; overflow: hidden;
+            background:
+                linear-gradient(180deg, #2884e0 0%, #1560b0 50%, #0c3870 100%);
             box-shadow:
                 inset 0 -4px 10px rgba(0,0,0,0.5),
                 inset 0 3px 8px rgba(255,255,255,0.06),
                 0 4px 12px rgba(0,0,0,0.4);
             transition: box-shadow 0.25s ease;
+        }
+        /* Right-half lighter overlay */
+        .capsule::before {
+            content: '';
+            position: absolute; top: 0; right: 0;
+            width: 50%; height: 100%;
+            background: linear-gradient(180deg, #60baff 0%, #3a90e8 50%, #1a6cc0 100%);
+            border-left: 1px solid rgba(0,0,0,0.3);
+            pointer-events: none;
         }
         .p2m-sublink:hover .capsule {
             box-shadow:
@@ -354,19 +366,6 @@
                 0 4px 12px rgba(0,0,0,0.4),
                 0 0 18px rgba(74,158,255,0.3);
         }
-
-        /* Left half — darker shade */
-        .capsule-left {
-            background: linear-gradient(180deg, #2884e0 0%, #1560b0 50%, #0c3870 100%);
-            width: 50%;
-        }
-        /* Right half — lighter shade */
-        .capsule-right {
-            background: linear-gradient(180deg, #60baff 0%, #3a90e8 50%, #1a6cc0 100%);
-            width: 50%;
-        }
-        /* Seam line between halves */
-        .capsule-left { border-right: 1px solid rgba(0,0,0,0.3); }
 
         /* Specular highlight across the top */
         .capsule::after {
@@ -379,17 +378,22 @@
             z-index: 2;
         }
 
-        /* Full text centered over both halves */
         .capsule-text {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative; z-index: 3;
             font-size: 10px; font-weight: 700; color: #fff;
             text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-            white-space: nowrap; z-index: 3;
-            padding: 0 14px;
+            white-space: nowrap;
         }
 
-        .divider { border: none; border-top: 1px solid #21262d; margin: 0 0 40px; }
+        .divider { border: none; border-top: 1px solid #21262d; margin: 0 0 24px; }
+
+        .group-label {
+            width: 100%; text-align: center;
+            font-size: 10px; font-weight: 600; color: #484f58;
+            text-transform: uppercase; letter-spacing: 1px;
+            padding: 4px 0 0;
+        }
+        .group-label:first-child { padding-top: 0; }
 
         .footer {
             text-align: center; padding: 24px; font-size: 11px;
@@ -402,7 +406,7 @@
 <!-- ── Top Bar ──────────────────────────────────────────────── -->
 <div class="topbar">
     <a href="/launchpad.html" class="brand"><span class="ops">Ops</span><span class="flow">Flow</span><span class="better">Better</span></a>
-    <div class="topbar-meta">LaunchPad</div>
+    <div class="topbar-meta">LaunchPad v0.58.0</div>
 </div>
 
 <!-- ── Main Content ────────────────────────────────────────── -->
@@ -422,60 +426,24 @@
             <div class="sphere-label">P2M Pipeline</div>
             <div class="sphere-sublabel">LIVE</div>
         </a>
-        <div class="sphere-item" style="opacity:0.4;cursor:default;">
-            <div class="sphere-wrap">
+        <div class="sphere-item" style="cursor:default;">
+            <div class="sphere-wrap" style="opacity:0.4;">
                 <div class="sphere sphere-services"><span class="sphere-text">S&I</span></div>
                 <div class="sphere-shadow"></div>
             </div>
             <div class="sphere-label">Services &amp; Integrations</div>
-            <div class="sphere-sublabel">UP NEXT</div>
+            <div class="sphere-sublabel" style="color:#8b949e;">UP NEXT</div>
         </div>
     </div>
 
     <!-- P2M Sub-links (capsule pills with centered text) -->
     <div class="p2m-sublinks">
-        <a href="/p2m/index.html" class="p2m-sublink">
-            <div class="capsule">
-                <div class="capsule-left"></div>
-                <div class="capsule-right"></div>
-                <span class="capsule-text">Pipeline</span>
-            </div>
-        </a>
-        <a href="/p2m/media-center.html" class="p2m-sublink">
-            <div class="capsule">
-                <div class="capsule-left"></div>
-                <div class="capsule-right"></div>
-                <span class="capsule-text">Media Pipeline</span>
-            </div>
-        </a>
-        <a href="/p2m/workshop.html" class="p2m-sublink">
-            <div class="capsule">
-                <div class="capsule-left"></div>
-                <div class="capsule-right"></div>
-                <span class="capsule-text">Workshop</span>
-            </div>
-        </a>
-        <a href="/p2m/changelog.html" class="p2m-sublink">
-            <div class="capsule">
-                <div class="capsule-left"></div>
-                <div class="capsule-right"></div>
-                <span class="capsule-text">Changelog</span>
-            </div>
-        </a>
-        <a href="/p2m/tasks.html" class="p2m-sublink">
-            <div class="capsule">
-                <div class="capsule-left"></div>
-                <div class="capsule-right"></div>
-                <span class="capsule-text">Tasks</span>
-            </div>
-        </a>
-        <a href="/p2m/tester.html" class="p2m-sublink">
-            <div class="capsule">
-                <div class="capsule-left"></div>
-                <div class="capsule-right"></div>
-                <span class="capsule-text">Tester</span>
-            </div>
-        </a>
+        <a href="/p2m/index.html" class="p2m-sublink"><div class="capsule"><span class="capsule-text">Pipeline</span></div></a>
+        <a href="/p2m/media-center.html" class="p2m-sublink"><div class="capsule"><span class="capsule-text">Media Pipeline</span></div></a>
+        <a href="/p2m/workshop.html" class="p2m-sublink"><div class="capsule"><span class="capsule-text">Workshop</span></div></a>
+        <a href="/p2m/changelog.html" class="p2m-sublink"><div class="capsule"><span class="capsule-text">Changelog</span></div></a>
+        <a href="/p2m/tasks.html" class="p2m-sublink"><div class="capsule"><span class="capsule-text">Tasks</span></div></a>
+        <a href="/p2m/tester.html" class="p2m-sublink"><div class="capsule"><span class="capsule-text">Tester</span></div></a>
     </div>
 
     <hr class="divider">
@@ -535,15 +503,18 @@
             { text: 'AF',   label: 'AutoFarm3D',     sublabel: '\u2197 print farm', url: 'http://192.168.100.144:8080/overview',           color: 'autofarm' }
         ],
         personal: [
-            { text: 'TT',   label: 'tastytrade',     sublabel: '\u2197 trading',    url: 'https://tastytrade.com/',        color: 'tasty' },
-            { text: 'T',    label: 'Truist',           sublabel: '\u2197 banking',    url: 'https://www.truist.com/',        color: 'truist' },
+            { group: 'Trading' },
+            { text: 'TT',   label: 'tastytrade',     sublabel: '\u2197 broker',     url: 'https://tastytrade.com/',        color: 'tasty' },
             { text: 'TV',   label: 'TradingView',    sublabel: '\u2197 charts',     url: 'https://www.tradingview.com/',   color: 'tradingview' },
             { text: 'OStr', label: 'OptionStrat',     sublabel: '\u2197 options',    url: 'https://optionstrat.com/',       color: 'optionstrat' },
             { text: 'TS',   label: 'TraderSync',      sublabel: '\u2197 journal',    url: 'https://www.tradersync.com/',    color: 'tradersync' },
-            { text: 'YT',   label: 'YouTube',          sublabel: '\u2197 media',      url: 'https://www.youtube.com/',       color: 'youtube' },
+            { group: 'Finance' },
+            { text: 'T',    label: 'Truist',           sublabel: '\u2197 banking',    url: 'https://www.truist.com/',        color: 'truist' },
             { text: 'AMZ',  label: 'Amazon',           sublabel: '\u2197 shopping',   url: 'https://www.amazon.com/',        color: 'amazon' },
+            { group: 'AI & Media' },
             { text: 'AI',   label: 'ChatGPT',          sublabel: '\u2197 ai',         url: 'https://chatgpt.com/',           color: 'chatgpt' },
             { text: 'C',    label: 'Claude',            sublabel: '\u2197 ai',         url: 'https://claude.ai/',             color: 'claude' },
+            { text: 'YT',   label: 'YouTube',          sublabel: '\u2197 media',      url: 'https://www.youtube.com/',       color: 'youtube' },
             { text: 'DC',   label: 'Discord',          sublabel: '\u2197 community',  url: 'https://discord.com/channels/@me', color: 'discord' }
         ]
     };
@@ -601,7 +572,14 @@
     });
 
     personal.forEach(function(item) {
-        personalGrid.appendChild(renderSphere(item));
+        if (item.group) {
+            var lbl = document.createElement('div');
+            lbl.className = 'group-label';
+            lbl.textContent = item.group;
+            personalGrid.appendChild(lbl);
+        } else {
+            personalGrid.appendChild(renderSphere(item));
+        }
     });
 
 })();
