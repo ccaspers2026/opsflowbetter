@@ -615,24 +615,24 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.1';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.64.2';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'LED Bugfixes (v0.64.1)',
+        title: 'LED Click Sync Fix (v0.64.2)',
         priority: 'PRIMARY',
         items: [
-            'Add a test service with a renewal date (e.g. tomorrow) and Monthly cycle \u2014 cycle LED to green \u2014 date advances by 1 month',
-            'Add a test service with a renewal date but NO cycle \u2014 cycle LED to green \u2014 amber toast appears: "Set a Renewal Cycle..."',
-            'Edit a service to add a cycle after creation \u2014 cycle LED to green \u2014 date now advances correctly',
-            'LED manual override persists after page reload',
+            'Services page: click a yellow LED (auto-computed from near renewal) \u2014 first click changes it to red immediately (no double-click needed)',
+            'Click LED again \u2014 cycles to green, date advances by 1 month/year',
+            'Add test service with renewal date, NO cycle \u2014 cycle to green \u2014 toast message appears',
+            'LED changes persist after page reload',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.64.1 in their version line',
+            'All 7 P2M pages show v0.64.2 in their version line',
         ]
     }
 ];
