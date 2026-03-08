@@ -296,20 +296,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.64.6</p>
+                <p class="version">Changelog v0.64.7</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.64.6 - Backlog Sort &amp; Clickable Priority LEDs</h2>
-            <p>Released March 8, 2026 &mdash; Backlog now auto-sorts by priority (Now &rarr; Soon &rarr; Later). Click any priority LED to cycle its status. Two feedback items processed and addressed by code. HTML defaults reordered to match.</p>
+            <h2>Version 0.64.7 - Priority LED UX &amp; Feedback Pipeline</h2>
+            <p>Released March 8, 2026 &mdash; Priority LED cycling now uses a 2-second debounce so items stay in place while you click, then re-sort smoothly. Two v0.64.6 feedback items triaged into Backlog and auto-cleared.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">81</div>
+                <div class="stat-value">82</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -331,6 +331,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.64.7 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.64.7</span>
+                    <span class="version-date">March 8, 2026</span>
+                    <span class="version-tag tag-fix">FIX</span>
+                </div>
+                <div class="version-title">Priority LED UX &amp; Feedback Pipeline</div>
+                <ul class="changes-list">
+                    <li><strong>Debounced re-sort:</strong> Priority LED click-to-cycle now updates in place &mdash; list re-sorts after 2 seconds of no clicks instead of immediately, preventing items from jumping away from cursor</li>
+                    <li><strong>PQ LEDs stable:</strong> Priority Queue LED cycling unchanged (PQ doesn&rsquo;t sort by priority), but benefits from consistent UX pattern</li>
+                    <li><strong>Feedback &rarr; Backlog:</strong> 2 v0.64.6 feedback items triaged into Backlog &mdash; &ldquo;X delete on Backlog items&rdquo; (Soon) and &ldquo;Complete Testing disable&rdquo; (Later) &mdash; auto-cleared from feedback via migration</li>
+                    <li><strong>Dev self-testing:</strong> Added pre-handoff verification step to dev workflow &mdash; Claude visually checks live site before handing off to tester</li>
+                </ul>
+            </div>
 
             <!-- v0.64.6 -->
             <div class="version-entry">

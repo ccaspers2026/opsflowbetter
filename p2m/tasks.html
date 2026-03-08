@@ -277,7 +277,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.64.6</p>
+        <p class="version">Tasks v0.64.7</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -567,6 +567,26 @@
             <div class="title">Configurable LED reminder offset per service</div>
             <div class="desc">LED auto-status currently uses hard-coded 7-day threshold. Add a user-configurable reminder offset (integer days) in the Service Edit modal so each service can have its own yellow/red trigger timing.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> Services &bull; v0.64.2 tester feedback</div>
+        </div>
+    </div>
+
+    <!-- ── SOON (medium) — v0.64.7 feedback ── -->
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">Add &lsquo;X&rsquo; delete action to Backlog items</div>
+            <div class="desc">Allow user to remove unwanted or no-longer-needed items from the Backlog via an X button on each task card.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Tasks &bull; v0.64.6 tester feedback</div>
+        </div>
+    </div>
+
+    <!-- ── LATER (low) — v0.64.7 feedback ── -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Complete Testing button disabled until all items tested</div>
+            <div class="desc">Disable the Complete Testing button on the Tester page until every test item has been marked Pass, Fail, or Skip. Prevents premature completion.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Tester &bull; v0.64.6 tester feedback</div>
         </div>
     </div>
 </div>
@@ -1013,7 +1033,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.6 &mdash; March 8, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.64.7 &mdash; March 8, 2026
 </div>
 
 <script>
@@ -1138,12 +1158,14 @@ function renderTasks() {
 
     // ── Backlog (sorted: Now > Soon > Later) ──
     if (sections[1]) {
-        // Sort by priority: high (Now) first, medium (Soon) middle, low (Later) last
-        var priOrder = { high: 0, medium: 1, low: 2 };
-        data.backlog.sort(function(a, b) {
-            return (priOrder[a.priority || 'medium'] || 1) - (priOrder[b.priority || 'medium'] || 1);
-        });
-        saveTasks(data); // persist sorted order
+        // Sort only when NOT in the middle of cycling (debounce handles deferred sort)
+        if (!window._skipBacklogSort) {
+            var priOrder = { high: 0, medium: 1, low: 2 };
+            data.backlog.sort(function(a, b) {
+                return (priOrder[a.priority || 'medium'] || 1) - (priOrder[b.priority || 'medium'] || 1);
+            });
+            saveTasks(data); // persist sorted order
+        }
 
         var html = '<h2>&#128203; Backlog <span class="count">' + data.backlog.length + '</span></h2>';
         for (var i = 0; i < data.backlog.length; i++) {
@@ -1212,6 +1234,18 @@ function reorderPQ(id, newPos) {
 
 // ── Click-to-cycle priority LED ──────────────────────────────────
 // Cycles: high (Now) → medium (Soon) → low (Later) → high (Now)
+// Uses a 2-second debounce: LED changes in-place instantly, then
+// the list re-sorts after 2s of no clicks (smooth UX for fast cycling).
+var _sortTimer = null;
+
+function _deferredSort() {
+    clearTimeout(_sortTimer);
+    _sortTimer = setTimeout(function() {
+        window._skipBacklogSort = false;
+        renderTasks();
+    }, 2000);
+}
+
 function cyclePriority(id) {
     var data = loadTasks();
     if (!data) return;
@@ -1224,7 +1258,10 @@ function cyclePriority(id) {
         }
     }
     saveTasks(data);
+    // Render in-place (no sort) then schedule deferred sort
+    window._skipBacklogSort = true;
     renderTasks();
+    _deferredSort();
 }
 
 function cyclePQPriority(id) {
@@ -1239,7 +1276,7 @@ function cyclePQPriority(id) {
         }
     }
     saveTasks(data);
-    renderTasks();
+    renderTasks(); // PQ doesn't sort by priority, so no debounce needed
 }
 
 // ── Migrations ───────────────────────────────────────────────────
@@ -1340,6 +1377,55 @@ function runMigrations() {
             }
         } catch(e) {}
         markMigrationRun('v0.64.6_clear_sort_feedback');
+    }
+
+    // ── v0.64.7: Inject backlog items from v0.64.6 tester feedback ──
+    if (ran.indexOf('v0.64.7_inject_feedback_items') === -1) {
+        var hasDelete = false, hasComplete = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === 'backlog-delete-action') hasDelete = true;
+            if (data.backlog[i].id === 'tester-complete-disable') hasComplete = true;
+        }
+        if (!hasDelete) {
+            data.backlog.push({
+                id: 'backlog-delete-action',
+                title: "Add 'X' delete action to Backlog items",
+                desc: 'Allow user to remove unwanted or no-longer-needed items from the Backlog via an X button on each task card.',
+                tag: 'UX',
+                meta: 'Tasks \u2022 v0.64.6 tester feedback',
+                priority: 'medium'
+            });
+            changed = true;
+        }
+        if (!hasComplete) {
+            data.backlog.push({
+                id: 'tester-complete-disable',
+                title: 'Complete Testing button disabled until all items tested',
+                desc: 'Disable the Complete Testing button on the Tester page until every test item has been marked Pass, Fail, or Skip. Prevents premature completion.',
+                tag: 'UX',
+                meta: 'Tester \u2022 v0.64.6 tester feedback',
+                priority: 'low'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.64.7_inject_feedback_items');
+    }
+
+    // ── v0.64.7: Clear the 2 feedback items (now in Backlog) ──
+    if (ran.indexOf('v0.64.7_clear_feedback') === -1) {
+        try {
+            var fb = JSON.parse(localStorage.getItem('opsflow_feedback')) || [];
+            var filtered = [];
+            for (var i = 0; i < fb.length; i++) {
+                if (fb[i].text && fb[i].text.indexOf('Complete Testing button should Disable') !== -1) continue;
+                if (fb[i].text && fb[i].text.indexOf('delete Action to Backlog items') !== -1) continue;
+                filtered.push(fb[i]);
+            }
+            if (filtered.length !== fb.length) {
+                localStorage.setItem('opsflow_feedback', JSON.stringify(filtered));
+            }
+        } catch(e) {}
+        markMigrationRun('v0.64.7_clear_feedback');
     }
 
     if (changed) saveTasks(data);
