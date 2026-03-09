@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.66.1</p>
+                <p class="version">Changelog v0.67.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.66.1 - W1.2 Workspace Cost Breakdown</h2>
-            <p>Released March 9, 2026 &mdash; Restructured W1.2 Workspace Details with Calculation Method dropdown (Dedicated/US/UK), itemized cost fields, and auto-calculated business-use percentage.</p>
+            <h2>Version 0.67.0 - W1.2 Payment Structure Redesign</h2>
+            <p>Released March 9, 2026 &mdash; Added Payment Structure dropdown (Mortgage with Escrow, Mortgage without Escrow, Rent, Own Outright) that adapts visible and disabled cost fields. New disableWhen system greys out fields included in escrow.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">90</div>
+                <div class="stat-value">91</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.67.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.67.0</span>
+                    <span class="version-date">March 9, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>Payment Structure dropdown:</strong> &ldquo;How do you pay for your space?&rdquo; &mdash; Mortgage with Escrow, Mortgage without Escrow, Rent, Own Outright &mdash; controls which cost fields are visible or disabled</li>
+                    <li><strong>disableWhen system:</strong> New conditional field disable (parallel to showWhen hide) &mdash; greyed-out fields with &ldquo;Included in your escrow amount&rdquo; hint</li>
+                    <li><strong>Escrow field:</strong> Monthly Escrow ($/mo) visible only for Mortgage with Escrow &mdash; bundles property tax &amp; insurance</li>
+                    <li><strong>Rent &amp; Own Outright:</strong> Rent shows Monthly Rent + Renter Insurance; Own Outright shows Property Tax + Insurance + Maintenance only</li>
+                    <li><strong>Allocated Cost:</strong> Calculation branches by payment structure &mdash; correct sum for each scenario</li>
+                </ul>
+            </div>
 
             <!-- v0.66.1 -->
             <div class="version-entry">

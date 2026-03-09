@@ -449,6 +449,23 @@
             color: #6e7681;
             margin-top: 3px;
         }
+        .field-hint-disabled {
+            font-size: 10px;
+            color: #8b949e;
+            font-style: italic;
+            margin-top: 3px;
+        }
+        .field-group-disabled .field-label {
+            color: #6e7681;
+        }
+        .field-input[disabled],
+        .field-select[disabled] {
+            background-color: #0d1117 !important;
+            color: #6e7681 !important;
+            border-color: #21262d !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
         .field-calculated {
             padding: 8px 10px;
             background-color: #0d1117;
@@ -626,7 +643,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.66.1</p>
+            <p class="version">Workshop v0.67.0</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -694,15 +711,19 @@
             phase: 1, number: 'W1.2', title: 'Workspace Details',
             description: 'Physical workspace and overhead',
             output: 'Overhead allocation baseline',
-            purpose: 'Document your physical workspace so you can allocate overhead costs. Select your calculation method, then enter your cost breakdown. The business-use percentage is auto-calculated from your square footage ratio.',
+            purpose: 'Document your physical workspace so you can allocate overhead costs. First select how you pay for your space, then your calculation method. The form adapts to show the right cost fields for your situation.',
             fields: [
+                { key: 'paymentStructure', label: 'How do you pay for your space?', type: 'select', options: ['Mortgage with Escrow', 'Mortgage without Escrow', 'Rent', 'Own Outright (no mortgage)'], hint: 'Determines which cost fields appear below' },
                 { key: 'calcMethod', label: 'Calculation Method', type: 'select', options: ['Dedicated Business Space', 'US Home Office', 'UK Home Office'], hint: 'Determines how business-use percentage is calculated' },
                 { key: 'sqft', label: 'Workshop Square Footage', type: 'text', placeholder: '200', hint: 'Dedicated workshop / print farm area' },
                 { key: 'totalSqft', label: 'Total Home Sq Ft', type: 'text', placeholder: '1800', hint: 'Full home square footage — used to calculate business-use %', showWhen: { field: 'calcMethod', not: 'Dedicated Business Space' } },
-                { key: 'mortgage', label: 'Mortgage P&I / Rent ($/mo)', type: 'text', placeholder: '0', hint: 'Principal + Interest only — do not include escrow (tax & insurance are separate fields below)' },
-                { key: 'propertyTax', label: 'Property Tax ($/mo)', type: 'text', placeholder: '0', hint: 'Annual property tax ÷ 12' },
-                { key: 'insurance', label: 'Insurance ($/mo)', type: 'text', placeholder: '0', hint: 'Homeowner or renter insurance monthly cost' },
-                { key: 'maintenance', label: 'Maintenance ($/mo)', type: 'text', placeholder: '0', hint: 'Repairs, upkeep, general maintenance' },
+                { key: 'mortgagePAndI', label: 'Mortgage P&I ($/mo)', type: 'text', placeholder: '715', hint: 'Principal + Interest only — from your mortgage statement', showWhen: { field: 'paymentStructure', not: ['Rent', 'Own Outright (no mortgage)'] } },
+                { key: 'escrow', label: 'Monthly Escrow ($/mo)', type: 'text', placeholder: '293', hint: 'Escrow covers property tax & insurance — lender collects monthly', showWhen: { field: 'paymentStructure', equals: 'Mortgage with Escrow' } },
+                { key: 'rentMonthly', label: 'Monthly Rent ($/mo)', type: 'text', placeholder: '1200', hint: 'Full monthly rent payment', showWhen: { field: 'paymentStructure', equals: 'Rent' } },
+                { key: 'propertyTax', label: 'Property Tax ($/mo)', type: 'text', placeholder: '200', hint: 'Annual property tax \u00f7 12', showWhen: { field: 'paymentStructure', not: 'Rent' }, disableWhen: { field: 'paymentStructure', equals: 'Mortgage with Escrow' }, disabledHint: 'Included in your escrow amount' },
+                { key: 'insurance', label: 'Homeowner Insurance ($/mo)', type: 'text', placeholder: '100', hint: 'Monthly homeowner or condo insurance premium', showWhen: { field: 'paymentStructure', not: 'Rent' }, disableWhen: { field: 'paymentStructure', equals: 'Mortgage with Escrow' }, disabledHint: 'Included in your escrow amount' },
+                { key: 'renterInsurance', label: 'Renter Insurance ($/mo)', type: 'text', placeholder: '15', hint: 'Monthly renters insurance premium', showWhen: { field: 'paymentStructure', equals: 'Rent' } },
+                { key: 'maintenance', label: 'Maintenance ($/mo)', type: 'text', placeholder: '50', hint: 'Repairs, upkeep, general maintenance' },
                 { key: 'location', label: 'Location', type: 'text', placeholder: 'High Point, NC', hint: 'City/state for shipping zone calculations' },
                 { key: 'businessPct', label: 'Business-Use %', type: 'calculated' },
                 { key: 'allocatedCost', label: 'Allocated Monthly Cost', type: 'calculated' }
@@ -872,33 +893,45 @@
     }
 
     function migrateState(s) {
-        // v0.66.1: W1.2 field restructure — monthlyCost/ownership → calcMethod + cost breakdown
-        if (s.statics && s.statics['1.2'] && s.statics['1.2'].values) {
-            var v = s.statics['1.2'].values;
-            if (!v.calcMethod) {
-                // Map old ownership to calcMethod
-                var own = v.ownership || '';
-                if (own === 'Own') v.calcMethod = 'US Home Office';
-                else if (own === 'Rent') v.calcMethod = 'US Home Office';
-                else v.calcMethod = 'US Home Office';
-                // Move old monthlyCost into mortgage as best guess
-                if (v.monthlyCost && v.monthlyCost !== '0') {
-                    v.mortgage = v.monthlyCost;
-                } else {
-                    v.mortgage = v.mortgage || '';
-                }
-                // Initialize new fields
-                if (!v.totalSqft) v.totalSqft = '';
-                if (!v.propertyTax) v.propertyTax = '';
-                if (!v.insurance) v.insurance = '';
-                if (!v.maintenance) v.maintenance = '';
-                // Clean up old keys
-                delete v.ownership;
-                delete v.monthlyCost;
-                // Reset verified since fields changed
-                s.statics['1.2'].verified = false;
-                s.statics['1.2'].status = 'yellow';
+        if (!s.statics || !s.statics['1.2'] || !s.statics['1.2'].values) return;
+        var v = s.statics['1.2'].values;
+
+        // v0.67.0: monthlyCost/ownership → calcMethod + cost breakdown
+        if (!v.calcMethod) {
+            var own = v.ownership || '';
+            v.calcMethod = 'US Home Office';
+            if (v.monthlyCost && v.monthlyCost !== '0') {
+                v.mortgage = v.monthlyCost;
+            } else {
+                v.mortgage = v.mortgage || '';
             }
+            if (!v.totalSqft) v.totalSqft = '';
+            if (!v.propertyTax) v.propertyTax = '';
+            if (!v.insurance) v.insurance = '';
+            if (!v.maintenance) v.maintenance = '';
+            delete v.ownership;
+            delete v.monthlyCost;
+            s.statics['1.2'].verified = false;
+            s.statics['1.2'].status = 'yellow';
+        }
+
+        // v0.67.0: mortgage → mortgagePAndI + paymentStructure + escrow/rent fields
+        if (!v.paymentStructure) {
+            // Rename mortgage → mortgagePAndI
+            if (v.mortgage !== undefined) {
+                v.mortgagePAndI = v.mortgage;
+                delete v.mortgage;
+            }
+            // Safe default — user must re-verify and select correct structure
+            v.paymentStructure = 'Mortgage without Escrow';
+            // Initialize new fields
+            if (!v.escrow) v.escrow = '';
+            if (!v.rentMonthly) v.rentMonthly = '';
+            if (!v.renterInsurance) v.renterInsurance = '';
+            if (!v.mortgagePAndI) v.mortgagePAndI = '';
+            // Reset verified since fields changed
+            s.statics['1.2'].verified = false;
+            s.statics['1.2'].status = 'yellow';
         }
     }
 
@@ -977,11 +1010,8 @@
 
         var requiredFields = def.fields.filter(function(f) {
             if (f.type === 'calculated' || f.type === 'linked') return false;
-            if (f.showWhen) {
-                var depVal = data.values[f.showWhen.field] || '';
-                if (f.showWhen.not && depVal === f.showWhen.not) return false;
-                if (f.showWhen.equals && depVal !== f.showWhen.equals) return false;
-            }
+            if (isFieldHidden(f, data.values)) return false;
+            if (isFieldDisabled(f, data.values)) return false;
             return true;
         });
         if (requiredFields.length === 0) return 'yellow';
@@ -1018,6 +1048,45 @@
         state.fleet.forEach(function(p) { p.status_led = getDynamicCardStatus(p); });
         state.materials.forEach(function(m) { m.status_led = getDynamicCardStatus(m); });
         state.software.forEach(function(s) { s.status_led = getDynamicCardStatus(s); });
+    }
+
+    // ===================================================================
+    // CONDITIONAL FIELD HELPERS
+    // ===================================================================
+
+    // Returns true if the field should be HIDDEN
+    // showWhen.not: 'X' → show when value is NOT X → hide when value IS X
+    // showWhen.not: ['X','Y'] → show when value is NOT X or Y → hide when value IS X or Y
+    // showWhen.equals: 'X' → show when value IS X → hide when value is NOT X
+    function isFieldHidden(field, values) {
+        if (!field.showWhen) return false;
+        var depVal = values[field.showWhen.field] || '';
+        if (field.showWhen.not) {
+            var notVal = field.showWhen.not;
+            if (Array.isArray(notVal)) {
+                return notVal.indexOf(depVal) !== -1; // hide if value is in the array
+            }
+            return depVal === notVal; // hide if value matches
+        }
+        if (field.showWhen.equals) {
+            return depVal !== field.showWhen.equals; // hide if value does NOT match
+        }
+        return false;
+    }
+
+    // Returns true if the field should be DISABLED (greyed out but visible)
+    // disableWhen.equals: 'X' → disable when value IS X
+    // disableWhen.not: 'X' → disable when value is NOT X
+    function isFieldDisabled(field, values) {
+        if (!field.disableWhen) return false;
+        var depVal = values[field.disableWhen.field] || '';
+        if (field.disableWhen.equals) {
+            return depVal === field.disableWhen.equals;
+        }
+        if (field.disableWhen.not) {
+            return depVal !== field.disableWhen.not;
+        }
+        return false;
     }
 
     // ===================================================================
@@ -1097,11 +1166,27 @@
         }
         if (cardId === '1.2' && fieldKey === 'allocatedCost') {
             var method = getFieldValue('1.2', 'calcMethod');
-            var mortgage = parseFloat(getFieldValue('1.2', 'mortgage')) || 0;
-            var tax = parseFloat(getFieldValue('1.2', 'propertyTax')) || 0;
-            var ins = parseFloat(getFieldValue('1.2', 'insurance')) || 0;
+            var ps = getFieldValue('1.2', 'paymentStructure');
+            var totalCost = 0;
             var maint = parseFloat(getFieldValue('1.2', 'maintenance')) || 0;
-            var totalCost = mortgage + tax + ins + maint;
+            if (ps === 'Mortgage with Escrow') {
+                var pi = parseFloat(getFieldValue('1.2', 'mortgagePAndI')) || 0;
+                var esc = parseFloat(getFieldValue('1.2', 'escrow')) || 0;
+                totalCost = pi + esc + maint;
+            } else if (ps === 'Mortgage without Escrow') {
+                var pi = parseFloat(getFieldValue('1.2', 'mortgagePAndI')) || 0;
+                var tax = parseFloat(getFieldValue('1.2', 'propertyTax')) || 0;
+                var ins = parseFloat(getFieldValue('1.2', 'insurance')) || 0;
+                totalCost = pi + tax + ins + maint;
+            } else if (ps === 'Rent') {
+                var rent = parseFloat(getFieldValue('1.2', 'rentMonthly')) || 0;
+                var rIns = parseFloat(getFieldValue('1.2', 'renterInsurance')) || 0;
+                totalCost = rent + rIns + maint;
+            } else if (ps === 'Own Outright (no mortgage)') {
+                var tax = parseFloat(getFieldValue('1.2', 'propertyTax')) || 0;
+                var ins = parseFloat(getFieldValue('1.2', 'insurance')) || 0;
+                totalCost = tax + ins + maint;
+            }
             var pct = 1;
             if (method !== 'Dedicated Business Space') {
                 var ws = parseFloat(getFieldValue('1.2', 'sqft')) || 0;
@@ -1351,15 +1436,14 @@
         fieldsDiv.innerHTML = '<div class="detail-section-label">Data Entry</div>';
 
         def.fields.forEach(function(field) {
-            // Conditional visibility: skip fields whose showWhen condition is not met
-            if (field.showWhen) {
-                var depVal = data.values[field.showWhen.field] || '';
-                if (field.showWhen.not && depVal === field.showWhen.not) return;
-                if (field.showWhen.equals && depVal !== field.showWhen.equals) return;
-            }
+            // Conditional visibility: skip hidden fields
+            if (isFieldHidden(field, data.values)) return;
+
+            // Check if field should be disabled (visible but greyed out)
+            var disabled = isFieldDisabled(field, data.values);
 
             var group = document.createElement('div');
-            group.className = 'field-group';
+            group.className = 'field-group' + (disabled ? ' field-group-disabled' : '');
 
             if (field.type === 'calculated' || field.type === 'linked') {
                 group.innerHTML = '<label class="field-label field-label-calc">' + escHtml(field.label) + ' <span class="calc-badge">Auto-calculated</span></label>' +
@@ -1369,13 +1453,23 @@
                     var sel = (data.values[field.key] === o) ? ' selected' : '';
                     return '<option value="' + escHtml(o) + '"' + sel + '>' + escHtml(o) + '</option>';
                 }).join('');
+                var disAttr = disabled ? ' disabled' : '';
                 group.innerHTML = '<label class="field-label">' + escHtml(field.label) + '</label>' +
-                    '<select class="field-select" data-card="' + cardId + '" data-field="' + field.key + '">' + optHtml + '</select>';
-                if (field.hint) group.innerHTML += '<div class="field-hint">' + escHtml(field.hint) + '</div>';
+                    '<select class="field-select" data-card="' + cardId + '" data-field="' + field.key + '"' + disAttr + '>' + optHtml + '</select>';
+                if (disabled && field.disabledHint) {
+                    group.innerHTML += '<div class="field-hint field-hint-disabled">' + escHtml(field.disabledHint) + '</div>';
+                } else if (field.hint) {
+                    group.innerHTML += '<div class="field-hint">' + escHtml(field.hint) + '</div>';
+                }
             } else {
+                var disAttr = disabled ? ' disabled' : '';
                 group.innerHTML = '<label class="field-label">' + escHtml(field.label) + '</label>' +
-                    '<input class="field-input" type="text" data-card="' + cardId + '" data-field="' + field.key + '" value="' + escHtml(data.values[field.key] || '') + '" placeholder="' + escHtml(field.placeholder || '') + '">' +
-                    (field.hint ? '<div class="field-hint">' + escHtml(field.hint) + '</div>' : '');
+                    '<input class="field-input" type="text" data-card="' + cardId + '" data-field="' + field.key + '" value="' + escHtml(data.values[field.key] || '') + '" placeholder="' + escHtml(field.placeholder || '') + '"' + disAttr + '>';
+                if (disabled && field.disabledHint) {
+                    group.innerHTML += '<div class="field-hint field-hint-disabled">' + escHtml(field.disabledHint) + '</div>';
+                } else if (field.hint) {
+                    group.innerHTML += '<div class="field-hint">' + escHtml(field.hint) + '</div>';
+                }
             }
             fieldsDiv.appendChild(group);
         });
@@ -1399,17 +1493,18 @@
             var unverifyBtn = document.getElementById('btnUnverify');
             if (unverifyBtn) unverifyBtn.addEventListener('click', function() { unverifyStatic(cardId); });
 
-            // Check which fields have showWhen dependencies (for re-render on change)
+            // Check which fields have showWhen or disableWhen dependencies (for re-render on change)
             var conditionalTriggers = {};
             def.fields.forEach(function(f) {
-                if (f.showWhen) {
-                    conditionalTriggers[f.showWhen.field] = true;
-                }
+                if (f.showWhen) conditionalTriggers[f.showWhen.field] = true;
+                if (f.disableWhen) conditionalTriggers[f.disableWhen.field] = true;
             });
 
             document.querySelectorAll('.field-input[data-card="' + cardId + '"], .field-select[data-card="' + cardId + '"]').forEach(function(el) {
-                if (!isEditUnlocked()) { el.disabled = true; }
+                // Don't override disabled state for fields that are disabled by disableWhen
+                if (!isEditUnlocked() && !el.disabled) { el.disabled = true; }
                 var handler = function() {
+                    if (el.disabled && isEditUnlocked()) return; // disableWhen field, ignore input
                     if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing to change values', 'error'); return; }
                     state.statics[cardId].values[el.dataset.field] = el.value;
                     state.statics[cardId].verified = false;
@@ -1443,12 +1538,8 @@
         }
         var required = def.fields.filter(function(f) {
             if (f.type === 'calculated' || f.type === 'linked') return false;
-            // Skip conditionally hidden fields
-            if (f.showWhen) {
-                var depVal = data.values[f.showWhen.field] || '';
-                if (f.showWhen.not && depVal === f.showWhen.not) return false;
-                if (f.showWhen.equals && depVal !== f.showWhen.equals) return false;
-            }
+            if (isFieldHidden(f, data.values)) return false;
+            if (isFieldDisabled(f, data.values)) return false;
             return true;
         });
         var allFilled = required.every(function(f) {
@@ -1456,7 +1547,7 @@
             return val !== undefined && val !== null && val !== '';
         });
         if (!allFilled) {
-            showToast('Please fill in all fields before marking complete', 'error');
+            showToast('Please fill in all visible fields before marking complete', 'error');
             return;
         }
         data.verified = true;

@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.66.1</span></p>
+        <p class="version">Tester <span id="versionTag">v0.67.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,58 +630,66 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.66.1';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.67.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'W1.2 Calculation Method (v0.66.1)',
+        title: 'Payment Structure Dropdown (v0.67.0)',
         priority: 'PRIMARY',
         items: [
-            'Workshop W1.2: Calculation Method dropdown shows 3 options \u2014 Dedicated Business Space, US Home Office, UK Home Office',
-            'Workshop W1.2: Selecting "Dedicated Business Space" hides Total Home Sq Ft field',
-            'Workshop W1.2: Selecting "US Home Office" or "UK Home Office" shows Total Home Sq Ft field',
+            'Workshop W1.2: Payment Structure dropdown shows 4 options \u2014 Mortgage with Escrow, Mortgage without Escrow, Rent, Own Outright (no mortgage)',
+            'Workshop W1.2: Calculation Method dropdown still shows 3 options \u2014 Dedicated, US Home Office, UK Home Office',
         ]
     },
     {
-        title: 'W1.2 Cost Breakdown',
+        title: 'Mortgage with Escrow',
         priority: null,
         items: [
-            'Workshop W1.2: Shows 4 cost fields \u2014 Mortgage/Rent, Property Tax, Insurance, Maintenance',
-            'Workshop W1.2: Old "Monthly Cost" and "Rent or Own" fields are gone',
-            'Workshop W1.2: Location field still present',
+            'W1.2 (Mortgage+Escrow): Mortgage P&I and Monthly Escrow fields visible',
+            'W1.2 (Mortgage+Escrow): Property Tax and Insurance fields greyed/disabled with "Included in your escrow amount" hint',
+            'W1.2 (Mortgage+Escrow): Rent and Renter Insurance fields hidden',
         ]
     },
     {
-        title: 'W1.2 Auto-Calculations',
+        title: 'Mortgage without Escrow',
         priority: null,
         items: [
-            'Workshop W1.2 (Home Office): Business-Use % shows ratio (e.g. "11.1% (200 / 1800 sq ft)")',
-            'Workshop W1.2 (Dedicated): Business-Use % shows "100% (dedicated space)"',
-            'Workshop W1.2: Allocated Monthly Cost updates when cost fields change',
+            'W1.2 (Mortgage no Escrow): Mortgage P&I, Property Tax, Insurance all visible and editable',
+            'W1.2 (Mortgage no Escrow): Escrow field hidden, Rent fields hidden',
         ]
     },
     {
-        title: 'W1.2 Migration',
+        title: 'Rent & Own Outright',
         priority: null,
         items: [
-            'Workshop W1.2: Existing data migrated \u2014 old monthlyCost mapped to Mortgage/Rent',
-            'Workshop W1.2: Card status reset to yellow after migration (needs re-verification)',
+            'W1.2 (Rent): Monthly Rent and Renter Insurance visible; Mortgage, Escrow, Property Tax, Insurance all hidden',
+            'W1.2 (Own Outright): Property Tax, Insurance, Maintenance visible; Mortgage, Escrow, Rent fields hidden',
         ]
     },
     {
-        title: 'Changelog',
+        title: 'Allocated Cost Calculation',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.66.1 \u2014 W1.2 Workspace Cost Breakdown',
-            'Changelog: v0.66.1 timeline entry with FEATURE tag and 4 bullets',
-            'Changelog: Versions stat reads 90',
+            'W1.2: Allocated Cost sums correctly for each payment structure (escrow vs itemized vs rent vs own)',
+            'W1.2: Business-Use % still calculates correctly based on Calculation Method',
         ]
     },
     {
-        title: 'Versions',
+        title: 'Migration',
         priority: null,
         items: [
-            'All 8 P2M pages show v0.66.1 in their version line',
+            'W1.2: Existing mortgage field migrated to mortgagePAndI; paymentStructure defaults to "Mortgage without Escrow"',
+            'W1.2: Card status reset to yellow after migration',
+        ]
+    },
+    {
+        title: 'Changelog & Versions',
+        priority: null,
+        items: [
+            'Changelog: Banner shows v0.67.0 \u2014 W1.2 Payment Structure Redesign',
+            'Changelog: v0.67.0 timeline entry with FEATURE tag and 5 bullets',
+            'Changelog: Versions stat reads 91',
+            'All 8 P2M pages show v0.67.0 in their version line',
         ]
     }
 ];
