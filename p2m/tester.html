@@ -615,41 +615,48 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.1';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Backlog Delete (v0.65.0)',
+        title: 'Backlog Expansion (v0.65.1)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page: Red \u00d7 button visible on every Backlog card (left of Promote button)',
-            'Tasks page: Clicking \u00d7 shows browser confirm dialog with item title',
-            'Tasks page: Confirming delete removes item from Backlog (count decreases by 1)',
-            'Tasks page: Canceling confirm keeps item in place (no change)',
-            'Tasks page: PQ items do NOT have an \u00d7 delete button (Backlog only)',
+            'Tasks page: Backlog contains [WS] prefixed items (e.g. W1.2, W2.1, W3.1)',
+            'Tasks page: Backlog contains [SVC] prefixed items (Keywords Everywhere, Anthropic Claude API)',
+            'Tasks page: Backlog contains [KW] prefixed items (e.g. KW1, KW2)',
+            'Tasks page: Backlog contains [AI] prefixed items (e.g. AI1, AI2)',
         ]
     },
     {
-        title: 'Auto-cleanup',
+        title: 'Processing Type Tags',
         priority: null,
         items: [
-            'Tasks page: "Add X delete action to Backlog items" is no longer in the Backlog (removed by migration \u2014 it\u2019s implemented!)',
+            'Tasks page: Spot-check \u2014 backlog item descriptions show (MANUAL), (ASSIST), or (AUTOMATE) tags',
+        ]
+    },
+    {
+        title: 'Workshop W1.1',
+        priority: null,
+        items: [
+            'Workshop page: W1.1 Electricity Rate card is GREEN (verified)',
+            'Workshop page: W1.1 shows $0.107/kWh value',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.65.0 \u2014 Backlog Delete Action',
-            'Changelog: v0.65.0 entry exists with FEATURE tag and 3 bullets',
-            'Changelog: Versions Shipped stat reads 84',
+            'Changelog: current-version banner shows v0.65.1',
+            'Changelog: v0.65.1 timeline entry exists with UPDATE tag',
+            'Changelog: Versions Shipped stat reads 85',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.65.0 in their version line',
+            'All 7 P2M pages show v0.65.1 in their version line',
         ]
     }
 ];

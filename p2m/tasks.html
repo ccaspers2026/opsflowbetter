@@ -290,7 +290,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.65.0</p>
+        <p class="version">Tasks v0.65.1</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -310,7 +310,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">84</div>
+        <div class="num" style="color:#3fb950;">85</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -335,7 +335,7 @@
 
 <!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">27</span></h2>
+    <h2>&#128203; Backlog <span class="count">30</span></h2>
 
     <!-- ── NOW (high) ── -->
     <div class="task">
@@ -353,6 +353,34 @@
             <div class="title">Priority LED labels on Backlog &amp; PQ items</div>
             <div class="desc">Add visible Now/Soon/Later text labels next to priority LED dots on all Backlog and Priority Queue items. Makes it immediately clear which items are urgent without relying on color alone. Labels should be manually changeable by the user.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> Tasks &bull; v0.64.3 workflow improvement</div>
+        </div>
+    </div>
+
+    <!-- ── NOW (high) — v0.65.1 feedback ── -->
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">Break out Feedback form into its own page</div>
+            <div class="desc">(MANUAL) Create a standalone Feedback page so users don&rsquo;t have to navigate to the Tester page just to submit feedback. The form should be accessible from the P2M nav bar at all times.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tester &bull; v0.65.1 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">Add Promote to Backlog button on Feedback items</div>
+            <div class="desc">(MANUAL) Add a button on each Feedback item so the user can promote it directly to the Backlog without waiting for Claude to triage it.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tester &bull; v0.65.1 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">[WS] W1.1 &mdash; Electricity rate calculation instructions</div>
+            <div class="desc">(ASSIST) Provide users with generic instructions for calculating their electricity rate from a utility bill. Research typical bill formats. Ask user for their bill when working this task.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; v0.65.1 feedback</div>
         </div>
     </div>
 
@@ -601,6 +629,262 @@
             <div class="meta"><span class="tag tag-ux">UX</span> Tester &bull; v0.64.6 tester feedback</div>
         </div>
     </div>
+
+    <!-- ── [WS] Workshop Items ── -->
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] W1.1 &mdash; Complete Electricity Rate setup and verify</div>
+            <div class="desc">(MANUAL) Fill in and verify the per-kWh electricity rate in Workshop. This value feeds W3.3 Electricity per Print Hour and ultimately the Blended Rate used in all product COGS calculations.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Facility &amp; Utilities</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] W3.1 &mdash; Complete Depreciation calculation and verify</div>
+            <div class="desc">(MANUAL) Verify per-hour machine depreciation cost using printer purchase prices and lifespan hours. Feeds into Blended Hourly Rate (W3.4).</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Machine Economics</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] W3.2 &mdash; Complete Maintenance allocation and verify</div>
+            <div class="desc">(MANUAL) Verify annual maintenance budget allocation and hours per machine per year. Feeds into Blended Hourly Rate (W3.4).</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Machine Economics</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] W3.3 &mdash; Complete Electricity per Print Hour and verify</div>
+            <div class="desc">(ASSIST) Calculate energy cost per hour of printing from W1.1 electricity rate and printer wattage. Currently empty. Feeds into Blended Hourly Rate (W3.4).</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Machine Economics</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] W3.4 &mdash; Verify Blended Hourly Rate calculation</div>
+            <div class="desc">(ASSIST) Confirm the computed Blended Rate (currently $0.35/hr) is accurate after W3.1-W3.3 are completed. This is the single most important Workshop number &mdash; flows into every product COGS.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Machine Economics</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] W3.5 &mdash; Complete Packaging Defaults and verify</div>
+            <div class="desc">(MANUAL) Verify poly bag ($0.02), FNSKU label ($0.01), insert card ($0.02) defaults. Total $0.05/unit feeds directly into P3.1 COGS for every product.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Machine Economics</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] W5.1 &mdash; Complete Owner/Primary Operator setup and verify</div>
+            <div class="desc">(MANUAL) Verify owner role, labor absorption decision (currently &ldquo;No &mdash; Owner Absorbed&rdquo;), and hours/day (4). Labor absorption flag determines if owner labor adds to per-unit COGS.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Labor</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WS] W5.2 &mdash; Complete Additional Labor setup and verify</div>
+            <div class="desc">(MANUAL) Verify Frances entry: $20/hr, 5-8 hrs, cleaning/packaging tasks. Not critical for initial product runs but will matter at scale for COGS and P&amp;L.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Labor</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] Materials Library &mdash; Verify PETG-HF entry and confirm</div>
+            <div class="desc">(MANUAL) Verify PETG-HF at $12.99/kg ($0.01299/g) is accurate. Material cost per gram feeds directly into P3.1 COGS calculation for every product.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Materials</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[WS] Printer Fleet &mdash; Verify all 7 printers and add fleet capacity value</div>
+            <div class="desc">(ASSIST) Verify all 7 printers are correctly registered. Add a computable fleet capacity value (total printers &times; available hours/day) that automation can use for P1.5 Income Target Math.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Printer Fleet</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WS] Trim &mdash; Remove W1.2 Workspace Details</div>
+            <div class="desc">(MANUAL) Remove the Workspace Details step (sqft, location, $0 monthly cost). It does not feed any pipeline calculation or automation step. Can be re-added later if needed.</div>
+            <div class="meta"><span class="tag tag-infra">TRIM</span> Workshop &bull; Cleanup</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WS] Trim &mdash; Remove W1.3 Internet &amp; Services</div>
+            <div class="desc">(MANUAL) Remove the Internet &amp; Services step ($60/mo fixed overhead). It does not vary per product and does not inform any Go/NoGo or COGS decision. Can be re-added later if needed.</div>
+            <div class="meta"><span class="tag tag-infra">TRIM</span> Workshop &bull; Cleanup</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WS] Trim &mdash; Remove Software &amp; Tools section</div>
+            <div class="desc">(MANUAL) Remove the Software &amp; Tools section (Bambu Studio, Fusion 360, AutoFarm3D). These are reference information only &mdash; Claude does not need them for any calculation. Can be re-added later if needed.</div>
+            <div class="meta"><span class="tag tag-infra">TRIM</span> Workshop &bull; Cleanup</div>
+        </div>
+    </div>
+
+    <!-- ── [SVC] Services Items ── -->
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[SVC] Add Keywords Everywhere to Services page</div>
+            <div class="desc">(MANUAL) Add Keywords Everywhere as a new service under Sales &amp; Marketing. Credit-based subscription for keyword research API. Requires own subscription and API key (not Mike test key).</div>
+            <div class="meta"><span class="tag tag-feature">SERVICE</span> Services &bull; Integration</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[SVC] Add Anthropic Claude API to Services page</div>
+            <div class="desc">(MANUAL) Add Anthropic Claude API as a new service (AI &amp; Automation category or Infrastructure). Usage-based pricing for automated analysis across pipeline steps. Requires own API key.</div>
+            <div class="meta"><span class="tag tag-feature">SERVICE</span> Services &bull; Integration</div>
+        </div>
+    </div>
+
+    <!-- ── [KW] Keywords Everywhere Integration ── -->
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[KW] Auto-generate keyword variations from product name using Claude</div>
+            <div class="desc">(AUTOMATE) When P1.2 Market Research is triggered, Claude automatically generates 15-20 keyword variations (exact match, synonyms, long-tail, adjacent terms) from the product name entered in P1.1. No manual keyword entry.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Keywords Everywhere &bull; P1.2 Automation</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[KW] Call Keywords Everywhere API and display results in P1.2</div>
+            <div class="desc">(AUTOMATE) Auto-fire generated keywords to Keywords Everywhere API. Display results table with volume, CPC, competition, and 12-month trend sparklines directly in the P1.2 Market Research step.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Keywords Everywhere &bull; P1.2 Automation</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[KW] Save keyword research data to product record in localStorage</div>
+            <div class="desc">(AUTOMATE) Persist keyword research results (volume, CPC, competition, trends) to the product record in localStorage so data survives page reloads and can be referenced by later pipeline steps.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Keywords Everywhere &bull; Data Persistence</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[KW] Surface saved keyword data in P5.2 for listing content</div>
+            <div class="desc">(AUTOMATE) In P5.2 Amazon Listing Content, display saved keyword research from P1.2 as a reference panel so the listing writer (Claude or user) can optimize title, bullets, and backend search terms using actual volume data.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Keywords Everywhere &bull; P5.2 Integration</div>
+        </div>
+    </div>
+
+    <!-- ── [AI] Claude Integration ── -->
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P1.1 &mdash; Auto-generate product concept document from product name</div>
+            <div class="desc">(ASSIST) When user enters a product name, Claude auto-generates the concept document: target customer profile, unique angle analysis, comparable products. User reviews and approves.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 1</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P1.3 &mdash; Auto-generate competitive analysis from keyword data</div>
+            <div class="desc">(ASSIST) Claude uses keyword data from P1.2 to identify the competitive landscape &mdash; who is selling, at what price points, strengths and gaps. Generates competitive positioning document. User validates.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 1</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P1.4 &mdash; Auto-calculate Niche Viability Score from P1.2 + P1.3 data</div>
+            <div class="desc">(AUTOMATE) Claude computes the 6-factor viability score using keyword volume (demand), competition % (saturation), CPC (ad viability), trend direction (momentum), competitor count and price range. All inputs from P1.2 and P1.3.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 1</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P1.5 &mdash; Auto-calculate Income Target Math from Workshop + market data</div>
+            <div class="desc">(AUTOMATE) Claude pulls Blended Rate from W3.4, material cost from Materials Library, labor rate from W5.1, and target price from P1.2. Calculates units/day, printer hours required, and fleet feasibility. No manual input needed.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 1</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] G1 &mdash; Auto-generate Go/NoGo recommendation from all P1 data</div>
+            <div class="desc">(ASSIST) Claude presents a scored Go/NoGo recommendation using viability score, keyword demand, competition level, and income math feasibility from all P1 steps. User makes final decision.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 1 Gate</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P3.1 &mdash; Auto-calculate Per-Unit COGS from Workshop + print settings</div>
+            <div class="desc">(AUTOMATE) Claude calculates COGS using: (print_time &times; blended_rate) + (material_weight &times; cost/gram) + labor_per_unit + packaging. All inputs from Workshop and P2.3 locked print settings.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 3</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P3.2 &mdash; Auto-calculate Pricing Strategy from COGS + market data</div>
+            <div class="desc">(AUTOMATE) Claude has COGS from P3.1 and competitive price range from P1.2. Calculates margin at various price points and recommends selling price.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 3</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P3.3 &mdash; Auto-calculate Variation Pricing</div>
+            <div class="desc">(AUTOMATE) Same logic as P3.2 applied per product variation. Each variation with its own print time and weight gets individually priced.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 3</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P3.4 &mdash; Auto-calculate Break-Even Analysis</div>
+            <div class="desc">(AUTOMATE) Claude calculates break-even timeline from COGS, selling price, and estimated startup costs. Generates the break-even report.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 3</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P5.2 &mdash; Auto-generate Amazon Listing Content from keyword + product data</div>
+            <div class="desc">(AUTOMATE) Claude generates Amazon title, bullet points, description, and backend search terms using keyword data from P1.2, product description from P1.1, competitive positioning from P1.3, and specs from P2.3. All SEO-optimized.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 5</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[AI] P5.5 &mdash; Auto-generate Launch Checklist</div>
+            <div class="desc">(AUTOMATE) Claude generates the 10-step go-live sequence customized to the specific product with dates and dependencies. Based on standard launch template.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 5</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[AI] P7.2 &mdash; Auto-generate Monthly P&amp;L from sales + cost data</div>
+            <div class="desc">(AUTOMATE) Claude generates Monthly P&amp;L report using COGS from P3.1, selling price from P3.2, actual units sold, and Workshop overhead (W1.1) allocated across products.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 7</div>
+        </div>
+    </div>
 </div>
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
@@ -612,7 +896,7 @@
         <div class="content">
             <div class="title">Add &lsquo;X&rsquo; delete action to Backlog items</div>
             <div class="desc">Red &times; button on every Backlog card to remove unwanted items. Browser confirm dialog prevents accidental deletes. First Up Next item completed from Priority Queue.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.65.0 &bull; March 8</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.65.1 &bull; March 8</div>
         </div>
     </div>
 
@@ -1054,7 +1338,7 @@
 </div>
 
 <div class="refresh-note" id="refreshNote">
-    This page auto-refreshes every 5 minutes &bull; Last updated: v0.65.0 &mdash; March 8, 2026
+    This page auto-refreshes every 5 minutes &bull; Last updated: v0.65.1 &mdash; March 8, 2026
 </div>
 
 <script>
@@ -1514,6 +1798,40 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.65.0_remove_delete_item');
+    }
+
+    // ── v0.65.1: Inject 3 feedback items into Backlog ──
+    if (ran.indexOf('v0.65.1_inject_feedback_items') === -1) {
+        var fbItems = [
+            { id: 'fb-feedback-own-page', title: 'Break out Feedback form into its own page', desc: '(MANUAL) Create a standalone Feedback page so users don\u2019t have to navigate to the Tester page just to submit feedback. The form should be accessible from the P2M nav bar at all times.', priority: 'high', tag: 'FEATURE', meta: 'Tester \u2022 v0.65.1 feedback', tagClass: 'tag-feature' },
+            { id: 'fb-promote-to-backlog', title: 'Add Promote to Backlog button on Feedback items', desc: '(MANUAL) Add a button on each Feedback item so the user can promote it directly to the Backlog without waiting for Claude to triage it.', priority: 'high', tag: 'FEATURE', meta: 'Tester \u2022 v0.65.1 feedback', tagClass: 'tag-feature' },
+            { id: 'fb-elec-rate-instructions', title: '[WS] W1.1 \u2014 Electricity rate calculation instructions', desc: '(ASSIST) Provide users with generic instructions for calculating their electricity rate from a utility bill. Research typical bill formats. Ask user for their bill when working this task.', priority: 'high', tag: 'WORKSHOP', meta: 'Workshop \u2022 v0.65.1 feedback', tagClass: 'tag-infra' }
+        ];
+        for (var fi = 0; fi < fbItems.length; fi++) {
+            var exists = false;
+            for (var bi = 0; bi < data.backlog.length; bi++) {
+                if (data.backlog[bi].id === fbItems[fi].id) { exists = true; break; }
+            }
+            if (!exists) {
+                data.backlog.push(fbItems[fi]);
+                changed = true;
+            }
+        }
+        markMigrationRun('v0.65.1_inject_feedback_items');
+    }
+
+    // ── v0.65.1: Clear the 3 processed feedback items ──
+    if (ran.indexOf('v0.65.1_clear_feedback') === -1) {
+        var fb = JSON.parse(localStorage.getItem('opsflow_feedback') || '[]');
+        var before = fb.length;
+        fb = fb.filter(function(f) {
+            if (f.text && f.text.indexOf('Break out Feedback form') !== -1) return false;
+            if (f.text && f.text.indexOf('Promote to Backlog Button') !== -1) return false;
+            if (f.text && f.text.indexOf('generic electricity rate') !== -1) return false;
+            return true;
+        });
+        if (fb.length !== before) localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
+        markMigrationRun('v0.65.1_clear_feedback');
     }
 
     if (changed) saveTasks(data);
