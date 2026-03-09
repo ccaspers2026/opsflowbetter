@@ -267,6 +267,123 @@
             text-align: center;
         }
         .pq-order-select:hover { border-color: #58a6ff; }
+
+        /* ── Status Badge ── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .status-badge.idle {
+            color: #484f58;
+            border: 1px dashed #30363d;
+        }
+        .status-badge.idle:hover {
+            border-color: #484f58;
+            color: #8b949e;
+        }
+        .status-badge.idle::after { content: '+ Status'; }
+        .status-badge.working {
+            color: #3fb950;
+            border: 1px solid #238636;
+            background: rgba(35, 134, 54, 0.15);
+        }
+        .status-badge.working::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #3fb950;
+            animation: statusPulse 1.5s ease-in-out infinite;
+        }
+        .status-badge.working::after { content: 'Working'; }
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ── Edit/Save ── */
+        .btn-edit {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #30363d;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            color: #8b949e;
+        }
+        .btn-edit:hover { background: rgba(139, 148, 158, 0.15); border-color: #8b949e; }
+        .btn-edit.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            cursor: default;
+        }
+        .btn-save {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid #238636;
+            background: rgba(35, 134, 54, 0.15);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            color: #3fb950;
+        }
+        .btn-save:hover { background: rgba(35, 134, 54, 0.3); }
+        .btn-cancel {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #30363d;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            color: #f85149;
+        }
+        .btn-cancel:hover { background: rgba(248, 81, 73, 0.15); }
+        .edit-title {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #e0e0e0;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        .edit-title:focus { border-color: #58a6ff; outline: none; }
+        .edit-desc {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: inherit;
+            margin-top: 4px;
+            resize: vertical;
+            min-height: 36px;
+        }
+        .edit-desc:focus { border-color: #58a6ff; outline: none; }
     </style>
 </head>
 <body style="padding-top: 36px;">
@@ -291,7 +408,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.65.4</p>
+        <p class="version">Tasks v0.66.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -307,11 +424,11 @@
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#58a6ff;">30</div>
+        <div class="num" style="color:#58a6ff;">27</div>
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">88</div>
+        <div class="num" style="color:#3fb950;">89</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -327,7 +444,7 @@
 
 <!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">31</span></h2>
+    <h2>&#128203; Backlog <span class="count">27</span></h2>
 
     <!-- ── NOW (high) ── -->
     <div class="task">
@@ -339,44 +456,7 @@
         </div>
     </div>
 
-    <!-- ── NOW (high) — v0.65.4 feedback ── -->
-    <div class="task">
-        <span class="priority high"></span>
-        <div class="content">
-            <div class="title">Task status tracking on Backlog &amp; Up Next items</div>
-            <div class="desc">(ASSIST) Add a status indicator (e.g., &ldquo;Working&rdquo;) on Backlog and Up Next items so user can see which task Claude is actively processing. Plan and review before implementing.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tasks &bull; v0.65.4 feedback</div>
-        </div>
-    </div>
-
-    <div class="task">
-        <span class="priority high"></span>
-        <div class="content">
-            <div class="title">Edit/Save for Backlog items (disable when Working)</div>
-            <div class="desc">(ASSIST) Allow the user to edit and save Backlog item titles and descriptions inline. If an Up Next item is marked as &ldquo;Working&rdquo;, disable the Edit feature for that item.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tasks &bull; v0.65.4 feedback</div>
-        </div>
-    </div>
-
-    <div class="task">
-        <span class="priority high"></span>
-        <div class="content">
-            <div class="title">Promote Feedback items directly to Backlog</div>
-            <div class="desc">(MANUAL) Add a &ldquo;Promote to Backlog&rdquo; button on each Feedback item so the user can move it to the Backlog without waiting for Claude to triage.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Feedback &bull; v0.65.4 feedback</div>
-        </div>
-    </div>
-
-    <!-- ── NOW (high) — v0.65.1 feedback ── -->
-    <div class="task">
-        <span class="priority high"></span>
-        <div class="content">
-            <div class="title">Add Promote to Backlog button on Feedback items</div>
-            <div class="desc">(MANUAL) Add a button on each Feedback item so the user can promote it directly to the Backlog without waiting for Claude to triage it.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tester &bull; v0.65.1 feedback</div>
-        </div>
-    </div>
-
+    <!-- ── NOW (high) — v0.65.1 feedback (Promote button completed in v0.66.0) ── -->
     <div class="task">
         <span class="priority high"></span>
         <div class="content">
@@ -891,7 +971,34 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">53</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">57</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Task status tracking on Backlog &amp; Up Next items</div>
+            <div class="desc">Clickable Working badge on PQ and Backlog items. Click toggles status on/off. Green pulsing dot when active.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.66.0 &bull; March 9</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Edit/Save for Backlog items (disable when Working)</div>
+            <div class="desc">Inline edit for task titles and descriptions. Pencil button swaps to input fields with Save/Cancel. Edit disabled on Working PQ items.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.66.0 &bull; March 9</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Promote Feedback items directly to Backlog</div>
+            <div class="desc">&uarr; Backlog button on each Feedback item (both Feedback and Tester pages). Maps category to tag and priority, adds to Backlog, removes from Feedback.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.66.0 &bull; March 9</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -1473,15 +1580,32 @@ function renderTasks() {
             selectHtml += '</select>';
 
             var pqPri = t.priority || 'medium';
+            var statusCls = t.status === 'working' ? 'working' : 'idle';
+            var isWorking = t.status === 'working';
+            var editDisabled = isWorking ? ' disabled' : '';
+            var isEditing = window._editingId === t.id;
             html += '<div class="task">';
             html += '<div class="order-num">' + selectHtml + '</div>';
             html += '<span class="priority ' + pqPri + '" onclick="cyclePQPriority(\'' + t.id + '\')" title="Click to change priority" style="cursor:pointer;"></span>';
             html += '<div class="content">';
-            html += '<div class="title">' + esc(t.title) + '</div>';
-            html += '<div class="desc">' + esc(t.desc) + '</div>';
+            if (isEditing) {
+                html += '<input class="edit-title" id="editTitle_' + t.id + '" value="' + esc(t.title).replace(/"/g, '&quot;') + '">';
+                html += '<textarea class="edit-desc" id="editDesc_' + t.id + '">' + esc(t.desc) + '</textarea>';
+            } else {
+                html += '<div class="title">' + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'priority\', \'' + t.id + '\')" title="Click to toggle status"></span></div>';
+                html += '<div class="desc">' + esc(t.desc) + '</div>';
+            }
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
             html += '</div>';
-            html += '<div class="task-actions"><button class="btn-demote" onclick="demoteToPQ(\'' + t.id + '\')" title="Move to Backlog">&darr; Backlog</button></div>';
+            html += '<div class="task-actions">';
+            if (isEditing) {
+                html += '<button class="btn-save" onclick="saveEdit(\'priority\', \'' + t.id + '\')" title="Save changes">&#10003; Save</button>';
+                html += '<button class="btn-cancel" onclick="cancelEdit()" title="Cancel editing">Cancel</button>';
+            } else {
+                html += '<button class="btn-edit' + editDisabled + '" onclick="startEdit(\'priority\', \'' + t.id + '\')" title="Edit item">&#9998;</button>';
+                html += '<button class="btn-demote" onclick="demoteToPQ(\'' + t.id + '\')" title="Move to Backlog">&darr; Backlog</button>';
+            }
+            html += '</div>';
             html += '</div>';
         }
         if (data.priority.length === 0) {
@@ -1505,14 +1629,30 @@ function renderTasks() {
         for (var i = 0; i < data.backlog.length; i++) {
             var t = data.backlog[i];
             var pri = t.priority || 'medium';
+            var statusCls = t.status === 'working' ? 'working' : 'idle';
+            var isEditing = window._editingId === t.id;
             html += '<div class="task">';
             html += '<span class="priority ' + pri + '" onclick="cyclePriority(\'' + t.id + '\')" title="Click to change priority" style="cursor:pointer;"></span>';
             html += '<div class="content">';
-            html += '<div class="title">' + esc(t.title) + '</div>';
-            html += '<div class="desc">' + esc(t.desc) + '</div>';
+            if (isEditing) {
+                html += '<input class="edit-title" id="editTitle_' + t.id + '" value="' + esc(t.title).replace(/"/g, '&quot;') + '">';
+                html += '<textarea class="edit-desc" id="editDesc_' + t.id + '">' + esc(t.desc) + '</textarea>';
+            } else {
+                html += '<div class="title">' + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'backlog\', \'' + t.id + '\')" title="Click to toggle status"></span></div>';
+                html += '<div class="desc">' + esc(t.desc) + '</div>';
+            }
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
             html += '</div>';
-            html += '<div class="task-actions"><button class="btn-delete" onclick="deleteBacklogItem(\'' + t.id + '\')" title="Remove from Backlog">&times;</button><button class="btn-promote" onclick="promoteToQueue(\'' + t.id + '\')" title="Move to Priority Queue">&uarr; Promote</button></div>';
+            html += '<div class="task-actions">';
+            if (isEditing) {
+                html += '<button class="btn-save" onclick="saveEdit(\'backlog\', \'' + t.id + '\')" title="Save changes">&#10003; Save</button>';
+                html += '<button class="btn-cancel" onclick="cancelEdit()" title="Cancel editing">Cancel</button>';
+            } else {
+                html += '<button class="btn-edit" onclick="startEdit(\'backlog\', \'' + t.id + '\')" title="Edit item">&#9998;</button>';
+                html += '<button class="btn-delete" onclick="deleteBacklogItem(\'' + t.id + '\')" title="Remove from Backlog">&times;</button>';
+                html += '<button class="btn-promote" onclick="promoteToQueue(\'' + t.id + '\')" title="Move to Priority Queue">&uarr; Promote</button>';
+            }
+            html += '</div>';
             html += '</div>';
         }
         sections[1].innerHTML = html;
@@ -1580,6 +1720,65 @@ function reorderPQ(id, newPos) {
     saveTasks(data);
     renderTasks();
 }
+
+// ── Status Badge Toggle ──────────────────────────────────────────
+function cycleStatus(section, id) {
+    var data = loadTasks();
+    if (!data) return;
+    var arr = section === 'priority' ? data.priority : data.backlog;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id === id) {
+            arr[i].status = arr[i].status === 'working' ? null : 'working';
+            break;
+        }
+    }
+    saveTasks(data);
+    renderTasks();
+}
+
+// ── Edit / Save ─────────────────────────────────────────────────
+window._editingId = null;
+
+function startEdit(section, id) {
+    window._editingId = id;
+    renderTasks();
+    // Focus the title input after render
+    var el = document.getElementById('editTitle_' + id);
+    if (el) el.focus();
+}
+
+function saveEdit(section, id) {
+    var titleEl = document.getElementById('editTitle_' + id);
+    var descEl = document.getElementById('editDesc_' + id);
+    if (!titleEl || !descEl) return;
+    var newTitle = titleEl.value.trim();
+    var newDesc = descEl.value.trim();
+    if (!newTitle) { alert('Title cannot be empty.'); return; }
+
+    var data = loadTasks();
+    if (!data) return;
+    var arr = section === 'priority' ? data.priority : data.backlog;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id === id) {
+            arr[i].title = newTitle;
+            arr[i].desc = newDesc;
+            break;
+        }
+    }
+    saveTasks(data);
+    window._editingId = null;
+    renderTasks();
+}
+
+function cancelEdit() {
+    window._editingId = null;
+    renderTasks();
+}
+
+// Listen for Escape to cancel editing
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && window._editingId) cancelEdit();
+});
 
 // ── Click-to-cycle priority LED ──────────────────────────────────
 // Cycles: high (Now) → medium (Soon) → low (Later) → high (Now)
@@ -1924,6 +2123,54 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.65.3_complete_led_labels');
+    }
+
+    // ── v0.66.0: Complete old "Add Promote to Backlog button" from Backlog (already built) ──
+    if (ran.indexOf('v0.66.0_complete_old_promote_btn') === -1) {
+        for (var i = data.backlog.length - 1; i >= 0; i--) {
+            if (data.backlog[i].title && data.backlog[i].title.indexOf('Promote to Backlog button') !== -1) {
+                var item = data.backlog.splice(i, 1)[0];
+                if (!data.completed) data.completed = [];
+                item.completedAt = '2026-03-09';
+                item.completedVersion = 'v0.66.0';
+                data.completed.unshift(item);
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.66.0_complete_old_promote_btn');
+    }
+
+    // ── v0.66.0: Complete 3 PQ items (status tracking, edit/save, promote feedback) ──
+    if (ran.indexOf('v0.66.0_complete_pq_batch') === -1) {
+        var matchTitles = ['Task status tracking', 'Edit/Save for Backlog', 'Promote Feedback items'];
+        // Move from PQ to completed
+        for (var m = 0; m < matchTitles.length; m++) {
+            for (var i = data.priority.length - 1; i >= 0; i--) {
+                if (data.priority[i].title && data.priority[i].title.indexOf(matchTitles[m]) !== -1) {
+                    var item = data.priority.splice(i, 1)[0];
+                    if (!data.completed) data.completed = [];
+                    item.completedAt = '2026-03-09';
+                    item.completedVersion = 'v0.66.0';
+                    data.completed.unshift(item);
+                    changed = true;
+                    break;
+                }
+            }
+            // Also check backlog (in case user demoted before migration ran)
+            for (var i = data.backlog.length - 1; i >= 0; i--) {
+                if (data.backlog[i].title && data.backlog[i].title.indexOf(matchTitles[m]) !== -1) {
+                    var item = data.backlog.splice(i, 1)[0];
+                    if (!data.completed) data.completed = [];
+                    item.completedAt = '2026-03-09';
+                    item.completedVersion = 'v0.66.0';
+                    data.completed.unshift(item);
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        markMigrationRun('v0.66.0_complete_pq_batch');
     }
 
     // ── v0.65.4: Inject 3 feedback items into Backlog ──

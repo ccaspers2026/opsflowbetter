@@ -416,6 +416,20 @@
             transition: color 0.15s;
         }
         .fb-remove:hover { color: #f85149; }
+        .fb-promote {
+            background: none;
+            border: 1px solid #30363d;
+            color: #3fb950;
+            font-size: 9px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .fb-promote:hover { background: rgba(63, 185, 80, 0.15); border-color: #3fb950; }
         .feedback-empty {
             padding: 16px;
             text-align: center;
@@ -533,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.65.4</span></p>
+        <p class="version">Tester <span id="versionTag">v0.66.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -616,32 +630,59 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.4';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.66.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Feedback Triage (v0.65.4)',
+        title: 'Status Tracking (v0.66.0)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page: 3 new Backlog items visible (task status tracking, edit/save, promote feedback)',
-            'Tasks page: Backlog count increased, Versions Shipped reads 88',
-            'Feedback cleared: opsflow_feedback localStorage is empty (0 items)',
+            'Tasks page: Backlog item shows "+ Status" badge \u2014 click toggles to "Working" with pulsing green dot',
+            'Tasks page: PQ item shows same status badge \u2014 click toggles Working on/off',
+            'Tasks page: Status persists after page reload',
+        ]
+    },
+    {
+        title: 'Edit/Save',
+        priority: null,
+        items: [
+            'Tasks page: Click pencil (\u270e) on Backlog item \u2014 title/desc become editable inputs',
+            'Tasks page: Change text and click Save \u2014 changes persist after reload',
+            'Tasks page: Press Escape while editing \u2014 changes discarded',
+            'Tasks page: PQ item marked Working \u2014 pencil button is grayed out / disabled',
+        ]
+    },
+    {
+        title: 'Promote Feedback',
+        priority: null,
+        items: [
+            'Feedback page: Each item shows "\u2191 Backlog" button next to \u00d7',
+            'Feedback page: Click "\u2191 Backlog" \u2014 item moves to Backlog on Tasks page, removed from Feedback',
+            'Tester page: Same "\u2191 Backlog" button appears on feedback items here too',
+        ]
+    },
+    {
+        title: 'Task Housekeeping',
+        priority: null,
+        items: [
+            'Tasks page: 3 PQ items completed \u2014 moved to Recently Completed (count 56)',
+            'Tasks page: PQ is empty, Versions Shipped reads 89',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.65.4',
-            'Changelog: v0.65.4 timeline entry exists with UPDATE tag',
-            'Changelog: Versions Shipped stat reads 88',
+            'Changelog: current-version banner shows v0.66.0 \u2014 Task UX Batch',
+            'Changelog: v0.66.0 timeline entry with FEATURE tag and 3 bullets',
+            'Changelog: Versions stat reads 89',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 8 P2M pages show v0.65.4 in their version line',
+            'All 8 P2M pages show v0.66.0 in their version line',
         ]
     }
 ];
@@ -786,6 +827,38 @@ function submitFeedback() {
     renderFeedback();
 }
 
+function promoteFeedbackToBacklog(id) {
+    var fb = loadFeedback();
+    var item = null;
+    for (var i = 0; i < fb.length; i++) {
+        if (fb[i].id === id) { item = fb[i]; break; }
+    }
+    if (!item) return;
+
+    var catToTag = { improvement: 'feature', bug: 'bug', todo: 'ux', question: 'ux', note: 'ux' };
+    var tag = catToTag[item.category] || 'feature';
+    var priMap = { now: 'high', soon: 'medium', later: 'low' };
+    var priority = priMap[item.priority] || 'medium';
+
+    var data = JSON.parse(localStorage.getItem('opsflow_tasks_v2') || '{}');
+    if (!data.backlog) data.backlog = [];
+    data.backlog.push({
+        id: 'bl_' + Date.now(),
+        title: item.text,
+        desc: 'Promoted from Feedback (' + item.category + ')',
+        tag: tag.toUpperCase(),
+        meta: 'Feedback \u2022 ' + (item.version || ''),
+        priority: priority,
+        created: new Date().toISOString().split('T')[0],
+        source: 'feedback promotion'
+    });
+    localStorage.setItem('opsflow_tasks_v2', JSON.stringify(data));
+
+    fb = fb.filter(function(f) { return f.id !== id; });
+    saveFeedback(fb);
+    renderFeedback();
+}
+
 function removeFeedback(id) {
     var fb = loadFeedback();
     fb = fb.filter(function(f) { return f.id !== id; });
@@ -828,6 +901,7 @@ function renderFeedback() {
         html += '<span class="fb-led ' + pri + '" title="Priority: ' + priLabel + '"></span>';
         html += '<span class="fb-tag ' + f.category + '">' + f.category.charAt(0).toUpperCase() + f.category.slice(1) + '</span>';
         html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + priLabel + verTag + ' \u00b7 ' + time + '</div></div>';
+        html += '<button class="fb-promote" onclick="promoteFeedbackToBacklog(\'' + f.id + '\')" title="Promote to Backlog">&uarr; Backlog</button>';
         html += '<button class="fb-remove" onclick="removeFeedback(\'' + f.id + '\')" title="Remove">\u00d7</button>';
         html += '</div>';
     }
