@@ -290,7 +290,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.65.1</p>
+        <p class="version">Tasks v0.65.2</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -310,7 +310,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">85</div>
+        <div class="num" style="color:#3fb950;">86</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -326,9 +326,9 @@
     <div class="task">
         <div class="order-num">1</div>
         <div class="content">
-            <div class="title">Phase 2: 45 RPM Adaptor</div>
-            <div class="desc">Resume product pipeline work. Run the 45 RPM Adaptor through all 7 pipeline phases with real data, real images, and real Amazon listing prep.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Pipeline &bull; First real product end-to-end</div>
+            <div class="title">[WS] W3.1 &mdash; Complete Depreciation calculation and verify</div>
+            <div class="desc">(MANUAL) Verify per-hour machine depreciation cost and lifespan hours. Feeds into Blended Hourly Rate (W3.4).</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Machine Economics</div>
         </div>
     </div>
 </div>
@@ -889,7 +889,16 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">50</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">51</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">[WS] W1.1 &mdash; Complete Electricity Rate setup and verify</div>
+            <div class="desc">Electricity Rate verified at $0.107/kWh from Duke Energy bill. Feeds W3.3 Electricity per Print Hour and ultimately the Blended Hourly Rate used in all product COGS calculations.</div>
+            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> v0.65.2 &bull; March 9</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -1832,6 +1841,22 @@ function runMigrations() {
         });
         if (fb.length !== before) localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
         markMigrationRun('v0.65.1_clear_feedback');
+    }
+
+    // ── v0.65.2: Move W1.1 from PQ to Recently Completed ──
+    if (ran.indexOf('v0.65.2_complete_w1_1') === -1) {
+        for (var i = 0; i < data.priority.length; i++) {
+            if (data.priority[i].title && data.priority[i].title.indexOf('W1.1') !== -1) {
+                var item = data.priority.splice(i, 1)[0];
+                if (!data.completed) data.completed = [];
+                item.completedAt = '2026-03-09';
+                item.completedVersion = 'v0.65.2';
+                data.completed.unshift(item);
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.65.2_complete_w1_1');
     }
 
     if (changed) saveTasks(data);

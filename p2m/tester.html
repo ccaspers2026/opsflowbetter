@@ -532,7 +532,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.58.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.65.2</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -615,48 +615,40 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.1';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.2';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Backlog Expansion (v0.65.1)',
+        title: 'W1.1 Completed (v0.65.2)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page: Backlog contains [WS] prefixed items (e.g. W1.2, W2.1, W3.1)',
-            'Tasks page: Backlog contains [SVC] prefixed items (Keywords Everywhere, Anthropic Claude API)',
-            'Tasks page: Backlog contains [KW] prefixed items (e.g. KW1, KW2)',
-            'Tasks page: Backlog contains [AI] prefixed items (e.g. AI1, AI2)',
+            'Tasks page: W1.1 is NOT in Priority Queue (moved to completed)',
+            'Tasks page: W1.1 appears in Recently Completed section',
+            'Tasks page: W3.1 Depreciation is now #1 in Priority Queue',
         ]
     },
     {
-        title: 'Processing Type Tags',
+        title: 'Task Counts',
         priority: null,
         items: [
-            'Tasks page: Spot-check \u2014 backlog item descriptions show (MANUAL), (ASSIST), or (AUTOMATE) tags',
-        ]
-    },
-    {
-        title: 'Workshop W1.1',
-        priority: null,
-        items: [
-            'Workshop page: W1.1 Electricity Rate card is GREEN (verified)',
-            'Workshop page: W1.1 shows $0.107/kWh value',
+            'Tasks page: Versions Shipped reads 86',
+            'Tasks page: Recently Completed count reads 51',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.65.1',
-            'Changelog: v0.65.1 timeline entry exists with UPDATE tag',
-            'Changelog: Versions Shipped stat reads 85',
+            'Changelog: current-version banner shows v0.65.2',
+            'Changelog: v0.65.2 timeline entry exists with UPDATE tag',
+            'Changelog: Versions Shipped stat reads 86',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.65.1 in their version line',
+            'All 7 P2M pages show v0.65.2 in their version line',
         ]
     }
 ];
