@@ -360,7 +360,7 @@
 <div class="p2m-header">
     <div>
         <h1>Services &amp; Integrations</h1>
-        <p class="version">Services v0.67.0</p>
+        <p class="version">Services v0.68.0</p>
         <p class="tagline">Third-party services, costs, credits &amp; renewal tracking</p>
     </div>
     <div>
@@ -458,13 +458,13 @@ function saveServices(list) {
     var defaults = [
         {
             id: 's1', name: 'remove.bg', desc: 'Background removal API for product images',
-            url: 'https://www.remove.bg/dashboard', type: 'credits', cost: '$0.20/credit',
-            renewal: '', cycle: '', credits: '', status: 'green', category: 'production'
+            url: 'https://www.remove.bg/dashboard', type: 'subscription', cost: '$8.10/mo',
+            renewal: '', cycle: 'monthly', credits: '', status: 'green', category: 'production'
         },
         {
             id: 's2', name: 'Helium 10', desc: 'Amazon seller research &amp; analytics suite',
-            url: 'https://www.helium10.com/', type: 'subscription', cost: '$39/mo',
-            renewal: '', cycle: 'monthly', credits: '', status: 'green', category: 'sales'
+            url: 'https://www.helium10.com/', type: 'subscription', cost: '',
+            renewal: '', cycle: '', credits: '', status: 'green', category: 'sales'
         },
         {
             id: 's3', name: 'Amazon Seller Central', desc: 'Product listings, orders &amp; fulfillment',
@@ -490,9 +490,51 @@ function saveServices(list) {
             id: 's7', name: 'Calendly', desc: 'Scheduling &amp; appointment booking',
             url: 'https://calendly.com/app/admin/billing', type: 'subscription', cost: '$12/mo',
             renewal: '', cycle: '', credits: '', status: 'green', category: 'operations'
+        },
+        {
+            id: 's8', name: 'Hover.com', desc: 'Domain name registration (opsflowbetter.com)',
+            url: 'https://www.hover.com/control_panel', type: 'subscription', cost: '$15/yr',
+            renewal: '', cycle: 'yearly', credits: '', status: 'green', category: 'infrastructure'
         }
     ];
     saveServices(defaults);
+})();
+
+// ── Migrations (v0.68.0) ────────────────────────────────────
+(function migrateServices() {
+    var services = loadServices();
+    if (services.length === 0) return;
+    var changed = false;
+
+    // v0.68.0: Update remove.bg from credits to Lite subscription
+    for (var i = 0; i < services.length; i++) {
+        if (services[i].id === 's1' && services[i].type === 'credits') {
+            services[i].type = 'subscription';
+            services[i].cost = '$8.10/mo';
+            services[i].cycle = 'monthly';
+            services[i].credits = '';
+            changed = true;
+        }
+        // v0.68.0: Fix Helium 10 default cost (was $39/mo, should be empty/free trial)
+        if (services[i].id === 's2' && services[i].cost === '$39/mo') {
+            services[i].cost = '';
+            services[i].cycle = '';
+            changed = true;
+        }
+    }
+
+    // v0.68.0: Add Hover.com if not present
+    var hasHover = services.some(function(s) { return s.id === 's8'; });
+    if (!hasHover) {
+        services.push({
+            id: 's8', name: 'Hover.com', desc: 'Domain name registration (opsflowbetter.com)',
+            url: 'https://www.hover.com/control_panel', type: 'subscription', cost: '$15/yr',
+            renewal: '', cycle: 'yearly', credits: '', status: 'green', category: 'infrastructure'
+        });
+        changed = true;
+    }
+
+    if (changed) saveServices(services);
 })();
 
 // ── Rendering ────────────────────────────────────────────────

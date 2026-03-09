@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.67.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.68.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,66 +630,60 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.67.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.68.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Payment Structure Dropdown (v0.67.0)',
+        title: 'Services Page Updates (v0.68.0)',
         priority: 'PRIMARY',
         items: [
-            'Workshop W1.2: Payment Structure dropdown shows 4 options \u2014 Mortgage with Escrow, Mortgage without Escrow, Rent, Own Outright (no mortgage)',
-            'Workshop W1.2: Calculation Method dropdown still shows 3 options \u2014 Dedicated, US Home Office, UK Home Office',
+            'Services: remove.bg shows as SUBSCRIPTION $8.10/mo (not CREDITS $0.20/credit)',
+            'Services: Helium 10 shows as FREE (not $39/mo)',
+            'Services: Hover.com appears under Infrastructure with $15/yr',
         ]
     },
     {
-        title: 'Mortgage with Escrow',
+        title: 'W1.3 Linked Fields',
         priority: null,
         items: [
-            'W1.2 (Mortgage+Escrow): Mortgage P&I and Monthly Escrow fields visible',
-            'W1.2 (Mortgage+Escrow): Property Tax and Insurance fields greyed/disabled with "Included in your escrow amount" hint',
-            'W1.2 (Mortgage+Escrow): Rent and Renter Insurance fields hidden',
+            'Workshop W1.3: Service Subscriptions field shows auto-summed total from Services page (production + sales + operations only)',
+            'Workshop W1.3: Service Breakdown shows itemized list (e.g. Amazon Seller Central $39.99 + Monday.com $42.00 + remove.bg $8.10)',
+            'Workshop W1.3: Calendly, Cloudflare, and Hover.com are NOT included (infrastructure/non-manufacturing)',
         ]
     },
     {
-        title: 'Mortgage without Escrow',
+        title: 'W1.3 Calculated Total',
         priority: null,
         items: [
-            'W1.2 (Mortgage no Escrow): Mortgage P&I, Property Tax, Insurance all visible and editable',
-            'W1.2 (Mortgage no Escrow): Escrow field hidden, Rent fields hidden',
+            'Workshop W1.3: Total Monthly Services = Internet + Service Subscriptions with breakdown',
+            'Workshop W1.3: Old fields (Cloud Storage, Other Services) are gone',
         ]
     },
     {
-        title: 'Rent & Own Outright',
+        title: 'W1.3 Migration',
         priority: null,
         items: [
-            'W1.2 (Rent): Monthly Rent and Renter Insurance visible; Mortgage, Escrow, Property Tax, Insurance all hidden',
-            'W1.2 (Own Outright): Property Tax, Insurance, Maintenance visible; Mortgage, Escrow, Rent fields hidden',
+            'Workshop W1.3: Old cloud/other fields removed, card reset to yellow',
+            'Workshop W1.3: Internet field preserved from previous data',
         ]
     },
     {
-        title: 'Allocated Cost Calculation',
+        title: 'Backlog Items',
         priority: null,
         items: [
-            'W1.2: Allocated Cost sums correctly for each payment structure (escrow vs itemized vs rent vs own)',
-            'W1.2: Business-Use % still calculates correctly based on Calculation Method',
-        ]
-    },
-    {
-        title: 'Migration',
-        priority: null,
-        items: [
-            'W1.2: Existing mortgage field migrated to mortgagePAndI; paymentStructure defaults to "Mortgage without Escrow"',
-            'W1.2: Card status reset to yellow after migration',
+            'Tasks: "[SVC] Evaluate AI product image tools (replace remove.bg)" in Backlog',
+            'Tasks: "[WS] Allow user-added cost line items on static cards" in Backlog',
+            'Tasks: Live test updates feedback removed from PQ (behavioral change, no code)',
         ]
     },
     {
         title: 'Changelog & Versions',
         priority: null,
         items: [
-            'Changelog: Banner shows v0.67.0 \u2014 W1.2 Payment Structure Redesign',
-            'Changelog: v0.67.0 timeline entry with FEATURE tag and 5 bullets',
-            'Changelog: Versions stat reads 91',
-            'All 8 P2M pages show v0.67.0 in their version line',
+            'Changelog: Banner shows v0.68.0 \u2014 Services \u2192 W1.3 Data Flow',
+            'Changelog: v0.68.0 timeline entry with FEATURE tag and 6 bullets',
+            'Changelog: Versions stat reads 92',
+            'All 8 P2M pages show v0.68.0 in their version line',
         ]
     }
 ];

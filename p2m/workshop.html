@@ -643,7 +643,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.67.0</p>
+            <p class="version">Workshop v0.68.0</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -731,13 +731,14 @@
         },
         '1.3': {
             phase: 1, number: 'W1.3', title: 'Internet & Services',
-            description: 'Monthly utility subscriptions',
+            description: 'Manufacturing service subscriptions',
             output: 'Service cost baseline',
-            purpose: 'Track recurring service costs that support your print operation — internet for farm monitoring, cloud storage for design files, any automation subscriptions.',
+            purpose: 'Manufacturing-related service costs pulled from the Services &amp; Integrations page. Only production, sales, and operations services are included — general infrastructure costs are excluded. Internet is entered manually.',
             fields: [
-                { key: 'internet', label: 'Internet ($/month)', type: 'text', placeholder: '60', hint: 'Monthly ISP cost (or allocated portion)' },
-                { key: 'cloud', label: 'Cloud Storage ($/month)', type: 'text', placeholder: '0', hint: 'Google Drive, Dropbox, etc.' },
-                { key: 'other', label: 'Other Services ($/month)', type: 'text', placeholder: '0', hint: 'Farm monitoring, VPN, etc.' }
+                { key: 'internet', label: 'Internet ($/month)', type: 'text', placeholder: '60', hint: 'Monthly ISP cost (or allocated portion for farm monitoring)' },
+                { key: 'serviceTotal', label: 'Service Subscriptions ($/mo)', type: 'linked', hint: 'Auto-summed from Services page (production + sales + operations)' },
+                { key: 'serviceBreakdown', label: 'Service Breakdown', type: 'linked', hint: 'Itemized from Services &amp; Integrations page' },
+                { key: 'totalMonthly', label: 'Total Monthly Services', type: 'calculated' }
             ]
         },
         '3.1': {
@@ -896,7 +897,7 @@
         if (!s.statics || !s.statics['1.2'] || !s.statics['1.2'].values) return;
         var v = s.statics['1.2'].values;
 
-        // v0.67.0: monthlyCost/ownership → calcMethod + cost breakdown
+        // v0.68.0: monthlyCost/ownership → calcMethod + cost breakdown
         if (!v.calcMethod) {
             var own = v.ownership || '';
             v.calcMethod = 'US Home Office';
@@ -915,7 +916,7 @@
             s.statics['1.2'].status = 'yellow';
         }
 
-        // v0.67.0: mortgage → mortgagePAndI + paymentStructure + escrow/rent fields
+        // v0.68.0: mortgage → mortgagePAndI + paymentStructure + escrow/rent fields
         if (!v.paymentStructure) {
             // Rename mortgage → mortgagePAndI
             if (v.mortgage !== undefined) {
@@ -932,6 +933,16 @@
             // Reset verified since fields changed
             s.statics['1.2'].verified = false;
             s.statics['1.2'].status = 'yellow';
+        }
+
+        // v0.68.0: W1.3 redesign — old fields (cloud, other) → linked from Services
+        var v13 = s.statics['1.3'] && s.statics['1.3'].values;
+        if (v13 && (v13.cloud !== undefined || v13.other !== undefined)) {
+            // Keep internet, remove old fields — serviceTotal/serviceBreakdown/totalMonthly are now linked/calculated
+            delete v13.cloud;
+            delete v13.other;
+            s.statics['1.3'].verified = false;
+            s.statics['1.3'].status = 'yellow';
         }
     }
 
@@ -1154,7 +1165,63 @@
         return (dep + maint + elec).toFixed(2);
     }
 
+    // ── Service Cost Helpers (reads from Services page localStorage) ──
+    function getManufacturingServices() {
+        try {
+            var services = JSON.parse(localStorage.getItem('opsflow_services')) || [];
+            return services.filter(function(s) {
+                return s.category === 'production' || s.category === 'sales' || s.category === 'operations';
+            });
+        } catch(e) { return []; }
+    }
+
+    function parseServiceCost(costStr) {
+        if (!costStr) return 0;
+        var m = costStr.match(/\$([\d.]+)/);
+        if (!m) return 0;
+        var val = parseFloat(m[1]) || 0;
+        if (costStr.indexOf('/yr') !== -1) return Math.round(val / 12 * 100) / 100;
+        return val;
+    }
+
+    function getServiceMonthlyTotal() {
+        var services = getManufacturingServices();
+        var total = 0;
+        for (var i = 0; i < services.length; i++) {
+            total += parseServiceCost(services[i].cost);
+        }
+        return total;
+    }
+
+    function getServiceBreakdown() {
+        var services = getManufacturingServices();
+        var parts = [];
+        for (var i = 0; i < services.length; i++) {
+            var cost = parseServiceCost(services[i].cost);
+            if (cost > 0) {
+                parts.push(services[i].name + ' $' + cost.toFixed(2));
+            }
+        }
+        if (parts.length === 0) return 'No paid services found';
+        return parts.join(' + ');
+    }
+
     function getCalculatedValue(cardId, fieldKey) {
+        if (cardId === '1.3' && fieldKey === 'serviceTotal') {
+            var total = getServiceMonthlyTotal();
+            if (total === 0) return '$0.00 (no paid services on Services page)';
+            return '$' + total.toFixed(2) + '/mo';
+        }
+        if (cardId === '1.3' && fieldKey === 'serviceBreakdown') {
+            return getServiceBreakdown();
+        }
+        if (cardId === '1.3' && fieldKey === 'totalMonthly') {
+            var internet = parseFloat(getFieldValue('1.3', 'internet')) || 0;
+            var svcTotal = getServiceMonthlyTotal();
+            var total = internet + svcTotal;
+            if (total === 0) return '— (enter Internet cost)';
+            return '$' + total.toFixed(2) + '/mo (Internet $' + internet.toFixed(2) + ' + Services $' + svcTotal.toFixed(2) + ')';
+        }
         if (cardId === '1.2' && fieldKey === 'businessPct') {
             var method = getFieldValue('1.2', 'calcMethod');
             if (method === 'Dedicated Business Space') return '100% (dedicated space)';
