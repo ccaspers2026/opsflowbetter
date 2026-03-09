@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Caspers Creations - Feedback</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d1117;
+            color: #e0e0e0;
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* ═══ P2M SHARED COMPONENTS — identical on all P2M pages ═══ */
+        .suite-nav {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            padding: 8px 20px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 9999;
+        }
+        .suite-nav .suite-home {
+            display: flex;
+            align-items: center;
+            margin-right: 16px;
+            text-decoration: none;
+            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 800;
+        }
+        .suite-nav .suite-home:hover { opacity: 0.8; text-decoration: none; }
+        .suite-nav .brand-ops { color: #e6edf3; }
+        .suite-nav .brand-flow { color: #3b82f6; }
+        .suite-nav .brand-better { color: #8b5cf6; }
+        .suite-nav .p2m-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
+        }
+        .suite-nav a { color: #58a6ff; text-decoration: none; }
+        .suite-nav a:hover { text-decoration: underline; color: #79c0ff; }
+        .suite-nav .current { color: #e0e0e0; font-weight: 600; }
+        .suite-nav .sep { color: #30363d; }
+
+        .p2m-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid #21262d;
+            margin-bottom: 24px;
+        }
+        .p2m-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+        }
+        .p2m-header .version {
+            font-size: 13px;
+            color: #58a6ff;
+            margin: 0 0 2px 0;
+        }
+        .p2m-header .tagline {
+            font-size: 12px;
+            color: #8b949e;
+            margin: 0;
+        }
+        /* ═══ END P2M SHARED COMPONENTS ═══ */
+
+        /* ── Feedback Form & List ──────────────────────────── */
+        .feedback-section {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #1c2333;
+        }
+        .feedback-header h2 {
+            font-size: 15px;
+            color: #f0883e;
+        }
+        .feedback-count {
+            font-size: 11px;
+            color: #8b949e;
+        }
+        .feedback-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #21262d;
+            align-items: center;
+        }
+        .feedback-category,
+        .feedback-priority {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 12px;
+            padding: 8px 10px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            cursor: pointer;
+        }
+        .feedback-category { min-width: 130px; }
+        .feedback-priority { min-width: 100px; }
+        .feedback-category:focus,
+        .feedback-priority:focus { border-color: #58a6ff; outline: none; }
+        .feedback-text {
+            flex: 1;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 13px;
+            padding: 8px 10px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .feedback-text:focus { border-color: #58a6ff; outline: none; }
+        .feedback-text::placeholder { color: #8b949e; }
+        .feedback-submit {
+            background: #238636;
+            border: 1px solid #2ea44f;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 16px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+        .feedback-submit:hover { background: #2ea44f; }
+        .feedback-list { padding: 0; }
+        .feedback-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 16px;
+            border-bottom: 1px solid #21262d;
+            transition: background 0.15s;
+        }
+        .feedback-item:last-child { border-bottom: none; }
+        .feedback-item:hover { background: #1c2333; }
+        .fb-led {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+            box-shadow: 0 0 6px currentColor;
+        }
+        .fb-led.now { background: #f85149; color: #f85149; box-shadow: 0 0 8px #f85149, 0 0 3px #f85149; }
+        .fb-led.soon { background: #d29922; color: #d29922; box-shadow: 0 0 8px #d29922, 0 0 3px #d29922; }
+        .fb-led.later { background: #58a6ff; color: #58a6ff; box-shadow: 0 0 8px #58a6ff, 0 0 3px #58a6ff; }
+        .fb-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .fb-tag.bug { background: #f85149; color: #fff; }
+        .fb-tag.improvement { background: #d29922; color: #fff; }
+        .fb-tag.todo { background: #58a6ff; color: #fff; }
+        .fb-tag.question { background: #bc8cff; color: #fff; }
+        .fb-tag.note { background: #8b949e; color: #e0e0e0; }
+        .fb-content { flex: 1; font-size: 13px; line-height: 1.4; }
+        .fb-meta { font-size: 10px; color: #8b949e; margin-top: 2px; }
+        .fb-remove {
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 4px;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+        .fb-remove:hover { color: #f85149; }
+        .feedback-empty {
+            padding: 16px;
+            text-align: center;
+            color: #8b949e;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── P2M Suite Nav ──────────────────────────────────── -->
+<div class="suite-nav">
+    <a href="/launchpad.html" class="suite-home" title="OpsFlowBetter Suite Home">
+        <span class="brand-ops">Ops</span>
+        <span class="brand-flow">Flow</span>
+        <span class="brand-better">Better</span>
+    </a>
+    <div class="p2m-links">
+        <a href="index.html">Pipeline</a> <span class="sep">|</span>
+        <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
+        <a href="workshop.html">Workshop</a> <span class="sep">|</span>
+        <a href="services.html">Services</a> <span class="sep">|</span>
+        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
+        <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+        <span class="current">Feedback</span> <span class="sep">|</span>
+        <a href="tester.html">Tester</a>
+    </div>
+</div>
+
+<!-- ── P2M Page Header ───────────────────────────────── -->
+<div class="p2m-header">
+    <div>
+        <h1>Feedback</h1>
+        <p class="version">Feedback v0.65.3</p>
+        <p class="tagline">Drop ideas, bugs, or notes anytime &mdash; Claude picks these up before starting work</p>
+    </div>
+</div>
+
+<!-- ── Feedback Reporter ─────────────────────────────── -->
+<div class="feedback-section">
+    <div class="feedback-header">
+        <h2>Feedback &amp; Bug Reports</h2>
+        <span class="feedback-count" id="feedbackCount">0 items</span>
+    </div>
+    <div class="feedback-input-row">
+        <select class="feedback-category" id="fbCategory">
+            <option value="bug">Bug</option>
+            <option value="improvement">Improvement</option>
+            <option value="todo">Todo</option>
+            <option value="question">Question</option>
+            <option value="note">Note</option>
+        </select>
+        <select class="feedback-priority" id="fbPriority">
+            <option value="now">&#128308; Now</option>
+            <option value="soon" selected>&#128993; Soon</option>
+            <option value="later">&#128309; Later</option>
+        </select>
+        <input type="text" class="feedback-text" id="fbText" placeholder="Describe the issue or idea... (Enter to submit)" onkeydown="if(event.key==='Enter'){event.preventDefault();submitFeedback();}">
+        <button class="feedback-submit" onclick="submitFeedback()">Submit</button>
+    </div>
+    <div class="feedback-list" id="feedbackList"></div>
+</div>
+
+<script>
+// ── Storage ──────────────────────────────────────────────────────
+var FEEDBACK_KEY = 'opsflow_feedback';
+var PAGE_VERSION = 'v0.65.3';
+
+function loadFeedback() {
+    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; } catch(e) { return []; }
+}
+function saveFeedback(fb) {
+    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(fb));
+}
+
+function escHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Feedback ─────────────────────────────────────────────────────
+function submitFeedback() {
+    var cat = document.getElementById('fbCategory').value;
+    var pri = document.getElementById('fbPriority').value;
+    var text = document.getElementById('fbText').value.trim();
+    if (!text) return;
+
+    var fb = loadFeedback();
+    fb.push({
+        id: Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+        category: cat,
+        priority: pri,
+        text: text,
+        version: PAGE_VERSION,
+        timestamp: new Date().toISOString(),
+    });
+    saveFeedback(fb);
+
+    document.getElementById('fbText').value = '';
+    document.getElementById('fbText').focus();
+    renderFeedback();
+}
+
+function removeFeedback(id) {
+    var fb = loadFeedback();
+    fb = fb.filter(function(f) { return f.id !== id; });
+    saveFeedback(fb);
+    renderFeedback();
+}
+
+function renderFeedback() {
+    var allItems = loadFeedback();
+    var list = document.getElementById('feedbackList');
+    var countEl = document.getElementById('feedbackCount');
+
+    var counts = { bug: 0, improvement: 0, todo: 0, question: 0, note: 0 };
+    for (var i = 0; i < allItems.length; i++) { counts[allItems[i].category] = (counts[allItems[i].category] || 0) + 1; }
+
+    var parts = [];
+    if (counts.bug) parts.push(counts.bug + ' bug' + (counts.bug > 1 ? 's' : ''));
+    if (counts.improvement) parts.push(counts.improvement + ' improvement' + (counts.improvement > 1 ? 's' : ''));
+    if (counts.todo) parts.push(counts.todo + ' todo' + (counts.todo > 1 ? 's' : ''));
+    if (counts.question) parts.push(counts.question + ' question' + (counts.question > 1 ? 's' : ''));
+    if (counts.note) parts.push(counts.note + ' note' + (counts.note > 1 ? 's' : ''));
+    countEl.textContent = parts.length ? parts.join(' \u00b7 ') : '0 items';
+
+    if (!allItems.length) {
+        list.innerHTML = '<div class="feedback-empty">No feedback yet &mdash; drop ideas, bugs, or notes anytime using the form above.</div>';
+        return;
+    }
+
+    var sorted = allItems.slice().reverse();
+    var html = '';
+    for (var i = 0; i < sorted.length; i++) {
+        var f = sorted[i];
+        var date = new Date(f.timestamp);
+        var time = date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var pri = f.priority || 'soon';
+        var priLabel = pri === 'now' ? 'Now' : pri === 'soon' ? 'Soon' : 'Later';
+        var verTag = f.version ? ' \u00b7 ' + f.version : '';
+        html += '<div class="feedback-item">';
+        html += '<span class="fb-led ' + pri + '" title="Priority: ' + priLabel + '"></span>';
+        html += '<span class="fb-tag ' + f.category + '">' + f.category.charAt(0).toUpperCase() + f.category.slice(1) + '</span>';
+        html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + priLabel + verTag + ' \u00b7 ' + time + '</div></div>';
+        html += '<button class="fb-remove" onclick="removeFeedback(\'' + f.id + '\')" title="Remove">\u00d7</button>';
+        html += '</div>';
+    }
+    list.innerHTML = html;
+}
+
+// ── Init ──
+renderFeedback();
+</script>
+
+</body>
+</html>

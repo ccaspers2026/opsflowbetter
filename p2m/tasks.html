@@ -282,6 +282,7 @@
         <a href="services.html">Services</a> <span class="sep">|</span>
         <a href="changelog.html">Changelog</a> <span class="sep">|</span>
         <span class="current">Tasks</span> <span class="sep">|</span>
+        <a href="feedback.html">Feedback</a> <span class="sep">|</span>
         <a href="tester.html">Tester</a>
     </div>
 </div>
@@ -290,7 +291,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.65.2</p>
+        <p class="version">Tasks v0.65.3</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -310,32 +311,23 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">86</div>
+        <div class="num" style="color:#3fb950;">87</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#bc8cff;">10</div>
+        <div class="num" style="color:#bc8cff;">11</div>
         <div class="label">Pages in Suite</div>
     </div>
 </div>
 
 <!-- ── Priority Queue (ordered) ───────────────────────────────── -->
 <div class="section">
-    <h2>&#127919; Priority Queue &mdash; Up Next <span class="count">1</span></h2>
-
-    <div class="task">
-        <div class="order-num">1</div>
-        <div class="content">
-            <div class="title">[WS] W3.1 &mdash; Complete Depreciation calculation and verify</div>
-            <div class="desc">(MANUAL) Verify per-hour machine depreciation cost and lifespan hours. Feeds into Blended Hourly Rate (W3.4).</div>
-            <div class="meta"><span class="tag tag-infra">WORKSHOP</span> Workshop &bull; Machine Economics</div>
-        </div>
-    </div>
+    <h2>&#127919; Priority Queue &mdash; Up Next <span class="count">0</span></h2>
 </div>
 
 <!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">30</span></h2>
+    <h2>&#128203; Backlog <span class="count">28</span></h2>
 
     <!-- ── NOW (high) ── -->
     <div class="task">
@@ -347,25 +339,7 @@
         </div>
     </div>
 
-    <div class="task">
-        <span class="priority high"></span>
-        <div class="content">
-            <div class="title">Priority LED labels on Backlog &amp; PQ items</div>
-            <div class="desc">Add visible Now/Soon/Later text labels next to priority LED dots on all Backlog and Priority Queue items. Makes it immediately clear which items are urgent without relying on color alone. Labels should be manually changeable by the user.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tasks &bull; v0.64.3 workflow improvement</div>
-        </div>
-    </div>
-
     <!-- ── NOW (high) — v0.65.1 feedback ── -->
-    <div class="task">
-        <span class="priority high"></span>
-        <div class="content">
-            <div class="title">Break out Feedback form into its own page</div>
-            <div class="desc">(MANUAL) Create a standalone Feedback page so users don&rsquo;t have to navigate to the Tester page just to submit feedback. The form should be accessible from the P2M nav bar at all times.</div>
-            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tester &bull; v0.65.1 feedback</div>
-        </div>
-    </div>
-
     <div class="task">
         <span class="priority high"></span>
         <div class="content">
@@ -889,7 +863,25 @@
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
 <div class="section">
-    <h2>&#9989; Recently Completed <span class="count">51</span></h2>
+    <h2>&#9989; Recently Completed <span class="count">53</span></h2>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Priority LED labels on Backlog &amp; PQ items</div>
+            <div class="desc">Clickable Now/Soon/Later labels on all Backlog and PQ items. Click cycles priority with 2-second debounced re-sort in Backlog.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.65.3 &bull; March 9</div>
+        </div>
+    </div>
+
+    <div class="task completed-task">
+        <span class="priority done"></span>
+        <div class="content">
+            <div class="title">Break out Feedback form into its own page</div>
+            <div class="desc">New standalone Feedback page added to P2M. Accessible from nav bar on all pages. Shares localStorage with Tester feedback form.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> v0.65.3 &bull; March 9</div>
+        </div>
+    </div>
 
     <div class="task completed-task">
         <span class="priority done"></span>
@@ -1857,6 +1849,53 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.65.2_complete_w1_1');
+    }
+
+    // ── v0.65.3: Complete "Break out Feedback form" — now has its own page ──
+    if (ran.indexOf('v0.65.3_complete_feedback_page') === -1) {
+        // Remove from PQ if promoted
+        for (var i = 0; i < data.priority.length; i++) {
+            if (data.priority[i].id === 'fb-feedback-own-page' || (data.priority[i].title && data.priority[i].title.indexOf('Feedback form into its own page') !== -1)) {
+                var item = data.priority.splice(i, 1)[0];
+                if (!data.completed) data.completed = [];
+                item.completedAt = '2026-03-09';
+                item.completedVersion = 'v0.65.3';
+                data.completed.unshift(item);
+                changed = true;
+                break;
+            }
+        }
+        // Also check Backlog in case it was demoted back
+        if (!changed) {
+            for (var i = 0; i < data.backlog.length; i++) {
+                if (data.backlog[i].id === 'fb-feedback-own-page' || (data.backlog[i].title && data.backlog[i].title.indexOf('Feedback form into its own page') !== -1)) {
+                    var item = data.backlog.splice(i, 1)[0];
+                    if (!data.completed) data.completed = [];
+                    item.completedAt = '2026-03-09';
+                    item.completedVersion = 'v0.65.3';
+                    data.completed.unshift(item);
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        markMigrationRun('v0.65.3_complete_feedback_page');
+    }
+
+    // ── v0.65.3: Complete "Priority LED labels" — already implemented ──
+    if (ran.indexOf('v0.65.3_complete_led_labels') === -1) {
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === 'bl_v0644_priority_led' || (data.backlog[i].title && data.backlog[i].title.indexOf('Priority LED labels') !== -1)) {
+                var item = data.backlog.splice(i, 1)[0];
+                if (!data.completed) data.completed = [];
+                item.completedAt = '2026-03-09';
+                item.completedVersion = 'v0.65.3';
+                data.completed.unshift(item);
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.65.3_complete_led_labels');
     }
 
     if (changed) saveTasks(data);

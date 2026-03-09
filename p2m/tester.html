@@ -524,6 +524,7 @@
         <a href="services.html">Services</a> <span class="sep">|</span>
         <a href="changelog.html">Changelog</a> <span class="sep">|</span>
         <a href="tasks.html">Tasks</a> <span class="sep">|</span>
+        <a href="feedback.html">Feedback</a> <span class="sep">|</span>
         <span class="current">Tester</span>
     </div>
 </div>
@@ -532,7 +533,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.65.2</span></p>
+        <p class="version">Tester <span id="versionTag">v0.65.3</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -615,40 +616,48 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.2';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.3';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'W1.1 Completed (v0.65.2)',
+        title: 'Feedback Page (v0.65.3)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page: W1.1 is NOT in Priority Queue (moved to completed)',
-            'Tasks page: W1.1 appears in Recently Completed section',
-            'Tasks page: W3.1 Depreciation is now #1 in Priority Queue',
+            'Feedback page: Loads at feedback.html with correct header and v0.65.3',
+            'Feedback page: Submit a test feedback item \u2014 it appears in the list',
+            'Tester page: Same test item appears here too (shared localStorage)',
+            'Feedback page: Remove button (\u00d7) deletes the test item',
         ]
     },
     {
-        title: 'Task Counts',
+        title: 'Navigation',
         priority: null,
         items: [
-            'Tasks page: Versions Shipped reads 86',
-            'Tasks page: Recently Completed count reads 51',
+            'All 8 P2M pages show "Feedback" link in nav bar between Tasks and Tester',
+        ]
+    },
+    {
+        title: 'Task Housekeeping',
+        priority: null,
+        items: [
+            'Tasks page: "Break out Feedback form" is in Recently Completed (not Backlog)',
+            'Tasks page: Versions Shipped reads 87, Pages in Suite reads 11',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.65.2',
-            'Changelog: v0.65.2 timeline entry exists with UPDATE tag',
-            'Changelog: Versions Shipped stat reads 86',
+            'Changelog: current-version banner shows v0.65.3',
+            'Changelog: v0.65.3 timeline entry exists with FEATURE tag',
+            'Changelog: Versions Shipped stat reads 87',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 7 P2M pages show v0.65.2 in their version line',
+            'All 8 P2M pages show v0.65.3 in their version line',
         ]
     }
 ];
