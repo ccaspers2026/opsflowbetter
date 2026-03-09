@@ -424,7 +424,7 @@
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#58a6ff;">27</div>
+        <div class="num" style="color:#58a6ff;">28</div>
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
@@ -444,7 +444,7 @@
 
 <!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">27</span></h2>
+    <h2>&#128203; Backlog <span class="count">28</span></h2>
 
     <!-- ── NOW (high) ── -->
     <div class="task">
@@ -2202,6 +2202,17 @@ function runMigrations() {
         });
         localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
         markMigrationRun('v0.65.4_clear_feedback');
+    }
+
+    // ── v0.66.1: Add backlog item for W1.2 field label refinements ──
+    if (ran.indexOf('v0.66.1_w12_backlog') === -1) {
+        var newItem = { id: 'ws-w12-field-labels', title: '[WS] W1.2 — Review field labels & hints after real data entry', desc: '(MANUAL) After filling in W1.2 with actual mortgage statement data, review whether field labels, hints, and calculated outputs make sense. Consider: Escrow clarification, UK-specific field hints, Dedicated space field differences.', priority: 'medium', type: 'ux', created: '2026-03-09', source: 'v0.66.1 workshop review' };
+        var exists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === newItem.id) { exists = true; break; }
+        }
+        if (!exists) { data.backlog.push(newItem); changed = true; }
+        markMigrationRun('v0.66.1_w12_backlog');
     }
 
     if (changed) saveTasks(data);

@@ -699,7 +699,7 @@
                 { key: 'calcMethod', label: 'Calculation Method', type: 'select', options: ['Dedicated Business Space', 'US Home Office', 'UK Home Office'], hint: 'Determines how business-use percentage is calculated' },
                 { key: 'sqft', label: 'Workshop Square Footage', type: 'text', placeholder: '200', hint: 'Dedicated workshop / print farm area' },
                 { key: 'totalSqft', label: 'Total Home Sq Ft', type: 'text', placeholder: '1800', hint: 'Full home square footage — used to calculate business-use %', showWhen: { field: 'calcMethod', not: 'Dedicated Business Space' } },
-                { key: 'mortgage', label: 'Mortgage / Rent ($/mo)', type: 'text', placeholder: '0', hint: 'Monthly mortgage payment or rent' },
+                { key: 'mortgage', label: 'Mortgage P&I / Rent ($/mo)', type: 'text', placeholder: '0', hint: 'Principal + Interest only — do not include escrow (tax & insurance are separate fields below)' },
                 { key: 'propertyTax', label: 'Property Tax ($/mo)', type: 'text', placeholder: '0', hint: 'Annual property tax ÷ 12' },
                 { key: 'insurance', label: 'Insurance ($/mo)', type: 'text', placeholder: '0', hint: 'Homeowner or renter insurance monthly cost' },
                 { key: 'maintenance', label: 'Maintenance ($/mo)', type: 'text', placeholder: '0', hint: 'Repairs, upkeep, general maintenance' },
