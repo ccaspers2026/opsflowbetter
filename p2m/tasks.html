@@ -291,7 +291,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.65.3</p>
+        <p class="version">Tasks v0.65.4</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -307,11 +307,11 @@
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#58a6ff;">27</div>
+        <div class="num" style="color:#58a6ff;">30</div>
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">87</div>
+        <div class="num" style="color:#3fb950;">88</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -327,7 +327,7 @@
 
 <!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">28</span></h2>
+    <h2>&#128203; Backlog <span class="count">31</span></h2>
 
     <!-- ── NOW (high) ── -->
     <div class="task">
@@ -336,6 +336,34 @@
             <div class="title">Workshop review &amp; process update for all Cards</div>
             <div class="desc">Review all Workshop cards (every phase, every step) and update content, process, and data before resuming the 45 RPM Adaptor pipeline walkthrough. Ensures the Workshop foundation is solid before the product runs through it.</div>
             <div class="meta"><span class="tag tag-ux">UX</span> Workshop &bull; v0.64.3 tester feedback</div>
+        </div>
+    </div>
+
+    <!-- ── NOW (high) — v0.65.4 feedback ── -->
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">Task status tracking on Backlog &amp; Up Next items</div>
+            <div class="desc">(ASSIST) Add a status indicator (e.g., &ldquo;Working&rdquo;) on Backlog and Up Next items so user can see which task Claude is actively processing. Plan and review before implementing.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tasks &bull; v0.65.4 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">Edit/Save for Backlog items (disable when Working)</div>
+            <div class="desc">(ASSIST) Allow the user to edit and save Backlog item titles and descriptions inline. If an Up Next item is marked as &ldquo;Working&rdquo;, disable the Edit feature for that item.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tasks &bull; v0.65.4 feedback</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">Promote Feedback items directly to Backlog</div>
+            <div class="desc">(MANUAL) Add a &ldquo;Promote to Backlog&rdquo; button on each Feedback item so the user can move it to the Backlog without waiting for Claude to triage.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Feedback &bull; v0.65.4 feedback</div>
         </div>
     </div>
 
@@ -1896,6 +1924,37 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.65.3_complete_led_labels');
+    }
+
+    // ── v0.65.4: Inject 3 feedback items into Backlog ──
+    if (ran.indexOf('v0.65.4_inject_feedback_items') === -1) {
+        var newItems = [
+            { id: 'fb-task-status-tracking', title: 'Task status tracking on Backlog & Up Next items', desc: '(ASSIST) Add a status indicator (e.g., "Working") on Backlog and Up Next items so user can see which task Claude is actively processing. Plan and review before implementing.', priority: 'high', type: 'feature', created: '2026-03-09', source: 'v0.65.4 feedback' },
+            { id: 'fb-edit-save-backlog', title: 'Edit/Save for Backlog items (disable when Working)', desc: '(ASSIST) Allow the user to edit and save Backlog item titles and descriptions inline. If an Up Next item is marked as "Working", disable the Edit feature for that item.', priority: 'high', type: 'feature', created: '2026-03-09', source: 'v0.65.4 feedback' },
+            { id: 'fb-promote-feedback-to-backlog', title: 'Promote Feedback items directly to Backlog', desc: '(MANUAL) Add a "Promote to Backlog" button on each Feedback item so the user can move it to the Backlog without waiting for Claude to triage.', priority: 'high', type: 'feature', created: '2026-03-09', source: 'v0.65.4 feedback' }
+        ];
+        for (var n = 0; n < newItems.length; n++) {
+            var exists = false;
+            for (var i = 0; i < data.backlog.length; i++) {
+                if (data.backlog[i].id === newItems[n].id) { exists = true; break; }
+            }
+            if (!exists) { data.backlog.push(newItems[n]); changed = true; }
+        }
+        markMigrationRun('v0.65.4_inject_feedback_items');
+    }
+
+    // ── v0.65.4: Clear the 3 processed feedback items ──
+    if (ran.indexOf('v0.65.4_clear_feedback') === -1) {
+        var fb = JSON.parse(localStorage.getItem('opsflow_feedback') || '[]');
+        var matchTexts = ['Add button on backlog tasks', 'Give me Edit/Save for all items', 'Allow me to Promote Feedback items'];
+        fb = fb.filter(function(item) {
+            for (var m = 0; m < matchTexts.length; m++) {
+                if (item.text && item.text.indexOf(matchTexts[m]) !== -1) return false;
+            }
+            return true;
+        });
+        localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
+        markMigrationRun('v0.65.4_clear_feedback');
     }
 
     if (changed) saveTasks(data);

@@ -533,7 +533,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.65.3</span></p>
+        <p class="version">Tester <span id="versionTag">v0.65.4</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -616,48 +616,32 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.3';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.65.4';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Feedback Page (v0.65.3)',
+        title: 'Feedback Triage (v0.65.4)',
         priority: 'PRIMARY',
         items: [
-            'Feedback page: Loads at feedback.html with correct header and v0.65.3',
-            'Feedback page: Submit a test feedback item \u2014 it appears in the list',
-            'Tester page: Same test item appears here too (shared localStorage)',
-            'Feedback page: Remove button (\u00d7) deletes the test item',
-        ]
-    },
-    {
-        title: 'Navigation',
-        priority: null,
-        items: [
-            'All 8 P2M pages show "Feedback" link in nav bar between Tasks and Tester',
-        ]
-    },
-    {
-        title: 'Task Housekeeping',
-        priority: null,
-        items: [
-            'Tasks page: "Break out Feedback form" is in Recently Completed (not Backlog)',
-            'Tasks page: Versions Shipped reads 87, Pages in Suite reads 11',
+            'Tasks page: 3 new Backlog items visible (task status tracking, edit/save, promote feedback)',
+            'Tasks page: Backlog count increased, Versions Shipped reads 88',
+            'Feedback cleared: opsflow_feedback localStorage is empty (0 items)',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.65.3',
-            'Changelog: v0.65.3 timeline entry exists with FEATURE tag',
-            'Changelog: Versions Shipped stat reads 87',
+            'Changelog: current-version banner shows v0.65.4',
+            'Changelog: v0.65.4 timeline entry exists with UPDATE tag',
+            'Changelog: Versions Shipped stat reads 88',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 8 P2M pages show v0.65.3 in their version line',
+            'All 8 P2M pages show v0.65.4 in their version line',
         ]
     }
 ];
