@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.66.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.66.1</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,59 +630,58 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.66.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.66.1';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Status Tracking (v0.66.0)',
+        title: 'W1.2 Calculation Method (v0.66.1)',
         priority: 'PRIMARY',
         items: [
-            'Tasks page: Backlog item shows "+ Status" badge \u2014 click toggles to "Working" with pulsing green dot',
-            'Tasks page: PQ item shows same status badge \u2014 click toggles Working on/off',
-            'Tasks page: Status persists after page reload',
+            'Workshop W1.2: Calculation Method dropdown shows 3 options \u2014 Dedicated Business Space, US Home Office, UK Home Office',
+            'Workshop W1.2: Selecting "Dedicated Business Space" hides Total Home Sq Ft field',
+            'Workshop W1.2: Selecting "US Home Office" or "UK Home Office" shows Total Home Sq Ft field',
         ]
     },
     {
-        title: 'Edit/Save',
+        title: 'W1.2 Cost Breakdown',
         priority: null,
         items: [
-            'Tasks page: Click pencil (\u270e) on Backlog item \u2014 title/desc become editable inputs',
-            'Tasks page: Change text and click Save \u2014 changes persist after reload',
-            'Tasks page: Press Escape while editing \u2014 changes discarded',
-            'Tasks page: PQ item marked Working \u2014 pencil button is grayed out / disabled',
+            'Workshop W1.2: Shows 4 cost fields \u2014 Mortgage/Rent, Property Tax, Insurance, Maintenance',
+            'Workshop W1.2: Old "Monthly Cost" and "Rent or Own" fields are gone',
+            'Workshop W1.2: Location field still present',
         ]
     },
     {
-        title: 'Promote Feedback',
+        title: 'W1.2 Auto-Calculations',
         priority: null,
         items: [
-            'Feedback page: Each item shows "\u2191 Backlog" button next to \u00d7',
-            'Feedback page: Click "\u2191 Backlog" \u2014 item moves to Backlog on Tasks page, removed from Feedback',
-            'Tester page: Same "\u2191 Backlog" button appears on feedback items here too',
+            'Workshop W1.2 (Home Office): Business-Use % shows ratio (e.g. "11.1% (200 / 1800 sq ft)")',
+            'Workshop W1.2 (Dedicated): Business-Use % shows "100% (dedicated space)"',
+            'Workshop W1.2: Allocated Monthly Cost updates when cost fields change',
         ]
     },
     {
-        title: 'Task Housekeeping',
+        title: 'W1.2 Migration',
         priority: null,
         items: [
-            'Tasks page: 3 PQ items completed \u2014 moved to Recently Completed (count 56)',
-            'Tasks page: PQ is empty, Versions Shipped reads 89',
+            'Workshop W1.2: Existing data migrated \u2014 old monthlyCost mapped to Mortgage/Rent',
+            'Workshop W1.2: Card status reset to yellow after migration (needs re-verification)',
         ]
     },
     {
         title: 'Changelog',
         priority: null,
         items: [
-            'Changelog: current-version banner shows v0.66.0 \u2014 Task UX Batch',
-            'Changelog: v0.66.0 timeline entry with FEATURE tag and 3 bullets',
-            'Changelog: Versions stat reads 89',
+            'Changelog: current-version banner shows v0.66.1 \u2014 W1.2 Workspace Cost Breakdown',
+            'Changelog: v0.66.1 timeline entry with FEATURE tag and 4 bullets',
+            'Changelog: Versions stat reads 90',
         ]
     },
     {
         title: 'Versions',
         priority: null,
         items: [
-            'All 8 P2M pages show v0.66.0 in their version line',
+            'All 8 P2M pages show v0.66.1 in their version line',
         ]
     }
 ];
