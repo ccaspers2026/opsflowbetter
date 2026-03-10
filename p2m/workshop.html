@@ -564,7 +564,17 @@
             text-align: left;
             transition: color 0.2s;
         }
-        .ai-assist-toggle:hover { color: #c9d1d9; }
+        .ai-assist-toggle:hover:not(.disabled) { color: #c9d1d9; }
+        .ai-assist-toggle.disabled {
+            cursor: default;
+            opacity: 0.6;
+        }
+        .ai-assist-hint {
+            font-size: 10px;
+            color: #8b949e;
+            font-weight: 400;
+            font-style: italic;
+        }
         .ai-assist-toggle .ai-badge {
             font-size: 10px;
             background: #1f6feb33;
@@ -763,7 +773,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.70.0</p>
+            <p class="version">Workshop v0.70.1</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -1905,30 +1915,40 @@
         body.appendChild(makeSection('Purpose', 'Configure this printer\'s specs and availability. Each printer contributes to your fleet\'s total capacity, which determines how many products you can produce per day.'));
 
         // --- AI Assist Section ---
-        var aiConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
-        var hasEmpty = !printer.model || !printer.volume || !printer.speed || !printer.watts || !printer.price;
+        var hasModel = !!(printer.model && printer.model.trim());
         var aiSection = document.createElement('div');
         aiSection.className = 'ai-assist-section';
 
         var toggleBtn = document.createElement('button');
-        toggleBtn.className = 'ai-assist-toggle' + (hasEmpty ? ' expanded' : '');
-        toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
         toggleBtn.id = 'btnAiToggle';
+        if (hasModel) {
+            var hasEmpty = !printer.volume || !printer.speed || !printer.watts || !printer.price;
+            var aiConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+            toggleBtn.className = 'ai-assist-toggle' + (hasEmpty ? ' expanded' : '');
+            toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
+        } else {
+            toggleBtn.className = 'ai-assist-toggle disabled';
+            toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-hint"> \u2014 enter printer model to enable</span>';
+        }
         aiSection.appendChild(toggleBtn);
 
         var aiBody = document.createElement('div');
-        aiBody.className = 'ai-assist-body' + (hasEmpty ? ' show' : '');
         aiBody.id = 'aiAssistBody';
-
-        aiBody.innerHTML =
-            '<div class="ai-assist-label">Your Prompt:</div>' +
-            '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(aiConfig.prompt) + '</textarea>' +
-            '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
-            '<hr class="ai-assist-divider">' +
-            '<div class="ai-assist-label">Paste Claude\'s Response:</div>' +
-            '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the response from Claude here..."></textarea>' +
-            '<button class="btn-ai-apply" id="btnAiApply">Apply</button>' +
-            '<div class="ai-results-list" id="aiResultsList"></div>';
+        if (hasModel) {
+            var hasEmpty2 = !printer.volume || !printer.speed || !printer.watts || !printer.price;
+            aiBody.className = 'ai-assist-body' + (hasEmpty2 ? ' show' : '');
+            aiBody.innerHTML =
+                '<div class="ai-assist-label">Your Prompt:</div>' +
+                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(aiConfig.prompt) + '</textarea>' +
+                '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
+                '<hr class="ai-assist-divider">' +
+                '<div class="ai-assist-label">Paste Claude\'s Response:</div>' +
+                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the response from Claude here..."></textarea>' +
+                '<button class="btn-ai-apply" id="btnAiApply">Apply</button>' +
+                '<div class="ai-results-list" id="aiResultsList"></div>';
+        } else {
+            aiBody.className = 'ai-assist-body';
+        }
 
         aiSection.appendChild(aiBody);
         body.appendChild(aiSection);
@@ -2259,74 +2279,57 @@
                 var aiCopy = document.getElementById('btnAiCopy');
                 var aiApply = document.getElementById('btnAiApply');
 
+                // Model field watcher — auto-enable and expand AI Assist
+                var modelInput = document.querySelector('.field-input[data-dyn="fleet"][data-id="' + itemId + '"][data-field="model"]');
+                if (modelInput) {
+                    var modelWatcher = function() {
+                        var val = (modelInput.value || '').trim();
+                        if (val && aiToggle && aiToggle.classList.contains('disabled')) {
+                            // Enable and auto-expand
+                            var printer = state.fleet.find(function(p) { return p.id === itemId; });
+                            if (!printer) return;
+                            var config = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+                            aiToggle.classList.remove('disabled');
+                            aiToggle.classList.add('expanded');
+                            aiToggle.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
+                            aiBody.className = 'ai-assist-body show';
+                            aiBody.innerHTML =
+                                '<div class="ai-assist-label">Your Prompt:</div>' +
+                                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(config.prompt) + '</textarea>' +
+                                '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
+                                '<hr class="ai-assist-divider">' +
+                                '<div class="ai-assist-label">Paste Claude\'s Response:</div>' +
+                                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the response from Claude here..."></textarea>' +
+                                '<button class="btn-ai-apply" id="btnAiApply">Apply</button>' +
+                                '<div class="ai-results-list" id="aiResultsList"></div>';
+                            // Re-bind copy and apply buttons
+                            bindAiCopyBtn(itemId);
+                            bindAiApplyBtn(itemId);
+                            // Save model to lookup list
+                            saveModelLookup(val);
+                        } else if (val && aiToggle && !aiToggle.classList.contains('disabled')) {
+                            // Model changed — regenerate prompt
+                            var printer2 = state.fleet.find(function(p) { return p.id === itemId; });
+                            if (!printer2) return;
+                            var config2 = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer2);
+                            var promptEl = document.getElementById('aiPromptText');
+                            if (promptEl) promptEl.value = config2.prompt;
+                        }
+                    };
+                    modelInput.addEventListener('change', modelWatcher);
+                    modelInput.addEventListener('blur', modelWatcher);
+                }
+
                 if (aiToggle && aiBody) {
                     aiToggle.addEventListener('click', function() {
+                        if (aiToggle.classList.contains('disabled')) return;
                         aiToggle.classList.toggle('expanded');
                         aiBody.classList.toggle('show');
                     });
                 }
 
-                if (aiCopy) {
-                    aiCopy.addEventListener('click', function() {
-                        var promptText = document.getElementById('aiPromptText');
-                        if (!promptText) return;
-                        var text = promptText.value;
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            navigator.clipboard.writeText(text).then(function() {
-                                showToast('Prompt copied to clipboard');
-                                aiCopy.textContent = 'Copied!';
-                                setTimeout(function() { aiCopy.textContent = 'Copy to Clipboard'; }, 2000);
-                            }).catch(function() {
-                                fallbackCopy(text, aiCopy);
-                            });
-                        } else {
-                            fallbackCopy(text, aiCopy);
-                        }
-                    });
-                }
-
-                if (aiApply) {
-                    aiApply.addEventListener('click', function() {
-                        if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing first', 'error'); return; }
-                        var responseText = document.getElementById('aiResponseText');
-                        if (!responseText || !responseText.value.trim()) { showToast('Paste Claude\'s response first', 'error'); return; }
-
-                        var printer = state.fleet.find(function(p) { return p.id === itemId; });
-                        if (!printer) return;
-
-                        var config = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
-                        var result = config.parseResponse(responseText.value);
-
-                        if (result.count === 0) {
-                            showToast('Could not parse any fields from the response', 'error');
-                            return;
-                        }
-
-                        // Apply parsed values to printer and form fields
-                        Object.keys(result.fields).forEach(function(key) {
-                            printer[key] = result.fields[key];
-                            var input = document.querySelector('.field-input[data-dyn="fleet"][data-id="' + itemId + '"][data-field="' + key + '"]');
-                            if (input) input.value = result.fields[key];
-                        });
-                        printer.verified = false;
-                        printer.status_led = getDynamicCardStatus(printer);
-                        saveState();
-
-                        // Render results
-                        renderAiResults(result, FLEET_PROMPT_FIELDS);
-                        showToast('Applied ' + result.count + ' field(s) from Claude response');
-
-                        // Update header if model changed
-                        if (result.fields.model) {
-                            document.getElementById('detailTitle').textContent = result.fields.model;
-                        }
-
-                        // Regenerate prompt with new values
-                        var newConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
-                        var promptEl = document.getElementById('aiPromptText');
-                        if (promptEl) promptEl.value = newConfig.prompt;
-                    });
-                }
+                bindAiCopyBtn(itemId);
+                bindAiApplyBtn(itemId);
             }
 
             document.querySelectorAll('.field-input[data-dyn="' + dynType + '"], .field-select[data-dyn="' + dynType + '"]').forEach(function(el) {
@@ -2503,6 +2506,84 @@
     }
 
     // ===================================================================
+    // AI ASSIST — REUSABLE BUTTON BINDERS
+    // ===================================================================
+
+    function bindAiCopyBtn(itemId) {
+        var btn = document.getElementById('btnAiCopy');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            var promptText = document.getElementById('aiPromptText');
+            if (!promptText) return;
+            var text = promptText.value;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showToast('Prompt copied to clipboard');
+                    btn.textContent = 'Copied!';
+                    setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+                }).catch(function() { fallbackCopy(text, btn); });
+            } else { fallbackCopy(text, btn); }
+        });
+    }
+
+    function bindAiApplyBtn(itemId) {
+        var btn = document.getElementById('btnAiApply');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing first', 'error'); return; }
+            var responseText = document.getElementById('aiResponseText');
+            if (!responseText || !responseText.value.trim()) { showToast('Paste Claude\'s response first', 'error'); return; }
+            var printer = state.fleet.find(function(p) { return p.id === itemId; });
+            if (!printer) return;
+            var config = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+            var result = config.parseResponse(responseText.value);
+            if (result.count === 0) { showToast('Could not parse any fields from the response', 'error'); return; }
+            Object.keys(result.fields).forEach(function(key) {
+                printer[key] = result.fields[key];
+                var input = document.querySelector('.field-input[data-dyn="fleet"][data-id="' + itemId + '"][data-field="' + key + '"]');
+                if (input) input.value = result.fields[key];
+            });
+            printer.verified = false;
+            printer.status_led = getDynamicCardStatus(printer);
+            saveState();
+            renderAiResults(result, FLEET_PROMPT_FIELDS);
+            showToast('Applied ' + result.count + ' field(s) from Claude response');
+            if (result.fields.model) {
+                document.getElementById('detailTitle').textContent = result.fields.model;
+                saveModelLookup(result.fields.model);
+            }
+            var newConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+            var promptEl = document.getElementById('aiPromptText');
+            if (promptEl) promptEl.value = newConfig.prompt;
+        });
+    }
+
+    // ===================================================================
+    // MODEL LOOKUP LIST (localStorage)
+    // ===================================================================
+
+    var MODEL_LOOKUP_KEY = 'opsflow_printer_models';
+
+    function getModelLookup() {
+        try { return JSON.parse(localStorage.getItem(MODEL_LOOKUP_KEY)) || []; }
+        catch(e) { return []; }
+    }
+
+    function saveModelLookup(modelName) {
+        if (!modelName || !modelName.trim()) return;
+        var models = getModelLookup();
+        var normalized = modelName.trim();
+        var exists = false;
+        for (var i = 0; i < models.length; i++) {
+            if (models[i].toLowerCase() === normalized.toLowerCase()) { exists = true; break; }
+        }
+        if (!exists) {
+            models.push(normalized);
+            localStorage.setItem(MODEL_LOOKUP_KEY, JSON.stringify(models));
+        }
+    }
+
+    // ===================================================================
     // EVENT LISTENERS
     // ===================================================================
 
@@ -2532,6 +2613,9 @@
 
     updateLockIcon();
     render();
+
+    // Seed model lookup from existing fleet data
+    state.fleet.forEach(function(p) { if (p.model) saveModelLookup(p.model); });
 
     </script>
 </body>

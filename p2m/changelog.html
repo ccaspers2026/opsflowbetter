@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.70.0</p>
+                <p class="version">Changelog v0.70.1</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.70.0 - Claude Prompt AI-Assist for Fleet Cards</h2>
-            <p>Released March 9, 2026 &mdash; Fleet card detail panels now include an AI Assist section that generates smart prompts for Claude, parses structured responses, and auto-fills printer specs. Field renamed from Build Plate to Build Volume with Z-axis support. Two backlog items added for Template Builder and Forms Builder.</p>
+            <h2>Version 0.70.1 - AI Assist Model Gate &amp; Lookup List</h2>
+            <p>Released March 9, 2026 &mdash; AI Assist now requires a printer model before enabling. Toggle is disabled with hint on new printers; auto-expands when model is entered. Brand/model lookup list persists to localStorage for future dropdown support.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">94</div>
+                <div class="stat-value">95</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,21 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.70.1 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.70.1</span>
+                    <span class="version-date">March 9, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>Model gate:</strong> AI Assist toggle disabled on new printers with hint &ldquo;enter printer model to enable&rdquo; &mdash; prevents dead-end prompts with placeholder text</li>
+                    <li><strong>Auto-expand:</strong> When user enters a model and tabs out, AI Assist auto-expands with prompt pre-generated and ready to copy</li>
+                    <li><strong>Model lookup list:</strong> Brand/model names persist to localStorage as users add printers &mdash; seeds from existing fleet on page load, future: dropdown typeahead</li>
+                    <li><strong>Refactored bindings:</strong> Copy and Apply button handlers extracted to reusable <code>bindAiCopyBtn()</code> and <code>bindAiApplyBtn()</code> functions</li>
+                </ul>
+            </div>
 
             <!-- v0.70.0 -->
             <div class="version-entry">
