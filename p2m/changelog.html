@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.70.1</p>
+                <p class="version">Changelog v0.71.1</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.70.1 - AI Assist Model Gate &amp; Lookup List</h2>
-            <p>Released March 9, 2026 &mdash; AI Assist now requires a printer model before enabling. Toggle is disabled with hint on new printers; auto-expands when model is entered. Brand/model lookup list persists to localStorage for future dropdown support.</p>
+            <h2>Version 0.71.1 - AI Assist for Materials Library + Apply Gate</h2>
+            <p>Released March 9, 2026 &mdash; AI Assist now available on Materials Library cards. Enter a material name and AI Assist generates a prompt for type, cost/kg, and supplier. Apply button disabled until paste field has content. Engine refactored for card-agnostic reuse.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">95</div>
+                <div class="stat-value">97</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,36 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.71.1 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.71.1</span>
+                    <span class="version-date">March 9, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>Materials AI Assist:</strong> Materials Library cards now have AI Assist &mdash; enter material name, get prompt for type, cost/kg, and popular suppliers</li>
+                    <li><strong>Apply button gate:</strong> Apply button starts disabled across all AI Assist panels, enables only when paste field has content</li>
+                    <li><strong>Engine refactor:</strong> <code>createClaudePromptConfig()</code> now accepts <code>introLine</code> parameter &mdash; fully card-agnostic with <code>getFleetIntro()</code> and <code>getMaterialIntro()</code> helpers</li>
+                    <li><strong>Unified watcher:</strong> <code>attachDynListeners</code> AI Assist block handles both fleet and materials with card-specific config lookup</li>
+                </ul>
+            </div>
+
+            <!-- v0.71.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.71.0</span>
+                    <span class="version-date">March 9, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>Brand field:</strong> New &ldquo;Brand&rdquo; field between Printer Name and Model &mdash; separates manufacturer from model number for cleaner data structure</li>
+                    <li><strong>AI Assist updated:</strong> Prompt now composes &ldquo;I have a [Brand] [Model] 3D printer&rdquo; using both fields; model removed from AI-fillable fields since user enters brand/model before AI Assist activates</li>
+                    <li><strong>Migration:</strong> Existing fleet data auto-splits combined model values (e.g., &ldquo;Bambu Lab X1C&rdquo; &rarr; brand: &ldquo;Bambu Lab&rdquo;, model: &ldquo;X1C&rdquo;) with smart lookup map and generic fallback</li>
+                    <li><strong>Vendor-neutral hint:</strong> AI Assist disabled hint updated to &ldquo;enter brand &amp; model to enable&rdquo;</li>
+                </ul>
+            </div>
 
             <!-- v0.70.1 -->
             <div class="version-entry">

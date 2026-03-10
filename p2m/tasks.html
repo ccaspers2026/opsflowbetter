@@ -408,7 +408,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.70.1</p>
+        <p class="version">Tasks v0.71.1</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -444,7 +444,7 @@
 
 <!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">30</span></h2>
+    <h2>&#128203; Backlog <span class="count">33</span></h2>
 
     <!-- ── NOW (high) ── -->
     <div class="task">
@@ -1021,6 +1021,34 @@
             <div class="title">Forms Builder &mdash; dynamic form generation from templates</div>
             <div class="desc">(FEATURE) Build a Forms Builder that dynamically generates forms from template definitions. Low-code form rendering driven by Template Builder schemas. Enables rapid form creation without manual HTML.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.70.0</div>
+        </div>
+    </div>
+
+    <!-- ── LATER (low) — v0.71.1 architecture backlog ── -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Equipment Page &mdash; centralized equipment registry</div>
+            <div class="desc">(FEATURE) Build a dedicated Equipment page for managing all production equipment (printers, post-processing tools, etc.). Consumes templates from Template Builder. Feeds Workshop fleet data via lookups instead of manual entry. Depends on: Template Builder.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.71.1 &bull; Depends: Template Builder</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[RESEARCH] Task Dependencies &mdash; tracking dependencies between backlog items</div>
+            <div class="desc">(RESEARCH) Investigate and design a dependency system for Tasks/Backlog. Currently no way to express &ldquo;X depends on Y&rdquo; relationships. Need to define: data model, UI indicators, blocking rules, and whether dependencies auto-promote when predecessors complete. Discussion-first &mdash; drive the design before building.</div>
+            <div class="meta"><span class="tag tag-feature">RESEARCH</span> Architecture &bull; v0.71.1</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[UX] Editable vs Read-Only field indicators &mdash; Suite-wide</div>
+            <div class="desc">(UX) Add clear visual distinction between user-editable fields and read-only/calculated fields across all P2M pages. Currently no indicator telling users which fields they can change vs. which are auto-calculated or system-managed. Define a consistent pattern (e.g., border style, background, icon, label badge) and apply Suite-wide.</div>
+            <div class="meta"><span class="tag tag-feature">UX</span> Architecture &bull; v0.71.1 &bull; Suite-wide</div>
         </div>
     </div>
 </div>
@@ -2439,6 +2467,57 @@ function runMigrations() {
         }
         if (!fblExists) { data.backlog.push(fblItem); changed = true; }
         markMigrationRun('v0.70.0_bl_forms_builder');
+    }
+
+    // ── v0.71.1: Add Equipment Page backlog item ──
+    if (ran.indexOf('v0.71.1_bl_equipment_page') === -1) {
+        var eqItem = {
+            id: 'bl_v0701_equipment_page',
+            title: 'Equipment Page \u2014 centralized equipment registry',
+            desc: '(FEATURE) Build a dedicated Equipment page for managing all production equipment (printers, post-processing tools, etc.). Consumes templates from Template Builder. Feeds Workshop fleet data via lookups instead of manual entry. Depends on: Template Builder.',
+            meta: 'Architecture \u2022 v0.71.1 \u2022 Depends: Template Builder',
+            priority: 'low'
+        };
+        var eqExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === eqItem.id) { eqExists = true; break; }
+        }
+        if (!eqExists) { data.backlog.push(eqItem); changed = true; }
+        markMigrationRun('v0.71.1_bl_equipment_page');
+    }
+
+    // ── v0.71.1: Add Task Dependencies research item ──
+    if (ran.indexOf('v0.71.1_bl_task_dependencies') === -1) {
+        var depItem = {
+            id: 'bl_v0701_task_dependencies',
+            title: '[RESEARCH] Task Dependencies \u2014 tracking dependencies between backlog items',
+            desc: '(RESEARCH) Investigate and design a dependency system for Tasks/Backlog. Currently no way to express "X depends on Y" relationships. Need to define: data model, UI indicators, blocking rules, and whether dependencies auto-promote when predecessors complete. Discussion-first \u2014 drive the design before building.',
+            meta: 'Architecture \u2022 v0.71.1',
+            priority: 'low'
+        };
+        var depExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === depItem.id) { depExists = true; break; }
+        }
+        if (!depExists) { data.backlog.push(depItem); changed = true; }
+        markMigrationRun('v0.71.1_bl_task_dependencies');
+    }
+
+    // ── v0.71.1: Add Editable vs Read-Only field indicators backlog item ──
+    if (ran.indexOf('v0.71.1_bl_field_indicators') === -1) {
+        var fiItem = {
+            id: 'bl_v0701_field_indicators',
+            title: '[UX] Editable vs Read-Only field indicators \u2014 Suite-wide',
+            desc: '(UX) Add clear visual distinction between user-editable fields and read-only/calculated fields across all P2M pages. Currently no indicator telling users which fields they can change vs. which are auto-calculated or system-managed. Define a consistent pattern (e.g., border style, background, icon, label badge) and apply Suite-wide.',
+            meta: 'Architecture \u2022 v0.71.1 \u2022 Suite-wide',
+            priority: 'low'
+        };
+        var fiExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === fiItem.id) { fiExists = true; break; }
+        }
+        if (!fiExists) { data.backlog.push(fiItem); changed = true; }
+        markMigrationRun('v0.71.1_bl_field_indicators');
     }
 
     if (changed) saveTasks(data);

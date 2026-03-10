@@ -773,7 +773,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.70.1</p>
+            <p class="version">Workshop v0.71.1</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -961,13 +961,13 @@
     };
 
     var DEFAULT_FLEET = [
-        { id: 'p1', name: 'Galileo Seven', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p2', name: 'Optimus Prime', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p3', name: 'Print Buster', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p4', name: 'Third Wheel', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p5', name: 'Little Monster', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p6', name: 'The Boss', model: 'Bambu Lab H2D', volume: '256 x 256 x 256', speed: '300', watts: '200', price: '1999', hours: '2.2', status: 'Active' },
-        { id: 'p7', name: 'Redemption', model: 'Bambu Lab A1', volume: '256 x 256 x 256', speed: '500', watts: '90', price: '299', hours: '2.2', status: 'Active' }
+        { id: 'p1', name: 'Galileo Seven', brand: 'Bambu Lab', model: 'X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p2', name: 'Optimus Prime', brand: 'Bambu Lab', model: 'X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p3', name: 'Print Buster', brand: 'Bambu Lab', model: 'X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p4', name: 'Third Wheel', brand: 'Bambu Lab', model: 'X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p5', name: 'Little Monster', brand: 'Bambu Lab', model: 'X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p6', name: 'The Boss', brand: 'Bambu Lab', model: 'H2D', volume: '256 x 256 x 256', speed: '300', watts: '200', price: '1999', hours: '2.2', status: 'Active' },
+        { id: 'p7', name: 'Redemption', brand: 'Bambu Lab', model: 'A1', volume: '256 x 256 x 256', speed: '500', watts: '90', price: '299', hours: '2.2', status: 'Active' }
     ];
 
     var DEFAULT_MATERIALS = [
@@ -1038,6 +1038,32 @@
                         fp.volume = plateVal;
                     }
                     delete fp.plate;
+                }
+                // v0.71.1: Split combined model into brand + model
+                if (fp.brand === undefined && fp.model) {
+                    var brandModelMap = {
+                        'Bambu Lab X1C': { brand: 'Bambu Lab', model: 'X1C' },
+                        'Bambu Lab H2D': { brand: 'Bambu Lab', model: 'H2D' },
+                        'Bambu Lab A1':  { brand: 'Bambu Lab', model: 'A1' },
+                        'Bambu Lab A1 Mini': { brand: 'Bambu Lab', model: 'A1 Mini' },
+                        'Bambu Lab P1S': { brand: 'Bambu Lab', model: 'P1S' },
+                        'Bambu Lab P1P': { brand: 'Bambu Lab', model: 'P1P' },
+                        'Bambu Lab X1E': { brand: 'Bambu Lab', model: 'X1E' }
+                    };
+                    var mapped = brandModelMap[fp.model.trim()];
+                    if (mapped) {
+                        fp.brand = mapped.brand;
+                        fp.model = mapped.model;
+                    } else {
+                        // Generic split: first word(s) as brand, last word as model
+                        var parts = fp.model.trim().split(/\s+/);
+                        if (parts.length >= 2) {
+                            fp.model = parts.pop();
+                            fp.brand = parts.join(' ');
+                        } else {
+                            fp.brand = '';
+                        }
+                    }
                 }
             }
         }
@@ -1302,31 +1328,44 @@
     // ===================================================================
 
     var FLEET_PROMPT_FIELDS = [
-        { key: 'model',  promptLabel: 'Model',          parseKeys: ['model'],          numeric: false },
         { key: 'volume', promptLabel: 'Build Volume',    parseKeys: ['build volume'],   numeric: false, transform: 'volume' },
         { key: 'speed',  promptLabel: 'Max Speed',       parseKeys: ['max speed'],      numeric: true,  unit: 'mm/s' },
         { key: 'watts',  promptLabel: 'Avg Power Draw',  parseKeys: ['avg power draw', 'power draw', 'wattage', 'power'], numeric: true, unit: 'watts' },
         { key: 'price',  promptLabel: 'MSRP',            parseKeys: ['msrp', 'price'],  numeric: true,  unit: 'USD' }
     ];
 
-    function createClaudePromptConfig(fieldDefs, currentValues) {
-        var knownModel = (currentValues.model || '').trim();
+    var MATERIALS_PROMPT_FIELDS = [
+        { key: 'type',     promptLabel: 'Material Type',    parseKeys: ['material type', 'type', 'category'],  numeric: false },
+        { key: 'costKg',   promptLabel: 'Cost per kg',      parseKeys: ['cost per kg', 'cost/kg', 'price per kg', 'price/kg'], numeric: true, unit: 'USD' },
+        { key: 'supplier', promptLabel: 'Popular Suppliers', parseKeys: ['popular suppliers', 'suppliers', 'supplier', 'vendor', 'where to buy'], numeric: false }
+    ];
+
+    function getFleetIntro(printer) {
+        var brand = (printer.brand || '').trim();
+        var model = (printer.model || '').trim();
+        var name = ((brand ? brand + ' ' : '') + model).trim();
+        return name ? 'I have a ' + name + ' 3D printer.' : 'I have a [enter brand and model] 3D printer.';
+    }
+
+    function getMaterialIntro(mat) {
+        var name = (mat.name || '').trim();
+        return name ? 'I use ' + name + ' 3D printing filament.' : 'I use [enter material name] 3D printing filament.';
+    }
+
+    function createClaudePromptConfig(fieldDefs, currentValues, introLine) {
         var missing = [];
         fieldDefs.forEach(function(fd) {
-            if (fd.key === 'model' && knownModel) return;
+            var val = (currentValues[fd.key] || '').trim();
+            if (val) return;
             missing.push(fd);
         });
 
-        if (missing.length === 0 && knownModel) {
+        if (missing.length === 0) {
             return { prompt: 'All AI-fillable fields already have values.', parseResponse: function() { return { fields: {}, count: 0 }; } };
         }
 
         var lines = [];
-        if (knownModel) {
-            lines.push('I have a ' + knownModel + ' 3D printer.');
-        } else {
-            lines.push('I have a [enter your printer model here] 3D printer.');
-        }
+        lines.push(introLine || 'Please look up the following information.');
         lines.push('Please provide the following specs in exactly this format:');
         lines.push('');
         missing.forEach(function(fd) {
@@ -1675,7 +1714,8 @@
             if (p === 2) {
                 state.fleet.forEach(function(printer, idx) {
                     var pfNum = 'PF.' + (idx + 1);
-                    content.appendChild(createCard('fleet-' + printer.id, pfNum, printer.name || 'New Printer', printer.model || 'Unconfigured', (printer.status || 'Active') + ' \u00b7 Printer config', printer.status_led, function(pid) {
+                    var cardDesc = ((printer.brand || '') + ' ' + (printer.model || '')).trim() || 'Unconfigured';
+                    content.appendChild(createCard('fleet-' + printer.id, pfNum, printer.name || 'New Printer', cardDesc, (printer.status || 'Active') + ' \u00b7 Printer config', printer.status_led, function(pid) {
                         return function() { openFleetCard(pid); };
                     }(printer.id)));
                 });
@@ -1905,7 +1945,7 @@
 
         var pfNum = getFleetNumber(printer);
         document.getElementById('detailStepInfo').textContent = pfNum + ' \u2014 ' + (printer.name || 'New Printer');
-        document.getElementById('detailTitle').textContent = printer.model || 'Configure this printer';
+        document.getElementById('detailTitle').textContent = ((printer.brand || '') + ' ' + (printer.model || '')).trim() || 'Configure this printer';
         document.getElementById('detailPhaseInfo').textContent = 'Phase 2: Printer Fleet';
         setDetailLed(printer.status_led);
 
@@ -1923,12 +1963,12 @@
         toggleBtn.id = 'btnAiToggle';
         if (hasModel) {
             var hasEmpty = !printer.volume || !printer.speed || !printer.watts || !printer.price;
-            var aiConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+            var aiConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer, getFleetIntro(printer));
             toggleBtn.className = 'ai-assist-toggle' + (hasEmpty ? ' expanded' : '');
             toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
         } else {
             toggleBtn.className = 'ai-assist-toggle disabled';
-            toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-hint"> \u2014 enter printer model to enable</span>';
+            toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-hint"> \u2014 enter brand &amp; model to enable</span>';
         }
         aiSection.appendChild(toggleBtn);
 
@@ -1942,9 +1982,9 @@
                 '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(aiConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
                 '<hr class="ai-assist-divider">' +
-                '<div class="ai-assist-label">Paste Claude\'s Response:</div>' +
-                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the response from Claude here..."></textarea>' +
-                '<button class="btn-ai-apply" id="btnAiApply">Apply</button>' +
+                '<div class="ai-assist-label">Paste AI Response:</div>' +
+                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
+                '<button class="btn-ai-apply disabled" id="btnAiApply" disabled>Apply</button>' +
                 '<div class="ai-results-list" id="aiResultsList"></div>';
         } else {
             aiBody.className = 'ai-assist-body';
@@ -1958,8 +1998,9 @@
         fieldsDiv.innerHTML = '<div class="detail-section-label">Printer Details</div>';
 
         var fields = [
-            { key: 'name', label: 'Printer Name', placeholder: 'X1C-01' },
-            { key: 'model', label: 'Model', placeholder: 'Bambu Lab X1C' },
+            { key: 'name', label: 'Printer Name', placeholder: 'Galileo Seven' },
+            { key: 'brand', label: 'Brand', placeholder: 'Bambu Lab' },
+            { key: 'model', label: 'Model', placeholder: 'X1C' },
             { key: 'volume', label: 'Build Volume (mm)', placeholder: '256 x 256 x 256' },
             { key: 'speed', label: 'Max Speed (mm/s)', placeholder: '500' },
             { key: 'watts', label: 'Avg Power Draw (watts)', placeholder: '150', hint: 'X1C: 150W, H2D: 200W, A1: 90W — feeds electricity cost calc' },
@@ -2005,7 +2046,7 @@
         if (!requireEdit('mark complete')) return;
         var p = state.fleet.find(function(x) { return x.id === id; });
         if (!p) return;
-        if (!p.name || !p.model) { showToast('Please fill in at least the printer name and model', 'error'); return; }
+        if (!p.name || !p.model) { showToast('Please fill in at least the printer name, brand, and model', 'error'); return; }
         p.verified = true;
         render();
         openFleetCard(id);
@@ -2053,6 +2094,44 @@
         body.innerHTML = '';
 
         body.appendChild(makeSection('Purpose', 'Define this material\'s cost and availability. The cost per gram flows directly into every product\'s COGS calculation in the Pipeline.'));
+
+        // --- AI Assist Section (Materials) ---
+        var hasName = !!(mat.name && mat.name.trim());
+        var matAiSection = document.createElement('div');
+        matAiSection.className = 'ai-assist-section';
+
+        var matToggleBtn = document.createElement('button');
+        matToggleBtn.id = 'btnAiToggle';
+        if (hasName) {
+            var matHasEmpty = !mat.type || !mat.costKg || !mat.supplier;
+            var matAiConfig = createClaudePromptConfig(MATERIALS_PROMPT_FIELDS, mat, getMaterialIntro(mat));
+            matToggleBtn.className = 'ai-assist-toggle' + (matHasEmpty ? ' expanded' : '');
+            matToggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
+        } else {
+            matToggleBtn.className = 'ai-assist-toggle disabled';
+            matToggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-hint"> \u2014 enter material name to enable</span>';
+        }
+        matAiSection.appendChild(matToggleBtn);
+
+        var matAiBody = document.createElement('div');
+        matAiBody.id = 'aiAssistBody';
+        if (hasName) {
+            var matHasEmpty2 = !mat.type || !mat.costKg || !mat.supplier;
+            matAiBody.className = 'ai-assist-body' + (matHasEmpty2 ? ' show' : '');
+            matAiBody.innerHTML =
+                '<div class="ai-assist-label">Your Prompt:</div>' +
+                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(matAiConfig.prompt) + '</textarea>' +
+                '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
+                '<hr class="ai-assist-divider">' +
+                '<div class="ai-assist-label">Paste AI Response:</div>' +
+                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
+                '<button class="btn-ai-apply disabled" id="btnAiApply" disabled>Apply</button>' +
+                '<div class="ai-results-list" id="aiResultsList"></div>';
+        } else {
+            matAiBody.className = 'ai-assist-body';
+        }
+        matAiSection.appendChild(matAiBody);
+        body.appendChild(matAiSection);
 
         var fieldsDiv = document.createElement('div');
         fieldsDiv.className = 'detail-section';
@@ -2272,52 +2351,65 @@
                 });
             }
 
-            // AI Assist handlers (fleet only)
-            if (dynType === 'fleet') {
+            // AI Assist handlers (fleet + materials)
+            if (dynType === 'fleet' || dynType === 'materials') {
                 var aiToggle = document.getElementById('btnAiToggle');
                 var aiBody = document.getElementById('aiAssistBody');
-                var aiCopy = document.getElementById('btnAiCopy');
-                var aiApply = document.getElementById('btnAiApply');
 
-                // Model field watcher — auto-enable and expand AI Assist
-                var modelInput = document.querySelector('.field-input[data-dyn="fleet"][data-id="' + itemId + '"][data-field="model"]');
-                if (modelInput) {
-                    var modelWatcher = function() {
-                        var val = (modelInput.value || '').trim();
-                        if (val && aiToggle && aiToggle.classList.contains('disabled')) {
-                            // Enable and auto-expand
-                            var printer = state.fleet.find(function(p) { return p.id === itemId; });
-                            if (!printer) return;
-                            var config = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
-                            aiToggle.classList.remove('disabled');
-                            aiToggle.classList.add('expanded');
-                            aiToggle.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
-                            aiBody.className = 'ai-assist-body show';
-                            aiBody.innerHTML =
-                                '<div class="ai-assist-label">Your Prompt:</div>' +
-                                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(config.prompt) + '</textarea>' +
-                                '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
-                                '<hr class="ai-assist-divider">' +
-                                '<div class="ai-assist-label">Paste Claude\'s Response:</div>' +
-                                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the response from Claude here..."></textarea>' +
-                                '<button class="btn-ai-apply" id="btnAiApply">Apply</button>' +
-                                '<div class="ai-results-list" id="aiResultsList"></div>';
-                            // Re-bind copy and apply buttons
-                            bindAiCopyBtn(itemId);
-                            bindAiApplyBtn(itemId);
-                            // Save model to lookup list
-                            saveModelLookup(val);
-                        } else if (val && aiToggle && !aiToggle.classList.contains('disabled')) {
-                            // Model changed — regenerate prompt
-                            var printer2 = state.fleet.find(function(p) { return p.id === itemId; });
-                            if (!printer2) return;
-                            var config2 = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer2);
-                            var promptEl = document.getElementById('aiPromptText');
-                            if (promptEl) promptEl.value = config2.prompt;
+                // Determine card-specific config
+                var aiFieldDefs = dynType === 'fleet' ? FLEET_PROMPT_FIELDS : MATERIALS_PROMPT_FIELDS;
+                var aiStateArr = dynType === 'fleet' ? state.fleet : state.materials;
+                var aiGateField = dynType === 'fleet' ? 'model' : 'name';
+                var aiGateField2 = dynType === 'fleet' ? 'brand' : null;
+
+                // Gate field watcher — auto-enable and expand AI Assist
+                var gateInput = document.querySelector('.field-input[data-dyn="' + dynType + '"][data-id="' + itemId + '"][data-field="' + aiGateField + '"]');
+                var gateInput2 = aiGateField2 ? document.querySelector('.field-input[data-dyn="' + dynType + '"][data-id="' + itemId + '"][data-field="' + aiGateField2 + '"]') : null;
+                var aiFieldWatcher = function() {
+                    var gateVal = gateInput ? (gateInput.value || '').trim() : '';
+                    if (gateVal && aiToggle && aiToggle.classList.contains('disabled')) {
+                        // Enable and auto-expand
+                        var item = aiStateArr.find(function(x) { return x.id === itemId; });
+                        if (!item) return;
+                        var introFn = dynType === 'fleet' ? getFleetIntro : getMaterialIntro;
+                        var config = createClaudePromptConfig(aiFieldDefs, item, introFn(item));
+                        aiToggle.classList.remove('disabled');
+                        aiToggle.classList.add('expanded');
+                        aiToggle.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
+                        aiBody.className = 'ai-assist-body show';
+                        aiBody.innerHTML =
+                            '<div class="ai-assist-label">Your Prompt:</div>' +
+                            '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(config.prompt) + '</textarea>' +
+                            '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
+                            '<hr class="ai-assist-divider">' +
+                            '<div class="ai-assist-label">Paste AI Response:</div>' +
+                            '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
+                            '<button class="btn-ai-apply disabled" id="btnAiApply" disabled>Apply</button>' +
+                            '<div class="ai-results-list" id="aiResultsList"></div>';
+                        bindAiCopyBtn(itemId);
+                        bindAiApplyBtn(itemId, dynType);
+                        bindAiResponseWatcher();
+                        if (dynType === 'fleet') {
+                            var brandVal = gateInput2 ? (gateInput2.value || '').trim() : '';
+                            saveModelLookup(((brandVal ? brandVal + ' ' : '') + gateVal).trim());
                         }
-                    };
-                    modelInput.addEventListener('change', modelWatcher);
-                    modelInput.addEventListener('blur', modelWatcher);
+                    } else if (gateVal && aiToggle && !aiToggle.classList.contains('disabled')) {
+                        // Gate field changed — regenerate prompt
+                        var item2 = aiStateArr.find(function(x) { return x.id === itemId; });
+                        if (!item2) return;
+                        var introFn2 = dynType === 'fleet' ? getFleetIntro : getMaterialIntro;
+                        var config2 = createClaudePromptConfig(aiFieldDefs, item2, introFn2(item2));
+                        var promptEl = document.getElementById('aiPromptText');
+                        if (promptEl) promptEl.value = config2.prompt;
+                    }
+                };
+                if (gateInput) {
+                    gateInput.addEventListener('change', aiFieldWatcher);
+                    gateInput.addEventListener('blur', aiFieldWatcher);
+                }
+                if (gateInput2) {
+                    gateInput2.addEventListener('change', aiFieldWatcher);
+                    gateInput2.addEventListener('blur', aiFieldWatcher);
                 }
 
                 if (aiToggle && aiBody) {
@@ -2329,7 +2421,8 @@
                 }
 
                 bindAiCopyBtn(itemId);
-                bindAiApplyBtn(itemId);
+                bindAiApplyBtn(itemId, dynType);
+                bindAiResponseWatcher();
             }
 
             document.querySelectorAll('.field-input[data-dyn="' + dynType + '"], .field-select[data-dyn="' + dynType + '"]').forEach(function(el) {
@@ -2359,7 +2452,7 @@
         if (!requireEdit('add cards')) return;
         if (phaseNum === 2) {
             var id = 'p' + state.nextDynId.fleet++;
-            state.fleet.push({ id: id, name: '', model: '', volume: '', speed: '', watts: '', price: '', hours: '24', status: 'Active', status_led: 'red', verified: false });
+            state.fleet.push({ id: id, name: '', brand: '', model: '', volume: '', speed: '', watts: '', price: '', hours: '24', status: 'Active', status_led: 'red', verified: false });
             render();
             openFleetCard(id);
         } else if (phaseNum === 4) {
@@ -2526,36 +2619,53 @@
         });
     }
 
-    function bindAiApplyBtn(itemId) {
+    function bindAiApplyBtn(itemId, dynType) {
+        dynType = dynType || 'fleet';
         var btn = document.getElementById('btnAiApply');
         if (!btn) return;
         btn.addEventListener('click', function() {
             if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing first', 'error'); return; }
             var responseText = document.getElementById('aiResponseText');
-            if (!responseText || !responseText.value.trim()) { showToast('Paste Claude\'s response first', 'error'); return; }
-            var printer = state.fleet.find(function(p) { return p.id === itemId; });
-            if (!printer) return;
-            var config = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+            if (!responseText || !responseText.value.trim()) { showToast('Paste the AI response first', 'error'); return; }
+            var stateArr = dynType === 'fleet' ? state.fleet : dynType === 'materials' ? state.materials : state.software;
+            var fieldDefs = dynType === 'fleet' ? FLEET_PROMPT_FIELDS : MATERIALS_PROMPT_FIELDS;
+            var item = stateArr.find(function(x) { return x.id === itemId; });
+            if (!item) return;
+            var introFn = dynType === 'fleet' ? getFleetIntro : getMaterialIntro;
+            var config = createClaudePromptConfig(fieldDefs, item, introFn(item));
             var result = config.parseResponse(responseText.value);
             if (result.count === 0) { showToast('Could not parse any fields from the response', 'error'); return; }
             Object.keys(result.fields).forEach(function(key) {
-                printer[key] = result.fields[key];
-                var input = document.querySelector('.field-input[data-dyn="fleet"][data-id="' + itemId + '"][data-field="' + key + '"]');
+                item[key] = result.fields[key];
+                var input = document.querySelector('.field-input[data-dyn="' + dynType + '"][data-id="' + itemId + '"][data-field="' + key + '"]');
                 if (input) input.value = result.fields[key];
             });
-            printer.verified = false;
-            printer.status_led = getDynamicCardStatus(printer);
+            item.verified = false;
+            item.status_led = getDynamicCardStatus(item);
             saveState();
-            renderAiResults(result, FLEET_PROMPT_FIELDS);
-            showToast('Applied ' + result.count + ' field(s) from Claude response');
-            if (result.fields.model) {
-                document.getElementById('detailTitle').textContent = result.fields.model;
-                saveModelLookup(result.fields.model);
-            }
-            var newConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+            renderAiResults(result, fieldDefs);
+            showToast('Applied ' + result.count + ' field(s) from AI response');
+            var newConfig = createClaudePromptConfig(fieldDefs, item, introFn(item));
             var promptEl = document.getElementById('aiPromptText');
             if (promptEl) promptEl.value = newConfig.prompt;
         });
+    }
+
+    function bindAiResponseWatcher() {
+        var textarea = document.getElementById('aiResponseText');
+        var btn = document.getElementById('btnAiApply');
+        if (!textarea || !btn) return;
+        var check = function() {
+            if (textarea.value.trim()) {
+                btn.disabled = false;
+                btn.classList.remove('disabled');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('disabled');
+            }
+        };
+        textarea.addEventListener('input', check);
+        textarea.addEventListener('change', check);
     }
 
     // ===================================================================
@@ -2615,7 +2725,12 @@
     render();
 
     // Seed model lookup from existing fleet data
-    state.fleet.forEach(function(p) { if (p.model) saveModelLookup(p.model); });
+    state.fleet.forEach(function(p) {
+        if (p.model) {
+            var fullName = ((p.brand || '') + ' ' + p.model).trim();
+            saveModelLookup(fullName);
+        }
+    });
 
     </script>
 </body>
