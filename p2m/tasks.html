@@ -575,7 +575,25 @@
         </div>
     </div>
 
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[SVC] Evaluate AI product image tools (replace remove.bg)</div>
+            <div class="desc">(MANUAL) Research AI tools that assemble professional Amazon listing images from raw screenshots and product photos (infographics, hero shots, lifestyle mockups, A+ Content). Should include BG removal, making remove.bg redundant. Evaluate: Canva AI, Photoroom, ProductScope AI, Flair.ai. Score on automation, API access, cost, quality. Coding/integration tasks created after tool is selected.</div>
+            <div class="meta"><span class="tag tag-service">SERVICE</span> Services &bull; v0.68.0</div>
+        </div>
+    </div>
+
     <!-- ── LATER (low) ── -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WS] Allow user-added cost line items on static cards</div>
+            <div class="desc">(FEATURE) Let users add custom cost rows to Workshop cards (W1.3, W3.2, etc.) for costs not covered by predefined fields. Similar pattern to Materials Library and Fleet &ldquo;+ Add&rdquo; buttons. Enables capturing ad-hoc costs without needing a code change.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Workshop &bull; v0.68.0</div>
+        </div>
+    </div>
+
     <div class="task">
         <span class="priority low"></span>
         <div class="content">
@@ -2260,6 +2278,42 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.68.0_clear_live_test_feedback');
+    }
+
+    // ── v0.68.0 rework: Re-inject AI image eval (original migration key spent, data lost on reseed) ──
+    if (ran.indexOf('v0.68.0_ai_image_eval_fix') === -1) {
+        var aiItem = {
+            id: 'bl_v0680_ai_image_eval',
+            title: '[SVC] Evaluate AI product image tools (replace remove.bg)',
+            desc: '(MANUAL) Research AI tools that assemble professional Amazon listing images from raw screenshots and product photos (infographics, hero shots, lifestyle mockups, A+ Content). Should include BG removal, making remove.bg redundant. Evaluate: Canva AI, Photoroom, ProductScope AI, Flair.ai. Score on automation, API access, cost, quality. Coding/integration tasks created after tool is selected.',
+            tag: 'SERVICE',
+            meta: 'Services \u2022 v0.68.0',
+            priority: 'medium'
+        };
+        var aiExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === aiItem.id) { aiExists = true; break; }
+        }
+        if (!aiExists) { data.backlog.push(aiItem); changed = true; }
+        markMigrationRun('v0.68.0_ai_image_eval_fix');
+    }
+
+    // ── v0.68.0 rework: Re-inject user cost fields (same reseed issue) ──
+    if (ran.indexOf('v0.68.0_user_cost_fields_fix') === -1) {
+        var costItem = {
+            id: 'bl_v0680_user_cost_fields',
+            title: '[WS] Allow user-added cost line items on static cards',
+            desc: '(FEATURE) Let users add custom cost rows to Workshop cards (W1.3, W3.2, etc.) for costs not covered by predefined fields. Similar pattern to Materials Library and Fleet "+ Add" buttons. Enables capturing ad-hoc costs without needing a code change.',
+            tag: 'FEATURE',
+            meta: 'Workshop \u2022 v0.68.0',
+            priority: 'low'
+        };
+        var costExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === costItem.id) { costExists = true; break; }
+        }
+        if (!costExists) { data.backlog.push(costItem); changed = true; }
+        markMigrationRun('v0.68.0_user_cost_fields_fix');
     }
 
     if (changed) saveTasks(data);

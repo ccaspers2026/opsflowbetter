@@ -489,7 +489,7 @@ function saveServices(list) {
         {
             id: 's7', name: 'Calendly', desc: 'Scheduling &amp; appointment booking',
             url: 'https://calendly.com/app/admin/billing', type: 'subscription', cost: '$12/mo',
-            renewal: '', cycle: '', credits: '', status: 'green', category: 'operations'
+            renewal: '', cycle: '', credits: '', status: 'green', category: 'admin'
         },
         {
             id: 's8', name: 'Hover.com', desc: 'Domain name registration (opsflowbetter.com)',
@@ -534,6 +534,14 @@ function saveServices(list) {
         changed = true;
     }
 
+    // v0.68.0 rework: Calendly is admin/scheduling, not manufacturing operations
+    for (var i = 0; i < services.length; i++) {
+        if (services[i].id === 's7' && services[i].category === 'operations') {
+            services[i].category = 'admin';
+            changed = true;
+        }
+    }
+
     if (changed) saveServices(services);
 })();
 
@@ -542,6 +550,7 @@ var CATEGORIES = {
     production: 'Production Tools',
     sales: 'Sales &amp; Marketing',
     operations: 'Operations &amp; Planning',
+    admin: 'Admin &amp; Scheduling',
     infrastructure: 'Infrastructure'
 };
 
