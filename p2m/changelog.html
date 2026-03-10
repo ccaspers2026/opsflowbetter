@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.73.0</p>
+                <p class="version">Changelog v0.74.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.73.0 - Packaging Moved to Pipeline</h2>
-            <p>Released March 10, 2026 &mdash; Removed W3.5 Packaging Defaults from Workshop Setup. Packaging is product-specific and belongs in the Pipeline (P4.1 Packaging Design), not as a workshop-level default. Pipeline COGS bridge updated to reference P4.1 instead.</p>
+            <h2>Version 0.74.0 - Card Reference Labels</h2>
+            <p>Released March 10, 2026 &mdash; Added sequential reference labels (ML.1, ML.2, ST.1, ST.2) to Materials Library and Software &amp; Tools cards. Fleet already had PF.x references. All dynamic cards now have shorthand IDs for easier conversation and prompt references.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">100</div>
+                <div class="stat-value">101</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,20 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.74.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.74.0</span>
+                    <span class="version-date">March 10, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>Card Reference Labels:</strong> Materials Library cards now show ML.1, ML.2, etc. Software &amp; Tools cards show ST.1, ST.2, etc. Fleet already had PF.1, PF.2 &mdash; all dynamic cards now have shorthand reference IDs</li>
+                    <li><strong>Detail panel headers:</strong> Opening any dynamic card shows its reference (e.g. &ldquo;ML.1 &mdash; PETG-HF&rdquo;) for quick identification</li>
+                    <li><strong>AI Prompt references:</strong> Fleet and material AI prompts now include the card reference (PF.x / ML.x) for context</li>
+                </ul>
+            </div>
 
             <!-- v0.73.0 -->
             <div class="version-entry">

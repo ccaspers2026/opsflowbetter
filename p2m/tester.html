@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.73.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.74.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,35 +630,37 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.73.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.74.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'W3.5 Removal (v0.73.0)',
+        title: 'Card Reference Labels (v0.74.0)',
         priority: 'PRIMARY',
         items: [
-            'Workshop: Phase 3 Machine Economics column does NOT show W3.5 Packaging Defaults card',
-            'Workshop: Phase 3 shows only W3.1 Depreciation, W3.2 Maintenance, W3.3 Electricity, W3.4 Blended Rate',
-            'Workshop: No JS errors on page load (W3.5 state cleaned up by migration)',
-            'Workshop: Blended Rate header still shows correct value ($0.35/hr)',
+            'Workshop: Materials Library grid cards show ML.1, ML.2 etc. in step-number position',
+            'Workshop: Software & Tools grid cards show ST.1, ST.2 etc. in step-number position',
+            'Workshop: Printer Fleet grid cards still show PF.1, PF.2 etc. (unchanged)',
+            'Workshop: Opening a material card shows "ML.x \u2014 Name" in detail header',
+            'Workshop: Opening a software card shows "ST.x \u2014 Name" in detail header',
+            'Workshop: Opening a fleet card shows "PF.x \u2014 Name" in detail header (unchanged)',
         ]
     },
     {
-        title: 'Pipeline Bridge Updates (v0.73.0)',
-        priority: 'PRIMARY',
-        items: [
-            'Pipeline: P3.1 COGS bridge shows "Packaging: See P4.1 Packaging Design" instead of dollar amount',
-            'Pipeline: P3.2 Pricing Strategy bridge shows workshop rate without packaging reference',
-            'Pipeline: P4.1 Packaging Design card still exists in Phase 4 with full field list',
-        ]
-    },
-    {
-        title: 'Versions (v0.73.0)',
+        title: 'AI Prompt References (v0.74.0)',
         priority: null,
         items: [
-            'Changelog: Banner shows v0.73.0 \u2014 Packaging Moved to Pipeline',
-            'Changelog: Version counter shows 100',
-            'All 8 P2M pages show v0.73.0 in their version line',
+            'Fleet AI prompt intro includes PF.x reference (e.g. "PF.1: I have a Bambu Lab X1C...")',
+            'Material AI prompt intro includes ML.x reference (e.g. "ML.1: I use PETG-HF...")',
+            'Machine Economics prompt includes PF references in fleet composition',
+        ]
+    },
+    {
+        title: 'Versions (v0.74.0)',
+        priority: null,
+        items: [
+            'Changelog: Banner shows v0.74.0 \u2014 Card Reference Labels',
+            'Changelog: Version counter shows 101',
+            'All 8 P2M pages show v0.74.0 in their version line',
         ]
     }
 ];

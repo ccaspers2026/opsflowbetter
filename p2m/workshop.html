@@ -810,7 +810,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.73.0</p>
+            <p class="version">Workshop v0.74.0</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -1353,6 +1353,16 @@
         return 'PF.' + (idx + 1);
     }
 
+    function getMaterialNumber(mat) {
+        var idx = state.materials.indexOf(mat);
+        return 'ML.' + (idx + 1);
+    }
+
+    function getSoftwareNumber(sw) {
+        var idx = state.software.indexOf(sw);
+        return 'ST.' + (idx + 1);
+    }
+
     // ===================================================================
     // CLAUDE PROMPT AI-ASSIST ENGINE (Reusable)
     // ===================================================================
@@ -1427,19 +1437,21 @@
     }
 
     function getMachineEconIntro() {
-        // Build fleet composition string from state
+        // Build fleet composition string from state with PF references
         var counts = {};
         var prices = {};
-        state.fleet.forEach(function(p) {
+        var refs = {};
+        state.fleet.forEach(function(p, idx) {
             var name = ((p.brand || '') + ' ' + (p.model || '')).trim();
             if (!name) name = 'Unknown Printer';
-            if (!counts[name]) { counts[name] = 0; prices[name] = p.price || '0'; }
+            if (!counts[name]) { counts[name] = 0; prices[name] = p.price || '0'; refs[name] = []; }
             counts[name]++;
+            refs[name].push('PF.' + (idx + 1));
         });
         var parts = [];
         Object.keys(counts).forEach(function(name) {
             var qty = counts[name];
-            parts.push(qty + '× ' + name + ' ($' + prices[name] + ' each)');
+            parts.push(qty + '× ' + name + ' (' + refs[name].join(', ') + ', $' + prices[name] + ' each)');
         });
         return 'I run a 3D printing workshop with ' + parts.join(', ') + '.\n' +
             'The fleet has ' + state.fleet.length + ' machines total. ' +
@@ -1450,12 +1462,14 @@
         var brand = (printer.brand || '').trim();
         var model = (printer.model || '').trim();
         var name = ((brand ? brand + ' ' : '') + model).trim();
-        return name ? 'I have a ' + name + ' 3D printer.' : 'I have a [enter brand and model] 3D printer.';
+        var pfNum = getFleetNumber(printer);
+        return name ? pfNum + ': I have a ' + name + ' 3D printer.' : 'I have a [enter brand and model] 3D printer.';
     }
 
     function getMaterialIntro(mat) {
         var name = (mat.name || '').trim();
-        return name ? 'I use ' + name + ' 3D printing filament.' : 'I use [enter material name] 3D printing filament.';
+        var mlNum = getMaterialNumber(mat);
+        return name ? mlNum + ': I use ' + name + ' 3D printing filament.' : 'I use [enter material name] 3D printing filament.';
     }
 
     function createClaudePromptConfig(fieldDefs, currentValues, introLine) {
@@ -1821,16 +1835,21 @@
                 });
             }
             if (p === 4) {
-                state.materials.forEach(function(mat) {
-                    content.appendChild(createCard('mat-' + mat.id, mat.name || 'New Material', mat.type || 'Unconfigured', '$' + (mat.costKg || '—') + '/kg', 'Material costs', mat.status_led, function(mid) {
+                state.materials.forEach(function(mat, idx) {
+                    var mlNum = 'ML.' + (idx + 1);
+                    var matTitle = (mat.name || 'New Material');
+                    var matDesc = (mat.type || 'Unconfigured') + '\n$' + (mat.costKg || '—') + '/kg';
+                    content.appendChild(createCard('mat-' + mat.id, mlNum, matTitle, matDesc, 'Material costs', mat.status_led, function(mid) {
                         return function() { openMaterialCard(mid); };
                     }(mat.id)));
                 });
             }
             if (p === 6) {
-                state.software.forEach(function(sw) {
+                state.software.forEach(function(sw, idx) {
+                    var stNum = 'ST.' + (idx + 1);
+                    var swTitle = sw.name || 'New Tool';
                     var swCostDesc = sw.costCycle === 'Free' ? 'Free' : '$' + (sw.cost || '0') + '/' + (sw.costCycle || 'Free');
-                    content.appendChild(createCard('sw-' + sw.id, sw.name || 'New Tool', sw.purpose || 'Unconfigured', swCostDesc, 'Tool config', sw.status_led, function(sid) {
+                    content.appendChild(createCard('sw-' + sw.id, stNum, swTitle, (sw.purpose || 'Unconfigured') + '\n' + swCostDesc, 'Tool config', sw.status_led, function(sid) {
                         return function() { openSoftwareCard(sid); };
                     }(sw.id)));
                 });
@@ -2251,7 +2270,8 @@
         activeCardId = 'mat-' + matId;
         highlightCard(activeCardId);
 
-        document.getElementById('detailStepInfo').textContent = mat.name || 'New Material';
+        var mlNum = getMaterialNumber(mat);
+        document.getElementById('detailStepInfo').textContent = mlNum + ' \u2014 ' + (mat.name || 'New Material');
         document.getElementById('detailTitle').textContent = mat.type || 'Configure this material';
         document.getElementById('detailPhaseInfo').textContent = 'Phase 4: Materials Library';
         setDetailLed(mat.status_led);
@@ -2387,7 +2407,8 @@
         activeCardId = 'sw-' + swId;
         highlightCard(activeCardId);
 
-        document.getElementById('detailStepInfo').textContent = sw.name || 'New Tool';
+        var stNum = getSoftwareNumber(sw);
+        document.getElementById('detailStepInfo').textContent = stNum + ' \u2014 ' + (sw.name || 'New Tool');
         document.getElementById('detailTitle').textContent = sw.purpose || 'Configure this tool';
         document.getElementById('detailPhaseInfo').textContent = 'Phase 6: Software & Tools';
         setDetailLed(sw.status_led);
