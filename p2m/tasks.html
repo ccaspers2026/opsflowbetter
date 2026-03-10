@@ -449,7 +449,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.76.0</p>
+        <p class="version">Tasks <span class="suite-ver">v0.77.0</span></p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -759,6 +759,56 @@
             <div class="title">Architecture diagrams for entire application</div>
             <div class="desc">Build interactive architecture diagrams (like the Cloudflare Media Center diagram) for each major subsystem across the Suite. Visual documentation of how pages, APIs, storage, and services connect.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> Documentation &bull; v0.64.7 user request</div>
+        </div>
+    </div>
+
+    <!-- ── LATER (low) — v0.76.0 architecture diagram sub-items ── -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[ARCH] P2M Pipeline Data Flow Diagram</div>
+            <div class="desc">(FEATURE) Interactive SVG diagram showing the P2M Pipeline data flow: product creation → image processing → pricing calculations → portfolio output. Show localStorage keys, page-to-page data handoffs, and calculation dependencies (W3.1 → COGS → pricing).</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.76.0 &bull; Depends: Architecture diagrams parent</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[ARCH] Workshop Calculation Engine Diagram</div>
+            <div class="desc">(FEATURE) Interactive SVG diagram mapping Workshop's calculation engine: Facility costs (W1) → Fleet specs (W2) → Blended rate derivation (W3.1–W3.4) → per-hour cost output. Show how each card feeds the next and where user inputs vs. calculated values live.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.76.0 &bull; Depends: Architecture diagrams parent</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[ARCH] Suite Navigation &amp; Page Topology Diagram</div>
+            <div class="desc">(FEATURE) Interactive SVG showing the full Suite page map: LaunchPad hub → P2M pages (Pipeline, Workshop, Tasks, Tester, Changelog, Services, Feedback, Media Center) → shared components (nav bar, version system). Show which pages read/write which localStorage keys.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.76.0 &bull; Depends: Architecture diagrams parent</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[ARCH] Data Storage &amp; Sync Architecture Diagram</div>
+            <div class="desc">(FEATURE) Interactive SVG showing the data layer: localStorage keys → KV backup sync → Worker API → future database migration path. Show the OpsFlow.init() flow, auto-backup on unload, recovery from KV when localStorage is wiped. Update Cloudflare diagram to include KV.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.76.0 &bull; Depends: T-085/T-086</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[ARCH] Image Processing Pipeline Diagram</div>
+            <div class="desc">(FEATURE) Interactive SVG showing the image pipeline end-to-end: user drops image → client-side bg removal (imgly) → Worker upload to R2 → remove.bg API (server-side) → R2 CDN serving → &lt;img&gt; tags in Pipeline/Portfolio. Extends the existing Cloudflare architecture diagram.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.76.0 &bull; Depends: Architecture diagrams parent</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[ARCH] Services &amp; Scheduling Flow Diagram</div>
+            <div class="desc">(FEATURE) Interactive SVG showing the Services page flow: service definitions → LED status system → reminder scheduling → Calendly integration points → feedback loop. Show how services data connects to the rest of the Suite.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.76.0 &bull; Depends: Architecture diagrams parent</div>
         </div>
     </div>
 
@@ -2643,6 +2693,87 @@ function runMigrations() {
         markMigrationRun('v0.76.0_task_ids_and_status');
     }
 
+    // ── v0.76.0: Architecture diagram sub-items ──
+    if (ran.indexOf('v0.76.0_bl_arch_diagrams') === -1) {
+        var archItems = [
+            {
+                id: 'bl_arch_p2m_pipeline',
+                title: '[ARCH] P2M Pipeline Data Flow Diagram',
+                desc: '(FEATURE) Interactive SVG diagram showing the P2M Pipeline data flow: product creation → image processing → pricing calculations → portfolio output. Show localStorage keys, page-to-page data handoffs, and calculation dependencies (W3.1 → COGS → pricing).',
+                tag: 'FEATURE',
+                meta: 'Architecture • v0.76.0 • Depends: Architecture diagrams parent',
+                priority: 'low'
+            },
+            {
+                id: 'bl_arch_workshop_calc',
+                title: '[ARCH] Workshop Calculation Engine Diagram',
+                desc: '(FEATURE) Interactive SVG diagram mapping Workshop\'s calculation engine: Facility costs (W1) → Fleet specs (W2) → Blended rate derivation (W3.1–W3.4) → per-hour cost output.',
+                tag: 'FEATURE',
+                meta: 'Architecture • v0.76.0 • Depends: Architecture diagrams parent',
+                priority: 'low'
+            },
+            {
+                id: 'bl_arch_suite_topology',
+                title: '[ARCH] Suite Navigation & Page Topology Diagram',
+                desc: '(FEATURE) Interactive SVG showing the full Suite page map: LaunchPad hub → P2M pages → shared components. Show which pages read/write which localStorage keys.',
+                tag: 'FEATURE',
+                meta: 'Architecture • v0.76.0 • Depends: Architecture diagrams parent',
+                priority: 'low'
+            },
+            {
+                id: 'bl_arch_data_sync',
+                title: '[ARCH] Data Storage & Sync Architecture Diagram',
+                desc: '(FEATURE) Interactive SVG showing the data layer: localStorage → KV backup → Worker API → future database. Show OpsFlow.init() flow, auto-backup, recovery from KV.',
+                tag: 'FEATURE',
+                meta: 'Architecture • v0.76.0 • Depends: T-085/T-086',
+                priority: 'low'
+            },
+            {
+                id: 'bl_arch_image_pipeline',
+                title: '[ARCH] Image Processing Pipeline Diagram',
+                desc: '(FEATURE) Interactive SVG showing image pipeline: user drops image → client bg removal → Worker upload to R2 → remove.bg API → R2 CDN serving. Extends Cloudflare architecture diagram.',
+                tag: 'FEATURE',
+                meta: 'Architecture • v0.76.0 • Depends: Architecture diagrams parent',
+                priority: 'low'
+            },
+            {
+                id: 'bl_arch_services_flow',
+                title: '[ARCH] Services & Scheduling Flow Diagram',
+                desc: '(FEATURE) Interactive SVG showing Services page flow: service definitions → LED status → reminder scheduling → Calendly integration → feedback loop.',
+                tag: 'FEATURE',
+                meta: 'Architecture • v0.76.0 • Depends: Architecture diagrams parent',
+                priority: 'low'
+            }
+        ];
+        for (var ai = 0; ai < archItems.length; ai++) {
+            var exists = false;
+            for (var j = 0; j < data.backlog.length; j++) {
+                if (data.backlog[j].id === archItems[ai].id) { exists = true; break; }
+            }
+            if (!exists) { data.backlog.push(archItems[ai]); changed = true; }
+        }
+        markMigrationRun('v0.76.0_bl_arch_diagrams');
+    }
+
+    // ── v0.77.0: Update T-085 and T-086 status to in-progress ──
+    if (ran.indexOf('v0.77.0_t085_t086_in_progress') === -1) {
+        var allItems = (data.priority || []).concat(data.backlog || []);
+        for (var i = 0; i < allItems.length; i++) {
+            var t = allItems[i].title || '';
+            if (t.indexOf('entraliz') !== -1 && t.indexOf('ersion') !== -1) {
+                // T-085: Centralized version
+                allItems[i].status = 'in-progress';
+                changed = true;
+            }
+            if (t.indexOf('localStorage') !== -1 && t.indexOf('backup') !== -1) {
+                // T-086: Eliminate localStorage-as-backup
+                allItems[i].status = 'in-progress';
+                changed = true;
+            }
+        }
+        markMigrationRun('v0.77.0_t085_t086_in_progress');
+    }
+
     if (changed) saveTasks(data);
 }
 
@@ -2650,6 +2781,8 @@ function runMigrations() {
 runMigrations();
 renderTasks();
 </script>
+<script src="../shared/opsflow-sync.js"></script>
+<script>OpsFlow.init();</script>
 
 </body>
 </html>

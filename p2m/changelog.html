@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.76.0</p>
+                <p class="version">Changelog <span class="suite-ver">v0.77.0</span></p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.75.0 - Task IDs, Status LEDs &amp; Supplier Fields</h2>
-            <p>Released March 10, 2026 &mdash; PQ/Backlog items now have permanent unique IDs (T-001, T-002, etc.) that never change. Status LEDs cycle through 4 states: New, Discussing, In Progress, Done. Materials Library adds Primary/Backup Supplier fields with conservative highest-price costing.</p>
+            <h2>Version 0.77.0 - Cloudflare KV Data Store &amp; Sync</h2>
+            <p>Released March 10, 2026 &mdash; Cloudflare Worker extended with KV namespace for centralized data storage. New shared opsflow-sync.js helper auto-syncs localStorage to KV on every page, auto-restores if localStorage is wiped, and dynamically sets version from KV. Stepping stone toward full database migration. Architecture diagram backlog items added for all major subsystems.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">103</div>
+                <div class="stat-value">104</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.77.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.77.0</span>
+                    <span class="version-date">March 10, 2026</span>
+                </div>
+                <span class="tag tag-infra">INFRA</span>
+                <ul>
+                    <li><strong>Cloudflare KV Data Store (T-085/T-086):</strong> Extended existing Worker with KV namespace binding. New API endpoints: GET/PUT/DELETE /kv/:key, GET /kv-list, POST /kv-bulk. All authenticated via X-Upload-Secret. Stepping stone to full database migration</li>
+                    <li><strong>Shared Sync Helper (opsflow-sync.js):</strong> New shared JS module loaded on every page. Auto-sets version from KV, backs up localStorage to KV on page unload, auto-restores from KV if localStorage is wiped. Recovery mode for browser data loss</li>
+                    <li><strong>Dynamic Version Display:</strong> All 9 pages now use &lt;span class=&quot;suite-ver&quot;&gt; for version numbers, updated dynamically by opsflow-sync.js from KV. Eliminates need to manually edit version strings in HTML</li>
+                    <li><strong>Architecture Diagram Backlog:</strong> Added 6 sub-items under existing architecture diagrams parent task: P2M Pipeline, Workshop Calc Engine, Suite Topology, Data Storage &amp; Sync, Image Pipeline, Services Flow</li>
+                    <li><strong>Secret Rotation:</strong> Rotated UPLOAD_SECRET and REMOVEBG_API_KEY to fresh GUIDs</li>
+                </ul>
+            </div>
 
             <!-- v0.76.0 -->
             <div class="version-entry">
@@ -2198,5 +2214,7 @@
             Engine: Claude AI &mdash; Platform prototype for p2m.opsflowbetter.com
         </div>
     </div>
+<script src="../shared/opsflow-sync.js"></script>
+<script>OpsFlow.init();</script>
 </body>
 </html>

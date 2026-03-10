@@ -1,5 +1,5 @@
-// OpsFlowBetter R2 Upload Worker
-// Deploy to Cloudflare Workers with R2 binding named "IMAGES"
+// OpsFlowBetter Worker — R2 Images + KV Data Store
+// Deploy to Cloudflare Workers with R2 binding "IMAGES" and KV binding "DATA"
 // Secrets: UPLOAD_SECRET, REMOVEBG_API_KEY
 // Route: api.opsflowbetter.com/*
 
@@ -8,7 +8,7 @@ export default {
     // CORS headers for all responses
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'PUT, POST, GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'PUT, POST, GET, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, X-Upload-Secret',
     };
 
@@ -18,6 +18,179 @@ export default {
     }
 
     const url = new URL(request.url);
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  KV DATA STORE ENDPOINTS — T-085/T-086
+    //  Mirrors localStorage key-value pairs to Cloudflare KV
+    // ═══════════════════════════════════════════════════════════════════
+
+    // ── GET /kv/:key — read a value from KV ──────────────────────────
+    if (request.method === 'GET' && url.pathname.startsWith('/kv/')) {
+      const secret = request.headers.get('X-Upload-Secret');
+      if (!secret || secret !== env.UPLOAD_SECRET) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const key = url.pathname.replace('/kv/', '');
+      if (!key) {
+        return new Response(JSON.stringify({ error: 'Missing key' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      try {
+        const value = await env.DATA.get(key);
+        if (value === null) {
+          return new Response(JSON.stringify({ ok: true, key, value: null }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        return new Response(JSON.stringify({ ok: true, key, value }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: 'KV read failed: ' + err.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // ── PUT /kv/:key — write a value to KV ───────────────────────────
+    if (request.method === 'PUT' && url.pathname.startsWith('/kv/')) {
+      const secret = request.headers.get('X-Upload-Secret');
+      if (!secret || secret !== env.UPLOAD_SECRET) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const key = url.pathname.replace('/kv/', '');
+      if (!key) {
+        return new Response(JSON.stringify({ error: 'Missing key' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      try {
+        const body = await request.text();
+        await env.DATA.put(key, body);
+        return new Response(JSON.stringify({ ok: true, key }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: 'KV write failed: ' + err.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // ── DELETE /kv/:key — remove a value from KV ─────────────────────
+    if (request.method === 'DELETE' && url.pathname.startsWith('/kv/')) {
+      const secret = request.headers.get('X-Upload-Secret');
+      if (!secret || secret !== env.UPLOAD_SECRET) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const key = url.pathname.replace('/kv/', '');
+      if (!key) {
+        return new Response(JSON.stringify({ error: 'Missing key' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      try {
+        await env.DATA.delete(key);
+        return new Response(JSON.stringify({ ok: true, key, deleted: true }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: 'KV delete failed: ' + err.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // ── GET /kv-list — list all keys in KV (for diagnostics) ─────────
+    if (request.method === 'GET' && url.pathname === '/kv-list') {
+      const secret = request.headers.get('X-Upload-Secret');
+      if (!secret || secret !== env.UPLOAD_SECRET) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      try {
+        const list = await env.DATA.list();
+        const keys = list.keys.map(k => k.name);
+        return new Response(JSON.stringify({ ok: true, keys }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: 'KV list failed: ' + err.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // ── POST /kv-bulk — write multiple keys at once ──────────────────
+    // Body: { "entries": { "key1": "value1", "key2": "value2" } }
+    if (request.method === 'POST' && url.pathname === '/kv-bulk') {
+      const secret = request.headers.get('X-Upload-Secret');
+      if (!secret || secret !== env.UPLOAD_SECRET) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      try {
+        const body = await request.json();
+        if (!body.entries || typeof body.entries !== 'object') {
+          return new Response(JSON.stringify({ error: 'Missing entries object' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const keys = Object.keys(body.entries);
+        const promises = keys.map(k => env.DATA.put(k, body.entries[k]));
+        await Promise.all(promises);
+
+        return new Response(JSON.stringify({ ok: true, written: keys.length, keys }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: 'KV bulk write failed: ' + err.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  R2 IMAGE ENDPOINTS (existing)
+    // ═══════════════════════════════════════════════════════════════════
 
     // ── PUT /upload/:path — upload (or overwrite) a file to R2 ──────────
     if (request.method === 'PUT' && url.pathname.startsWith('/upload/')) {
@@ -56,8 +229,6 @@ export default {
     }
 
     // ── POST /remove-bg — remove background via remove.bg API ───────────
-    // Accepts: { "r2Key": "product-slug/main.jpg" }
-    // Flow: fetch image from R2 → send to remove.bg → upload clean version back to same R2 key
     if (request.method === 'POST' && url.pathname === '/remove-bg') {
       const secret = request.headers.get('X-Upload-Secret');
       if (!secret || secret !== env.UPLOAD_SECRET) {
@@ -67,7 +238,6 @@ export default {
         });
       }
 
-      // Check that remove.bg API key is configured
       if (!env.REMOVEBG_API_KEY) {
         return new Response(JSON.stringify({ error: 'REMOVEBG_API_KEY not configured' }), {
           status: 500,
@@ -94,7 +264,6 @@ export default {
       }
 
       try {
-        // Step 1: Fetch the raw image from R2
         const r2Object = await env.IMAGES.get(r2Key);
         if (!r2Object) {
           return new Response(JSON.stringify({ error: 'Image not found in R2', key: r2Key }), {
@@ -105,7 +274,6 @@ export default {
 
         const rawImageData = await r2Object.arrayBuffer();
 
-        // Step 2: Send to remove.bg API
         const formData = new FormData();
         formData.append('image_file', new Blob([rawImageData], { type: 'image/jpeg' }), 'image.jpg');
         formData.append('size', 'auto');
@@ -138,7 +306,6 @@ export default {
 
         const cleanImageData = await removeBgResponse.arrayBuffer();
 
-        // Step 3: Upload clean version back to R2 (overwrite same key)
         await env.IMAGES.put(r2Key, cleanImageData, {
           httpMetadata: {
             contentType: 'image/jpeg',
@@ -211,7 +378,11 @@ export default {
 
     // ── GET /health — simple health check ───────────────────────────────
     if (request.method === 'GET' && url.pathname === '/health') {
-      return new Response(JSON.stringify({ status: 'ok', service: 'opsflowbetter-r2' }), {
+      return new Response(JSON.stringify({
+        status: 'ok',
+        service: 'opsflowbetter-r2',
+        kv: env.DATA ? 'bound' : 'not-bound',
+      }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

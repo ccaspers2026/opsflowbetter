@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.76.0</span></p>
+        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.77.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,40 +630,40 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.76.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.77.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'LaunchPad Admin Mode (v0.76.0)',
+        title: 'Cloudflare KV Data Store (v0.77.0)',
         priority: 'PRIMARY',
         items: [
-            'LaunchPad: Gear icon visible in top bar, toggles admin mode on/off',
-            'LaunchPad: Admin mode shows edit (pencil) and delete (X) on each sphere',
-            'LaunchPad: Admin mode shows "+" Add button at end of each section',
-            'LaunchPad: Click edit opens modal with sphere data pre-filled',
-            'LaunchPad: Edit a sphere \u2014 save changes, sphere updates on page',
-            'LaunchPad: Add a new sphere via "+" button \u2014 appears in section',
-            'LaunchPad: Delete a sphere \u2014 confirm dialog, sphere removed',
-            'LaunchPad: Changes persist after page reload (saved to localStorage)',
+            'API Health: GET api.opsflowbetter.com/health returns status:ok and kv:bound',
+            'KV Write: PUT /kv/test_key with X-Upload-Secret returns ok:true',
+            'KV Read: GET /kv/test_key returns the value just written',
+            'KV Delete: DELETE /kv/test_key returns ok:true, deleted:true',
+            'KV Auth: Request without X-Upload-Secret returns 401 Unauthorized',
+            'KV Version: GET /kv/opsflow_version returns "0.77.0"',
         ]
     },
     {
-        title: 'Status Badge Rework (v0.76.0)',
+        title: 'Sync Helper Integration (v0.77.0)',
         priority: 'PRIMARY',
         items: [
-            'Tasks: "New" status badge is visible (light grey, not invisible dark grey)',
-            'Tasks: Click status badge cycles: New \u2192 Discussing \u2192 In Progress \u2192 Done',
-            'Tasks: All 4 status colors clearly visible on dark background',
+            'All 8 P2M pages load opsflow-sync.js without console errors',
+            'LaunchPad loads opsflow-sync.js without console errors',
+            'Version displays correctly on all pages (v0.77.0)',
+            'Set opsflow_upload_secret in localStorage \u2014 OpsFlow.backupAll() in console works',
+            'Clear localStorage, reload \u2014 auto-restore recovers data from KV',
         ]
     },
     {
-        title: 'Versions (v0.76.0)',
+        title: 'Versions & Changelog (v0.77.0)',
         priority: null,
         items: [
-            'Changelog: v0.76.0 entry shows LaunchPad Admin Mode + Rework',
-            'Changelog: Version counter shows 103',
-            'LaunchPad shows v0.76.0 in top bar',
-            'All 8 P2M pages show v0.76.0 in their version line',
+            'Changelog: v0.77.0 entry shows KV Data Store + Sync Helper + Dynamic Versions',
+            'Changelog: Version counter shows 104',
+            'LaunchPad shows v0.77.0 in top bar',
+            'All 8 P2M pages show v0.77.0 in their version line',
         ]
     }
 ];
@@ -1133,5 +1133,7 @@ function renderHistory() {
 // ── Boot ─────────────────────────────────────────────────────────
 render();
 </script>
+<script src="../shared/opsflow-sync.js"></script>
+<script>OpsFlow.init();</script>
 </body>
 </html>

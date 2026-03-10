@@ -7,8 +7,17 @@ compatibility_date = "2024-01-01"
 binding = "IMAGES"
 bucket_name = "opsflowbetter-images"
 
+# KV namespace binding — T-085/T-086 centralized data store
+# After creating the namespace, replace the id below:
+#   wrangler kv namespace create OPSFLOW_DATA
+#   (copy the id from the output)
+[[kv_namespaces]]
+binding = "DATA"
+id = "2e536aa3429b440e80cae815cb449a24"
+
 # Custom domain route (set up in Cloudflare dashboard)
 # Route: api.opsflowbetter.com/*
 
 # Environment variables (set via dashboard or wrangler secret)
 # UPLOAD_SECRET = "your-chosen-secret"
+# REMOVEBG_API_KEY = "your-removebg-key"
