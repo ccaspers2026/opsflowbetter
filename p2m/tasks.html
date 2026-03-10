@@ -2271,9 +2271,10 @@ function runMigrations() {
 
     // ── v0.68.0: Clear PQ feedback item (live test updates — behavioral, no code) ──
     if (ran.indexOf('v0.68.0_clear_live_test_feedback') === -1) {
-        for (var i = data.pq.length - 1; i >= 0; i--) {
-            if (data.pq[i].title && data.pq[i].title.indexOf('update the status of all events') !== -1) {
-                data.pq.splice(i, 1);
+        var pqArr = data.priority || data.pq || [];
+        for (var i = pqArr.length - 1; i >= 0; i--) {
+            if (pqArr[i].title && pqArr[i].title.indexOf('update the status of all events') !== -1) {
+                pqArr.splice(i, 1);
                 changed = true;
             }
         }
