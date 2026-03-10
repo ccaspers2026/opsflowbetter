@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.71.1</span></p>
+        <p class="version">Tester <span id="versionTag">v0.71.2</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,7 +630,7 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.71.1';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.71.2';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
@@ -664,7 +664,7 @@ var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.se
         ]
     },
     {
-        title: 'Materials AI Assist (v0.71.1)',
+        title: 'Materials AI Assist (v0.71.2)',
         priority: null,
         items: [
             'Workshop: Click existing material (PETG-HF) \u2192 AI Assist section visible between Purpose and Material Details',
@@ -674,7 +674,7 @@ var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.se
         ]
     },
     {
-        title: 'Apply Button Gate (v0.71.1)',
+        title: 'Apply Button Gate (v0.71.2)',
         priority: null,
         items: [
             'Workshop: Fleet AI Assist \u2192 Apply button starts disabled (dimmed)',
@@ -684,11 +684,21 @@ var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.se
         ]
     },
     {
+        title: 'Clear AI Fields (v0.71.2)',
+        priority: null,
+        items: [
+            'Workshop: Fleet card with all fields filled \u2192 "Clear AI Fields" button visible next to Copy',
+            'Workshop: Click "Clear AI Fields" \u2192 volume/speed/watts/price cleared, prompt regenerates, card re-opens',
+            'Workshop: Materials card with all fields filled \u2192 "Clear AI Fields" button visible',
+            'Workshop: New printer with empty fields \u2192 "Clear AI Fields" button NOT visible',
+        ]
+    },
+    {
         title: 'Versions',
         priority: null,
         items: [
-            'Changelog: Banner shows v0.71.1 with 3 new timeline entries (v0.70.1, v0.71.0, v0.71.1)',
-            'All 8 P2M pages show v0.71.1 in their version line',
+            'Changelog: Banner shows v0.71.2 \u2014 Clear AI Fields',
+            'All 8 P2M pages show v0.71.2 in their version line',
         ]
     }
 ];

@@ -653,6 +653,18 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        .btn-ai-clear {
+            display: inline-block;
+            padding: 5px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+            border: 1px solid #da3633;
+            background: transparent;
+            color: #da3633;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+        .btn-ai-clear:hover { background: #da3633; color: #fff; }
         .ai-results-list {
             margin-top: 10px;
             font-size: 11px;
@@ -773,7 +785,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.71.1</p>
+            <p class="version">Workshop v0.71.2</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -1039,7 +1051,7 @@
                     }
                     delete fp.plate;
                 }
-                // v0.71.1: Split combined model into brand + model
+                // v0.71.2: Split combined model into brand + model
                 if (fp.brand === undefined && fp.model) {
                     var brandModelMap = {
                         'Bambu Lab X1C': { brand: 'Bambu Lab', model: 'X1C' },
@@ -1981,6 +1993,7 @@
                 '<div class="ai-assist-label">Your Prompt:</div>' +
                 '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(aiConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
+                (hasEmpty ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
                 '<div class="ai-assist-label">Paste AI Response:</div>' +
                 '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
@@ -2122,6 +2135,7 @@
                 '<div class="ai-assist-label">Your Prompt:</div>' +
                 '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(matAiConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
+                (matHasEmpty2 ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
                 '<div class="ai-assist-label">Paste AI Response:</div>' +
                 '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
@@ -2422,6 +2436,7 @@
 
                 bindAiCopyBtn(itemId);
                 bindAiApplyBtn(itemId, dynType);
+                bindAiClearBtn(itemId, dynType);
                 bindAiResponseWatcher();
             }
 
@@ -2666,6 +2681,26 @@
         };
         textarea.addEventListener('input', check);
         textarea.addEventListener('change', check);
+    }
+
+    function bindAiClearBtn(itemId, dynType) {
+        var btn = document.getElementById('btnAiClear');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing first', 'error'); return; }
+            var stateArr = dynType === 'fleet' ? state.fleet : dynType === 'materials' ? state.materials : state.software;
+            var fieldDefs = dynType === 'fleet' ? FLEET_PROMPT_FIELDS : MATERIALS_PROMPT_FIELDS;
+            var item = stateArr.find(function(x) { return x.id === itemId; });
+            if (!item) return;
+            fieldDefs.forEach(function(fd) { item[fd.key] = ''; });
+            item.verified = false;
+            item.status_led = getDynamicCardStatus(item);
+            saveState();
+            // Re-open the card to regenerate everything
+            if (dynType === 'fleet') openFleetCard(itemId);
+            else if (dynType === 'materials') openMaterialCard(itemId);
+            showToast('AI fields cleared \u2014 prompt regenerated');
+        });
     }
 
     // ===================================================================
