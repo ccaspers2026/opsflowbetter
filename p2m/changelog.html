@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.72.0</p>
+                <p class="version">Changelog v0.73.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.72.0 - Machine Economics AI Assist + Card Locking</h2>
-            <p>Released March 10, 2026 &mdash; AI Assist comes to Workshop static cards. One prompt from W3.1 reads your fleet composition and fills both W3.1 (Depreciation) and W3.2 (Maintenance). Cards W3.1&ndash;W3.4 are now locked until upstream dependencies are verified, enforcing the correct data entry order.</p>
+            <h2>Version 0.73.0 - Packaging Moved to Pipeline</h2>
+            <p>Released March 10, 2026 &mdash; Removed W3.5 Packaging Defaults from Workshop Setup. Packaging is product-specific and belongs in the Pipeline (P4.1 Packaging Design), not as a workshop-level default. Pipeline COGS bridge updated to reference P4.1 instead.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">99</div>
+                <div class="stat-value">100</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,20 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.73.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.73.0</span>
+                    <span class="version-date">March 10, 2026</span>
+                </div>
+                <span class="tag tag-feature">REFACTOR</span>
+                <ul>
+                    <li><strong>W3.5 Removed:</strong> Packaging Defaults removed from Workshop Setup &mdash; packaging is product-specific and belongs in the Pipeline (P4.1 Packaging Design), not as a workshop-level default</li>
+                    <li><strong>Pipeline bridge updated:</strong> P3.1 COGS bridge no longer pulls packaging from Workshop &mdash; references P4.1 instead. P3.2 Pricing Strategy bridge cleaned up</li>
+                    <li><strong>Migration:</strong> Existing localStorage data cleaned up automatically &mdash; W3.5 state removed on load</li>
+                </ul>
+            </div>
 
             <!-- v0.72.0 -->
             <div class="version-entry">

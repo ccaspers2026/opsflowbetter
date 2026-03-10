@@ -2286,7 +2286,7 @@
         <div class="p2m-header">
             <div>
                 <h1>Pipeline</h1>
-                <p class="version">Pipeline v0.72.0</p>
+                <p class="version">Pipeline v0.73.0</p>
                 <p class="tagline">7-phase product pipeline &mdash; idea to revenue</p>
             </div>
             <div class="header-right">
@@ -3839,11 +3839,7 @@
                 const elecHour = elecRate * (fleetAvgWatts / 1000);
                 const blendedRate = depHour + maintHour + elecHour;
 
-                // Packaging defaults
-                const polyBag = parseFloat(getVal('3.5', 'polyBag')) || 0;
-                const fnskuLabel = parseFloat(getVal('3.5', 'fnskuLabel')) || 0;
-                const insertCard = parseFloat(getVal('3.5', 'insertCard')) || 0;
-                const packagingTotal = polyBag + fnskuLabel + insertCard;
+                // v0.73.0: Packaging moved to Pipeline P4.1 (product-specific)
 
                 // Materials library
                 const materials = (ws.materials || []).map(m => ({
@@ -3887,7 +3883,6 @@
                     maintHour: maintHour.toFixed(4),
                     elecHour: elecHour.toFixed(4),
                     blendedRate: blendedRate.toFixed(2),
-                    packagingTotal: packagingTotal.toFixed(2),
                     materials: materials,
                     software: software,
                     laborAbsorbed: laborAbsorbed,
@@ -3946,7 +3941,7 @@
                 if (ws.materials.length > 0) {
                     parts.push('<div class="bridge-row"><span class="bridge-label">Material:</span> <span class="bridge-value">' + ws.materials.map(m => m.name + ' @ $' + m.costGram + '/g').join(' · ') + '</span></div>');
                 }
-                parts.push('<div class="bridge-row"><span class="bridge-label">Packaging:</span> <span class="bridge-value">$' + ws.packagingTotal + '/unit</span></div>');
+                parts.push('<div class="bridge-row"><span class="bridge-label">Packaging:</span> <span class="bridge-value bridge-sub">See P4.1 Packaging Design</span></div>');
                 parts.push('<div class="bridge-row"><span class="bridge-label">Labor:</span> <span class="bridge-value">' + ws.laborAbsorbed + '</span>' +
                     (ws.helperRate > 0 ? ' <span class="bridge-sub">(' + ws.helperName + ' @ $' + ws.helperRate + '/hr)</span>' : '') + '</div>');
                 html = '<div class="bridge-banner bridge-connected"><div class="bridge-header"><span class="bridge-icon">🔗</span> <strong>Workshop Data for COGS</strong></div>' + parts.join('') + '</div>';
@@ -3954,7 +3949,7 @@
 
             if (stepId === '3.2') {
                 // Pricing Strategy — quick COGS reference
-                html = '<div class="bridge-banner bridge-connected"><span class="bridge-icon">🔗</span> <strong>Workshop Rate:</strong> $' + ws.blendedRate + '/hr machine time · Packaging $' + ws.packagingTotal + '/unit</div>';
+                html = '<div class="bridge-banner bridge-connected"><span class="bridge-icon">🔗</span> <strong>Workshop Rate:</strong> $' + ws.blendedRate + '/hr machine time</div>';
             }
 
             return html || null;

@@ -810,7 +810,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.72.0</p>
+            <p class="version">Workshop v0.73.0</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -955,18 +955,6 @@
             ],
             allLinked: true
         },
-        '3.5': {
-            phase: 3, number: 'W3.5', title: 'Packaging Defaults',
-            description: 'Default per-unit packaging cost',
-            output: 'Feeds product COGS',
-            purpose: 'Set your default packaging cost per unit. This includes poly bags, labels, FNSKU stickers, inserts, and any protective packaging. Individual products can override this in their Pipeline COGS step (P3.1), but having a workshop-level default speeds up new product costing.',
-            fields: [
-                { key: 'polyBag', label: 'Poly Bag + Seal ($/unit)', type: 'text', placeholder: '0.02', hint: 'Clear poly bags with suffocation warning — Amazon requires for multi-piece products. ~$0.02 bulk from Uline/Amazon' },
-                { key: 'fnskuLabel', label: 'FNSKU Label ($/unit)', type: 'text', placeholder: '0.01', hint: 'Printed barcode label per unit — Amazon FNSKU for FBA or UPC for FBM. ~$0.01 from thermal roll' },
-                { key: 'insertCard', label: 'Insert Card ($/unit)', type: 'text', placeholder: '0.02', hint: 'Thank-you / instruction insert card — brand building + reduces returns. ~$0.02 from bulk print' },
-                { key: 'packagingTotal', label: 'Total Packaging ($/unit)', type: 'calculated' }
-            ]
-        },
         '5.1': {
             phase: 5, number: 'W5.1', title: 'Owner / Primary Operator',
             description: 'Owner role and labor absorption decision',
@@ -1103,6 +1091,11 @@
                     }
                 }
             }
+        }
+
+        // v0.73.0: Remove W3.5 Packaging Defaults (moved to Pipeline P4.1)
+        if (s.statics && s.statics['3.5']) {
+            delete s.statics['3.5'];
         }
 
         if (!s.statics || !s.statics['1.2'] || !s.statics['1.2'].values) return;
@@ -1687,12 +1680,6 @@
         if (cardId === '3.4' && fieldKey === 'maintComponent') return '$' + calcMaintHour();
         if (cardId === '3.4' && fieldKey === 'elecComponent') return '$' + calcElecHour();
         if (cardId === '3.4' && fieldKey === 'blendedRate') return '$' + calcBlendedRate();
-        if (cardId === '3.5' && fieldKey === 'packagingTotal') {
-            var poly = parseFloat(getFieldValue('3.5', 'polyBag')) || 0;
-            var fnsku = parseFloat(getFieldValue('3.5', 'fnskuLabel')) || 0;
-            var insert = parseFloat(getFieldValue('3.5', 'insertCard')) || 0;
-            return '$' + (poly + fnsku + insert).toFixed(2);
-        }
         return '—';
     }
 
