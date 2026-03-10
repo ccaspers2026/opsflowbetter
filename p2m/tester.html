@@ -634,40 +634,35 @@ var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.vers
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Task IDs (v0.76.0)',
+        title: 'LaunchPad Admin Mode (v0.76.0)',
         priority: 'PRIMARY',
         items: [
-            'Tasks: PQ items display T-00x badge next to title',
-            'Tasks: Backlog items display T-00x badge next to title',
-            'Tasks: IDs persist after promote/demote (same task keeps same ID)',
-            'Tasks: New items get the next sequential ID',
+            'LaunchPad: Gear icon visible in top bar, toggles admin mode on/off',
+            'LaunchPad: Admin mode shows edit (pencil) and delete (X) on each sphere',
+            'LaunchPad: Admin mode shows "+" Add button at end of each section',
+            'LaunchPad: Click edit opens modal with sphere data pre-filled',
+            'LaunchPad: Edit a sphere \u2014 save changes, sphere updates on page',
+            'LaunchPad: Add a new sphere via "+" button \u2014 appears in section',
+            'LaunchPad: Delete a sphere \u2014 confirm dialog, sphere removed',
+            'LaunchPad: Changes persist after page reload (saved to localStorage)',
         ]
     },
     {
-        title: 'Status LEDs (v0.76.0)',
+        title: 'Status Badge Rework (v0.76.0)',
         priority: 'PRIMARY',
         items: [
-            'Tasks: Click status badge cycles: New (gray) \u2192 Discussing (yellow) \u2192 In Progress (blue) \u2192 Done (green)',
-            'Tasks: In Progress shows pulsing animation',
-            'Tasks: Status persists after page reload',
-        ]
-    },
-    {
-        title: 'Material Suppliers (v0.76.0)',
-        priority: 'PRIMARY',
-        items: [
-            'Workshop: ML.1 card shows Primary Supplier + Backup Supplier fields',
-            'Workshop: COGS cost uses the higher of primary/backup prices',
-            'Workshop: Cost display shows which price is being used',
-            'Workshop: Grid card shows effective cost per kg',
+            'Tasks: "New" status badge is visible (light grey, not invisible dark grey)',
+            'Tasks: Click status badge cycles: New \u2192 Discussing \u2192 In Progress \u2192 Done',
+            'Tasks: All 4 status colors clearly visible on dark background',
         ]
     },
     {
         title: 'Versions (v0.76.0)',
         priority: null,
         items: [
-            'Changelog: Banner shows v0.76.0 \u2014 Task IDs, Status LEDs & Supplier Fields',
-            'Changelog: Version counter shows 102',
+            'Changelog: v0.76.0 entry shows LaunchPad Admin Mode + Rework',
+            'Changelog: Version counter shows 103',
+            'LaunchPad shows v0.76.0 in top bar',
             'All 8 P2M pages show v0.76.0 in their version line',
         ]
     }
