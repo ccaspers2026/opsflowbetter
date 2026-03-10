@@ -1419,7 +1419,7 @@
             if (p === 2) {
                 state.fleet.forEach(function(printer, idx) {
                     var pfNum = 'PF.' + (idx + 1);
-                    content.appendChild(createCard('fleet-' + printer.id, pfNum, printer.name || 'New Printer', printer.model || 'Unconfigured', (printer.status || 'Active') + ' &middot; Printer config', printer.status_led, function(pid) {
+                    content.appendChild(createCard('fleet-' + printer.id, pfNum, printer.name || 'New Printer', printer.model || 'Unconfigured', (printer.status || 'Active') + ' \u00b7 Printer config', printer.status_led, function(pid) {
                         return function() { openFleetCard(pid); };
                     }(printer.id)));
                 });
