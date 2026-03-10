@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.74.0</p>
+                <p class="version">Changelog v0.75.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.74.0 - Card Reference Labels</h2>
-            <p>Released March 10, 2026 &mdash; Added sequential reference labels (ML.1, ML.2, ST.1, ST.2) to Materials Library and Software &amp; Tools cards. Fleet already had PF.x references. All dynamic cards now have shorthand IDs for easier conversation and prompt references.</p>
+            <h2>Version 0.75.0 - Task IDs, Status LEDs &amp; Supplier Fields</h2>
+            <p>Released March 10, 2026 &mdash; PQ/Backlog items now have permanent unique IDs (T-001, T-002, etc.) that never change. Status LEDs cycle through 4 states: New, Discussing, In Progress, Done. Materials Library adds Primary/Backup Supplier fields with conservative highest-price costing.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">101</div>
+                <div class="stat-value">102</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,21 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.75.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.75.0</span>
+                    <span class="version-date">March 10, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>Unique Task IDs:</strong> Every PQ and Backlog item now has a permanent ID (T-001, T-002, etc.) that never changes regardless of sort order or position. Displayed on each task card for easy reference</li>
+                    <li><strong>Status LEDs:</strong> Task status cycles through 4 states: New (gray) &rarr; Discussing (yellow) &rarr; In Progress (blue, pulsing) &rarr; Done (green). Click to cycle. Both user and Claude can update</li>
+                    <li><strong>Primary/Backup Suppliers:</strong> Materials Library now has separate Primary and Backup Supplier fields with individual pricing. COGS always uses the higher of the two prices for conservative costing</li>
+                    <li><strong>Migration:</strong> Existing tasks auto-assigned IDs. Old &ldquo;working&rdquo; status migrated to &ldquo;In Progress&rdquo;. Old single supplier field preserved via costKg fallback</li>
+                </ul>
+            </div>
 
             <!-- v0.74.0 -->
             <div class="version-entry">

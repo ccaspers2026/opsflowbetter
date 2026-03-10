@@ -284,33 +284,74 @@
             margin-left: 6px;
             vertical-align: middle;
         }
-        .status-badge.idle {
+        .status-badge.new {
             color: #484f58;
             border: 1px dashed #30363d;
         }
-        .status-badge.idle:hover {
+        .status-badge.new:hover {
             border-color: #484f58;
             color: #8b949e;
         }
-        .status-badge.idle::after { content: '+ Status'; }
-        .status-badge.working {
+        .status-badge.new::after { content: 'New'; }
+        .status-badge.discussing {
+            color: #f0883e;
+            border: 1px solid #f0883e;
+            background: rgba(240, 136, 62, 0.15);
+        }
+        .status-badge.discussing::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f0883e;
+        }
+        .status-badge.discussing::after { content: 'Discussing'; }
+        .status-badge.in-progress {
+            color: #58a6ff;
+            border: 1px solid #58a6ff;
+            background: rgba(88, 166, 255, 0.15);
+        }
+        .status-badge.in-progress::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #58a6ff;
+            animation: statusPulse 1.5s ease-in-out infinite;
+        }
+        .status-badge.in-progress::after { content: 'In Progress'; }
+        .status-badge.done {
             color: #3fb950;
             border: 1px solid #238636;
             background: rgba(35, 134, 54, 0.15);
         }
-        .status-badge.working::before {
+        .status-badge.done::before {
             content: '';
             display: inline-block;
             width: 6px;
             height: 6px;
             border-radius: 50%;
             background: #3fb950;
-            animation: statusPulse 1.5s ease-in-out infinite;
         }
-        .status-badge.working::after { content: 'Working'; }
+        .status-badge.done::after { content: 'Done'; }
         @keyframes statusPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
+        }
+
+        /* ── Task ID Badge ── */
+        .task-id {
+            font-size: 10px;
+            font-weight: 700;
+            color: #8b949e;
+            background: #21262d;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-right: 6px;
+            white-space: nowrap;
+            font-family: 'Consolas', 'Courier New', monospace;
         }
 
         /* ── Edit/Save ── */
@@ -408,7 +449,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.74.0</p>
+        <p class="version">Tasks v0.75.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -1579,8 +1620,20 @@ function saveTasks(data) {
 }
 
 // ── Seed from static HTML on first load ──────────────────────────
+function getNextTaskNum(data) {
+    var n = data.nextTaskNum || 1;
+    data.nextTaskNum = n + 1;
+    return n;
+}
+
+function formatTaskNum(n) {
+    if (n < 10) return 'T-00' + n;
+    if (n < 100) return 'T-0' + n;
+    return 'T-' + n;
+}
+
 function seedFromHTML() {
-    var data = { priority: [], backlog: [] };
+    var data = { priority: [], backlog: [], nextTaskNum: 1 };
     var sections = document.querySelectorAll('.section');
 
     // Parse Priority Queue (section 0)
@@ -1593,12 +1646,15 @@ function seedFromHTML() {
             var metaEl = t.querySelector('.meta');
             var tagEl = t.querySelector('.tag');
             if (titleEl) {
+                var num = getNextTaskNum(data);
                 data.priority.push({
                     id: 'pq_' + Date.now() + '_' + i,
+                    taskNum: num,
                     title: titleEl.textContent,
                     desc: descEl ? descEl.textContent : '',
                     tag: tagEl ? tagEl.textContent : 'FEATURE',
-                    meta: metaEl ? metaEl.textContent.replace(tagEl ? tagEl.textContent : '', '').trim() : ''
+                    meta: metaEl ? metaEl.textContent.replace(tagEl ? tagEl.textContent : '', '').trim() : '',
+                    status: 'new'
                 });
             }
         }
@@ -1620,13 +1676,16 @@ function seedFromHTML() {
                 else if (priEl.classList.contains('low')) pri = 'low';
             }
             if (titleEl) {
+                var num = getNextTaskNum(data);
                 data.backlog.push({
                     id: 'bl_' + Date.now() + '_' + i,
+                    taskNum: num,
                     title: titleEl.textContent,
                     desc: descEl ? descEl.textContent : '',
                     tag: tagEl ? tagEl.textContent : 'FEATURE',
                     meta: metaEl ? metaEl.textContent.replace(tagEl ? tagEl.textContent : '', '').trim() : '',
-                    priority: pri
+                    priority: pri,
+                    status: 'new'
                 });
             }
         }
@@ -1664,10 +1723,11 @@ function renderTasks() {
             selectHtml += '</select>';
 
             var pqPri = t.priority || 'medium';
-            var statusCls = t.status === 'working' ? 'working' : 'idle';
-            var isWorking = t.status === 'working';
-            var editDisabled = isWorking ? ' disabled' : '';
+            var statusCls = t.status || 'new';
+            var isInProgress = statusCls === 'in-progress';
+            var editDisabled = isInProgress ? ' disabled' : '';
             var isEditing = window._editingId === t.id;
+            var taskIdLabel = t.taskNum ? formatTaskNum(t.taskNum) : '';
             html += '<div class="task">';
             html += '<div class="order-num">' + selectHtml + '</div>';
             html += '<span class="priority ' + pqPri + '" onclick="cyclePQPriority(\'' + t.id + '\')" title="Click to change priority" style="cursor:pointer;"></span>';
@@ -1676,7 +1736,7 @@ function renderTasks() {
                 html += '<input class="edit-title" id="editTitle_' + t.id + '" value="' + esc(t.title).replace(/"/g, '&quot;') + '">';
                 html += '<textarea class="edit-desc" id="editDesc_' + t.id + '">' + esc(t.desc) + '</textarea>';
             } else {
-                html += '<div class="title">' + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'priority\', \'' + t.id + '\')" title="Click to toggle status"></span></div>';
+                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'priority\', \'' + t.id + '\')" title="Click to cycle status"></span></div>';
                 html += '<div class="desc">' + esc(t.desc) + '</div>';
             }
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
@@ -1713,8 +1773,9 @@ function renderTasks() {
         for (var i = 0; i < data.backlog.length; i++) {
             var t = data.backlog[i];
             var pri = t.priority || 'medium';
-            var statusCls = t.status === 'working' ? 'working' : 'idle';
+            var statusCls = t.status || 'new';
             var isEditing = window._editingId === t.id;
+            var taskIdLabel = t.taskNum ? formatTaskNum(t.taskNum) : '';
             html += '<div class="task">';
             html += '<span class="priority ' + pri + '" onclick="cyclePriority(\'' + t.id + '\')" title="Click to change priority" style="cursor:pointer;"></span>';
             html += '<div class="content">';
@@ -1722,7 +1783,7 @@ function renderTasks() {
                 html += '<input class="edit-title" id="editTitle_' + t.id + '" value="' + esc(t.title).replace(/"/g, '&quot;') + '">';
                 html += '<textarea class="edit-desc" id="editDesc_' + t.id + '">' + esc(t.desc) + '</textarea>';
             } else {
-                html += '<div class="title">' + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'backlog\', \'' + t.id + '\')" title="Click to toggle status"></span></div>';
+                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'backlog\', \'' + t.id + '\')" title="Click to cycle status"></span></div>';
                 html += '<div class="desc">' + esc(t.desc) + '</div>';
             }
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
@@ -1754,6 +1815,7 @@ function promoteToQueue(id) {
     if (idx === -1) return;
     var item = data.backlog.splice(idx, 1)[0];
     item.id = 'pq_' + Date.now();
+    if (!item.taskNum) item.taskNum = getNextTaskNum(data);
     data.priority.push(item);
     saveTasks(data);
     renderTasks();
@@ -1770,6 +1832,7 @@ function demoteToPQ(id) {
     var item = data.priority.splice(idx, 1)[0];
     item.id = 'bl_' + Date.now();
     item.priority = item.priority || 'medium';
+    if (!item.taskNum) item.taskNum = getNextTaskNum(data);
     data.backlog.unshift(item);
     saveTasks(data);
     renderTasks();
@@ -1805,14 +1868,22 @@ function reorderPQ(id, newPos) {
     renderTasks();
 }
 
-// ── Status Badge Toggle ──────────────────────────────────────────
+// ── Status Badge Cycle ───────────────────────────────────────────
+// Cycles: new → discussing → in-progress → done → new
+// Uses 2-second debounce for smooth cycling
+var _statusTimer = null;
+
 function cycleStatus(section, id) {
     var data = loadTasks();
     if (!data) return;
+    var cycle = { 'new': 'discussing', 'discussing': 'in-progress', 'in-progress': 'done', 'done': 'new' };
     var arr = section === 'priority' ? data.priority : data.backlog;
     for (var i = 0; i < arr.length; i++) {
         if (arr[i].id === id) {
-            arr[i].status = arr[i].status === 'working' ? null : 'working';
+            var current = arr[i].status || 'new';
+            arr[i].status = cycle[current] || 'new';
+            // Migrate old 'working' status
+            if (current === 'working') arr[i].status = 'in-progress';
             break;
         }
     }
@@ -2552,6 +2623,24 @@ function runMigrations() {
         }
         if (!fbExists) { data.backlog.push(fbItem); changed = true; }
         markMigrationRun('v0.72.0_bl_forms_builder');
+    }
+
+    // ── v0.75.0: Assign unique task IDs + migrate status from working→in-progress ──
+    if (ran.indexOf('v0.75.0_task_ids_and_status') === -1) {
+        if (!data.nextTaskNum) data.nextTaskNum = 1;
+        // Assign taskNum to all existing items that don't have one
+        var allItems = (data.priority || []).concat(data.backlog || []).concat(data.completed || []);
+        for (var i = 0; i < allItems.length; i++) {
+            if (!allItems[i].taskNum) {
+                allItems[i].taskNum = data.nextTaskNum;
+                data.nextTaskNum++;
+            }
+            // Migrate old 'working' status to 'in-progress', null/undefined to 'new'
+            if (allItems[i].status === 'working') allItems[i].status = 'in-progress';
+            else if (!allItems[i].status) allItems[i].status = 'new';
+        }
+        changed = true;
+        markMigrationRun('v0.75.0_task_ids_and_status');
     }
 
     if (changed) saveTasks(data);

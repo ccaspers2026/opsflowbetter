@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.74.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.75.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,37 +630,45 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.74.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.75.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Card Reference Labels (v0.74.0)',
+        title: 'Task IDs (v0.75.0)',
         priority: 'PRIMARY',
         items: [
-            'Workshop: Materials Library grid cards show ML.1, ML.2 etc. in step-number position',
-            'Workshop: Software & Tools grid cards show ST.1, ST.2 etc. in step-number position',
-            'Workshop: Printer Fleet grid cards still show PF.1, PF.2 etc. (unchanged)',
-            'Workshop: Opening a material card shows "ML.x \u2014 Name" in detail header',
-            'Workshop: Opening a software card shows "ST.x \u2014 Name" in detail header',
-            'Workshop: Opening a fleet card shows "PF.x \u2014 Name" in detail header (unchanged)',
+            'Tasks: PQ items display T-00x badge next to title',
+            'Tasks: Backlog items display T-00x badge next to title',
+            'Tasks: IDs persist after promote/demote (same task keeps same ID)',
+            'Tasks: New items get the next sequential ID',
         ]
     },
     {
-        title: 'AI Prompt References (v0.74.0)',
-        priority: null,
+        title: 'Status LEDs (v0.75.0)',
+        priority: 'PRIMARY',
         items: [
-            'Fleet AI prompt intro includes PF.x reference (e.g. "PF.1: I have a Bambu Lab X1C...")',
-            'Material AI prompt intro includes ML.x reference (e.g. "ML.1: I use PETG-HF...")',
-            'Machine Economics prompt includes PF references in fleet composition',
+            'Tasks: Click status badge cycles: New (gray) \u2192 Discussing (yellow) \u2192 In Progress (blue) \u2192 Done (green)',
+            'Tasks: In Progress shows pulsing animation',
+            'Tasks: Status persists after page reload',
         ]
     },
     {
-        title: 'Versions (v0.74.0)',
+        title: 'Material Suppliers (v0.75.0)',
+        priority: 'PRIMARY',
+        items: [
+            'Workshop: ML.1 card shows Primary Supplier + Backup Supplier fields',
+            'Workshop: COGS cost uses the higher of primary/backup prices',
+            'Workshop: Cost display shows which price is being used',
+            'Workshop: Grid card shows effective cost per kg',
+        ]
+    },
+    {
+        title: 'Versions (v0.75.0)',
         priority: null,
         items: [
-            'Changelog: Banner shows v0.74.0 \u2014 Card Reference Labels',
-            'Changelog: Version counter shows 101',
-            'All 8 P2M pages show v0.74.0 in their version line',
+            'Changelog: Banner shows v0.75.0 \u2014 Task IDs, Status LEDs & Supplier Fields',
+            'Changelog: Version counter shows 102',
+            'All 8 P2M pages show v0.75.0 in their version line',
         ]
     }
 ];
