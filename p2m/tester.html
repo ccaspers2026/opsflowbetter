@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.71.2</span></p>
+        <p class="version">Tester <span id="versionTag">v0.72.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,75 +630,59 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.71.2';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.72.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Fleet AI Assist \u2014 Model Gate (v0.70.1)',
+        title: 'Machine Economics Card Locking (v0.72.0)',
         priority: 'PRIMARY',
         items: [
-            'Workshop: Add new printer \u2192 AI Assist toggle shows disabled with "enter brand & model to enable" hint',
-            'Workshop: Disabled toggle does NOT expand when clicked',
-            'Workshop: Existing printer with model \u2192 AI Assist toggle is enabled (no hint)',
+            'Workshop: W3.1 Depreciation shows lock message when fleet cards are NOT all green',
+            'Workshop: W3.2 Maintenance shows lock message when fleet cards are NOT all green',
+            'Workshop: W3.3 Electricity shows lock message when W1.1 or fleet not verified',
+            'Workshop: W3.4 Blended Rate shows lock message when W3.1/W3.2/W3.3 not verified',
+            'Workshop: Lock message shows dependency list (e.g. "Requires: All fleet cards verified")',
         ]
     },
     {
-        title: 'Fleet AI Assist \u2014 Auto-Expand + Copy/Apply',
-        priority: null,
+        title: 'Machine Economics AI Assist (v0.72.0)',
+        priority: 'PRIMARY',
         items: [
-            'Workshop: New printer \u2192 type model name + tab out \u2192 AI Assist auto-expands with generated prompt',
-            'Workshop: Auto-expanded prompt includes the model name user just typed',
-            'Workshop: Copy to Clipboard works on enabled AI Assist',
-            'Workshop: Paste response + Apply fills fields correctly',
+            'Workshop: W3.1 card shows AI Assist section between Purpose and Data Entry (when fleet all green)',
+            'Workshop: AI Assist prompt includes fleet composition (model counts and prices)',
+            'Workshop: Prompt label says "fills W3.1 + W3.2"',
+            'Workshop: Copy to Clipboard works on the generated prompt',
+            'Workshop: Paste response + Apply fills W3.1 lifespan field',
+            'Workshop: Apply also fills W3.2 annualBudget and hrsPerMachinePerYear (cross-card fill)',
+            'Workshop: Results summary shows checkmarks for all filled fields',
+            'Workshop: Toast shows "Applied X field(s) across W3.1 + W3.2"',
         ]
     },
     {
-        title: 'Brand & Model Split (v0.71.0)',
+        title: 'AI Assist Clear + Gate (v0.72.0)',
         priority: null,
         items: [
-            'Workshop: Fleet card detail panel shows Brand field between Printer Name and Model',
-            'Workshop: Default printers show brand "Bambu Lab" and model "X1C"/"H2D"/"A1" separately',
-            'Workshop: Card description on fleet grid shows "Bambu Lab X1C" (brand + model combined)',
-            'Workshop: Fleet AI Assist prompt reads "I have a Bambu Lab X1C 3D printer" (uses both fields)',
-            'Workshop: Changing brand field and tabbing out regenerates the prompt',
+            'Workshop: W3.1 with all fields filled shows "Clear AI Fields" button',
+            'Workshop: Click Clear AI Fields clears W3.1 lifespan AND W3.2 budget+hours',
+            'Workshop: Apply button starts disabled, enables when text pasted into response area',
         ]
     },
     {
-        title: 'Materials AI Assist (v0.71.2)',
+        title: 'Data Integrity (v0.72.0)',
         priority: null,
         items: [
-            'Workshop: Click existing material (PETG-HF) \u2192 AI Assist section visible between Purpose and Material Details',
-            'Workshop: AI Assist prompt reads "I use PETG-HF 3D printing filament." with type, cost/kg, suppliers',
-            'Workshop: Add new material \u2192 AI Assist disabled with hint "enter material name to enable"',
-            'Workshop: Type material name + tab out \u2192 AI Assist auto-expands with prompt',
+            'Workshop: W3.1/W3.3/W3.4 auto-calculated values unchanged after AI-assisted data entry',
+            'Workshop: Mark as Complete still works after AI fill on W3.1',
+            'Workshop: W3.2 shows correct values when opened after AI fill from W3.1',
         ]
     },
     {
-        title: 'Apply Button Gate (v0.71.2)',
+        title: 'Backlog & Versions (v0.72.0)',
         priority: null,
         items: [
-            'Workshop: Fleet AI Assist \u2192 Apply button starts disabled (dimmed)',
-            'Workshop: Materials AI Assist \u2192 Apply button starts disabled (dimmed)',
-            'Workshop: Paste text into response textarea \u2192 Apply button enables',
-            'Workshop: Clear response textarea \u2192 Apply button disables again',
-        ]
-    },
-    {
-        title: 'Clear AI Fields (v0.71.2)',
-        priority: null,
-        items: [
-            'Workshop: Fleet card with all fields filled \u2192 "Clear AI Fields" button visible next to Copy',
-            'Workshop: Click "Clear AI Fields" \u2192 volume/speed/watts/price cleared, prompt regenerates, card re-opens',
-            'Workshop: Materials card with all fields filled \u2192 "Clear AI Fields" button visible',
-            'Workshop: New printer with empty fields \u2192 "Clear AI Fields" button NOT visible',
-        ]
-    },
-    {
-        title: 'Versions',
-        priority: null,
-        items: [
-            'Changelog: Banner shows v0.71.2 \u2014 Clear AI Fields',
-            'All 8 P2M pages show v0.71.2 in their version line',
+            'Tasks: Template Builder and Forms Builder appear in Later backlog',
+            'Changelog: Banner shows v0.72.0 \u2014 Machine Economics AI Assist + Card Locking',
+            'All 8 P2M pages show v0.72.0 in their version line',
         ]
     }
 ];

@@ -684,6 +684,31 @@
             font-weight: 600;
         }
 
+        /* ===== CARD LOCK ===== */
+        .card-locked-msg {
+            background: #161b2288;
+            border: 1px dashed #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .card-locked-msg .lock-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .card-locked-msg .lock-text {
+            font-size: 13px;
+            color: #8b949e;
+            line-height: 1.5;
+        }
+        .card-locked-msg .lock-deps {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #58a6ff;
+        }
+
         /* ===== OVERLAY ===== */
         .panel-overlay {
             display: none;
@@ -785,7 +810,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.71.2</p>
+            <p class="version">Workshop v0.72.0</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -887,10 +912,10 @@
             phase: 3, number: 'W3.1', title: 'Depreciation',
             description: 'Per-hour machine depreciation cost',
             output: 'Depreciation cost/hour',
-            purpose: 'Calculate how much each hour of printing costs in machine depreciation. Uses a 5,000-hour lifespan per machine. The average purchase price is auto-calculated from your Fleet data (Phase 2).',
+            purpose: 'Calculate how much each hour of printing costs in machine depreciation. The average purchase price is auto-calculated from your Fleet data. Use AI Assist to estimate lifespan from your fleet composition — or enter your own estimate.',
             fields: [
                 { key: 'fleetAvgPrice', label: 'Avg. Purchase Price (from Fleet)', type: 'linked' },
-                { key: 'lifespan', label: 'Useful Life (hours)', type: 'text', placeholder: '5000', hint: 'Industry standard for Bambu Lab printers' },
+                { key: 'lifespan', label: 'Useful Life (hours)', type: 'text', placeholder: '5000', hint: 'Typical FDM printer lifespan: 3,000–8,000 hrs. Bambu Lab CoreXY ≈ 5,000 hrs conservative' },
                 { key: 'depHour', label: 'Depreciation per Print Hour ($)', type: 'calculated' }
             ]
         },
@@ -898,10 +923,10 @@
             phase: 3, number: 'W3.2', title: 'Maintenance',
             description: 'Annual maintenance budget allocation',
             output: 'Maintenance cost/hour',
-            purpose: 'Fleet-pooled maintenance calculated bottom-up from actual consumable pricing and Bambu Lab maintenance schedules. Total fleet maintenance is $515.97/yr across 7 machines. Top 3 costs: hotend assemblies (35%), build plates (27%), silicone socks (10%).',
+            purpose: 'Fleet-pooled maintenance budget spread across all machines and operating hours. AI Assist on W3.1 can estimate this from your fleet composition — or calculate bottom-up from consumable costs (nozzles, build plates, belts, etc.).',
             fields: [
-                { key: 'annualBudget', label: 'Annual Fleet Maintenance ($)', type: 'text', placeholder: '515.97', hint: 'Bottom-up: socks $50 + plates $140 + hotends $180 + misc $146 = $516/yr' },
-                { key: 'hrsPerMachinePerYear', label: 'Hours per Machine per Year', type: 'text', placeholder: '800', hint: 'Conservative baseline — adjust based on actual utilization' },
+                { key: 'annualBudget', label: 'Annual Fleet Maintenance ($)', type: 'text', placeholder: '515.97', hint: 'Sum all consumables: nozzles, build plates, silicone socks, belts, lubricant. AI Assist estimates this from your fleet' },
+                { key: 'hrsPerMachinePerYear', label: 'Hours per Machine per Year', type: 'text', placeholder: '800', hint: 'Startup: ~800 hrs/yr (part-time). Full-time: ~2,000+ hrs/yr. Adjust to your actual utilization' },
                 { key: 'fleetMachines', label: 'Active Machines in Fleet', type: 'calculated' },
                 { key: 'maintHour', label: 'Maintenance per Print Hour ($)', type: 'calculated' }
             ]
@@ -936,9 +961,9 @@
             output: 'Feeds product COGS',
             purpose: 'Set your default packaging cost per unit. This includes poly bags, labels, FNSKU stickers, inserts, and any protective packaging. Individual products can override this in their Pipeline COGS step (P3.1), but having a workshop-level default speeds up new product costing.',
             fields: [
-                { key: 'polyBag', label: 'Poly Bag + Seal ($/unit)', type: 'text', placeholder: '0.02', hint: 'Standard poly bags with suffocation warning' },
-                { key: 'fnskuLabel', label: 'FNSKU Label ($/unit)', type: 'text', placeholder: '0.01', hint: 'Printed barcode label per unit' },
-                { key: 'insertCard', label: 'Insert Card ($/unit)', type: 'text', placeholder: '0.02', hint: 'Thank-you card / instructions insert' },
+                { key: 'polyBag', label: 'Poly Bag + Seal ($/unit)', type: 'text', placeholder: '0.02', hint: 'Clear poly bags with suffocation warning — Amazon requires for multi-piece products. ~$0.02 bulk from Uline/Amazon' },
+                { key: 'fnskuLabel', label: 'FNSKU Label ($/unit)', type: 'text', placeholder: '0.01', hint: 'Printed barcode label per unit — Amazon FNSKU for FBA or UPC for FBM. ~$0.01 from thermal roll' },
+                { key: 'insertCard', label: 'Insert Card ($/unit)', type: 'text', placeholder: '0.02', hint: 'Thank-you / instruction insert card — brand building + reduces returns. ~$0.02 from bulk print' },
                 { key: 'packagingTotal', label: 'Total Packaging ($/unit)', type: 'calculated' }
             ]
         },
@@ -1351,6 +1376,82 @@
         { key: 'costKg',   promptLabel: 'Cost per kg',      parseKeys: ['cost per kg', 'cost/kg', 'price per kg', 'price/kg'], numeric: true, unit: 'USD' },
         { key: 'supplier', promptLabel: 'Popular Suppliers', parseKeys: ['popular suppliers', 'suppliers', 'supplier', 'vendor', 'where to buy'], numeric: false }
     ];
+
+    // Machine Economics AI-fillable fields (one prompt fills W3.1 + W3.2)
+    var MACHINE_ECON_PROMPT_FIELDS = [
+        { key: 'lifespan',              promptLabel: 'Useful Life (hours)',              parseKeys: ['useful life', 'lifespan', 'print hours', 'expected life'], numeric: true, unit: 'hours',   target: '3.1' },
+        { key: 'annualBudget',          promptLabel: 'Annual Maintenance Budget',       parseKeys: ['annual maintenance', 'maintenance budget', 'yearly maintenance'], numeric: true, unit: 'USD', target: '3.2' },
+        { key: 'hrsPerMachinePerYear',  promptLabel: 'Hours per Machine per Year',      parseKeys: ['hours per machine', 'annual hours', 'hrs per machine', 'hours/machine/year'], numeric: true, unit: 'hours', target: '3.2' }
+    ];
+
+    function isFleetVerified() {
+        if (!state.fleet || state.fleet.length === 0) return false;
+        return state.fleet.every(function(p) { return p.verified; });
+    }
+
+    function isStaticVerified(cardId) {
+        var data = state.statics[cardId];
+        return data && data.verified;
+    }
+
+    function getCardLockInfo(cardId) {
+        // Returns { locked: bool, message: string, deps: string } or null if unlocked
+        if (cardId === '3.1' || cardId === '3.2') {
+            if (!isFleetVerified()) {
+                return {
+                    locked: true,
+                    message: 'Complete your Printer Fleet first — this card uses your fleet data.',
+                    deps: 'Requires: All fleet cards verified (green)'
+                };
+            }
+        }
+        if (cardId === '3.3') {
+            var missing = [];
+            if (!isStaticVerified('1.1')) missing.push('W1.1 Electricity Rate');
+            if (!isFleetVerified()) missing.push('Printer Fleet');
+            if (missing.length > 0) {
+                return {
+                    locked: true,
+                    message: 'This card needs upstream data to calculate electricity cost per hour.',
+                    deps: 'Requires: ' + missing.join(' + ')
+                };
+            }
+        }
+        if (cardId === '3.4') {
+            var missing2 = [];
+            if (!isStaticVerified('3.1')) missing2.push('W3.1 Depreciation');
+            if (!isStaticVerified('3.2')) missing2.push('W3.2 Maintenance');
+            if (!isStaticVerified('3.3')) missing2.push('W3.3 Electricity');
+            if (missing2.length > 0) {
+                return {
+                    locked: true,
+                    message: 'The Blended Rate combines all three cost components — verify them first.',
+                    deps: 'Requires: ' + missing2.join(' + ')
+                };
+            }
+        }
+        return null;
+    }
+
+    function getMachineEconIntro() {
+        // Build fleet composition string from state
+        var counts = {};
+        var prices = {};
+        state.fleet.forEach(function(p) {
+            var name = ((p.brand || '') + ' ' + (p.model || '')).trim();
+            if (!name) name = 'Unknown Printer';
+            if (!counts[name]) { counts[name] = 0; prices[name] = p.price || '0'; }
+            counts[name]++;
+        });
+        var parts = [];
+        Object.keys(counts).forEach(function(name) {
+            var qty = counts[name];
+            parts.push(qty + '× ' + name + ' ($' + prices[name] + ' each)');
+        });
+        return 'I run a 3D printing workshop with ' + parts.join(', ') + '.\n' +
+            'The fleet has ' + state.fleet.length + ' machines total. ' +
+            'Please estimate realistic values for maintenance and utilization.';
+    }
 
     function getFleetIntro(printer) {
         var brand = (printer.brand || '').trim();
@@ -1812,6 +1913,55 @@
 
         body.appendChild(makeSection('Purpose', def.purpose));
 
+        // ---- Card Locking ----
+        var lockInfo = getCardLockInfo(cardId);
+        if (lockInfo) {
+            var lockDiv = document.createElement('div');
+            lockDiv.className = 'card-locked-msg';
+            lockDiv.innerHTML = '<span class="lock-icon">&#128274;</span>' +
+                '<div class="lock-text">' + escHtml(lockInfo.message) + '</div>' +
+                '<div class="lock-deps">' + escHtml(lockInfo.deps) + '</div>';
+            body.appendChild(lockDiv);
+            showPanel();
+            return;
+        }
+
+        // ---- AI Assist for Machine Economics (W3.1) ----
+        if (cardId === '3.1' && isFleetVerified()) {
+            var meCurrentValues = {
+                lifespan: (data.values.lifespan || ''),
+                annualBudget: (state.statics['3.2'] && state.statics['3.2'].values.annualBudget) || '',
+                hrsPerMachinePerYear: (state.statics['3.2'] && state.statics['3.2'].values.hrsPerMachinePerYear) || ''
+            };
+            var meHasEmpty = !meCurrentValues.lifespan || !meCurrentValues.annualBudget || !meCurrentValues.hrsPerMachinePerYear;
+            var meConfig = createClaudePromptConfig(MACHINE_ECON_PROMPT_FIELDS, meCurrentValues, getMachineEconIntro());
+
+            var meAiSection = document.createElement('div');
+            meAiSection.className = 'ai-assist-section';
+
+            var meToggle = document.createElement('button');
+            meToggle.id = 'btnAiToggle';
+            meToggle.className = 'ai-assist-toggle' + (meHasEmpty ? ' expanded' : '');
+            meToggle.innerHTML = '<span>&#9660; AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">&#9650;</span>';
+            meAiSection.appendChild(meToggle);
+
+            var meAiBody = document.createElement('div');
+            meAiBody.id = 'aiAssistBody';
+            meAiBody.className = 'ai-assist-body' + (meHasEmpty ? ' show' : '');
+            meAiBody.innerHTML =
+                '<div class="ai-assist-label">Your Prompt (fills W3.1 + W3.2):</div>' +
+                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(meConfig.prompt) + '</textarea>' +
+                '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
+                (meHasEmpty ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
+                '<hr class="ai-assist-divider">' +
+                '<div class="ai-assist-label">Paste AI Response:</div>' +
+                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
+                '<button class="btn-ai-apply disabled" id="btnAiApply" disabled>Apply</button>' +
+                '<div class="ai-results-list" id="aiResultsList"></div>';
+            meAiSection.appendChild(meAiBody);
+            body.appendChild(meAiSection);
+        }
+
         var fieldsDiv = document.createElement('div');
         fieldsDiv.className = 'detail-section';
         fieldsDiv.innerHTML = '<div class="detail-section-label">Data Entry</div>';
@@ -1873,6 +2023,22 @@
             if (verifyBtn) verifyBtn.addEventListener('click', function() { verifyStatic(cardId); });
             var unverifyBtn = document.getElementById('btnUnverify');
             if (unverifyBtn) unverifyBtn.addEventListener('click', function() { unverifyStatic(cardId); });
+
+            // AI Assist listeners for static Machine Economics card (W3.1)
+            if (cardId === '3.1' && isFleetVerified()) {
+                var aiToggle = document.getElementById('btnAiToggle');
+                var aiBody = document.getElementById('aiAssistBody');
+                if (aiToggle && aiBody) {
+                    aiToggle.addEventListener('click', function() {
+                        aiToggle.classList.toggle('expanded');
+                        aiBody.classList.toggle('show');
+                    });
+                }
+                bindAiCopyBtn('static-3.1');
+                bindStaticAiApplyBtn(cardId);
+                bindStaticAiClearBtn(cardId);
+                bindAiResponseWatcher();
+            }
 
             // Check which fields have showWhen or disableWhen dependencies (for re-render on change)
             var conditionalTriggers = {};
@@ -2700,6 +2866,95 @@
             if (dynType === 'fleet') openFleetCard(itemId);
             else if (dynType === 'materials') openMaterialCard(itemId);
             showToast('AI fields cleared \u2014 prompt regenerated');
+        });
+    }
+
+    // ===================================================================
+    // AI ASSIST — STATIC CARD HANDLERS (Machine Economics)
+    // ===================================================================
+
+    function bindStaticAiApplyBtn(cardId) {
+        var btn = document.getElementById('btnAiApply');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            if (!isEditUnlocked()) { showToast('Read-only mode — unlock editing first', 'error'); return; }
+            var responseText = document.getElementById('aiResponseText');
+            if (!responseText || !responseText.value.trim()) { showToast('Paste the AI response first', 'error'); return; }
+
+            // Build current values from W3.1 + W3.2
+            var meCurrentValues = {
+                lifespan: (state.statics['3.1'].values.lifespan || ''),
+                annualBudget: (state.statics['3.2'].values.annualBudget || ''),
+                hrsPerMachinePerYear: (state.statics['3.2'].values.hrsPerMachinePerYear || '')
+            };
+            var config = createClaudePromptConfig(MACHINE_ECON_PROMPT_FIELDS, meCurrentValues, getMachineEconIntro());
+            var result = config.parseResponse(responseText.value);
+            if (result.count === 0) { showToast('Could not parse any fields from the response', 'error'); return; }
+
+            // Apply parsed values to the correct static cards
+            var filledW31 = 0, filledW32 = 0;
+            MACHINE_ECON_PROMPT_FIELDS.forEach(function(fd) {
+                if (!result.fields[fd.key]) return;
+                var targetCard = fd.target;
+                state.statics[targetCard].values[fd.key] = result.fields[fd.key];
+                state.statics[targetCard].verified = false;
+                state.statics[targetCard].status = getStaticCardStatus(targetCard);
+                if (targetCard === '3.1') filledW31++;
+                else filledW32++;
+                // Update visible input if on current card
+                var input = document.querySelector('.field-input[data-card="' + targetCard + '"][data-field="' + fd.key + '"]');
+                if (input) input.value = result.fields[fd.key];
+            });
+            saveState();
+
+            // Update LEDs
+            ['3.1', '3.2'].forEach(function(cid) {
+                updateCardLed(cid, state.statics[cid].status);
+                updatePhaseProgressBar(STATIC_CARDS[cid].phase);
+            });
+            setDetailLed(state.statics[cardId].status);
+            updateCompletionDisplay();
+
+            // Render results
+            renderAiResults(result, MACHINE_ECON_PROMPT_FIELDS);
+            var summary = 'Applied ' + result.count + ' field(s)';
+            if (filledW31 > 0 && filledW32 > 0) summary += ' across W3.1 + W3.2';
+            else if (filledW32 > 0) summary += ' to W3.2';
+            showToast(summary);
+
+            // Regenerate prompt
+            var newMeVals = {
+                lifespan: (state.statics['3.1'].values.lifespan || ''),
+                annualBudget: (state.statics['3.2'].values.annualBudget || ''),
+                hrsPerMachinePerYear: (state.statics['3.2'].values.hrsPerMachinePerYear || '')
+            };
+            var newConfig = createClaudePromptConfig(MACHINE_ECON_PROMPT_FIELDS, newMeVals, getMachineEconIntro());
+            var promptEl = document.getElementById('aiPromptText');
+            if (promptEl) promptEl.value = newConfig.prompt;
+        });
+    }
+
+    function bindStaticAiClearBtn(cardId) {
+        var btn = document.getElementById('btnAiClear');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            if (!isEditUnlocked()) { showToast('Read-only mode — unlock editing first', 'error'); return; }
+            // Clear AI-fillable fields from W3.1 and W3.2
+            state.statics['3.1'].values.lifespan = '';
+            state.statics['3.1'].verified = false;
+            state.statics['3.1'].status = getStaticCardStatus('3.1');
+            state.statics['3.2'].values.annualBudget = '';
+            state.statics['3.2'].values.hrsPerMachinePerYear = '';
+            state.statics['3.2'].verified = false;
+            state.statics['3.2'].status = getStaticCardStatus('3.2');
+            saveState();
+            ['3.1', '3.2'].forEach(function(cid) {
+                updateCardLed(cid, state.statics[cid].status);
+                updatePhaseProgressBar(STATIC_CARDS[cid].phase);
+            });
+            updateCompletionDisplay();
+            openStaticCard(cardId);
+            showToast('AI fields cleared from W3.1 + W3.2 — prompt regenerated');
         });
     }
 

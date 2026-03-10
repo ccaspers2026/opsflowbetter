@@ -408,7 +408,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.71.2</p>
+        <p class="version">Tasks v0.72.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -2518,6 +2518,40 @@ function runMigrations() {
         }
         if (!fiExists) { data.backlog.push(fiItem); changed = true; }
         markMigrationRun('v0.71.2_bl_field_indicators');
+    }
+
+    // ── v0.72.0: Add Template Builder backlog item ──
+    if (ran.indexOf('v0.72.0_bl_template_builder') === -1) {
+        var tbItem = {
+            id: 'bl_template_builder',
+            title: 'Template Builder',
+            desc: 'Suite-wide template definitions with field schemas and auto-generated Claude Prompts. Any page can consume templates for consistent data collection and AI-assisted field population.',
+            meta: 'Architecture \u2022 v0.72.0 \u2022 Depends: Forms Builder',
+            status: 'backlog'
+        };
+        var tbExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === tbItem.id) { tbExists = true; break; }
+        }
+        if (!tbExists) { data.backlog.push(tbItem); changed = true; }
+        markMigrationRun('v0.72.0_bl_template_builder');
+    }
+
+    // ── v0.72.0: Add Forms Builder backlog item ──
+    if (ran.indexOf('v0.72.0_bl_forms_builder') === -1) {
+        var fbItem = {
+            id: 'bl_forms_builder',
+            title: 'Forms Builder',
+            desc: 'Dynamic form generation from templates. Low-code form rendering driven by template definitions — eliminates manual HTML for new data collection pages.',
+            meta: 'Architecture \u2022 v0.72.0 \u2022 Depends: Template Builder',
+            status: 'backlog'
+        };
+        var fbExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === fbItem.id) { fbExists = true; break; }
+        }
+        if (!fbExists) { data.backlog.push(fbItem); changed = true; }
+        markMigrationRun('v0.72.0_bl_forms_builder');
     }
 
     if (changed) saveTasks(data);
