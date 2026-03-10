@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog v0.68.0</p>
+                <p class="version">Changelog v0.69.0</p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.68.0 - Services &rarr; W1.3 Data Flow</h2>
-            <p>Released March 9, 2026 &mdash; W1.3 now auto-pulls manufacturing service costs from the Services page. remove.bg updated to Lite subscription. Hover.com added. Two new backlog items for AI image tools and user-driven cost fields.</p>
+            <h2>Version 0.69.0 - Printer Fleet PF.X Numbering</h2>
+            <p>Released March 9, 2026 &mdash; Fleet cards now display PF.1, PF.2, etc. by position, matching the Workshop&rsquo;s static card numbering pattern. Data review confirmed all fields needed for P2M flow. Two feedback items triaged to Backlog.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">92</div>
+                <div class="stat-value">93</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,22 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.69.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.69.0</span>
+                    <span class="version-date">March 9, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>PF.X numbering:</strong> Fleet printer cards now display PF.1, PF.2, PF.3, etc. based on array position &mdash; auto-renumbers when printers are added or removed</li>
+                    <li><strong>Card display reorg:</strong> step-number shows PF.X, title shows printer name, description shows model, output shows status</li>
+                    <li><strong>Detail panel header:</strong> Shows &ldquo;PF.X &mdash; Printer Name&rdquo; format (e.g., PF.1 &mdash; Galileo Seven)</li>
+                    <li><strong>Data review:</strong> Confirmed all fleet fields (price, watts, status, hours, name, model, speed, plate) are sufficient for P2M pipeline flow</li>
+                    <li><strong>Feedback triage:</strong> 2 items from v0.61.2 and v0.67.1 moved to Backlog (product template, services indicator)</li>
+                </ul>
+            </div>
 
             <!-- v0.68.0 -->
             <div class="version-entry">

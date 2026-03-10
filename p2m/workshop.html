@@ -643,7 +643,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.68.0</p>
+            <p class="version">Workshop v0.69.0</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -1143,6 +1143,11 @@
         return state.fleet.filter(function(p) { return p.status === 'Active'; }).length;
     }
 
+    function getFleetNumber(printer) {
+        var idx = state.fleet.indexOf(printer);
+        return 'PF.' + (idx + 1);
+    }
+
     function calcMaintHour() {
         var fleetBudget = parseFloat(getFieldValue('3.2', 'annualBudget')) || 0;
         var machines = getActiveFleetCount() || 1;
@@ -1412,8 +1417,9 @@
 
             // Dynamic cards
             if (p === 2) {
-                state.fleet.forEach(function(printer) {
-                    content.appendChild(createCard('fleet-' + printer.id, printer.name || 'New Printer', printer.model || 'Unconfigured', printer.status, 'Printer config', printer.status_led, function(pid) {
+                state.fleet.forEach(function(printer, idx) {
+                    var pfNum = 'PF.' + (idx + 1);
+                    content.appendChild(createCard('fleet-' + printer.id, pfNum, printer.name || 'New Printer', printer.model || 'Unconfigured', (printer.status || 'Active') + ' &middot; Printer config', printer.status_led, function(pid) {
                         return function() { openFleetCard(pid); };
                     }(printer.id)));
                 });
@@ -1641,7 +1647,8 @@
         activeCardId = 'fleet-' + printerId;
         highlightCard(activeCardId);
 
-        document.getElementById('detailStepInfo').textContent = printer.name || 'New Printer';
+        var pfNum = getFleetNumber(printer);
+        document.getElementById('detailStepInfo').textContent = pfNum + ' \u2014 ' + (printer.name || 'New Printer');
         document.getElementById('detailTitle').textContent = printer.model || 'Configure this printer';
         document.getElementById('detailPhaseInfo').textContent = 'Phase 2: Printer Fleet';
         setDetailLed(printer.status_led);
@@ -1721,10 +1728,11 @@
         if (!requireEdit('remove cards')) return;
         var removed = state.fleet.find(function(x) { return x.id === id; });
         var idx = state.fleet.indexOf(removed);
+        var pfNum = 'PF.' + (idx + 1);
         state.fleet = state.fleet.filter(function(x) { return x.id !== id; });
         closePanel();
         render();
-        showToast('Printer "' + (removed.name || 'Unnamed') + '" removed', null, function() {
+        showToast('Printer "' + pfNum + ' \u2014 ' + (removed.name || 'Unnamed') + '" removed', null, function() {
             state.fleet.splice(idx, 0, removed);
             render();
         });

@@ -408,7 +408,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.68.0</p>
+        <p class="version">Tasks v0.69.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -424,11 +424,11 @@
         <div class="label">Up Next</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#58a6ff;">28</div>
+        <div class="num" style="color:#58a6ff;">30</div>
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">92</div>
+        <div class="num" style="color:#3fb950;">93</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -983,6 +983,25 @@
             <div class="title">[AI] P7.2 &mdash; Auto-generate Monthly P&amp;L from sales + cost data</div>
             <div class="desc">(AUTOMATE) Claude generates Monthly P&amp;L report using COGS from P3.1, selling price from P3.2, actual units sold, and Workshop overhead (W1.1) allocated across products.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> Claude Integration &bull; Phase 7</div>
+        </div>
+    </div>
+
+    <!-- ── LATER (low) — v0.69.0 feedback triage ── -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Create product template from existing product in P2M</div>
+            <div class="desc">(FEATURE) Add ability to create a new product template based on an existing product&rsquo;s pipeline data. Copy settings, COGS structure, and phase progress as a starting point for a new product.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Pipeline &bull; v0.61.2 feedback &rarr; v0.69.0 triage</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[SVC] Services indicator: OpsFlowBetter vs manufacturing costs</div>
+            <div class="desc">(FEATURE) Add visual indicator on Services page showing which services are required for OpsFlowBetter operations vs. which are manufacturing/production costs that feed into product COGS.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Services &bull; v0.67.1 feedback &rarr; v0.69.0 triage</div>
         </div>
     </div>
 </div>
@@ -2315,6 +2334,58 @@ function runMigrations() {
         }
         if (!costExists) { data.backlog.push(costItem); changed = true; }
         markMigrationRun('v0.68.0_user_cost_fields_fix');
+    }
+
+    // ── v0.69.0: Triage feedback — product template from existing product ──
+    if (ran.indexOf('v0.69.0_fb_product_template') === -1) {
+        var tplItem = {
+            id: 'bl_v0690_product_template',
+            title: 'Create product template from existing product in P2M',
+            desc: '(FEATURE) Add ability to create a new product template based on an existing product\u2019s pipeline data. Copy settings, COGS structure, and phase progress as a starting point for a new product.',
+            tag: 'FEATURE',
+            meta: 'Pipeline \u2022 v0.61.2 feedback \u2192 v0.69.0 triage',
+            priority: 'low'
+        };
+        var tplExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === tplItem.id) { tplExists = true; break; }
+        }
+        if (!tplExists) { data.backlog.push(tplItem); changed = true; }
+        markMigrationRun('v0.69.0_fb_product_template');
+    }
+
+    // ── v0.69.0: Triage feedback — services indicator OFB vs manufacturing ──
+    if (ran.indexOf('v0.69.0_fb_services_indicator') === -1) {
+        var indItem = {
+            id: 'bl_v0690_services_indicator',
+            title: '[SVC] Services indicator: OpsFlowBetter vs manufacturing costs',
+            desc: '(FEATURE) Add visual indicator on Services page showing which services are required for OpsFlowBetter operations vs. which are manufacturing/production costs that feed into product COGS.',
+            tag: 'FEATURE',
+            meta: 'Services \u2022 v0.67.1 feedback \u2192 v0.69.0 triage',
+            priority: 'low'
+        };
+        var indExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === indItem.id) { indExists = true; break; }
+        }
+        if (!indExists) { data.backlog.push(indItem); changed = true; }
+        markMigrationRun('v0.69.0_fb_services_indicator');
+    }
+
+    // ── v0.69.0: Clear triaged feedback items from opsflow_feedback ──
+    if (ran.indexOf('v0.69.0_clear_triaged_feedback') === -1) {
+        try {
+            var fb = JSON.parse(localStorage.getItem('opsflow_feedback')) || [];
+            var fbChanged = false;
+            for (var i = fb.length - 1; i >= 0; i--) {
+                if (fb[i].text && (fb[i].text.indexOf('product template') !== -1 || fb[i].text.indexOf('indicator showing what is required') !== -1)) {
+                    fb.splice(i, 1);
+                    fbChanged = true;
+                }
+            }
+            if (fbChanged) localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
+        } catch(e) {}
+        markMigrationRun('v0.69.0_clear_triaged_feedback');
     }
 
     if (changed) saveTasks(data);

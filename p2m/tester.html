@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.68.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.69.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,60 +630,51 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.68.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.69.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Services Page Updates (v0.68.0)',
+        title: 'Fleet PF.X Numbering (v0.69.0)',
         priority: 'PRIMARY',
         items: [
-            'Services: remove.bg shows as SUBSCRIPTION $8.10/mo (not CREDITS $0.20/credit)',
-            'Services: Helium 10 shows as FREE (not $39/mo)',
-            'Services: Hover.com appears under Infrastructure with $15/yr',
+            'Workshop Phase 2: Fleet cards show PF.1 through PF.7 in step-number position',
+            'Workshop Phase 2: Card title shows printer name (e.g. Galileo Seven), not model',
+            'Workshop Phase 2: Card description shows model (e.g. Bambu Lab X1C), not status',
         ]
     },
     {
-        title: 'W1.3 Linked Fields',
+        title: 'Fleet Detail Panel',
         priority: null,
         items: [
-            'Workshop W1.3: Service Subscriptions field shows auto-summed total from Services page (production + sales + operations only)',
-            'Workshop W1.3: Service Breakdown shows itemized list (e.g. Amazon Seller Central $39.99 + Monday.com $42.00 + remove.bg $8.10)',
-            'Workshop W1.3: Calendly, Cloudflare, and Hover.com are NOT included (infrastructure/non-manufacturing)',
+            'Workshop: Click PF.1 card \u2192 detail header shows "PF.1 \u2014 Galileo Seven"',
+            'Workshop: Click PF.7 card \u2192 detail header shows "PF.7 \u2014 Redemption"',
         ]
     },
     {
-        title: 'W1.3 Calculated Total',
+        title: 'Fleet Data Flow',
         priority: null,
         items: [
-            'Workshop W1.3: Total Monthly Services = Internet + Service Subscriptions with breakdown',
-            'Workshop W1.3: Old fields (Cloud Storage, Other Services) are gone',
-        ]
-    },
-    {
-        title: 'W1.3 Migration',
-        priority: null,
-        items: [
-            'Workshop W1.3: Old cloud/other fields removed, card reset to yellow',
-            'Workshop W1.3: Internet field preserved from previous data',
+            'Workshop W3.1: fleetAvgPrice and depHour still calculate correctly',
+            'Workshop W3.3: fleetAvgWatts and elecHour still calculate correctly',
+            'Workshop W3.4: Blended Rate unchanged from previous version',
         ]
     },
     {
         title: 'Backlog Items',
         priority: null,
         items: [
-            'Tasks: "[SVC] Evaluate AI product image tools (replace remove.bg)" in Backlog',
-            'Tasks: "[WS] Allow user-added cost line items on static cards" in Backlog',
-            'Tasks: Live test updates feedback removed from PQ (behavioral change, no code)',
+            'Tasks: "Create product template from existing product in P2M" in Backlog (Later)',
+            'Tasks: "[SVC] Services indicator: OpsFlowBetter vs manufacturing costs" in Backlog (Later)',
         ]
     },
     {
         title: 'Changelog & Versions',
         priority: null,
         items: [
-            'Changelog: Banner shows v0.68.0 \u2014 Services \u2192 W1.3 Data Flow',
-            'Changelog: v0.68.0 timeline entry with FEATURE tag and 6 bullets',
-            'Changelog: Versions stat reads 92',
-            'All 8 P2M pages show v0.68.0 in their version line',
+            'Changelog: Banner shows v0.69.0 \u2014 Printer Fleet PF.X Numbering',
+            'Changelog: v0.69.0 timeline entry with FEATURE tag and 5 bullets',
+            'Changelog: Versions stat reads 93',
+            'All 8 P2M pages show v0.69.0 in their version line',
         ]
     }
 ];
