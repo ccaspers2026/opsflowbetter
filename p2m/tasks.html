@@ -408,7 +408,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.69.0</p>
+        <p class="version">Tasks v0.70.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -444,7 +444,7 @@
 
 <!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
 <div class="section">
-    <h2>&#128203; Backlog <span class="count">28</span></h2>
+    <h2>&#128203; Backlog <span class="count">30</span></h2>
 
     <!-- ── NOW (high) ── -->
     <div class="task">
@@ -1002,6 +1002,25 @@
             <div class="title">[SVC] Services indicator: OpsFlowBetter vs manufacturing costs</div>
             <div class="desc">(FEATURE) Add visual indicator on Services page showing which services are required for OpsFlowBetter operations vs. which are manufacturing/production costs that feed into product COGS.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> Services &bull; v0.67.1 feedback &rarr; v0.69.0 triage</div>
+        </div>
+    </div>
+
+    <!-- ── LATER (low) — v0.70.0 architecture backlog ── -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Template Builder &mdash; Suite-wide template definitions</div>
+            <div class="desc">(FEATURE) Build a Template Builder page for Suite-wide field schema definitions with auto-generated Claude Prompts. Any P2M page can consume templates. Enables structured data entry across Workshop, Pipeline, and future pages.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.70.0</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">Forms Builder &mdash; dynamic form generation from templates</div>
+            <div class="desc">(FEATURE) Build a Forms Builder that dynamically generates forms from template definitions. Low-code form rendering driven by Template Builder schemas. Enables rapid form creation without manual HTML.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Architecture &bull; v0.70.0</div>
         </div>
     </div>
 </div>
@@ -2386,6 +2405,40 @@ function runMigrations() {
             if (fbChanged) localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
         } catch(e) {}
         markMigrationRun('v0.69.0_clear_triaged_feedback');
+    }
+
+    // ── v0.70.0: Add Template Builder backlog item ──
+    if (ran.indexOf('v0.70.0_bl_template_builder') === -1) {
+        var tblItem = {
+            id: 'bl_v0700_template_builder',
+            title: 'Template Builder \u2014 Suite-wide template definitions',
+            desc: '(FEATURE) Build a Template Builder page for Suite-wide field schema definitions with auto-generated Claude Prompts. Any P2M page can consume templates. Enables structured data entry across Workshop, Pipeline, and future pages.',
+            meta: 'Architecture \u2022 v0.70.0',
+            priority: 'low'
+        };
+        var tblExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === tblItem.id) { tblExists = true; break; }
+        }
+        if (!tblExists) { data.backlog.push(tblItem); changed = true; }
+        markMigrationRun('v0.70.0_bl_template_builder');
+    }
+
+    // ── v0.70.0: Add Forms Builder backlog item ──
+    if (ran.indexOf('v0.70.0_bl_forms_builder') === -1) {
+        var fblItem = {
+            id: 'bl_v0700_forms_builder',
+            title: 'Forms Builder \u2014 dynamic form generation from templates',
+            desc: '(FEATURE) Build a Forms Builder that dynamically generates forms from template definitions. Low-code form rendering driven by Template Builder schemas. Enables rapid form creation without manual HTML.',
+            meta: 'Architecture \u2022 v0.70.0',
+            priority: 'low'
+        };
+        var fblExists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === fblItem.id) { fblExists = true; break; }
+        }
+        if (!fblExists) { data.backlog.push(fblItem); changed = true; }
+        markMigrationRun('v0.70.0_bl_forms_builder');
     }
 
     if (changed) saveTasks(data);

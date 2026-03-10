@@ -542,6 +542,126 @@
         }
         .btn-remove-card:hover { border-color: #f85149; color: #f85149; }
 
+        /* ===== AI ASSIST ===== */
+        .ai-assist-section {
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .ai-assist-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: #161b22;
+            border: none;
+            color: #8b949e;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: color 0.2s;
+        }
+        .ai-assist-toggle:hover { color: #c9d1d9; }
+        .ai-assist-toggle .ai-badge {
+            font-size: 10px;
+            background: #1f6feb33;
+            color: #58a6ff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 8px;
+        }
+        .ai-assist-toggle .ai-chevron {
+            transition: transform 0.2s;
+        }
+        .ai-assist-toggle.expanded .ai-chevron {
+            transform: rotate(180deg);
+        }
+        .ai-assist-body {
+            display: none;
+            padding: 12px;
+            border-top: 1px solid #30363d;
+        }
+        .ai-assist-body.show { display: block; }
+        .ai-assist-label {
+            font-size: 11px;
+            color: #8b949e;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .ai-assist-prompt-textarea,
+        .ai-assist-response-textarea {
+            width: 100%;
+            min-height: 80px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #c9d1d9;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            padding: 8px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .ai-assist-prompt-textarea:focus,
+        .ai-assist-response-textarea:focus {
+            border-color: #58a6ff;
+            outline: none;
+        }
+        .ai-assist-prompt-textarea { min-height: 100px; }
+        .ai-assist-response-textarea { min-height: 70px; }
+        .ai-assist-divider {
+            border: none;
+            border-top: 1px solid #21262d;
+            margin: 12px 0;
+        }
+        .btn-ai-copy,
+        .btn-ai-apply {
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #30363d;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+        .btn-ai-copy {
+            background: #21262d;
+            color: #c9d1d9;
+        }
+        .btn-ai-copy:hover { background: #30363d; color: #fff; }
+        .btn-ai-apply {
+            background: #1f6feb;
+            color: #fff;
+            border-color: #1f6feb;
+        }
+        .btn-ai-apply:hover { background: #388bfd; }
+        .btn-ai-apply:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .ai-results-list {
+            margin-top: 10px;
+            font-size: 11px;
+        }
+        .ai-result-item {
+            padding: 3px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ai-result-item.filled { color: #3fb950; }
+        .ai-result-item.unfilled { color: #8b949e; }
+        .ai-results-summary {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
         /* ===== OVERLAY ===== */
         .panel-overlay {
             display: none;
@@ -643,7 +763,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop v0.69.0</p>
+            <p class="version">Workshop v0.70.0</p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -831,13 +951,13 @@
     };
 
     var DEFAULT_FLEET = [
-        { id: 'p1', name: 'Galileo Seven', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p2', name: 'Optimus Prime', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p3', name: 'Print Buster', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p4', name: 'Third Wheel', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p5', name: 'Little Monster', model: 'Bambu Lab X1C', plate: '256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
-        { id: 'p6', name: 'The Boss', model: 'Bambu Lab H2D', plate: '256 x 256', speed: '300', watts: '200', price: '1999', hours: '2.2', status: 'Active' },
-        { id: 'p7', name: 'Redemption', model: 'Bambu Lab A1', plate: '256 x 256', speed: '500', watts: '90', price: '299', hours: '2.2', status: 'Active' }
+        { id: 'p1', name: 'Galileo Seven', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p2', name: 'Optimus Prime', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p3', name: 'Print Buster', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p4', name: 'Third Wheel', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p5', name: 'Little Monster', model: 'Bambu Lab X1C', volume: '256 x 256 x 256', speed: '500', watts: '150', price: '1199', hours: '2.2', status: 'Active' },
+        { id: 'p6', name: 'The Boss', model: 'Bambu Lab H2D', volume: '256 x 256 x 256', speed: '300', watts: '200', price: '1999', hours: '2.2', status: 'Active' },
+        { id: 'p7', name: 'Redemption', model: 'Bambu Lab A1', volume: '256 x 256 x 256', speed: '500', watts: '90', price: '299', hours: '2.2', status: 'Active' }
     ];
 
     var DEFAULT_MATERIALS = [
@@ -894,6 +1014,24 @@
     }
 
     function migrateState(s) {
+        // v0.70.0: Fleet migrations run even without statics['1.2']
+        // Rename plate → volume and add Z dimension
+        if (s.fleet && s.fleet.length > 0) {
+            for (var fi = 0; fi < s.fleet.length; fi++) {
+                var fp = s.fleet[fi];
+                if (fp.plate !== undefined) {
+                    var plateVal = fp.plate || '';
+                    var m2d = plateVal.match(/^(\d+)\s*x\s*(\d+)$/);
+                    if (m2d) {
+                        fp.volume = m2d[1] + ' x ' + m2d[2] + ' x ' + m2d[2];
+                    } else {
+                        fp.volume = plateVal;
+                    }
+                    delete fp.plate;
+                }
+            }
+        }
+
         if (!s.statics || !s.statics['1.2'] || !s.statics['1.2'].values) return;
         var v = s.statics['1.2'].values;
 
@@ -944,6 +1082,7 @@
             s.statics['1.3'].verified = false;
             s.statics['1.3'].status = 'yellow';
         }
+
     }
 
     function saveState() {
@@ -1146,6 +1285,113 @@
     function getFleetNumber(printer) {
         var idx = state.fleet.indexOf(printer);
         return 'PF.' + (idx + 1);
+    }
+
+    // ===================================================================
+    // CLAUDE PROMPT AI-ASSIST ENGINE (Reusable)
+    // ===================================================================
+
+    var FLEET_PROMPT_FIELDS = [
+        { key: 'model',  promptLabel: 'Model',          parseKeys: ['model'],          numeric: false },
+        { key: 'volume', promptLabel: 'Build Volume',    parseKeys: ['build volume'],   numeric: false, transform: 'volume' },
+        { key: 'speed',  promptLabel: 'Max Speed',       parseKeys: ['max speed'],      numeric: true,  unit: 'mm/s' },
+        { key: 'watts',  promptLabel: 'Avg Power Draw',  parseKeys: ['avg power draw', 'power draw', 'wattage', 'power'], numeric: true, unit: 'watts' },
+        { key: 'price',  promptLabel: 'MSRP',            parseKeys: ['msrp', 'price'],  numeric: true,  unit: 'USD' }
+    ];
+
+    function createClaudePromptConfig(fieldDefs, currentValues) {
+        var knownModel = (currentValues.model || '').trim();
+        var missing = [];
+        fieldDefs.forEach(function(fd) {
+            if (fd.key === 'model' && knownModel) return;
+            missing.push(fd);
+        });
+
+        if (missing.length === 0 && knownModel) {
+            return { prompt: 'All AI-fillable fields already have values.', parseResponse: function() { return { fields: {}, count: 0 }; } };
+        }
+
+        var lines = [];
+        if (knownModel) {
+            lines.push('I have a ' + knownModel + ' 3D printer.');
+        } else {
+            lines.push('I have a [enter your printer model here] 3D printer.');
+        }
+        lines.push('Please provide the following specs in exactly this format:');
+        lines.push('');
+        missing.forEach(function(fd) {
+            if (fd.numeric) {
+                lines.push(fd.promptLabel + ': [number] ' + (fd.unit || ''));
+            } else if (fd.transform === 'volume') {
+                lines.push(fd.promptLabel + ': [X x Y x Z in mm]');
+            } else {
+                lines.push(fd.promptLabel + ': [value]');
+            }
+        });
+        lines.push('');
+        lines.push('Respond with ONLY the specs in the format above, nothing else.');
+
+        var prompt = lines.join('\n');
+
+        var parseResponse = function(response) {
+            var result = { fields: {}, count: 0, errors: [] };
+            if (!response || !response.trim()) {
+                result.errors.push('Empty response');
+                return result;
+            }
+            var respLines = response.trim().split('\n');
+            fieldDefs.forEach(function(fd) {
+                for (var i = 0; i < respLines.length; i++) {
+                    var line = respLines[i].trim();
+                    if (!line) continue;
+                    var matched = false;
+                    var allKeys = [fd.promptLabel].concat(fd.parseKeys || []);
+                    for (var k = 0; k < allKeys.length; k++) {
+                        var keyLower = allKeys[k].toLowerCase();
+                        var lineLower = line.toLowerCase();
+                        var colonIdx = lineLower.indexOf(keyLower);
+                        if (colonIdx !== -1) {
+                            var afterKey = line.substring(colonIdx + allKeys[k].length).replace(/^[\s:]+/, '').trim();
+                            if (!afterKey) continue;
+                            if (fd.numeric) {
+                                var numMatch = afterKey.match(/[\d,]+\.?\d*/);
+                                if (numMatch) {
+                                    result.fields[fd.key] = numMatch[0].replace(/,/g, '');
+                                    result.count++;
+                                    matched = true;
+                                }
+                            } else if (fd.transform === 'volume') {
+                                var volNorm = afterKey
+                                    .replace(/mm/gi, '')
+                                    .replace(/\u00d7/g, 'x')
+                                    .replace(/×/g, 'x')
+                                    .replace(/\*/g, 'x')
+                                    .trim();
+                                var volMatch = volNorm.match(/(\d+)\s*x\s*(\d+)\s*x\s*(\d+)/i);
+                                if (volMatch) {
+                                    result.fields[fd.key] = volMatch[1] + ' x ' + volMatch[2] + ' x ' + volMatch[3];
+                                    result.count++;
+                                    matched = true;
+                                } else {
+                                    result.fields[fd.key] = afterKey.trim();
+                                    result.count++;
+                                    matched = true;
+                                }
+                            } else {
+                                result.fields[fd.key] = afterKey;
+                                result.count++;
+                                matched = true;
+                            }
+                            if (matched) break;
+                        }
+                    }
+                    if (matched) break;
+                }
+            });
+            return result;
+        };
+
+        return { prompt: prompt, parseResponse: parseResponse };
     }
 
     function calcMaintHour() {
@@ -1658,6 +1904,35 @@
 
         body.appendChild(makeSection('Purpose', 'Configure this printer\'s specs and availability. Each printer contributes to your fleet\'s total capacity, which determines how many products you can produce per day.'));
 
+        // --- AI Assist Section ---
+        var aiConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+        var hasEmpty = !printer.model || !printer.volume || !printer.speed || !printer.watts || !printer.price;
+        var aiSection = document.createElement('div');
+        aiSection.className = 'ai-assist-section';
+
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'ai-assist-toggle' + (hasEmpty ? ' expanded' : '');
+        toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
+        toggleBtn.id = 'btnAiToggle';
+        aiSection.appendChild(toggleBtn);
+
+        var aiBody = document.createElement('div');
+        aiBody.className = 'ai-assist-body' + (hasEmpty ? ' show' : '');
+        aiBody.id = 'aiAssistBody';
+
+        aiBody.innerHTML =
+            '<div class="ai-assist-label">Your Prompt:</div>' +
+            '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(aiConfig.prompt) + '</textarea>' +
+            '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
+            '<hr class="ai-assist-divider">' +
+            '<div class="ai-assist-label">Paste Claude\'s Response:</div>' +
+            '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the response from Claude here..."></textarea>' +
+            '<button class="btn-ai-apply" id="btnAiApply">Apply</button>' +
+            '<div class="ai-results-list" id="aiResultsList"></div>';
+
+        aiSection.appendChild(aiBody);
+        body.appendChild(aiSection);
+
         var fieldsDiv = document.createElement('div');
         fieldsDiv.className = 'detail-section';
         fieldsDiv.innerHTML = '<div class="detail-section-label">Printer Details</div>';
@@ -1665,7 +1940,7 @@
         var fields = [
             { key: 'name', label: 'Printer Name', placeholder: 'X1C-01' },
             { key: 'model', label: 'Model', placeholder: 'Bambu Lab X1C' },
-            { key: 'plate', label: 'Build Plate (mm)', placeholder: '256 x 256' },
+            { key: 'volume', label: 'Build Volume (mm)', placeholder: '256 x 256 x 256' },
             { key: 'speed', label: 'Max Speed (mm/s)', placeholder: '500' },
             { key: 'watts', label: 'Avg Power Draw (watts)', placeholder: '150', hint: 'X1C: 150W, H2D: 200W, A1: 90W — feeds electricity cost calc' },
             { key: 'price', label: 'Purchase Price ($)', placeholder: '1199', hint: 'Actual purchase price — feeds depreciation calc' },
@@ -1977,6 +2252,83 @@
                 });
             }
 
+            // AI Assist handlers (fleet only)
+            if (dynType === 'fleet') {
+                var aiToggle = document.getElementById('btnAiToggle');
+                var aiBody = document.getElementById('aiAssistBody');
+                var aiCopy = document.getElementById('btnAiCopy');
+                var aiApply = document.getElementById('btnAiApply');
+
+                if (aiToggle && aiBody) {
+                    aiToggle.addEventListener('click', function() {
+                        aiToggle.classList.toggle('expanded');
+                        aiBody.classList.toggle('show');
+                    });
+                }
+
+                if (aiCopy) {
+                    aiCopy.addEventListener('click', function() {
+                        var promptText = document.getElementById('aiPromptText');
+                        if (!promptText) return;
+                        var text = promptText.value;
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(text).then(function() {
+                                showToast('Prompt copied to clipboard');
+                                aiCopy.textContent = 'Copied!';
+                                setTimeout(function() { aiCopy.textContent = 'Copy to Clipboard'; }, 2000);
+                            }).catch(function() {
+                                fallbackCopy(text, aiCopy);
+                            });
+                        } else {
+                            fallbackCopy(text, aiCopy);
+                        }
+                    });
+                }
+
+                if (aiApply) {
+                    aiApply.addEventListener('click', function() {
+                        if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing first', 'error'); return; }
+                        var responseText = document.getElementById('aiResponseText');
+                        if (!responseText || !responseText.value.trim()) { showToast('Paste Claude\'s response first', 'error'); return; }
+
+                        var printer = state.fleet.find(function(p) { return p.id === itemId; });
+                        if (!printer) return;
+
+                        var config = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+                        var result = config.parseResponse(responseText.value);
+
+                        if (result.count === 0) {
+                            showToast('Could not parse any fields from the response', 'error');
+                            return;
+                        }
+
+                        // Apply parsed values to printer and form fields
+                        Object.keys(result.fields).forEach(function(key) {
+                            printer[key] = result.fields[key];
+                            var input = document.querySelector('.field-input[data-dyn="fleet"][data-id="' + itemId + '"][data-field="' + key + '"]');
+                            if (input) input.value = result.fields[key];
+                        });
+                        printer.verified = false;
+                        printer.status_led = getDynamicCardStatus(printer);
+                        saveState();
+
+                        // Render results
+                        renderAiResults(result, FLEET_PROMPT_FIELDS);
+                        showToast('Applied ' + result.count + ' field(s) from Claude response');
+
+                        // Update header if model changed
+                        if (result.fields.model) {
+                            document.getElementById('detailTitle').textContent = result.fields.model;
+                        }
+
+                        // Regenerate prompt with new values
+                        var newConfig = createClaudePromptConfig(FLEET_PROMPT_FIELDS, printer);
+                        var promptEl = document.getElementById('aiPromptText');
+                        if (promptEl) promptEl.value = newConfig.prompt;
+                    });
+                }
+            }
+
             document.querySelectorAll('.field-input[data-dyn="' + dynType + '"], .field-select[data-dyn="' + dynType + '"]').forEach(function(el) {
                 if (!isEditUnlocked()) { el.disabled = true; }
                 var handler = function() {
@@ -2004,7 +2356,7 @@
         if (!requireEdit('add cards')) return;
         if (phaseNum === 2) {
             var id = 'p' + state.nextDynId.fleet++;
-            state.fleet.push({ id: id, name: '', model: '', plate: '', speed: '', watts: '', price: '', hours: '24', status: 'Active', status_led: 'red', verified: false });
+            state.fleet.push({ id: id, name: '', model: '', volume: '', speed: '', watts: '', price: '', hours: '24', status: 'Active', status_led: 'red', verified: false });
             render();
             openFleetCard(id);
         } else if (phaseNum === 4) {
@@ -2114,6 +2466,40 @@
     function escHtml(str) {
         if (!str && str !== 0) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function fallbackCopy(text, btn) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            showToast('Prompt copied to clipboard');
+            if (btn) { btn.textContent = 'Copied!'; setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000); }
+        } catch(e) {
+            showToast('Copy failed \u2014 select and copy manually', 'error');
+        }
+        document.body.removeChild(ta);
+    }
+
+    function renderAiResults(result, fieldDefs) {
+        var list = document.getElementById('aiResultsList');
+        if (!list) return;
+        var html = '';
+        var filled = 0;
+        fieldDefs.forEach(function(fd) {
+            if (result.fields[fd.key]) {
+                html += '<div class="ai-result-item filled">\u2713 ' + escHtml(fd.promptLabel) + ': ' + escHtml(result.fields[fd.key]) + '</div>';
+                filled++;
+            } else {
+                html += '<div class="ai-result-item unfilled">\u25CB ' + escHtml(fd.promptLabel) + ' not found</div>';
+            }
+        });
+        html += '<div class="ai-results-summary">Fields auto-filled: ' + filled + ' / ' + fieldDefs.length + '</div>';
+        list.innerHTML = html;
     }
 
     // ===================================================================

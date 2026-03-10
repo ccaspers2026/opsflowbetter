@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag">v0.69.0</span></p>
+        <p class="version">Tester <span id="versionTag">v0.70.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,51 +630,54 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.69.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.70.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Fleet PF.X Numbering (v0.69.0)',
+        title: 'AI Assist UI (v0.70.0)',
         priority: 'PRIMARY',
         items: [
-            'Workshop Phase 2: Fleet cards show PF.1 through PF.7 in step-number position',
-            'Workshop Phase 2: Card title shows printer name (e.g. Galileo Seven), not model',
-            'Workshop Phase 2: Card description shows model (e.g. Bambu Lab X1C), not status',
+            'Workshop: Open fleet card \u2192 AI Assist section visible between Purpose and Printer Details',
+            'Workshop: AI Assist toggle collapses/expands body; starts expanded for new printers',
+            'Workshop: Prompt textarea shows smart prompt mentioning current model name',
+            'Workshop: Copy button copies prompt text to clipboard',
         ]
     },
     {
-        title: 'Fleet Detail Panel',
+        title: 'AI Assist Parsing',
         priority: null,
         items: [
-            'Workshop: Click PF.1 card \u2192 detail header shows "PF.1 \u2014 Galileo Seven"',
-            'Workshop: Click PF.7 card \u2192 detail header shows "PF.7 \u2014 Redemption"',
+            'Workshop: Paste response + Apply \u2192 parsed values fill form fields (model, volume, speed, watts, price)',
+            'Workshop: Results list shows checkmarks for filled fields and circles for unfilled',
+            'Workshop: Results summary shows "Fields auto-filled: X / 5"',
+            'Workshop: Status LED updates after apply (yellow if partial, green if all filled)',
         ]
     },
     {
-        title: 'Fleet Data Flow',
+        title: 'Build Volume Rename',
         priority: null,
         items: [
-            'Workshop W3.1: fleetAvgPrice and depHour still calculate correctly',
-            'Workshop W3.3: fleetAvgWatts and elecHour still calculate correctly',
-            'Workshop W3.4: Blended Rate unchanged from previous version',
+            'Workshop: Field label reads "Build Volume (mm)" not "Build Plate"',
+            'Workshop: Default printers show "256 x 256 x 256" (three dimensions)',
         ]
     },
     {
-        title: 'Backlog Items',
+        title: 'Data Integrity',
         priority: null,
         items: [
-            'Tasks: "Create product template from existing product in P2M" in Backlog (Later)',
-            'Tasks: "[SVC] Services indicator: OpsFlowBetter vs manufacturing costs" in Backlog (Later)',
+            'Workshop: W3.1, W3.3, W3.4 calculations unchanged after AI-assisted data entry',
+            'Workshop: Mark as Complete still works after AI fill',
         ]
     },
     {
-        title: 'Changelog & Versions',
+        title: 'Backlog & Versions',
         priority: null,
         items: [
-            'Changelog: Banner shows v0.69.0 \u2014 Printer Fleet PF.X Numbering',
-            'Changelog: v0.69.0 timeline entry with FEATURE tag and 5 bullets',
-            'Changelog: Versions stat reads 93',
-            'All 8 P2M pages show v0.69.0 in their version line',
+            'Tasks: "Template Builder" in Backlog (Later) with Architecture tag',
+            'Tasks: "Forms Builder" in Backlog (Later) with Architecture tag',
+            'Changelog: Banner shows v0.70.0 \u2014 Claude Prompt AI-Assist for Fleet Cards',
+            'Changelog: v0.70.0 timeline entry with FEATURE tag and 5 bullets',
+            'All 8 P2M pages show v0.70.0 in their version line',
         ]
     }
 ];
