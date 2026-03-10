@@ -449,7 +449,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks v0.75.0</p>
+        <p class="version">Tasks v0.76.0</p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -469,7 +469,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">93</div>
+        <div class="num" style="color:#3fb950;">103</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -2625,8 +2625,8 @@ function runMigrations() {
         markMigrationRun('v0.72.0_bl_forms_builder');
     }
 
-    // ── v0.75.0: Assign unique task IDs + migrate status from working→in-progress ──
-    if (ran.indexOf('v0.75.0_task_ids_and_status') === -1) {
+    // ── v0.76.0: Assign unique task IDs + migrate status from working→in-progress ──
+    if (ran.indexOf('v0.76.0_task_ids_and_status') === -1) {
         if (!data.nextTaskNum) data.nextTaskNum = 1;
         // Assign taskNum to all existing items that don't have one
         var allItems = (data.priority || []).concat(data.backlog || []).concat(data.completed || []);
@@ -2640,7 +2640,7 @@ function runMigrations() {
             else if (!allItems[i].status) allItems[i].status = 'new';
         }
         changed = true;
-        markMigrationRun('v0.75.0_task_ids_and_status');
+        markMigrationRun('v0.76.0_task_ids_and_status');
     }
 
     if (changed) saveTasks(data);
