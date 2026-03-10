@@ -409,6 +409,104 @@
             text-align: center; padding: 24px; font-size: 11px;
             color: var(--text-dim); border-top: 1px solid var(--border);
         }
+
+        /* ── Admin Mode ─────────────────────────────────────── */
+        .admin-toggle {
+            background: none; border: 1px solid var(--border); color: var(--text-dim);
+            font-size: 16px; cursor: pointer; padding: 4px 10px; border-radius: 6px;
+            transition: all 0.2s; margin-left: 12px;
+        }
+        .admin-toggle:hover { border-color: #58a6ff; color: #58a6ff; }
+        .admin-toggle.active { border-color: #f0883e; color: #f0883e; background: rgba(240,136,62,0.1); }
+
+        /* Sphere overlay controls (hidden until admin mode) */
+        .sphere-admin-overlay {
+            display: none;
+            position: absolute; top: -6px; right: -6px; left: -6px; bottom: -6px;
+            z-index: 10;
+        }
+        body.admin-mode .sphere-admin-overlay { display: flex; gap: 4px; justify-content: center; align-items: flex-start; padding-top: 2px; }
+        body.admin-mode .sphere-item { pointer-events: none; }
+        body.admin-mode .sphere-admin-overlay,
+        body.admin-mode .sphere-admin-overlay button { pointer-events: auto; }
+
+        .sphere-admin-overlay button {
+            width: 24px; height: 24px; border-radius: 50%; border: none;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            transition: transform 0.15s;
+        }
+        .sphere-admin-overlay button:hover { transform: scale(1.15); }
+        .btn-sphere-edit { background: #58a6ff; color: #fff; }
+        .btn-sphere-delete { background: #f85149; color: #fff; }
+
+        /* Add sphere button */
+        .sphere-add-btn {
+            display: none;
+            flex-direction: column; align-items: center; gap: 10px;
+            cursor: pointer; transition: transform 0.25s;
+        }
+        body.admin-mode .sphere-add-btn { display: flex; }
+        .sphere-add-btn:hover { transform: scale(1.1); }
+        .sphere-add-circle {
+            width: 88px; height: 88px; border-radius: 50%;
+            border: 2px dashed var(--border-hover);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; color: var(--text-dim);
+            transition: all 0.2s;
+        }
+        .sphere-add-btn:hover .sphere-add-circle {
+            border-color: #58a6ff; color: #58a6ff;
+        }
+        .sphere-add-label { font-size: 11px; color: var(--text-dim); }
+
+        /* Add group button */
+        .group-add-btn {
+            display: none;
+            background: var(--bg-card); border: 2px dashed var(--border-hover);
+            border-radius: 12px; padding: 20px; text-align: center;
+            cursor: pointer; color: var(--text-dim); font-size: 13px;
+            transition: all 0.2s;
+        }
+        body.admin-mode .group-add-btn { display: block; }
+        .group-add-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+
+        /* Card label edit in admin mode */
+        body.admin-mode .card-label-editable { cursor: pointer; transition: color 0.2s; }
+        body.admin-mode .card-label-editable:hover { color: #58a6ff; }
+
+        /* ── Modal ──────────────────────────────────────────── */
+        .modal-backdrop {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 10000;
+            align-items: center; justify-content: center;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal {
+            background: #161b22; border: 1px solid #30363d; border-radius: 12px;
+            padding: 24px; width: 400px; max-width: 90vw;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+        }
+        .modal h3 { color: #e6edf3; font-size: 16px; margin-bottom: 16px; }
+        .modal label { display: block; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; margin-top: 12px; }
+        .modal label:first-of-type { margin-top: 0; }
+        .modal input, .modal select {
+            width: 100%; padding: 8px 10px; background: #0d1117; border: 1px solid #30363d;
+            border-radius: 6px; color: #e6edf3; font-size: 13px;
+        }
+        .modal input:focus, .modal select:focus { outline: none; border-color: #58a6ff; }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+        .modal-actions button {
+            padding: 8px 16px; border-radius: 6px; border: none;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .btn-modal-cancel { background: #21262d; color: #c9d1d9; }
+        .btn-modal-cancel:hover { background: #30363d; }
+        .btn-modal-save { background: #238636; color: #fff; }
+        .btn-modal-save:hover { background: #2ea043; }
+        .btn-modal-delete { background: #da3633; color: #fff; }
+        .btn-modal-delete:hover { background: #f85149; }
     </style>
 </head>
 <body>
@@ -416,7 +514,10 @@
 <!-- ── Top Bar ──────────────────────────────────────────────── -->
 <div class="topbar">
     <a href="/launchpad.html" class="brand"><span class="ops">Ops</span><span class="flow">Flow</span><span class="better">Better</span></a>
-    <div class="topbar-meta">LaunchPad v0.63.0</div>
+    <div class="topbar-meta">
+        <button class="admin-toggle" id="adminToggle" title="Toggle admin mode">&#9881;</button>
+        LaunchPad v0.64.0
+    </div>
 </div>
 
 <!-- ── Main Content ────────────────────────────────────────── -->
@@ -463,21 +564,43 @@
 
 </div>
 
+<!-- ── Sphere Edit Modal ─────────────────────────────────── -->
+<div class="modal-backdrop" id="sphereModal">
+    <div class="modal">
+        <h3 id="modalTitle">Edit Sphere</h3>
+        <label>Sphere Text (abbreviation)</label>
+        <input type="text" id="modalText" placeholder="e.g. GH" maxlength="6">
+        <label>Label (name)</label>
+        <input type="text" id="modalLabel" placeholder="e.g. GitHub">
+        <label>Sublabel (category tag)</label>
+        <input type="text" id="modalSublabel" placeholder="e.g. ↗ code">
+        <label>URL</label>
+        <input type="text" id="modalUrl" placeholder="https://...">
+        <label>Color</label>
+        <select id="modalColor"></select>
+        <div class="modal-actions">
+            <button class="btn-modal-delete" id="modalDelete" style="margin-right:auto;">Delete</button>
+            <button class="btn-modal-cancel" id="modalCancel">Cancel</button>
+            <button class="btn-modal-save" id="modalSave">Save</button>
+        </div>
+    </div>
+</div>
+
 <div class="footer">
     OpsFlowBetter &mdash; Built by makers, for makers &mdash; High Point, NC
 </div>
 
 <script>
 // ══════════════════════════════════════════════════════════════
-// LaunchPad v0.63.0 — Card-based layout
+// LaunchPad v0.64.0 — Admin mode: Add / Edit / Delete spheres
 //
 // Links are stored in localStorage key: opsflow_launchpad
 // Format: { tools: [...], personal: [...] }
 // Each tool item: { text, label, sublabel, url, color }
 // Personal items: { group: 'Name' } as separators, then sphere items
 //
-// "color" maps to a CSS class: sphere-{color}
-// Custom colors: provide "bg" (CSS background) + "glow" (CSS rgba)
+// Admin mode: click gear icon to toggle. Adds edit/delete overlays
+// and "+" buttons for adding new spheres and groups.
 // ══════════════════════════════════════════════════════════════
 
 (function() {
@@ -489,7 +612,7 @@
     else if (h >= 12 && h < 17) msg = 'Good afternoon';
     document.getElementById('greeting').textContent = msg;
 
-    // ── Glow color map (for --glow CSS variable on sphere-item) ──
+    // ── Glow color map ───────────────────────────────────────
     var GLOW_MAP = {
         p2m:           'rgba(74, 158, 255, 0.35)',
         helium:        'rgba(255, 140, 74, 0.35)',
@@ -513,6 +636,32 @@
         monday:        'rgba(240, 64, 136, 0.35)',
         calendly:      'rgba(0, 107, 255, 0.35)',
         autofarm:      'rgba(232, 160, 32, 0.35)'
+    };
+
+    // Color display names for the dropdown
+    var COLOR_NAMES = {
+        helium: 'Orange (Helium 10)',
+        removebg: 'Green (remove.bg)',
+        cloudflare: 'Gold (Cloudflare)',
+        github: 'Grey (GitHub)',
+        r2: 'Light Blue (R2)',
+        services: 'Purple (Services)',
+        tasty: 'Bright Green (tastytrade)',
+        truist: 'Violet (Truist)',
+        optionstrat: 'Teal (OptionStrat)',
+        youtube: 'Red (YouTube)',
+        amazon: 'Amber (Amazon)',
+        chatgpt: 'Mint (ChatGPT)',
+        claude: 'Warm Gold (Claude)',
+        tradingview: 'Royal Blue (TradingView)',
+        tradersync: 'Sea Green (TraderSync)',
+        discord: 'Indigo (Discord)',
+        onshape: 'Steel Blue (OnShape)',
+        sellercentral: 'Orange (Seller Central)',
+        monday: 'Pink (Monday)',
+        calendly: 'Blue (Calendly)',
+        autofarm: 'Dark Gold (AutoFarm3D)',
+        p2m: 'P2M Blue'
     };
 
     // ── Default link data ────────────────────────────────────
@@ -546,15 +695,19 @@
         ]
     };
 
-    // ── Load from localStorage (override) or use defaults ────
+    // ── Load / Save ──────────────────────────────────────────
     var STORAGE_KEY = 'opsflow_launchpad';
-    var config;
-    try {
-        var stored = localStorage.getItem(STORAGE_KEY);
-        config = stored ? JSON.parse(stored) : null;
-    } catch(e) {
-        config = null;
+    function loadConfig() {
+        try {
+            var stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : null;
+        } catch(e) { return null; }
     }
+    function saveConfig() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ tools: tools, personal: personal }));
+    }
+
+    var config = loadConfig();
     if (!config) config = {};
     var tools    = config.tools    || DEFAULTS.tools;
     var personal = config.personal || DEFAULTS.personal;
@@ -575,19 +728,17 @@
         return groups;
     }
 
-    // ── Render a single sphere item ──────────────────────────
-    function renderSphere(item) {
+    // ── Render a single sphere item (with admin overlay) ─────
+    function renderSphere(item, section, index) {
         var a = document.createElement('a');
         a.href = item.url;
         a.className = 'sphere-item';
         a.target = '_blank';
         a.rel = 'noopener';
 
-        // Set --glow on the sphere-item for both hover glow + ground shadow
         var glowColor = GLOW_MAP[item.color] || item.glow || 'rgba(88,166,255,0.2)';
         a.style.setProperty('--glow', glowColor);
 
-        // Build sphere div
         var sphereClass = item.color ? ' sphere-' + item.color : '';
         var inlineStyle = '';
         if (item.bg) inlineStyle += 'background:' + item.bg + ';';
@@ -598,6 +749,10 @@
                     '<span class="sphere-text">' + item.text + '</span>' +
                 '</div>' +
                 '<div class="sphere-shadow"></div>' +
+                '<div class="sphere-admin-overlay">' +
+                    '<button class="btn-sphere-edit" data-section="' + section + '" data-index="' + index + '" title="Edit">&#9998;</button>' +
+                    '<button class="btn-sphere-delete" data-section="' + section + '" data-index="' + index + '" title="Delete">&times;</button>' +
+                '</div>' +
             '</div>' +
             '<div class="sphere-label">' + item.label + '</div>' +
             '<div class="sphere-sublabel">' + item.sublabel + '</div>';
@@ -605,37 +760,300 @@
         return a;
     }
 
+    // ── Add sphere button ────────────────────────────────────
+    function renderAddButton(section, groupName) {
+        var btn = document.createElement('div');
+        btn.className = 'sphere-add-btn';
+        btn.setAttribute('data-section', section);
+        if (groupName) btn.setAttribute('data-group', groupName);
+        btn.innerHTML =
+            '<div class="sphere-add-circle">+</div>' +
+            '<div class="sphere-add-label">Add</div>';
+        btn.addEventListener('click', function() {
+            openModal(null, section, groupName);
+        });
+        return btn;
+    }
+
     // ── Build a card element ─────────────────────────────────
-    function createCard(label, items, wide) {
+    function createCard(label, items, wide, section, groupName) {
         var card = document.createElement('div');
         card.className = 'card' + (wide ? ' card-wide' : '');
 
         var lbl = document.createElement('div');
-        lbl.className = 'card-label';
+        lbl.className = 'card-label card-label-editable';
         lbl.textContent = label;
+        if (groupName) {
+            lbl.addEventListener('click', function() {
+                if (!document.body.classList.contains('admin-mode')) return;
+                var newName = prompt('Rename group:', groupName);
+                if (newName && newName.trim() && newName !== groupName) {
+                    // Find the group header in personal array and rename it
+                    for (var i = 0; i < personal.length; i++) {
+                        if (personal[i].group === groupName) {
+                            personal[i].group = newName.trim();
+                            break;
+                        }
+                    }
+                    saveConfig();
+                    renderAll();
+                }
+            });
+        }
         card.appendChild(lbl);
 
         var spheres = document.createElement('div');
         spheres.className = 'card-spheres';
         for (var i = 0; i < items.length; i++) {
-            spheres.appendChild(renderSphere(items[i]));
+            spheres.appendChild(renderSphere(items[i], section, i));
         }
+        // Add button at end
+        spheres.appendChild(renderAddButton(section, groupName));
         card.appendChild(spheres);
 
         return card;
     }
 
-    // ── Render card grid ─────────────────────────────────────
-    var cardGrid = document.getElementById('card-grid');
+    // ── Render everything ────────────────────────────────────
+    function renderAll() {
+        var cardGrid = document.getElementById('card-grid');
+        cardGrid.innerHTML = '';
 
-    // Tools card — full width since it has many spheres
-    cardGrid.appendChild(createCard('Tools & Services', tools, true));
+        // Tools card
+        cardGrid.appendChild(createCard('Tools & Services', tools, true, 'tools', null));
 
-    // Personal group cards — one card per group, auto-flow
-    var personalGroups = parseGroups(personal);
-    for (var g = 0; g < personalGroups.length; g++) {
-        cardGrid.appendChild(createCard(personalGroups[g].name, personalGroups[g].items, false));
+        // Personal group cards
+        var personalGroups = parseGroups(personal);
+        for (var g = 0; g < personalGroups.length; g++) {
+            cardGrid.appendChild(createCard(
+                personalGroups[g].name,
+                personalGroups[g].items,
+                false,
+                'personal-' + personalGroups[g].name,
+                personalGroups[g].name
+            ));
+        }
+
+        // Add group button
+        var addGroupBtn = document.createElement('div');
+        addGroupBtn.className = 'group-add-btn';
+        addGroupBtn.textContent = '+ Add Group';
+        addGroupBtn.addEventListener('click', function() {
+            var name = prompt('New group name:');
+            if (name && name.trim()) {
+                personal.push({ group: name.trim() });
+                saveConfig();
+                renderAll();
+            }
+        });
+        cardGrid.appendChild(addGroupBtn);
     }
+
+    // ── Event delegation for edit/delete buttons ─────────────
+    function handleSphereAction(e) {
+        var btn = e.target.closest('.btn-sphere-edit, .btn-sphere-delete');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var section = btn.getAttribute('data-section');
+        var index = parseInt(btn.getAttribute('data-index'), 10);
+
+        if (btn.classList.contains('btn-sphere-edit')) {
+            var item = getItem(section, index);
+            if (item) openModal(item, section, null, index);
+        } else if (btn.classList.contains('btn-sphere-delete')) {
+            var item = getItem(section, index);
+            if (item && confirm('Delete "' + item.label + '"?')) {
+                deleteItem(section, index);
+                saveConfig();
+                renderAll();
+            }
+        }
+    }
+
+    // ── Get/Delete item by section key + index ───────────────
+    function getItem(section, index) {
+        if (section === 'tools') return tools[index];
+        // personal-GroupName → find items in that group
+        var groupName = section.replace('personal-', '');
+        var groups = parseGroups(personal);
+        for (var g = 0; g < groups.length; g++) {
+            if (groups[g].name === groupName) return groups[g].items[index];
+        }
+        return null;
+    }
+
+    function deleteItem(section, index) {
+        if (section === 'tools') {
+            tools.splice(index, 1);
+            return;
+        }
+        var groupName = section.replace('personal-', '');
+        // Find the actual flat-array index of this item
+        var count = -1;
+        var inGroup = false;
+        for (var i = 0; i < personal.length; i++) {
+            if (personal[i].group === groupName) { inGroup = true; count = -1; continue; }
+            if (personal[i].group && personal[i].group !== groupName) { inGroup = false; continue; }
+            if (inGroup) {
+                count++;
+                if (count === index) {
+                    personal.splice(i, 1);
+                    return;
+                }
+            }
+        }
+    }
+
+    function setItem(section, index, item) {
+        if (section === 'tools') {
+            tools[index] = item;
+            return;
+        }
+        var groupName = section.replace('personal-', '');
+        var count = -1;
+        var inGroup = false;
+        for (var i = 0; i < personal.length; i++) {
+            if (personal[i].group === groupName) { inGroup = true; count = -1; continue; }
+            if (personal[i].group && personal[i].group !== groupName) { inGroup = false; continue; }
+            if (inGroup) {
+                count++;
+                if (count === index) {
+                    personal[i] = item;
+                    return;
+                }
+            }
+        }
+    }
+
+    function addItem(section, groupName, item) {
+        if (section === 'tools') {
+            tools.push(item);
+            return;
+        }
+        if (groupName) {
+            // Insert after the last item in this group
+            var lastIdx = -1;
+            var inGroup = false;
+            for (var i = 0; i < personal.length; i++) {
+                if (personal[i].group === groupName) { inGroup = true; lastIdx = i; continue; }
+                if (personal[i].group && personal[i].group !== groupName && inGroup) break;
+                if (inGroup) lastIdx = i;
+            }
+            personal.splice(lastIdx + 1, 0, item);
+        } else {
+            personal.push(item);
+        }
+    }
+
+    // ── Admin Toggle ─────────────────────────────────────────
+    var adminBtn = document.getElementById('adminToggle');
+    adminBtn.addEventListener('click', function() {
+        document.body.classList.toggle('admin-mode');
+        adminBtn.classList.toggle('active');
+    });
+
+    // ── Modal ────────────────────────────────────────────────
+    var modal = document.getElementById('sphereModal');
+    var modalTitle = document.getElementById('modalTitle');
+    var fText = document.getElementById('modalText');
+    var fLabel = document.getElementById('modalLabel');
+    var fSublabel = document.getElementById('modalSublabel');
+    var fUrl = document.getElementById('modalUrl');
+    var fColor = document.getElementById('modalColor');
+    var btnDelete = document.getElementById('modalDelete');
+    var btnCancel = document.getElementById('modalCancel');
+    var btnSave = document.getElementById('modalSave');
+
+    // Populate color dropdown
+    var colorKeys = Object.keys(COLOR_NAMES);
+    fColor.innerHTML = '';
+    for (var c = 0; c < colorKeys.length; c++) {
+        var opt = document.createElement('option');
+        opt.value = colorKeys[c];
+        opt.textContent = COLOR_NAMES[colorKeys[c]];
+        fColor.appendChild(opt);
+    }
+
+    var _editSection = null;
+    var _editIndex = null;
+    var _editGroup = null;
+    var _isNew = false;
+
+    function openModal(item, section, groupName, index) {
+        _editSection = section;
+        _editIndex = index != null ? index : null;
+        _editGroup = groupName || (section ? section.replace('personal-', '') : null);
+        _isNew = !item;
+
+        modalTitle.textContent = _isNew ? 'Add Sphere' : 'Edit Sphere';
+        fText.value = item ? item.text : '';
+        fLabel.value = item ? item.label : '';
+        fSublabel.value = item ? (item.sublabel || '') : '\u2197 ';
+        fUrl.value = item ? item.url : 'https://';
+        fColor.value = item ? (item.color || 'github') : 'github';
+        btnDelete.style.display = _isNew ? 'none' : '';
+
+        modal.classList.add('open');
+        fText.focus();
+    }
+
+    function closeModal() {
+        modal.classList.remove('open');
+        _editSection = null;
+        _editIndex = null;
+        _editGroup = null;
+        _isNew = false;
+    }
+
+    btnCancel.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+
+    btnSave.addEventListener('click', function() {
+        var item = {
+            text: fText.value.trim() || '?',
+            label: fLabel.value.trim() || 'New Link',
+            sublabel: fSublabel.value.trim() || '',
+            url: fUrl.value.trim() || '#',
+            color: fColor.value
+        };
+        if (_isNew) {
+            addItem(_editSection, _editGroup, item);
+        } else {
+            setItem(_editSection, _editIndex, item);
+        }
+        saveConfig();
+        closeModal();
+        renderAll();
+    });
+
+    btnDelete.addEventListener('click', function() {
+        if (_editSection != null && _editIndex != null) {
+            var item = getItem(_editSection, _editIndex);
+            if (item && confirm('Delete "' + item.label + '"?')) {
+                deleteItem(_editSection, _editIndex);
+                saveConfig();
+                closeModal();
+                renderAll();
+            }
+        }
+    });
+
+    // Keyboard: Escape to close, Enter to save
+    document.addEventListener('keydown', function(e) {
+        if (!modal.classList.contains('open')) return;
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Enter' && e.target.tagName !== 'SELECT') { btnSave.click(); }
+    });
+
+    // ── Event delegation (once) ─────────────────────────────
+    document.getElementById('card-grid').addEventListener('click', handleSphereAction);
+
+    // ── Initial render ───────────────────────────────────────
+    renderAll();
 
 })();
 </script>
