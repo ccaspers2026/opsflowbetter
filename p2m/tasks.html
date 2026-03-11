@@ -1777,7 +1777,7 @@
     This page auto-refreshes every 5 minutes &bull; Last updated: v0.65.1 &mdash; March 8, 2026
 </div>
 
-<script src="../shared/opsflow-sync.js?v=083"></script>
+<script src="../shared/opsflow-sync.js?v=084"></script>
 <script>
 /* ── Interactive Tasks with localStorage ───────────────────────────
    On first load, parses PQ and Backlog from static HTML into localStorage.
@@ -3620,6 +3620,62 @@ function runMigrations() {
             ]
         });
         markMigrationRun('v0.83.0_seed_tester_config');
+    }
+
+    // ── v0.84.0: Set T-054 to In Progress ──
+    if (ran.indexOf('v0.84.0_t054_in_progress') === -1) {
+        var pq = data.priority || [];
+        for (var t54 = 0; t54 < pq.length; t54++) {
+            if (pq[t54].id === 'pq_1773269811531') {
+                pq[t54].status = 'in-progress';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.84.0_t054_in_progress');
+    }
+
+    // ── v0.84.0: Set T-014 to Done ──
+    if (ran.indexOf('v0.84.0_t014_done') === -1) {
+        var pq14 = data.priority || [];
+        for (var d14 = 0; d14 < pq14.length; d14++) {
+            if (pq14[d14].id === 'pq_1773266345821') {
+                pq14[d14].status = 'done';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.84.0_t014_done');
+    }
+
+    // ── v0.84.0: Seed tester config ──
+    if (ran.indexOf('v0.84.0_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            version: 'v0.84.0',
+            sections: [
+                {
+                    title: 'Complete Testing Button (T-054)',
+                    priority: 'PRIMARY',
+                    items: [
+                        'Button disabled when 0 items tested (shows "0 of N tested")',
+                        'Button shows progress "X of N tested" as items are clicked',
+                        'Button enables only when all items are PASS/FAIL/SKIP',
+                        'Button disabled during TESTING IN PROGRESS HALT state',
+                        'REWORK state still shows FAIL count and blocks button'
+                    ]
+                },
+                {
+                    title: 'Versions & Infrastructure (v0.84.0)',
+                    priority: 'INFRA',
+                    items: [
+                        'All 9 pages show v0.84.0',
+                        'No console errors on any page',
+                        'Changelog shows v0.84.0 entry'
+                    ]
+                }
+            ]
+        });
+        markMigrationRun('v0.84.0_seed_tester_config');
     }
 
     if (changed) saveTasks(data);

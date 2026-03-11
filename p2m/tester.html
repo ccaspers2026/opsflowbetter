@@ -435,7 +435,7 @@
     </details>
 </div>
 
-<script src="../shared/opsflow-sync.js?v=083"></script>
+<script src="../shared/opsflow-sync.js?v=084"></script>
 <script>
 // ── Test Data (loaded from OpsFlow cache layer — T-089) ──────────
 /* ── Data-driven test config ──────────────────────────────────────
@@ -666,18 +666,37 @@ function renderCompleteState() {
         btn.disabled = true;
     } else {
         banner.classList.remove('show');
-        // Check for FAILs — disable button if any exist
-        var failCheck = 0;
+        // Count totals, tested, and FAILs (T-054: 2-state enable/disable)
+        var totalItems = 0;
+        for (var ti = 0; ti < TEST_SECTIONS.length; ti++) totalItems += TEST_SECTIONS[ti].items.length;
         var rKeys = Object.keys(vd.results || {});
+        var tested = rKeys.length;
+        var failCheck = 0;
         for (var r = 0; r < rKeys.length; r++) {
             if (vd.results[rKeys[r]] === 'fail') failCheck++;
         }
+        var haltState = getHaltState();
+
         if (failCheck > 0) {
+            // FAILs block completion
             btn.textContent = 'REWORK \u2014 ' + failCheck + ' FAIL' + (failCheck > 1 ? 's' : '') + ' blocking';
             btn.disabled = true;
             btn.style.opacity = '0.5';
             btn.style.cursor = 'not-allowed';
+        } else if (tested < totalItems) {
+            // Not all items tested yet
+            btn.textContent = tested + ' of ' + totalItems + ' tested';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        } else if (haltState === 'testing') {
+            // HALT banner active \u2014 testing in progress, keep disabled
+            btn.textContent = 'Complete Testing';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
         } else {
+            // All items tested, no FAILs, not in HALT \u2014 enable
             btn.textContent = 'Complete Testing';
             btn.disabled = false;
             btn.style.opacity = '';

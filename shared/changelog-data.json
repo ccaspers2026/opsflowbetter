@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.84.0",
+    "date": "March 11, 2026",
+    "tag": "UPDATE",
+    "title": "Complete Testing Button \u2014 2-State Enable/Disable",
+    "items": [
+      "Complete Testing button (T-054): Button now starts disabled and shows progress ('X of Y tested') until all test items have a result (PASS, FAIL, or SKIP). Only enables when 100% coverage is reached",
+      "HALT state awareness: Button stays disabled during TESTING IN PROGRESS regardless of test progress. REWORK state continues to show FAIL count",
+      "T-014 (Labor Roster) set to Done. T-057/T-058 (W1.2/W1.3 trim) archived as decided to keep"
+    ]
+  },
+  {
     "version": "v0.83.0",
     "date": "March 11, 2026",
     "tag": "FEATURE",
