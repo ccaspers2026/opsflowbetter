@@ -1980,7 +1980,7 @@
             meAiBody.className = 'ai-assist-body' + (meHasEmpty ? ' show' : '');
             meAiBody.innerHTML =
                 '<div class="ai-assist-label">Your Prompt (fills W3.1 + W3.2):</div>' +
-                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(meConfig.prompt) + '</textarea>' +
+                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(meConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
                 (meHasEmpty ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
@@ -2187,7 +2187,7 @@
             aiBody.className = 'ai-assist-body' + (hasEmpty2 ? ' show' : '');
             aiBody.innerHTML =
                 '<div class="ai-assist-label">Your Prompt:</div>' +
-                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(aiConfig.prompt) + '</textarea>' +
+                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(aiConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
                 (hasEmpty ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
@@ -2330,7 +2330,7 @@
             matAiBody.className = 'ai-assist-body' + (matHasEmpty2 ? ' show' : '');
             matAiBody.innerHTML =
                 '<div class="ai-assist-label">Your Prompt:</div>' +
-                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(matAiConfig.prompt) + '</textarea>' +
+                '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(matAiConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
                 (matHasEmpty2 ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
@@ -2598,7 +2598,7 @@
                         aiBody.className = 'ai-assist-body show';
                         aiBody.innerHTML =
                             '<div class="ai-assist-label">Your Prompt:</div>' +
-                            '<textarea class="ai-assist-prompt-textarea" id="aiPromptText" readonly>' + escHtml(config.prompt) + '</textarea>' +
+                            '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(config.prompt) + '</textarea>' +
                             '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
                             '<hr class="ai-assist-divider">' +
                             '<div class="ai-assist-label">Paste AI Response:</div>' +
@@ -2656,6 +2656,16 @@
                         item.verified = false;
                         item.status_led = getDynamicCardStatus(item);
                         saveState();
+                        // Live-update AI Assist prompt as any field changes
+                        if (dynType === 'fleet' || dynType === 'materials') {
+                            var promptEl = document.getElementById('aiPromptText');
+                            if (promptEl) {
+                                var liveFieldDefs = dynType === 'fleet' ? FLEET_PROMPT_FIELDS : MATERIALS_PROMPT_FIELDS;
+                                var liveIntroFn = dynType === 'fleet' ? getFleetIntro : getMaterialIntro;
+                                var liveConfig = createClaudePromptConfig(liveFieldDefs, item, liveIntroFn(item));
+                                promptEl.value = liveConfig.prompt;
+                            }
+                        }
                     }
                 };
                 el.addEventListener('input', handler);

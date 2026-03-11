@@ -527,6 +527,14 @@
     <div class="task">
         <span class="priority medium"></span>
         <div class="content">
+            <div class="title">[WS] Materials Library &mdash; Dropdown selectors for Type and Supplier</div>
+            <div class="desc">Replace free-text Type and Supplier fields with dropdown selectors populated from existing entries. Prevents typos and ensures data consistency. New values can be added via an &ldquo;Other&rdquo; option. Dropdown list grows as user adds more materials.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Workshop &bull; v0.78.0 Materials Library review</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
             <div class="title">Monday.com-style Workshop task manager</div>
             <div class="desc">Build a task/project manager for the Workshop similar to Monday.com. Daily, weekly, monthly tasks that auto-repeat. Track workshop projects (storing filament, labeling cans, etc.). For Frances, Christian, and future workers. Could become its own sub-domain/app in the Suite.</div>
             <div class="meta"><span class="tag tag-feature">FEATURE</span> Workshop &bull; v0.62.0 tester feedback</div>
@@ -2973,6 +2981,26 @@ function runMigrations() {
             changed = true;
         }
         markMigrationRun('v0.78.0_materials_backlog');
+    }
+
+    // ── v0.78.0 rework: Add dropdown selectors backlog item ──
+    if (ran.indexOf('v0.78.0_dropdown_backlog') === -1) {
+        var existsDd = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].title.indexOf('Dropdown selectors') !== -1) { existsDd = true; break; }
+        }
+        if (!existsDd) {
+            data.backlog.push({
+                id: 'bl_v0780_dropdown',
+                title: '[WS] Materials Library \u2014 Dropdown selectors for Type and Supplier',
+                desc: 'Replace free-text Type and Supplier fields with dropdown selectors populated from existing entries. Prevents typos and ensures data consistency. New values can be added via an \u201cOther\u201d option. Dropdown list grows as user adds more materials.',
+                tag: 'UX',
+                meta: 'Workshop \u2022 v0.78.0 Materials Library review',
+                priority: 'medium'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.78.0_dropdown_backlog');
     }
 
     if (changed) saveTasks(data);
