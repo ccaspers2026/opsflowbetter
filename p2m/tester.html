@@ -675,8 +675,6 @@ function renderCompleteState() {
         for (var r = 0; r < rKeys.length; r++) {
             if (vd.results[rKeys[r]] === 'fail') failCheck++;
         }
-        var haltState = getHaltState();
-
         if (failCheck > 0) {
             // FAILs block completion
             btn.textContent = 'REWORK \u2014 ' + failCheck + ' FAIL' + (failCheck > 1 ? 's' : '') + ' blocking';
@@ -689,14 +687,8 @@ function renderCompleteState() {
             btn.disabled = true;
             btn.style.opacity = '0.5';
             btn.style.cursor = 'not-allowed';
-        } else if (haltState === 'testing') {
-            // HALT banner active \u2014 testing in progress, keep disabled
-            btn.textContent = 'Complete Testing';
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
         } else {
-            // All items tested, no FAILs, not in HALT \u2014 enable
+            // All items tested, no FAILs \u2014 enable
             btn.textContent = 'Complete Testing';
             btn.disabled = false;
             btn.style.opacity = '';
