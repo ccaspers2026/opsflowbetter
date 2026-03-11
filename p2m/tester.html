@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Caspers Creations - Test &amp; Feedback</title>
+    <title>Caspers Creations - Tester</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -258,6 +258,16 @@
             background: #f85149;
             box-shadow: 0 0 10px #f85149, 0 0 4px #f85149;
         }
+        .halt-banner.state-rework {
+            background: #3d2c0a;
+            border: 1px solid #d29922;
+            color: #d29922;
+            animation: halt-pulse 2s ease-in-out infinite;
+        }
+        .halt-banner.state-rework .halt-led {
+            background: #d29922;
+            box-shadow: 0 0 10px #d29922, 0 0 4px #d29922;
+        }
         .halt-banner.state-complete {
             background: #0d2818;
             border: 1px solid #2ea44f;
@@ -270,171 +280,6 @@
         @keyframes halt-pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
-        }
-
-        /* ── Feedback Reporter ──────────────────────────────── */
-        .feedback-section {
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 8px;
-            margin-top: 24px;
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
-        .feedback-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: #1c2333;
-        }
-        .feedback-header h2 {
-            font-size: 15px;
-            color: #f0883e;
-        }
-        .feedback-count {
-            font-size: 11px;
-            color: #8b949e;
-        }
-        .feedback-input-row {
-            display: flex;
-            gap: 8px;
-            padding: 12px 16px;
-            border-bottom: 1px solid #21262d;
-            align-items: center;
-        }
-        .feedback-category {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 4px;
-            color: #e0e0e0;
-            font-size: 12px;
-            padding: 8px 10px;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            cursor: pointer;
-            min-width: 130px;
-        }
-        .feedback-category:focus { border-color: #58a6ff; outline: none; }
-        .feedback-text {
-            flex: 1;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 4px;
-            color: #e0e0e0;
-            font-size: 13px;
-            padding: 8px 10px;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-        .feedback-text:focus { border-color: #58a6ff; outline: none; }
-        .feedback-text::placeholder { color: #8b949e; }
-        .feedback-submit {
-            background: #238636;
-            border: 1px solid #2ea44f;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 8px 16px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.15s;
-        }
-        .feedback-submit:hover { background: #2ea44f; }
-
-        /* ── Feedback List ──────────────────────────────────── */
-        .feedback-list { padding: 0; }
-        .feedback-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 10px 16px;
-            border-bottom: 1px solid #21262d;
-            transition: background 0.15s;
-        }
-        .feedback-item:last-child { border-bottom: none; }
-        .feedback-item:hover { background: #1c2333; }
-        .fb-tag {
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 8px;
-            white-space: nowrap;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-        .fb-tag.bug { background: #f85149; color: #fff; }
-        .fb-tag.improvement { background: #d29922; color: #fff; }
-        .fb-tag.todo { background: #58a6ff; color: #fff; }
-        .fb-tag.question { background: #bc8cff; color: #fff; }
-        .fb-tag.note { background: #8b949e; color: #e0e0e0; }
-
-        /* Priority LED indicators */
-        .fb-led {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin-top: 4px;
-            box-shadow: 0 0 6px currentColor;
-        }
-        .fb-led.now    { background: #f85149; color: #f85149; box-shadow: 0 0 8px #f85149, 0 0 3px #f85149; }
-        .fb-led.soon   { background: #d29922; color: #d29922; box-shadow: 0 0 8px #d29922, 0 0 3px #d29922; }
-        .fb-led.later  { background: #58a6ff; color: #58a6ff; box-shadow: 0 0 8px #58a6ff, 0 0 3px #58a6ff; }
-
-        /* Priority select styling */
-        .feedback-priority {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 4px;
-            color: #e0e0e0;
-            font-size: 12px;
-            padding: 8px 10px;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            cursor: pointer;
-            min-width: 100px;
-        }
-        .feedback-priority:focus { border-color: #58a6ff; outline: none; }
-        .fb-content {
-            flex: 1;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-        .fb-meta {
-            font-size: 10px;
-            color: #8b949e;
-            margin-top: 2px;
-        }
-        .fb-remove {
-            background: none;
-            border: none;
-            color: #8b949e;
-            font-size: 14px;
-            cursor: pointer;
-            padding: 0 4px;
-            flex-shrink: 0;
-            transition: color 0.15s;
-        }
-        .fb-remove:hover { color: #f85149; }
-        .fb-promote {
-            background: none;
-            border: 1px solid #30363d;
-            color: #3fb950;
-            font-size: 9px;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 2px 8px;
-            border-radius: 4px;
-            flex-shrink: 0;
-            transition: all 0.15s;
-            white-space: nowrap;
-        }
-        .fb-promote:hover { background: rgba(63, 185, 80, 0.15); border-color: #3fb950; }
-        .feedback-empty {
-            padding: 16px;
-            text-align: center;
-            color: #8b949e;
-            font-size: 12px;
         }
 
         /* ── Complete Testing Button ───────────────────────── */
@@ -547,7 +392,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.79.0</span></p>
+        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.80.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -577,36 +422,10 @@
     <p id="completeSummary"></p>
 </div>
 
-<!-- ── Feedback Reporter (always accessible) ──────────────────── -->
-<div class="feedback-section">
-    <div class="feedback-header">
-        <h2>Feedback &amp; Bug Reports</h2>
-        <span class="feedback-count" id="feedbackCount">0 items</span>
-    </div>
-    <div class="feedback-input-row">
-        <select class="feedback-category" id="fbCategory">
-            <option value="bug">Bug</option>
-            <option value="improvement">Improvement</option>
-            <option value="todo">Todo</option>
-            <option value="question">Question</option>
-            <option value="note">Note</option>
-        </select>
-        <select class="feedback-priority" id="fbPriority">
-            <option value="now">🔴 Now</option>
-            <option value="soon" selected>🟡 Soon</option>
-            <option value="later">🔵 Later</option>
-        </select>
-        <input type="text" class="feedback-text" id="fbText" placeholder="Describe the issue or idea... (Enter to submit)" onkeydown="if(event.key==='Enter'){event.preventDefault();submitFeedback();}">
-        <button class="feedback-submit" onclick="submitFeedback()">Submit</button>
-    </div>
-    <div class="feedback-list" id="feedbackList"></div>
-</div>
-
 <!-- ── Admin Actions ──────────────────────────────────────────── -->
 <div class="actions">
     <button class="btn" onclick="resetCurrent()">Reset Current Version</button>
     <button class="btn btn-danger" onclick="clearAllHistory()">Clear Test History</button>
-    <button class="btn btn-danger" onclick="clearAllFeedback()">Clear All Feedback</button>
 </div>
 
 <div class="history">
@@ -630,44 +449,37 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.79.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.80.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'W1.1 Electricity Rate Instructions (v0.79.0)',
+        title: 'REWORK Status & Complete Testing Block (T-087)',
         priority: 'PRIMARY',
         items: [
-            'Workshop \u2192 W1.1: Open card \u2192 "How to calculate this value" toggle visible below Purpose',
-            'Workshop \u2192 W1.1: Click toggle \u2192 instructions expand with 5-step guide',
-            'Workshop \u2192 W1.1: Click toggle again \u2192 instructions collapse',
-            'Workshop \u2192 W1.1: Hint text updated (no longer Duke Energy specific)',
+            'Tester: Mark any item FAIL \u2192 HALT banner turns amber with "REWORK Required \u2014 FAILs Must Be Resolved"',
+            'Tester: With FAILs present \u2192 Complete Testing button shows "REWORK \u2014 X FAILs blocking" and is disabled',
+            'Tester: Click disabled Complete Testing \u2192 alert explains FAILs must be resolved first',
+            'Tester: Flip all FAILs to PASS \u2192 HALT banner returns to red "Testing In Progress" and Complete Testing re-enables',
+            'Tester: Complete Testing with all PASS \u2192 works normally, HALT goes green',
         ]
     },
     {
-        title: 'Fleet Capacity Summary (v0.79.0)',
+        title: 'Feedback Section Removed (T-071)',
         priority: 'PRIMARY',
         items: [
-            'Workshop \u2192 Phase 2: Capacity summary bar shows below fleet cards',
-            'Workshop \u2192 Phase 2: Summary shows total hrs/day and hrs/week across active printers',
-            'Workshop \u2192 Phase 2: Capacity numbers match sum of Productive Hours/Day across 7 printers',
+            'Tester: Feedback form (category/priority/text input) is no longer visible on page',
+            'Tester: "Clear All Feedback" admin button is removed',
+            'Tester: Page title says "Tester" (not "Test & Feedback")',
+            'Feedback page (feedback.html): Still works independently as standalone form',
         ]
     },
     {
-        title: 'PQ Cleanup (v0.79.0)',
+        title: 'Versions & Changelog (v0.80.0)',
         priority: null,
         items: [
-            'Tasks \u2192 PQ: Down to 3 items (T-009 fleet capacity, T-013 W1.1, T-030 W1.2)',
-            'Tasks \u2192 Recently Completed: T-004, T-005, T-006, T-007, T-008, T-012 present',
-            'Tasks \u2192 PQ: T-009 title updated to "Add fleet capacity value calculation"',
-        ]
-    },
-    {
-        title: 'Versions & Changelog (v0.79.0)',
-        priority: null,
-        items: [
-            'Changelog: v0.79.0 entry shows Workshop Instructions & Fleet Capacity',
-            'Changelog: Version counter shows 106',
-            'All 9 pages show v0.79.0',
+            'All 9 pages show v0.80.0',
+            'Changelog: v0.80.0 entry present with FEATURE tag',
+            'Changelog: Version counter shows 107',
         ]
     }
 ];
@@ -698,7 +510,9 @@ function renderHaltBanner() {
     var banner = document.getElementById('haltBanner');
     var text = document.getElementById('haltText');
     banner.className = 'halt-banner state-' + state;
-    if (state === 'testing') {
+    if (state === 'rework') {
+        text.textContent = 'REWORK Required \u2014 FAILs Must Be Resolved';
+    } else if (state === 'testing') {
         text.textContent = 'Testing In Progress \u2014 Do Not Modify';
     } else if (state === 'complete') {
         text.textContent = 'Testing Complete \u2014 Ready for Dev';
@@ -776,13 +590,20 @@ function setResult(idx, status) {
     }
     data[TEST_VERSION].timestamp = new Date().toISOString();
     saveData(data);
-    // Check if all results are cleared — reset HALT to idle
+    // Determine HALT state based on results
     var resultsObj = data[TEST_VERSION].results || {};
-    var hasAnyResult = Object.keys(resultsObj).length > 0;
-    if (hasAnyResult) {
+    var resultKeys = Object.keys(resultsObj);
+    var hasAnyResult = resultKeys.length > 0;
+    var hasAnyFail = false;
+    for (var f = 0; f < resultKeys.length; f++) {
+        if (resultsObj[resultKeys[f]] === 'fail') { hasAnyFail = true; break; }
+    }
+    if (hasAnyFail) {
+        setHaltState('rework');
+    } else if (hasAnyResult) {
         if (getHaltState() !== 'testing') setHaltState('testing');
     } else {
-        if (getHaltState() === 'testing') setHaltState('idle');
+        setHaltState('idle');
     }
     render();
 }
@@ -795,119 +616,26 @@ function setNote(idx, text) {
     saveData(data);
 }
 
-// ── Feedback ─────────────────────────────────────────────────────
-function submitFeedback() {
-    var cat = document.getElementById('fbCategory').value;
-    var pri = document.getElementById('fbPriority').value;
-    var text = document.getElementById('fbText').value.trim();
-    if (!text) return;
-
-    var fb = loadFeedback();
-    fb.push({
-        id: Date.now() + '-' + Math.random().toString(36).substr(2, 4),
-        category: cat,
-        priority: pri,
-        text: text,
-        version: TEST_VERSION,
-        timestamp: new Date().toISOString(),
-    });
-    saveFeedback(fb);
-    // NOTE: Feedback does NOT trigger HALT — only test interactions do
-
-    document.getElementById('fbText').value = '';
-    document.getElementById('fbText').focus();
-    renderFeedback();
-}
-
-function promoteFeedbackToBacklog(id) {
-    var fb = loadFeedback();
-    var item = null;
-    for (var i = 0; i < fb.length; i++) {
-        if (fb[i].id === id) { item = fb[i]; break; }
-    }
-    if (!item) return;
-
-    var catToTag = { improvement: 'feature', bug: 'bug', todo: 'ux', question: 'ux', note: 'ux' };
-    var tag = catToTag[item.category] || 'feature';
-    var priMap = { now: 'high', soon: 'medium', later: 'low' };
-    var priority = priMap[item.priority] || 'medium';
-
-    var data = JSON.parse(localStorage.getItem('opsflow_tasks_v2') || '{}');
-    if (!data.backlog) data.backlog = [];
-    data.backlog.push({
-        id: 'bl_' + Date.now(),
-        title: item.text,
-        desc: 'Promoted from Feedback (' + item.category + ')',
-        tag: tag.toUpperCase(),
-        meta: 'Feedback \u2022 ' + (item.version || ''),
-        priority: priority,
-        created: new Date().toISOString().split('T')[0],
-        source: 'feedback promotion'
-    });
-    localStorage.setItem('opsflow_tasks_v2', JSON.stringify(data));
-
-    fb = fb.filter(function(f) { return f.id !== id; });
-    saveFeedback(fb);
-    renderFeedback();
-}
-
-function removeFeedback(id) {
-    var fb = loadFeedback();
-    fb = fb.filter(function(f) { return f.id !== id; });
-    saveFeedback(fb);
-    renderFeedback();
-}
-
-function renderFeedback() {
-    var allItems = loadFeedback();
-    var list = document.getElementById('feedbackList');
-    var countEl = document.getElementById('feedbackCount');
-
-    var counts = { bug: 0, improvement: 0, todo: 0, question: 0, note: 0 };
-    for (var i = 0; i < allItems.length; i++) { counts[allItems[i].category] = (counts[allItems[i].category] || 0) + 1; }
-
-    var parts = [];
-    if (counts.bug) parts.push(counts.bug + ' bug' + (counts.bug > 1 ? 's' : ''));
-    if (counts.improvement) parts.push(counts.improvement + ' improvement' + (counts.improvement > 1 ? 's' : ''));
-    if (counts.todo) parts.push(counts.todo + ' todo' + (counts.todo > 1 ? 's' : ''));
-    if (counts.question) parts.push(counts.question + ' question' + (counts.question > 1 ? 's' : ''));
-    if (counts.note) parts.push(counts.note + ' note' + (counts.note > 1 ? 's' : ''));
-    countEl.textContent = parts.length ? parts.join(' \u00b7 ') : '0 items';
-
-    if (!allItems.length) {
-        list.innerHTML = '<div class="feedback-empty">No feedback yet \u2014 drop ideas, bugs, or notes anytime using the form above.</div>';
-        return;
-    }
-
-    // Show newest first
-    var sorted = allItems.slice().reverse();
-    var html = '';
-    for (var i = 0; i < sorted.length; i++) {
-        var f = sorted[i];
-        var date = new Date(f.timestamp);
-        var time = date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        var pri = f.priority || 'soon';
-        var priLabel = pri === 'now' ? 'Now' : pri === 'soon' ? 'Soon' : 'Later';
-        var verTag = f.version ? ' \u00b7 ' + f.version : '';
-        html += '<div class="feedback-item">';
-        html += '<span class="fb-led ' + pri + '" title="Priority: ' + priLabel + '"></span>';
-        html += '<span class="fb-tag ' + f.category + '">' + f.category.charAt(0).toUpperCase() + f.category.slice(1) + '</span>';
-        html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + priLabel + verTag + ' \u00b7 ' + time + '</div></div>';
-        html += '<button class="fb-promote" onclick="promoteFeedbackToBacklog(\'' + f.id + '\')" title="Promote to Backlog">&uarr; Backlog</button>';
-        html += '<button class="fb-remove" onclick="removeFeedback(\'' + f.id + '\')" title="Remove">\u00d7</button>';
-        html += '</div>';
-    }
-    list.innerHTML = html;
-}
-
 // ── Complete Testing ─────────────────────────────────────────────
 function completeTesting() {
     var data = loadData();
     if (!data[TEST_VERSION]) data[TEST_VERSION] = { results: {}, notes: {}, timestamp: null, completed: false };
 
+    // Block completion if any FAILs exist
+    var resultsObj = data[TEST_VERSION].results || {};
+    var resultKeys = Object.keys(resultsObj);
+    var failCount = 0;
+    for (var f = 0; f < resultKeys.length; f++) {
+        if (resultsObj[resultKeys[f]] === 'fail') failCount++;
+    }
+    if (failCount > 0) {
+        alert('Cannot complete testing \u2014 ' + failCount + ' FAIL' + (failCount > 1 ? 's' : '') + ' must be resolved first.\n\nFlip FAILs to PASS after rework fix is deployed, then Complete Testing becomes available.');
+        return;
+    }
+
     var totalItems = 0;
     for (var s = 0; s < TEST_SECTIONS.length; s++) totalItems += TEST_SECTIONS[s].items.length;
-    var tested = Object.keys(data[TEST_VERSION].results || {}).length;
+    var tested = resultKeys.length;
 
     if (tested < totalItems) {
         if (!confirm('Only ' + tested + ' of ' + totalItems + ' items tested. Complete anyway?')) return;
@@ -968,8 +696,23 @@ function renderCompleteState() {
         btn.disabled = true;
     } else {
         banner.classList.remove('show');
-        btn.textContent = 'Complete Testing';
-        btn.disabled = false;
+        // Check for FAILs — disable button if any exist
+        var failCheck = 0;
+        var rKeys = Object.keys(vd.results || {});
+        for (var r = 0; r < rKeys.length; r++) {
+            if (vd.results[rKeys[r]] === 'fail') failCheck++;
+        }
+        if (failCheck > 0) {
+            btn.textContent = 'REWORK \u2014 ' + failCheck + ' FAIL' + (failCheck > 1 ? 's' : '') + ' blocking';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        } else {
+            btn.textContent = 'Complete Testing';
+            btn.disabled = false;
+            btn.style.opacity = '';
+            btn.style.cursor = '';
+        }
     }
 }
 
@@ -1051,7 +794,6 @@ function render() {
         '<div class="seg-skip" style="width:' + pSkip + '%"></div>';
 
     document.getElementById('versionTag').textContent = TEST_VERSION;
-    renderFeedback();
     renderCompleteState();
     renderHaltBanner();
     renderHistory();
@@ -1079,13 +821,6 @@ function clearAllHistory() {
     if (!confirm('Clear ALL test history for ALL versions? This cannot be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
     render();
-}
-
-function clearAllFeedback() {
-    var count = loadFeedback().length;
-    if (!confirm('Delete all ' + count + ' feedback items across all versions?\n\nThis removes ALL bugs, improvements, todos, questions, and notes.\nThis cannot be undone.')) return;
-    localStorage.removeItem(FEEDBACK_KEY);
-    renderFeedback();
 }
 
 // ── History ──────────────────────────────────────────────────────

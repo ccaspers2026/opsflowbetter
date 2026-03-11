@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog <span class="suite-ver">v0.79.0</span></p>
+                <p class="version">Changelog <span class="suite-ver">v0.80.0</span></p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.79.0 - Workshop Instructions &amp; Fleet Capacity</h2>
-            <p>Released March 11, 2026 &mdash; W1.1 Electricity Rate now includes collapsible calculation instructions for deriving per-kWh rate from a utility bill. Phase 2 Printer Fleet shows total fleet capacity (hours/day and hours/week across active printers). PQ cleaned up: 6 completed items moved to Recently Completed, T-009 split into done (verification) and remaining (capacity calc).</p>
+            <h2>Version 0.80.0 - Tester REWORK Status &amp; Feedback Separation</h2>
+            <p>Released March 11, 2026 &mdash; Tester now enters REWORK state (amber HALT banner) when any test item is marked FAIL, blocking Complete Testing until all FAILs are resolved. Feedback section removed from Tester &mdash; use the standalone Feedback page instead.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">106</div>
+                <div class="stat-value">107</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,19 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.80.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.80.0</span>
+                    <span class="version-date">March 11, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>Tester REWORK Status (T-087):</strong> When any test item is marked FAIL, the HALT banner enters amber REWORK state with pulsing animation. Complete Testing button is disabled and shows FAIL count. Alert blocks completion until all FAILs are flipped to PASS. Prevents premature test completion with unresolved failures</li>
+                    <li><strong>Feedback Section Removed from Tester (T-071):</strong> Feedback form (category, priority, text input) removed from Tester page &mdash; now a standalone page at feedback.html. Tester page refocused on testing workflow only. Page title updated from &ldquo;Test &amp; Feedback&rdquo; to &ldquo;Tester&rdquo;</li>
+                </ul>
+            </div>
 
             <!-- v0.79.0 -->
             <div class="version-entry">

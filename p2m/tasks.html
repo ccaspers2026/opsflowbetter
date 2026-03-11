@@ -449,7 +449,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks <span class="suite-ver">v0.79.0</span></p>
+        <p class="version">Tasks <span class="suite-ver">v0.80.0</span></p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -656,6 +656,44 @@
             <div class="title">[SVC] Evaluate AI product image tools (replace remove.bg)</div>
             <div class="desc">(MANUAL) Research AI tools that assemble professional Amazon listing images from raw screenshots and product photos (infographics, hero shots, lifestyle mockups, A+ Content). Should include BG removal, making remove.bg redundant. Evaluate: Canva AI, Photoroom, ProductScope AI, Flair.ai. Score on automation, API access, cost, quality. Coding/integration tasks created after tool is selected.</div>
             <div class="meta"><span class="tag tag-service">SERVICE</span> Services &bull; v0.68.0</div>
+        </div>
+    </div>
+
+    <!-- ── NOW (high) — v0.80.0 KV architecture ── -->
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">[INFRA] Data-driven changelog &mdash; store entries in localStorage/KV, render dynamically</div>
+            <div class="desc">Changelog current-version banner, timeline entries, and version count should all come from localStorage/KV data instead of hardcoded HTML. HTML becomes a rendering template only. Eliminates manual changelog.html edits per version.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> Architecture &bull; v0.80.0</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">[INFRA] Data-driven tester &mdash; TEST_VERSION and TEST_SECTIONS from localStorage/KV only</div>
+            <div class="desc">The opsflow_tester_config localStorage override already exists but is not the primary path. Make it primary: store test sections in KV per version, tester.html renders from data. Eliminates hardcoded TEST_SECTIONS in HTML.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> Architecture &bull; v0.80.0</div>
+        </div>
+    </div>
+
+    <!-- ── SOON (medium) — v0.80.0 KV architecture ── -->
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[INFRA] Stop updating suite-ver in HTML &mdash; rely fully on opsflow-sync.js from KV</div>
+            <div class="desc">The suite-ver spans on all 9 pages are already overwritten by opsflow-sync.js from KV. Stop manually updating the HTML fallback values during version bumps. Only OpsFlow.setVersion() matters post-deploy.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> Architecture &bull; v0.80.0</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">[INFRA] Streamline version bump &mdash; reduce changed files from 9+ to 2-3</div>
+            <div class="desc">With data-driven changelog and tester, a version bump should only touch: (1) the feature file(s), (2) tasks.html migrations. Changelog entries and tester sections go to KV/localStorage. Version number set via OpsFlow.setVersion(). Target: zero HTML-as-data edits per version.</div>
+            <div class="meta"><span class="tag tag-infra">INFRA</span> Architecture &bull; v0.80.0</div>
         </div>
     </div>
 
@@ -3173,6 +3211,61 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.79.0_complete_t030');
+    }
+
+    // ── v0.80.0: Move T-087 and T-071 to Recently Completed ──
+    if (ran.indexOf('v0.80.0_complete_t087_t071') === -1) {
+        var doneItems80 = [
+            { match: 'REWORK status', version: 'v0.80.0', note: 'Amber HALT banner on FAILs, Complete Testing blocked until all FAILs resolved' },
+            { match: 'Feedback section from Tester', version: 'v0.80.0', note: 'Feedback form removed from Tester — standalone Feedback page (feedback.html) is the sole entry point' }
+        ];
+        if (!data.completed) data.completed = [];
+        for (var c = 0; c < doneItems80.length; c++) {
+            for (var i = data.priority.length - 1; i >= 0; i--) {
+                if (data.priority[i].title && data.priority[i].title.indexOf(doneItems80[c].match) !== -1) {
+                    var item = data.priority.splice(i, 1)[0];
+                    item.status = 'done';
+                    item.completedAt = '2026-03-11';
+                    item.completedVersion = doneItems80[c].version;
+                    item.completionNote = doneItems80[c].note;
+                    data.completed.unshift(item);
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        markMigrationRun('v0.80.0_complete_t087_t071');
+    }
+
+    // ── v0.80.0: Add KV data-driven architecture backlog items ──
+    if (ran.indexOf('v0.80.0_kv_datadriven_backlog') === -1) {
+        var kvItems = [
+            { id: 'bl_kv_changelog', title: '[INFRA] Data-driven changelog &mdash; store entries in localStorage/KV, render dynamically', desc: 'Changelog current-version banner, timeline entries, and version count should all come from localStorage/KV data instead of hardcoded HTML. HTML becomes a rendering template only. Eliminates manual changelog.html edits per version.', priority: 'high', tag: 'INFRA', meta: 'Architecture &bull; v0.80.0' },
+            { id: 'bl_kv_tester_config', title: '[INFRA] Data-driven tester &mdash; TEST_VERSION and TEST_SECTIONS from localStorage/KV only', desc: 'The opsflow_tester_config localStorage override already exists but is not the primary path. Make it primary: store test sections in KV per version, tester.html renders from data. Eliminates hardcoded TEST_SECTIONS in HTML.', priority: 'high', tag: 'INFRA', meta: 'Architecture &bull; v0.80.0' },
+            { id: 'bl_kv_version_only', title: '[INFRA] Stop updating suite-ver in HTML &mdash; rely fully on opsflow-sync.js from KV', desc: 'The suite-ver spans on all 9 pages are already overwritten by opsflow-sync.js from KV. Stop manually updating the HTML fallback values during version bumps. Only OpsFlow.setVersion() matters post-deploy.', priority: 'medium', tag: 'INFRA', meta: 'Architecture &bull; v0.80.0' },
+            { id: 'bl_kv_version_bump_procedure', title: '[INFRA] Streamline version bump &mdash; reduce changed files from 9+ to 2-3', desc: 'With data-driven changelog and tester, a version bump should only touch: (1) the feature file(s), (2) tasks.html migrations. Changelog entries and tester sections go to KV/localStorage. Version number set via OpsFlow.setVersion(). Target: zero HTML-as-data edits per version.', priority: 'medium', tag: 'INFRA', meta: 'Architecture &bull; v0.80.0' }
+        ];
+        if (!data.backlog) data.backlog = [];
+        for (var k = 0; k < kvItems.length; k++) {
+            var exists = false;
+            for (var b = 0; b < data.backlog.length; b++) {
+                if (data.backlog[b].id === kvItems[k].id) { exists = true; break; }
+            }
+            if (!exists) {
+                data.backlog.push({
+                    id: kvItems[k].id,
+                    title: kvItems[k].title,
+                    desc: kvItems[k].desc,
+                    priority: kvItems[k].priority,
+                    tag: kvItems[k].tag,
+                    meta: kvItems[k].meta,
+                    created: '2026-03-11',
+                    source: 'v0.80.0 architecture review'
+                });
+                changed = true;
+            }
+        }
+        markMigrationRun('v0.80.0_kv_datadriven_backlog');
     }
 
     if (changed) saveTasks(data);
