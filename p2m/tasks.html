@@ -3268,6 +3268,40 @@ function runMigrations() {
         markMigrationRun('v0.80.0_kv_datadriven_backlog');
     }
 
+    // ── T-090: Lessons Learned workflow step → Recently Completed ──
+    if (ran.indexOf('v0.80.0_complete_t090') === -1) {
+        if (!data.completed) data.completed = [];
+        var found090 = false;
+        for (var i = data.priority.length - 1; i >= 0; i--) {
+            if (data.priority[i].title && data.priority[i].title.indexOf('Lessons Learned') !== -1) {
+                var item090 = data.priority.splice(i, 1)[0];
+                item090.status = 'done';
+                item090.completedAt = '2026-03-11';
+                item090.completedVersion = 'v0.80.0';
+                item090.completionNote = 'Workflow doc updated with Lessons Learned step (step 10) — Claude delivers retro summary after each version before reviewing PQ';
+                data.completed.unshift(item090);
+                changed = true;
+                found090 = true;
+                break;
+            }
+        }
+        if (!found090) {
+            for (var j = data.backlog.length - 1; j >= 0; j--) {
+                if (data.backlog[j].title && data.backlog[j].title.indexOf('Lessons Learned') !== -1) {
+                    var bItem090 = data.backlog.splice(j, 1)[0];
+                    bItem090.status = 'done';
+                    bItem090.completedAt = '2026-03-11';
+                    bItem090.completedVersion = 'v0.80.0';
+                    bItem090.completionNote = 'Workflow doc updated with Lessons Learned step (step 10) — Claude delivers retro summary after each version before reviewing PQ';
+                    data.completed.unshift(bItem090);
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        markMigrationRun('v0.80.0_complete_t090');
+    }
+
     if (changed) saveTasks(data);
 }
 
