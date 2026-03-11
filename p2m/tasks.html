@@ -3157,6 +3157,24 @@ function runMigrations() {
         markMigrationRun('v0.79.0_complete_t013_t009');
     }
 
+    // ── v0.79.0 rework: Move T-030 (W1.2 field labels) to Recently Completed — user marked done ──
+    if (ran.indexOf('v0.79.0_complete_t030') === -1) {
+        if (!data.completed) data.completed = [];
+        for (var i = data.priority.length - 1; i >= 0; i--) {
+            if (data.priority[i].title && data.priority[i].title.indexOf('W1.2') !== -1 && data.priority[i].title.indexOf('field label') !== -1) {
+                var item = data.priority.splice(i, 1)[0];
+                item.status = 'done';
+                item.completedAt = '2026-03-11';
+                item.completedVersion = 'v0.79.0';
+                item.completionNote = 'Christian reviewed W1.2 with real mortgage data, marked GREEN — labels and hints confirmed accurate';
+                data.completed.unshift(item);
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.79.0_complete_t030');
+    }
+
     if (changed) saveTasks(data);
 }
 
