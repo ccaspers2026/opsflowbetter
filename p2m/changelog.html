@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog <span class="suite-ver">v0.80.0</span></p>
+                <p class="version">Changelog <span class="suite-ver">v0.81.0</span></p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.80.0 - Tester REWORK Status &amp; Feedback Separation</h2>
-            <p>Released March 11, 2026 &mdash; Tester now enters REWORK state (amber HALT banner) when any test item is marked FAIL, blocking Complete Testing until all FAILs are resolved. Feedback section removed from Tester &mdash; use the standalone Feedback page instead.</p>
+            <h2>Version 0.81.0 - Task Status Lifecycle &amp; Archive</h2>
+            <p>Released March 11, 2026 &mdash; Status cycle improved: New &rarr; Discussing &rarr; In Progress &rarr; Done (terminal). Archive button appears on Done items to move them to Recently Completed. Claude auto-updates statuses during workflow. Lessons Learned step added to workflow.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">107</div>
+                <div class="stat-value">108</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,19 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.81.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.81.0</span>
+                    <span class="version-date">March 11, 2026</span>
+                </div>
+                <span class="tag tag-feature">FEATURE</span>
+                <ul>
+                    <li><strong>Task Status Lifecycle &amp; Archive (T-091):</strong> Status cycle updated to New &rarr; Discussing &rarr; In Progress &rarr; Done (terminal, no wrap). Archive button appears on Done items &mdash; click to move to Recently Completed with timestamp. Claude auto-updates statuses during workflow steps</li>
+                    <li><strong>Lessons Learned Workflow Step (T-090):</strong> After each version&rsquo;s testing completes, Claude delivers a brief retro summary before reviewing the PQ &mdash; covering what shipped, what went well, improvements, and patterns discovered</li>
+                </ul>
+            </div>
 
             <!-- v0.80.0 -->
             <div class="version-entry">

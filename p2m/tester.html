@@ -392,7 +392,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.80.0</span></p>
+        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.81.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -449,37 +449,35 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.80.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.81.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'REWORK Status & Complete Testing Block (T-087)',
+        title: 'Task Status Lifecycle & Archive (T-091)',
         priority: 'PRIMARY',
         items: [
-            'Tester: Mark any item FAIL \u2192 HALT banner turns amber with "REWORK Required \u2014 FAILs Must Be Resolved"',
-            'Tester: With FAILs present \u2192 Complete Testing button shows "REWORK \u2014 X FAILs blocking" and is disabled',
-            'Tester: Click disabled Complete Testing \u2192 alert explains FAILs must be resolved first',
-            'Tester: Flip all FAILs to PASS \u2192 HALT banner returns to red "Testing In Progress" and Complete Testing re-enables',
-            'Tester: Complete Testing with all PASS \u2192 works normally, HALT goes green',
+            'Tasks: Status badge cycle is New \u2192 Discussing \u2192 In Progress \u2192 Done (clicking at Done does nothing \u2014 no wrap)',
+            'Tasks: PQ item at Done status shows Archive button next to status badge',
+            'Tasks: Click Archive \u2192 item moves to Recently Completed with today\u2019s date',
+            'Tasks: Backlog item at Done status also shows Archive button and works the same',
+            'Tasks: Archive button styling \u2014 dashed grey border, turns green on hover',
         ]
     },
     {
-        title: 'Feedback Section Removed (T-071)',
+        title: 'Status Auto-Update via Migrations (T-091)',
         priority: 'PRIMARY',
         items: [
-            'Tester: Feedback form (category/priority/text input) is no longer visible on page',
-            'Tester: "Clear All Feedback" admin button is removed',
-            'Tester: Page title says "Tester" (not "Test & Feedback")',
-            'Feedback page (feedback.html): Still works independently as standalone form',
+            'Tasks: T-091 PQ item status set to "in-progress" by migration (was "new")',
+            'Tasks: T-089 PQ item status set to "discussing" or unchanged (verify not stale at "new")',
         ]
     },
     {
-        title: 'Versions & Changelog (v0.80.0)',
+        title: 'Versions & Changelog (v0.81.0)',
         priority: null,
         items: [
-            'All 9 pages show v0.80.0',
-            'Changelog: v0.80.0 entry present with FEATURE tag',
-            'Changelog: Version counter shows 107',
+            'All 9 pages show v0.81.0',
+            'Changelog: v0.81.0 entry present with FEATURE tag (T-091, T-090)',
+            'Changelog: Version counter shows 108',
         ]
     }
 ];

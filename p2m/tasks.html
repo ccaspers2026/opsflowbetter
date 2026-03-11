@@ -341,6 +341,32 @@
             50% { opacity: 0.3; }
         }
 
+        /* ── Archive Button ── */
+        .archive-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 6px;
+            vertical-align: middle;
+            color: #8b949e;
+            border: 1px dashed #8b949e;
+            background: none;
+            font-family: inherit;
+        }
+        .archive-btn:hover {
+            color: #3fb950;
+            border-color: #3fb950;
+            background: rgba(35, 134, 54, 0.15);
+        }
+
         /* ── Task ID Badge ── */
         .task-id {
             font-size: 10px;
@@ -449,7 +475,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks <span class="suite-ver">v0.80.0</span></p>
+        <p class="version">Tasks <span class="suite-ver">v0.81.0</span></p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -1913,7 +1939,7 @@ function renderTasks() {
                 html += '<input class="edit-title" id="editTitle_' + t.id + '" value="' + esc(t.title).replace(/"/g, '&quot;') + '">';
                 html += '<textarea class="edit-desc" id="editDesc_' + t.id + '">' + esc(t.desc) + '</textarea>';
             } else {
-                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'priority\', \'' + t.id + '\')" title="Click to cycle status"></span></div>';
+                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'priority\', \'' + t.id + '\')" title="Click to cycle status"></span>' + (statusCls === 'done' ? '<button class="archive-btn" onclick="archiveItem(\'priority\', \'' + t.id + '\')" title="Archive to Recently Completed">&#128230; Archive</button>' : '') + '</div>';
                 html += '<div class="desc">' + esc(t.desc) + '</div>';
             }
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
@@ -1960,7 +1986,7 @@ function renderTasks() {
                 html += '<input class="edit-title" id="editTitle_' + t.id + '" value="' + esc(t.title).replace(/"/g, '&quot;') + '">';
                 html += '<textarea class="edit-desc" id="editDesc_' + t.id + '">' + esc(t.desc) + '</textarea>';
             } else {
-                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'backlog\', \'' + t.id + '\')" title="Click to cycle status"></span></div>';
+                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'backlog\', \'' + t.id + '\')" title="Click to cycle status"></span>' + (statusCls === 'done' ? '<button class="archive-btn" onclick="archiveItem(\'backlog\', \'' + t.id + '\')" title="Archive to Recently Completed">&#128230; Archive</button>' : '') + '</div>';
                 html += '<div class="desc">' + esc(t.desc) + '</div>';
             }
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
@@ -2071,17 +2097,39 @@ var _statusTimer = null;
 function cycleStatus(section, id) {
     var data = loadTasks();
     if (!data) return;
-    var cycle = { 'new': 'discussing', 'discussing': 'in-progress', 'in-progress': 'done', 'done': 'new' };
+    var cycle = { 'new': 'discussing', 'discussing': 'in-progress', 'in-progress': 'done' };
     var arr = section === 'priority' ? data.priority : data.backlog;
     for (var i = 0; i < arr.length; i++) {
         if (arr[i].id === id) {
             var current = arr[i].status || 'new';
-            arr[i].status = cycle[current] || 'new';
             // Migrate old 'working' status
-            if (current === 'working') arr[i].status = 'in-progress';
+            if (current === 'working') { arr[i].status = 'in-progress'; break; }
+            // Done is terminal — use Archive to move to Recently Completed
+            if (current === 'done') break;
+            arr[i].status = cycle[current] || 'new';
             break;
         }
     }
+    saveTasks(data);
+    renderTasks();
+}
+
+function archiveItem(section, id) {
+    var data = loadTasks();
+    if (!data) return;
+    var arr = section === 'priority' ? data.priority : data.backlog;
+    var idx = -1;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id === id) { idx = i; break; }
+    }
+    if (idx === -1) return;
+    var item = arr.splice(idx, 1)[0];
+    if (!data.completed) data.completed = [];
+    item.status = 'done';
+    item.completedAt = new Date().toISOString().split('T')[0];
+    if (!item.completedVersion) item.completedVersion = localStorage.getItem('opsflow_version') || '';
+    if (!item.completionNote) item.completionNote = 'Archived by user';
+    data.completed.unshift(item);
     saveTasks(data);
     renderTasks();
 }
@@ -3300,6 +3348,24 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.80.0_complete_t090');
+    }
+
+    // ── v0.81.0: Set T-091 (Archive status) to in-progress, T-089 to discussing ──
+    if (ran.indexOf('v0.81.0_auto_status') === -1) {
+        for (var s = 0; s < data.priority.length; s++) {
+            var pt = data.priority[s];
+            if (pt.title && pt.title.indexOf('Archive') !== -1 && pt.title.indexOf('Status') !== -1) {
+                pt.status = 'in-progress';
+                changed = true;
+            }
+            if (pt.title && pt.title.indexOf('Data-driven changelog') !== -1) {
+                if (!pt.status || pt.status === 'new') {
+                    pt.status = 'discussing';
+                    changed = true;
+                }
+            }
+        }
+        markMigrationRun('v0.81.0_auto_status');
     }
 
     if (changed) saveTasks(data);
