@@ -464,32 +464,32 @@ function saveServices(list) {
             renewal: '', cycle: 'monthly', credits: '', status: 'green', category: 'production'
         },
         {
-            id: 's2', name: 'Helium 10', desc: 'Amazon seller research &amp; analytics suite',
+            id: 's2', name: 'Helium 10', desc: 'Amazon seller research & analytics suite',
             url: 'https://www.helium10.com/', type: 'subscription', cost: '',
             renewal: '', cycle: '', credits: '', status: 'green', category: 'sales'
         },
         {
-            id: 's3', name: 'Amazon Seller Central', desc: 'Product listings, orders &amp; fulfillment',
+            id: 's3', name: 'Amazon Seller Central', desc: 'Product listings, orders & fulfillment',
             url: 'https://sellercentral.amazon.com/', type: 'subscription', cost: '$39.99/mo',
             renewal: '', cycle: 'monthly', credits: '', status: 'green', category: 'sales'
         },
         {
-            id: 's4', name: 'Cloudflare', desc: 'DNS, CDN, R2 storage &amp; domain management',
+            id: 's4', name: 'Cloudflare', desc: 'DNS, CDN, R2 storage & domain management',
             url: 'https://dash.cloudflare.com/', type: 'subscription', cost: 'Free tier + R2 usage',
             renewal: '', cycle: '', credits: '', status: 'green', category: 'infrastructure'
         },
         {
-            id: 's5', name: 'Onshape', desc: 'CAD &amp; 3D modeling for product design',
+            id: 's5', name: 'Onshape', desc: 'CAD & 3D modeling for product design',
             url: 'https://www.onshape.com/', type: 'subscription', cost: '',
             renewal: '', cycle: '', credits: '', status: 'green', category: 'production'
         },
         {
-            id: 's6', name: 'Monday.com', desc: 'Project &amp; task management',
+            id: 's6', name: 'Monday.com', desc: 'Project & task management',
             url: 'https://casperscreations.monday.com/admin/billing/overview', type: 'subscription', cost: '$42/mo',
             renewal: '', cycle: '', credits: '', status: 'green', category: 'operations'
         },
         {
-            id: 's7', name: 'Calendly', desc: 'Scheduling &amp; appointment booking',
+            id: 's7', name: 'Calendly', desc: 'Scheduling & appointment booking',
             url: 'https://calendly.com/app/admin/billing', type: 'subscription', cost: '$12/mo',
             renewal: '', cycle: '', credits: '', status: 'green', category: 'admin'
         },
@@ -550,9 +550,9 @@ function saveServices(list) {
 // ── Rendering ────────────────────────────────────────────────
 var CATEGORIES = {
     production: 'Production Tools',
-    sales: 'Sales &amp; Marketing',
-    operations: 'Operations &amp; Planning',
-    admin: 'Admin &amp; Scheduling',
+    sales: 'Sales & Marketing',
+    operations: 'Operations & Planning',
+    admin: 'Admin & Scheduling',
     infrastructure: 'Infrastructure'
 };
 
@@ -715,7 +715,7 @@ function openEditModal(id) {
     document.getElementById('modalTitle').textContent = 'Edit Service';
     document.getElementById('editId').value = id;
     document.getElementById('fName').value = svc.name || '';
-    document.getElementById('fDesc').value = (svc.desc || '').replace(/&amp;/g, '&');
+    document.getElementById('fDesc').value = svc.desc || '';
     document.getElementById('fUrl').value = svc.url || '';
     document.getElementById('fType').value = svc.type || 'subscription';
     document.getElementById('fCost').value = svc.cost || '';

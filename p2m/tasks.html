@@ -1916,7 +1916,7 @@ function renderTasks() {
 
     // ── Priority Queue ──
     if (sections[0]) {
-        var html = '<h2>&#127919; Priority Queue &mdash; Up Next <span class="count">' + data.priority.length + '</span></h2>';
+        var html = '<h2>&#127919; Priority Queue \u2014 Up Next <span class="count">' + data.priority.length + '</span></h2>';
         for (var i = 0; i < data.priority.length; i++) {
             var t = data.priority[i];
             // Position dropdown
@@ -1998,8 +1998,8 @@ function renderTasks() {
                 html += '<button class="btn-cancel" onclick="cancelEdit()" title="Cancel editing">Cancel</button>';
             } else {
                 html += '<button class="btn-edit" onclick="startEdit(\'backlog\', \'' + t.id + '\')" title="Edit item">&#9998;</button>';
-                html += '<button class="btn-delete" onclick="deleteBacklogItem(\'' + t.id + '\')" title="Remove from Backlog">&times;</button>';
-                html += '<button class="btn-promote" onclick="promoteToQueue(\'' + t.id + '\')" title="Move to Priority Queue">&uarr; Promote</button>';
+                html += '<button class="btn-delete" onclick="deleteBacklogItem(\'' + t.id + '\')" title="Remove from Backlog">\u00D7</button>';
+                html += '<button class="btn-promote" onclick="promoteToQueue(\'' + t.id + '\')" title="Move to Priority Queue">\u2191 Promote</button>';
             }
             html += '</div>';
             html += '</div>';
@@ -2018,7 +2018,7 @@ function renderTasks() {
             html += '<div class="content">';
             html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '</div>';
             html += '<div class="desc">' + esc(t.desc) + '</div>';
-            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + (t.completedVersion ? ' &bull; ' + esc(t.completedVersion) : '') + (t.completedAt ? ' &bull; ' + esc(t.completedAt) : '') + '</div>';
+            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + (t.completedVersion ? ' \u2022 ' + esc(t.completedVersion) : '') + (t.completedAt ? ' \u2022 ' + esc(t.completedAt) : '') + '</div>';
             html += '</div>';
             html += '</div>';
         }
@@ -3026,11 +3026,11 @@ function runMigrations() {
     // ── v0.77.0: Fix PQ titles (long feedback text in title field) ──
     if (ran.indexOf('v0.77.0_fix_pq_titles') === -1) {
         var titleFixes = [
-            { match: 'Make Version Number Persistent', newTitle: 'Centralized Version Number &mdash; KV Store', newDesc: 'Make version number persistent so we don&rsquo;t have to update several HTML pages each release. Implemented via Cloudflare KV in v0.77.0.' },
-            { match: 'Constantly keeping data backup', newTitle: 'Data Backup to KV &mdash; Replace HTML-as-Backup', newDesc: 'Replace HTML-as-data-backup pattern with Cloudflare KV sync. Auto-backup localStorage on page unload, auto-restore if localStorage wiped. Implemented in v0.77.0.' },
+            { match: 'Make Version Number Persistent', newTitle: 'Centralized Version Number \u2014 KV Store', newDesc: 'Make version number persistent so we don\u2019t have to update several HTML pages each release. Implemented via Cloudflare KV in v0.77.0.' },
+            { match: 'Constantly keeping data backup', newTitle: 'Data Backup to KV \u2014 Replace HTML-as-Backup', newDesc: 'Replace HTML-as-data-backup pattern with Cloudflare KV sync. Auto-backup localStorage on page unload, auto-restore if localStorage wiped. Implemented in v0.77.0.' },
             { match: 'Review P2M Phase 2 with me', newTitle: 'Review Phase 2 Data Inputs', newDesc: 'Review P2M Phase 2 data inputs to ensure users understand what to enter. Examine entries for automation or AI-assist opportunities.' },
             { match: 'examine the Materials Library', newTitle: 'Materials Library Data Input Review', newDesc: 'Examine Materials Library data inputs (brands, suppliers) to ensure AI Prompt generates accurate data. Review shops like Bambu Lab, Amazon, PolyMaker.' },
-            { match: 'Add/Edit/Delete feature at', newTitle: 'LaunchPad Admin &mdash; Add/Edit/Delete Shortcuts', newDesc: 'Self-administration of LaunchPad shortcut balls. Add, edit, and delete links directly from the page. Implemented in v0.76.0.' }
+            { match: 'Add/Edit/Delete feature at', newTitle: 'LaunchPad Admin \u2014 Add/Edit/Delete Shortcuts', newDesc: 'Self-administration of LaunchPad shortcut balls. Add, edit, and delete links directly from the page. Implemented in v0.76.0.' }
         ];
         // Fix titles in PQ
         for (var i = 0; i < data.priority.length; i++) {
@@ -3150,7 +3150,7 @@ function runMigrations() {
     if (ran.indexOf('v0.78.0_process_review_backlog') === -1) {
         var items = [
             { id: 'bl_v0780_prompt_rd', title: '[WS] AI Assist \u2014 test prompts by hand before coding', desc: 'Formalize prompt R&D as a workflow step: before coding any AI Assist feature, test the prompt manually across Claude, ChatGPT, and Grok. Lock the format, then code. Prevents expensive rework cycles from untested prompt assumptions.', tag: 'UX', meta: 'Workflow \u2022 v0.78.0 process review', priority: 'low' },
-            { id: 'bl_v0780_hint_sweep', title: '[WS] Sweep all hint text for HTML entity escaping issues', desc: 'Audit all field hints across Workshop for &mdash; and similar HTML entities that get double-escaped by escHtml(). Replace with Unicode characters. Applies to fleet, materials, software, and static card hints.', tag: 'FIX', meta: 'Workshop \u2022 v0.78.0 process review', priority: 'low' }
+            { id: 'bl_v0780_hint_sweep', title: '[WS] Sweep all hint text for HTML entity escaping issues', desc: 'Audit all field hints across Workshop for \u2014 and similar HTML entities that get double-escaped by escHtml(). Replace with Unicode characters. Applies to fleet, materials, software, and static card hints.', tag: 'FIX', meta: 'Workshop \u2022 v0.78.0 process review', priority: 'low' }
         ];
         items.forEach(function(newItem) {
             var exists = false;
@@ -3290,10 +3290,10 @@ function runMigrations() {
     // ── v0.80.0: Add KV data-driven architecture backlog items ──
     if (ran.indexOf('v0.80.0_kv_datadriven_backlog') === -1) {
         var kvItems = [
-            { id: 'bl_kv_changelog', title: '[INFRA] Data-driven changelog &mdash; store entries in localStorage/KV, render dynamically', desc: 'Changelog current-version banner, timeline entries, and version count should all come from localStorage/KV data instead of hardcoded HTML. HTML becomes a rendering template only. Eliminates manual changelog.html edits per version.', priority: 'high', tag: 'INFRA', meta: 'Architecture &bull; v0.80.0' },
-            { id: 'bl_kv_tester_config', title: '[INFRA] Data-driven tester &mdash; TEST_VERSION and TEST_SECTIONS from localStorage/KV only', desc: 'The opsflow_tester_config localStorage override already exists but is not the primary path. Make it primary: store test sections in KV per version, tester.html renders from data. Eliminates hardcoded TEST_SECTIONS in HTML.', priority: 'high', tag: 'INFRA', meta: 'Architecture &bull; v0.80.0' },
-            { id: 'bl_kv_version_only', title: '[INFRA] Stop updating suite-ver in HTML &mdash; rely fully on opsflow-sync.js from KV', desc: 'The suite-ver spans on all 9 pages are already overwritten by opsflow-sync.js from KV. Stop manually updating the HTML fallback values during version bumps. Only OpsFlow.setVersion() matters post-deploy.', priority: 'medium', tag: 'INFRA', meta: 'Architecture &bull; v0.80.0' },
-            { id: 'bl_kv_version_bump_procedure', title: '[INFRA] Streamline version bump &mdash; reduce changed files from 9+ to 2-3', desc: 'With data-driven changelog and tester, a version bump should only touch: (1) the feature file(s), (2) tasks.html migrations. Changelog entries and tester sections go to KV/localStorage. Version number set via OpsFlow.setVersion(). Target: zero HTML-as-data edits per version.', priority: 'medium', tag: 'INFRA', meta: 'Architecture &bull; v0.80.0' }
+            { id: 'bl_kv_changelog', title: '[INFRA] Data-driven changelog \u2014 store entries in localStorage/KV, render dynamically', desc: 'Changelog current-version banner, timeline entries, and version count should all come from localStorage/KV data instead of hardcoded HTML. HTML becomes a rendering template only. Eliminates manual changelog.html edits per version.', priority: 'high', tag: 'INFRA', meta: 'Architecture \u2022 v0.80.0' },
+            { id: 'bl_kv_tester_config', title: '[INFRA] Data-driven tester \u2014 TEST_VERSION and TEST_SECTIONS from localStorage/KV only', desc: 'The opsflow_tester_config localStorage override already exists but is not the primary path. Make it primary: store test sections in KV per version, tester.html renders from data. Eliminates hardcoded TEST_SECTIONS in HTML.', priority: 'high', tag: 'INFRA', meta: 'Architecture \u2022 v0.80.0' },
+            { id: 'bl_kv_version_only', title: '[INFRA] Stop updating suite-ver in HTML \u2014 rely fully on opsflow-sync.js from KV', desc: 'The suite-ver spans on all 9 pages are already overwritten by opsflow-sync.js from KV. Stop manually updating the HTML fallback values during version bumps. Only OpsFlow.setVersion() matters post-deploy.', priority: 'medium', tag: 'INFRA', meta: 'Architecture \u2022 v0.80.0' },
+            { id: 'bl_kv_version_bump_procedure', title: '[INFRA] Streamline version bump \u2014 reduce changed files from 9+ to 2-3', desc: 'With data-driven changelog and tester, a version bump should only touch: (1) the feature file(s), (2) tasks.html migrations. Changelog entries and tester sections go to KV/localStorage. Version number set via OpsFlow.setVersion(). Target: zero HTML-as-data edits per version.', priority: 'medium', tag: 'INFRA', meta: 'Architecture \u2022 v0.80.0' }
         ];
         if (!data.backlog) data.backlog = [];
         for (var k = 0; k < kvItems.length; k++) {

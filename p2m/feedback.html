@@ -380,7 +380,7 @@ function renderFeedback() {
     countEl.textContent = parts.length ? parts.join(' \u00b7 ') : '0 items';
 
     if (!allItems.length) {
-        list.innerHTML = '<div class="feedback-empty">No feedback yet &mdash; drop ideas, bugs, or notes anytime using the form above.</div>';
+        list.innerHTML = '<div class="feedback-empty">No feedback yet \u2014 drop ideas, bugs, or notes anytime using the form above.</div>';
         return;
     }
 
@@ -397,7 +397,7 @@ function renderFeedback() {
         html += '<span class="fb-led ' + pri + '" title="Priority: ' + priLabel + '"></span>';
         html += '<span class="fb-tag ' + f.category + '">' + f.category.charAt(0).toUpperCase() + f.category.slice(1) + '</span>';
         html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + priLabel + verTag + ' \u00b7 ' + time + '</div></div>';
-        html += '<button class="fb-promote" onclick="promoteFeedbackToBacklog(\'' + f.id + '\')" title="Promote to Backlog">&uarr; Backlog</button>';
+        html += '<button class="fb-promote" onclick="promoteFeedbackToBacklog(\'' + f.id + '\')" title="Promote to Backlog">\u2191 Backlog</button>';
         html += '<button class="fb-remove" onclick="removeFeedback(\'' + f.id + '\')" title="Remove">\u00d7</button>';
         html += '</div>';
     }

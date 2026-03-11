@@ -1489,7 +1489,7 @@ function renderQueue() {
 
         var detailsHtml = '';
         if (j.error) detailsHtml = '<span style="color:#f85149;font-size:11px;">' + j.error + '</span>';
-        else if (j.status === 'done' && j.rawSizeKB && j.cleanSizeKB) detailsHtml = '<span style="color:#3fb950;font-size:11px;">' + j.rawSizeKB + 'KB &rarr; ' + j.cleanSizeKB + 'KB</span>';
+        else if (j.status === 'done' && j.rawSizeKB && j.cleanSizeKB) detailsHtml = '<span style="color:#3fb950;font-size:11px;">' + j.rawSizeKB + 'KB \u2192 ' + j.cleanSizeKB + 'KB</span>';
         else if (j.status === 'pending') detailsHtml = '<span style="color:#8b949e;font-size:11px;">Ready for cleanup</span>';
 
         var actionsHtml = '';
@@ -1504,10 +1504,10 @@ function renderQueue() {
             actionsHtml += '<a href="#" onclick="event.preventDefault();showPreview(\'' + thumbUrl.replace(/'/g, "\\'") + '\',\'' + (j.product + ' — ' + j.fileName).replace(/'/g, "\\'") + '\')" style="color:#58a6ff;font-size:11px;text-decoration:none;cursor:pointer;">View &#128065;</a>';
         } else if (j.status === 'uploading') {
             actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove stuck upload">&#10005;</button> ';
-            actionsHtml += '<span style="color:#f0883e;font-size:11px;">Uploading&hellip;</span>';
+            actionsHtml += '<span style="color:#f0883e;font-size:11px;">Uploading\u2026</span>';
         } else if (j.status === 'processing') {
             actionsHtml = '<button class="btn-danger" onclick="removeJob(\'' + j.id + '\')" title="Remove stuck job">&#10005;</button> ';
-            actionsHtml += '<span style="color:#bc8cff;font-size:11px;">Processing&hellip;</span>';
+            actionsHtml += '<span style="color:#bc8cff;font-size:11px;">Processing\u2026</span>';
         } else {
             actionsHtml = '<span style="color:#8b949e;font-size:11px;">...</span>';
         }
@@ -1593,11 +1593,11 @@ function renderGallery() {
         var globalIdx = gallery.indexOf(g);
         var currentBadge = (latestPerProduct[g.product] === globalIdx) ? '<span style="background:#2ea44f;color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:6px;" title="This is the image shown on the Products page">Current</span>' : '<span style="background:#484f58;color:#8b949e;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:6px;">Older</span>';
         html += '<div class="gallery-card">';
-        html += '<button class="gallery-remove" onclick="removeGalleryItem(' + i + ')" title="Dismiss from gallery (image stays in cloud storage)">&times;</button>';
+        html += '<button class="gallery-remove" onclick="removeGalleryItem(' + i + ')" title="Dismiss from gallery (image stays in cloud storage)">\u00D7</button>';
         html += '<img src="' + url + '" alt="' + g.fileName + '" data-r2key="' + (g.r2Key || '') + '" onclick="showPreview(\'' + url.replace(/'/g, "\\'") + '\',\'' + (g.product + ' — ' + g.fileName).replace(/'/g, "\\'") + '\')" style="cursor:pointer;" title="Click to preview" onerror="retryImage(this, this.getAttribute(\'data-r2key\'))">';
         html += '<div class="info">';
         html += '<div class="name">' + g.product + rawBadge + currentBadge + '</div>';
-        html += '<div class="meta">' + g.fileName + ' &bull; ' + (date || 'Uploaded — not yet processed') + '</div>';
+        html += '<div class="meta">' + g.fileName + ' \u2022 ' + (date || 'Uploaded \u2014 not yet processed') + '</div>';
         html += '</div></div>';
     }
     grid.innerHTML = html;

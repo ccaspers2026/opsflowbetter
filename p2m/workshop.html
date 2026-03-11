@@ -995,11 +995,11 @@
             phase: 1, number: 'W1.3', title: 'Internet & Services',
             description: 'Manufacturing service subscriptions',
             output: 'Service cost baseline',
-            purpose: 'Manufacturing-related service costs pulled from the Services &amp; Integrations page. Only production, sales, and operations services are included — general infrastructure costs are excluded. Internet is entered manually.',
+            purpose: 'Manufacturing-related service costs pulled from the Services & Integrations page. Only production, sales, and operations services are included \u2014 general infrastructure costs are excluded. Internet is entered manually.',
             fields: [
                 { key: 'internet', label: 'Internet ($/month)', type: 'text', placeholder: '60', hint: 'Monthly ISP cost (or allocated portion for farm monitoring)' },
                 { key: 'serviceTotal', label: 'Service Subscriptions ($/mo)', type: 'linked', hint: 'Auto-summed from Services page (production + sales + operations)' },
-                { key: 'serviceBreakdown', label: 'Service Breakdown', type: 'linked', hint: 'Itemized from Services &amp; Integrations page' },
+                { key: 'serviceBreakdown', label: 'Service Breakdown', type: 'linked', hint: 'Itemized from Services & Integrations page' },
                 { key: 'totalMonthly', label: 'Total Monthly Services', type: 'calculated' }
             ]
         },
@@ -1614,7 +1614,7 @@
         var editLocked = !isEditUnlocked();
         colors.forEach(function(c, idx) {
             html += '<span class="color-tag">' + escHtml(c) +
-                (editLocked ? '' : '<button class="color-tag-remove" data-idx="' + idx + '" title="Remove">&times;</button>') +
+                (editLocked ? '' : '<button class="color-tag-remove" data-idx="' + idx + '" title="Remove">\u00D7</button>') +
                 '</span>';
         });
         if (!editLocked) {
@@ -2362,7 +2362,7 @@
         actDiv.className = 'detail-section';
         if (data.verified) {
             actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
-                '<button class="btn-unverify" id="btnUnverify">Edit &amp; Re-verify</button>';
+                '<button class="btn-unverify" id="btnUnverify">Edit & Re-verify</button>';
         } else {
             actDiv.innerHTML = '<button class="btn-verify" id="btnVerify">' + (def.optional ? 'Mark as Complete (Optional)' : 'Mark as Complete') + '</button>';
         }
@@ -2498,7 +2498,7 @@
             toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
         } else {
             toggleBtn.className = 'ai-assist-toggle disabled';
-            toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-hint"> \u2014 enter brand &amp; model to enable</span>';
+            toggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-hint"> \u2014 enter brand & model to enable</span>';
         }
         aiSection.appendChild(toggleBtn);
 
@@ -2561,7 +2561,7 @@
         actDiv.className = 'detail-section';
         if (printer.verified) {
             actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
-                '<button class="btn-unverify" id="btnUnverifyDyn">Edit &amp; Re-verify</button>';
+                '<button class="btn-unverify" id="btnUnverifyDyn">Edit & Re-verify</button>';
         } else {
             actDiv.innerHTML = '<button class="btn-verify" id="btnVerifyDyn">Mark as Complete</button>';
         }
@@ -2711,7 +2711,7 @@
         actDiv.className = 'detail-section';
         if (mat.verified) {
             actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
-                '<button class="btn-unverify" id="btnUnverifyDyn">Edit &amp; Re-verify</button>';
+                '<button class="btn-unverify" id="btnUnverifyDyn">Edit & Re-verify</button>';
         } else {
             actDiv.innerHTML = '<button class="btn-verify" id="btnVerifyDyn">Mark as Complete</button>';
         }
@@ -2826,7 +2826,7 @@
         actDiv.className = 'detail-section';
         if (sw.verified) {
             actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
-                '<button class="btn-unverify" id="btnUnverifyDyn">Edit &amp; Re-verify</button>';
+                '<button class="btn-unverify" id="btnUnverifyDyn">Edit & Re-verify</button>';
         } else {
             actDiv.innerHTML = '<button class="btn-verify" id="btnVerifyDyn">Mark as Complete</button>';
         }

@@ -2883,7 +2883,7 @@
             wrapper.innerHTML = '<div style="font-size:11px;color:#f0883e;margin-bottom:6px;font-weight:600;">R2 Upload Secret Required (one-time setup)</div>'
                 + '<div style="display:flex;gap:6px;">'
                 + '<input type="password" id="r2SecretInput" placeholder="Enter your upload secret..." style="flex:1;padding:5px 8px;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;font-size:12px;">'
-                + '<button id="r2SecretSaveBtn" style="padding:5px 12px;background:#238636;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:600;">Save &amp; Upload</button>'
+                + '<button id="r2SecretSaveBtn" style="padding:5px 12px;background:#238636;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:600;">Save & Upload</button>'
                 + '</div>'
                 + '<div style="font-size:10px;color:#6e7681;margin-top:4px;">This is the UPLOAD_SECRET you set in your Cloudflare Worker. Saved locally in your browser.</div>';
             actionsEl.appendChild(wrapper);
@@ -3161,7 +3161,7 @@
                             filenameInput.value = url;
                             updateModalImagePreview();
                         }
-                        actionsEl.insertAdjacentHTML('beforeend', '<br><span style="font-size:10px;color:#3fb950;">&#10003; Uploaded to R2 &amp; URL saved</span> ');
+                        actionsEl.insertAdjacentHTML('beforeend', '<br><span style="font-size:10px;color:#3fb950;">&#10003; Uploaded to R2 & URL saved</span> ');
                         renderMarketingBar();
 
                         // Auto-queue for background removal in Media Pipeline
@@ -3327,7 +3327,7 @@
             preview.appendChild(origLabel);
 
             // Quick flow: composite on white → upload to R2 → queue BG removal for Media Pipeline
-            status.innerHTML = '<span style="color:#58a6ff;">&#9881; Compositing on white &amp; uploading to R2...</span>';
+            status.innerHTML = '<span style="color:#58a6ff;">&#9881; Compositing on white & uploading to R2...</span>';
             showManualFallback(file, origUrl, panel, status, preview, actions);
 
             // Reset file input for re-use
