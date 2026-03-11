@@ -2163,6 +2163,19 @@
         return card;
     }
 
+    // --- Live-update grid card without full re-render ---
+    function updateGridCard(dataId, title, description, status) {
+        var card = document.querySelector('[data-card-id="' + dataId + '"]');
+        if (!card) return;
+        var titleEl = card.querySelector('.step-title');
+        var descEl = card.querySelector('.step-description');
+        var ledEl = card.querySelector('.step-led');
+        if (titleEl) titleEl.textContent = title;
+        if (descEl) descEl.textContent = description;
+        if (ledEl) { ledEl.className = 'step-led led-' + status; }
+        card.className = card.className.replace(/led-\w+/g, 'led-' + status);
+    }
+
     // ===================================================================
     // DETAIL PANEL — STATIC CARDS
     // ===================================================================
@@ -2224,7 +2237,6 @@
                 '<div class="ai-assist-label">Your Prompt (fills W3.1 + W3.2):</div>' +
                 '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(meConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
-                (meHasEmpty ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
                 '<div class="ai-assist-label">Paste AI Response:</div>' +
                 '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
@@ -2431,7 +2443,6 @@
                 '<div class="ai-assist-label">Your Prompt:</div>' +
                 '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(aiConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
-                (hasEmpty ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
                 '<div class="ai-assist-label">Paste AI Response:</div>' +
                 '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
@@ -2575,7 +2586,6 @@
                 '<div class="ai-assist-hint">Copy this prompt into any AI chat. Tested with Claude, ChatGPT, and Grok. Response must be JSON.</div>' +
                 '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(matAiConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
-                (matHasEmpty2 ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
                 '<div class="ai-assist-label">Paste AI Response:</div>' +
                 '<div class="ai-assist-hint">Paste the JSON code block from your AI. The parser will extract the data automatically.</div>' +
@@ -2901,7 +2911,6 @@
 
                 bindAiCopyBtn(itemId);
                 bindAiApplyBtn(itemId, dynType);
-                bindAiClearBtn(itemId, dynType);
                 bindAiResponseWatcher();
             }
 
@@ -2927,6 +2936,36 @@
                                     var liveConfig = createClaudePromptConfig(liveFieldDefs, item, liveIntro);
                                     promptEl.value = liveConfig.prompt;
                                 }
+                            }
+                            // Auto-clear stale AI response when prompt changes
+                            var responseEl = document.getElementById('aiResponseText');
+                            if (responseEl && responseEl.value.trim()) {
+                                responseEl.value = '';
+                                var applyBtn = document.getElementById('btnAiApply');
+                                if (applyBtn) { applyBtn.disabled = true; applyBtn.classList.add('disabled'); }
+                            }
+                            // Clear AI results list
+                            var resultsList = document.getElementById('aiResultsList');
+                            if (resultsList) resultsList.innerHTML = '';
+                        }
+                        // Identity field changed on materials — clear stale AI-filled data
+                        if (dynType === 'materials' && (el.dataset.field === 'type' || el.dataset.field === 'supplier')) {
+                            var matFieldDefs = MATERIALS_PROMPT_FIELDS;
+                            var hadData = false;
+                            matFieldDefs.forEach(function(fd) {
+                                if (item[fd.key]) { hadData = true; item[fd.key] = ''; }
+                            });
+                            if (hadData) {
+                                // Clear the visible field inputs
+                                matFieldDefs.forEach(function(fd) {
+                                    var inp = document.querySelector('.field-input[data-dyn="materials"][data-id="' + item.id + '"][data-field="' + fd.key + '"]');
+                                    if (inp) inp.value = '';
+                                });
+                                renderColorTags(item);
+                                // Refresh cost per gram
+                                var calcEl2 = document.querySelector('.field-calculated');
+                                if (calcEl2) calcEl2.innerHTML = '$\u2014/kg \u2192 $\u2014/g';
+                                saveState();
                             }
                         }
                         // Live-update color tag list when color field changes via AI
@@ -2954,6 +2993,15 @@
                         }
                         // Update detail LED live
                         setDetailLed(item.status_led);
+                        // Live-update the grid card behind the detail panel
+                        if (dynType === 'materials') {
+                            var matEffCostLive = parseFloat(item.costKg) || 0;
+                            var matDescLive = (item.supplier || 'No supplier') + '\n$' + (matEffCostLive > 0 ? matEffCostLive.toFixed(2) : '\u2014') + '/kg';
+                            updateGridCard('mat-' + item.id, item.type || 'New Material', matDescLive, item.status_led);
+                        } else if (dynType === 'fleet') {
+                            var fleetNameLive = ((item.brand || '') + ' ' + (item.model || '')).trim();
+                            updateGridCard('fleet-' + item.id, item.name || fleetNameLive || 'New Printer', fleetNameLive || 'No model', item.status_led);
+                        }
                     }
                 };
                 el.addEventListener('input', handler);
@@ -3173,19 +3221,6 @@
             }
 
             // --- Live UI updates after Apply ---
-            // Show Clear AI Fields button if not already present
-            if (!document.getElementById('btnAiClear')) {
-                var copyBtn = document.getElementById('btnAiCopy');
-                if (copyBtn) {
-                    var clearBtn = document.createElement('button');
-                    clearBtn.className = 'btn-ai-clear';
-                    clearBtn.id = 'btnAiClear';
-                    clearBtn.textContent = 'Clear AI Fields';
-                    copyBtn.parentNode.insertBefore(clearBtn, copyBtn.nextSibling);
-                    bindAiClearBtn(itemId, dynType);
-                }
-            }
-
             // Live-update card title and cost per gram
             if (dynType === 'materials') {
                 var titleEl = document.getElementById('detailTitle');
@@ -3199,12 +3234,19 @@
                 if (calcEl) calcEl.innerHTML = '$' + (effCost > 0 ? effCost.toFixed(2) : '\u2014') + '/kg \u2192 $' + cpgVal + '/g';
                 // Update detail LED
                 setDetailLed(item.status_led);
+                // Update grid card behind the panel
+                var matEffCostApply = parseFloat(item.costKg) || 0;
+                var matDescApply = (item.supplier || 'No supplier') + '\n$' + (matEffCostApply > 0 ? matEffCostApply.toFixed(2) : '\u2014') + '/kg';
+                updateGridCard('mat-' + item.id, item.type || 'New Material', matDescApply, item.status_led);
             } else if (dynType === 'fleet') {
                 var titleEl2 = document.getElementById('detailTitle');
                 if (titleEl2) titleEl2.textContent = ((item.brand || '') + ' ' + (item.model || '')).trim() || 'Configure this printer';
                 var stepEl2 = document.getElementById('detailStepInfo');
                 if (stepEl2) stepEl2.textContent = getFleetNumber(item) + ' \u2014 ' + (item.name || 'New Printer');
                 setDetailLed(item.status_led);
+                // Update grid card behind the panel
+                var fleetNameApply = ((item.brand || '') + ' ' + (item.model || '')).trim();
+                updateGridCard('fleet-' + item.id, item.name || fleetNameApply || 'New Printer', fleetNameApply || 'No model', item.status_led);
             }
         });
     }
@@ -3226,25 +3268,6 @@
         textarea.addEventListener('change', check);
     }
 
-    function bindAiClearBtn(itemId, dynType) {
-        var btn = document.getElementById('btnAiClear');
-        if (!btn) return;
-        btn.addEventListener('click', function() {
-            if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing first', 'error'); return; }
-            var stateArr = dynType === 'fleet' ? state.fleet : dynType === 'materials' ? state.materials : state.software;
-            var fieldDefs = dynType === 'fleet' ? FLEET_PROMPT_FIELDS : MATERIALS_PROMPT_FIELDS;
-            var item = stateArr.find(function(x) { return x.id === itemId; });
-            if (!item) return;
-            fieldDefs.forEach(function(fd) { item[fd.key] = ''; });
-            item.verified = false;
-            item.status_led = getDynamicCardStatus(item);
-            saveState();
-            // Re-open the card to regenerate everything
-            if (dynType === 'fleet') openFleetCard(itemId);
-            else if (dynType === 'materials') openMaterialCard(itemId);
-            showToast('AI fields cleared \u2014 prompt regenerated');
-        });
-    }
 
     // ===================================================================
     // AI ASSIST — STATIC CARD HANDLERS (Machine Economics)
