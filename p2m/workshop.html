@@ -401,6 +401,31 @@
             line-height: 1.5;
         }
 
+        /* ===== INSTRUCTIONS (collapsible) ===== */
+        .instructions-section { padding: 8px 16px; border-bottom: 1px solid #21262d; }
+        .instructions-toggle {
+            background: none; border: none; color: #58a6ff; cursor: pointer;
+            font-size: 13px; padding: 4px 0; display: flex; align-items: center; gap: 6px;
+        }
+        .instructions-toggle:hover { color: #79c0ff; }
+        .instructions-arrow { font-size: 10px; }
+        .instructions-body { padding: 8px 0; }
+        .instructions-text {
+            font-size: 12px; color: #c9d1d9; line-height: 1.6;
+            white-space: pre-wrap; font-family: inherit; margin: 0;
+            background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 12px;
+        }
+
+        /* ===== FLEET CAPACITY SUMMARY ===== */
+        .fleet-capacity-summary {
+            margin: 8px 0; padding: 10px 12px;
+            background: #161b22; border: 1px solid #30363d; border-radius: 6px;
+            font-size: 12px; color: #8b949e;
+        }
+        .fleet-capacity-summary .capacity-value {
+            color: #58a6ff; font-weight: 600; font-size: 14px;
+        }
+
         /* ===== FORM FIELDS ===== */
         .field-group {
             margin-bottom: 12px;
@@ -932,8 +957,15 @@
             description: 'Your per-kWh electricity cost',
             output: 'Feeds machine economics',
             purpose: 'Your electricity rate determines the energy cost per print hour. This flows into Machine Economics (Phase 3) to calculate the blended hourly rate that every product uses for COGS.',
+            instructions: 'How to find your rate from a utility bill:\n\n' +
+                '1. Find the line item labeled "Energy Charge", "Usage Charge", or "Electric Supply" on your bill.\n' +
+                '2. Divide the dollar amount by the kWh used for that period. Example: $85.60 \u00f7 800 kWh = $0.107/kWh.\n' +
+                '3. Ignore fixed fees (service charge, delivery, taxes) \u2014 those are overhead, not per-kWh costs.\n' +
+                '4. If your bill shows tiered rates (e.g. first 500 kWh at one price, remainder at another), use the blended average: total energy charges \u00f7 total kWh.\n' +
+                '5. If you have time-of-use pricing, use the rate for the hours you actually print (usually off-peak).\n\n' +
+                'Most US residential rates fall between $0.08 and $0.20 per kWh. If your number is outside that range, double-check your math.',
             fields: [
-                { key: 'rate', label: '$ per kWh', type: 'text', placeholder: '0.107', hint: 'Confirmed from Duke Energy bill — $0.107/kWh' }
+                { key: 'rate', label: '$ per kWh', type: 'text', placeholder: '0.107', hint: 'Your per-kWh energy charge \u2014 see instructions above for how to calculate from your bill' }
             ]
         },
         '1.2': {
@@ -1429,6 +1461,13 @@
 
     function getActiveFleetCount() {
         return state.fleet.filter(function(p) { return p.status === 'Active'; }).length;
+    }
+
+    function calcFleetCapacity() {
+        var active = state.fleet.filter(function(p) { return p.status === 'Active'; });
+        if (active.length === 0) return { printers: 0, hoursDay: 0, hoursWeek: 0 };
+        var totalHours = active.reduce(function(s, p) { return s + (parseFloat(p.hours) || 0); }, 0);
+        return { printers: active.length, hoursDay: Math.round(totalHours * 10) / 10, hoursWeek: Math.round(totalHours * 7 * 10) / 10 };
     }
 
     function getFleetNumber(printer) {
@@ -2098,6 +2137,14 @@
                         return function() { openFleetCard(pid); };
                     }(printer.id)));
                 });
+                // Fleet capacity summary
+                var cap = calcFleetCapacity();
+                if (cap.printers > 0) {
+                    var capDiv = document.createElement('div');
+                    capDiv.className = 'fleet-capacity-summary';
+                    capDiv.innerHTML = 'Fleet Capacity: <span class="capacity-value">' + cap.hoursDay + ' hrs/day</span> \u00b7 <span class="capacity-value">' + cap.hoursWeek + ' hrs/week</span> across ' + cap.printers + ' active printer' + (cap.printers > 1 ? 's' : '');
+                    content.appendChild(capDiv);
+                }
             }
             if (p === 4) {
                 state.materials.forEach(function(mat, idx) {
@@ -2197,6 +2244,27 @@
         body.innerHTML = '';
 
         body.appendChild(makeSection('Purpose', def.purpose));
+
+        // ---- Instructions (collapsible) ----
+        if (def.instructions) {
+            var instrWrap = document.createElement('div');
+            instrWrap.className = 'detail-section instructions-section';
+            var instrToggle = document.createElement('button');
+            instrToggle.className = 'instructions-toggle';
+            instrToggle.innerHTML = '<span class="instructions-arrow">\u25B6</span> How to calculate this value';
+            var instrBody = document.createElement('div');
+            instrBody.className = 'instructions-body';
+            instrBody.style.display = 'none';
+            instrBody.innerHTML = '<pre class="instructions-text">' + escHtml(def.instructions) + '</pre>';
+            instrToggle.addEventListener('click', function() {
+                var showing = instrBody.style.display !== 'none';
+                instrBody.style.display = showing ? 'none' : 'block';
+                instrToggle.querySelector('.instructions-arrow').textContent = showing ? '\u25B6' : '\u25BC';
+            });
+            instrWrap.appendChild(instrToggle);
+            instrWrap.appendChild(instrBody);
+            body.appendChild(instrWrap);
+        }
 
         // ---- Card Locking ----
         var lockInfo = getCardLockInfo(cardId);
