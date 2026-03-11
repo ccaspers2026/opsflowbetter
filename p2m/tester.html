@@ -911,6 +911,19 @@ function completeTesting() {
 
     data[TEST_VERSION].completed = true;
     data[TEST_VERSION].completedAt = new Date().toISOString();
+    if (!data[TEST_VERSION].testedBy) data[TEST_VERSION].testedBy = 'human';
+    saveData(data);
+    setHaltState('complete');
+    render();
+}
+
+// ── AI Self-Test Completion ──────────────────────────────────────
+function completeAITest() {
+    var data = loadData();
+    if (!data[TEST_VERSION]) data[TEST_VERSION] = { results: {}, notes: {}, timestamp: null, completed: false };
+    data[TEST_VERSION].completed = true;
+    data[TEST_VERSION].completedAt = new Date().toISOString();
+    data[TEST_VERSION].testedBy = 'ai';
     saveData(data);
     setHaltState('complete');
     render();
@@ -934,9 +947,19 @@ function renderCompleteState() {
         }
         var vfb = getVersionFeedback();
         var dateStr = vd.completedAt ? new Date(vd.completedAt).toLocaleString() : '';
+        var tester = vd.testedBy === 'ai' ? 'AI Self-Test' : 'Manual Test';
         var summary = TEST_VERSION + ' \u2014 ' + pass + ' passed, ' + fail + ' failed, ' + vfb.length + ' feedback items';
         if (dateStr) summary += ' \u2014 Completed ' + dateStr;
+        summary += ' \u2014 ' + tester;
         document.getElementById('completeSummary').textContent = summary;
+        // Style banner differently for AI vs human tests
+        if (vd.testedBy === 'ai') {
+            banner.style.borderLeft = '4px solid #8b5cf6';
+            document.querySelector('#completeBanner h3').textContent = 'AI Self-Test Complete';
+        } else {
+            banner.style.borderLeft = '4px solid #3fb950';
+            document.querySelector('#completeBanner h3').textContent = 'Testing Complete';
+        }
         btn.textContent = '\u2713 Testing Complete';
         btn.disabled = true;
     } else {
@@ -1089,8 +1112,9 @@ function renderHistory() {
         var fbCount = allFb.filter(function(f) { return f.version === ver; }).length;
         var dateStr = vd.completedAt ? 'Completed ' + new Date(vd.completedAt).toLocaleString() : (vd.timestamp ? 'Last tested ' + new Date(vd.timestamp).toLocaleString() : 'No tests yet');
         var completedIcon = vd.completed ? '\u2705 ' : '';
+        var testerTag = vd.testedBy === 'ai' ? ' <span style="color:#8b5cf6;font-size:10px;">[AI]</span>' : (vd.completed ? ' <span style="color:#3fb950;font-size:10px;">[Manual]</span>' : '');
         html += '<div class="history-entry">';
-        html += completedIcon + '<span class="ver">' + ver + '</span> \u2014 ';
+        html += completedIcon + '<span class="ver">' + ver + '</span>' + testerTag + ' \u2014 ';
         html += '<span class="result-pass">' + pass + ' pass</span>';
         if (fail > 0) html += ' \u00b7 <span class="result-fail">' + fail + ' fail</span>';
         html += ' \u00b7 ' + total + ' tested';

@@ -2841,8 +2841,12 @@ function runMigrations() {
     if (ran.indexOf('v0.77.0_seed_completed') === -1) {
         if (!data.completed) data.completed = [];
         var sections = document.querySelectorAll('.section');
-        if (sections[2] && data.completed.length < 10) {
-            // Only seed if we have fewer than 10 completed items (migration-added only)
+        var alreadySeeded = false;
+        for (var chk = 0; chk < data.completed.length; chk++) {
+            if (data.completed[chk].id && data.completed[chk].id.indexOf('done_seed_') === 0) { alreadySeeded = true; break; }
+        }
+        if (sections[2] && !alreadySeeded) {
+            // Seed HTML completed items into localStorage (one-time)
             var tasks = sections[2].querySelectorAll('.task');
             var seeded = [];
             for (var i = 0; i < tasks.length; i++) {
