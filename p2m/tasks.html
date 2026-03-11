@@ -671,6 +671,15 @@
     <div class="task">
         <span class="priority low"></span>
         <div class="content">
+            <div class="title">[WS] Disable action buttons until required data is ready</div>
+            <div class="desc">(UX) Disable Mark Complete and other action buttons when required fields are empty. Prevents accidental actions on incomplete data. Apply consistently across all dynamic card types (Fleet, Materials, Software). Buttons enable only when gate criteria are met.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Workshop &bull; v0.78.0 Materials Library review</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
             <div class="title">R2 data cleanup tooling</div>
             <div class="desc">No cleanup for orphaned R2 files right now. Not urgent (we overwrite at same paths + plenty of storage). Needed when app matures.</div>
             <div class="meta"><span class="tag tag-infra">INFRA</span> Worker &bull; Future milestone</div>
@@ -3001,6 +3010,25 @@ function runMigrations() {
             changed = true;
         }
         markMigrationRun('v0.78.0_dropdown_backlog');
+    }
+
+    if (ran.indexOf('v0.78.0_disable_buttons_backlog') === -1) {
+        var existsDb = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].title.indexOf('Disable action buttons') !== -1) { existsDb = true; break; }
+        }
+        if (!existsDb) {
+            data.backlog.push({
+                id: 'bl_v0780_disable_btns',
+                title: '[WS] Disable action buttons until required data is ready',
+                desc: 'Disable Mark Complete and other action buttons when required fields are empty. Prevents accidental actions on incomplete data. Apply consistently across all dynamic card types (Fleet, Materials, Software). Buttons enable only when gate criteria are met.',
+                tag: 'UX',
+                meta: 'Workshop \u2022 v0.78.0 Materials Library review',
+                priority: 'low'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.78.0_disable_buttons_backlog');
     }
 
     if (changed) saveTasks(data);

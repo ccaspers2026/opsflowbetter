@@ -1459,7 +1459,7 @@
 
     var MATERIALS_PROMPT_FIELDS = [
         { key: 'costKg',   promptLabel: 'Cost per kg',      parseKeys: ['cost per kg', 'cost/kg', 'price per kg', 'price/kg'], numeric: true, unit: 'USD' },
-        { key: 'color',    promptLabel: 'Available Colors',  parseKeys: ['colors', 'available colors', 'color options'], numeric: false }
+        { key: 'color',    promptLabel: 'Available Colors',  parseKeys: ['colors', 'available colors', 'color options'], numeric: false, promptHint: '[comma-separated list of ALL color names, e.g. Black, White, Red, Blue]' }
     ];
 
     // Machine Economics AI-fillable fields (one prompt fills W3.1 + W3.2)
@@ -1652,7 +1652,7 @@
             } else if (fd.transform === 'volume') {
                 lines.push(fd.promptLabel + ': [X x Y x Z in mm]');
             } else {
-                lines.push(fd.promptLabel + ': [value]');
+                lines.push(fd.promptLabel + ': ' + (fd.promptHint || '[value]'));
             }
         });
         lines.push('');
