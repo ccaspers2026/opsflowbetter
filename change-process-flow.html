@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpsFlowBetter — Change Process Flow</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: #0d1117;
+        color: #c9d1d9;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        padding: 32px 24px 60px;
+        min-height: 100vh;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .header h1 {
+        font-size: 22px;
+        color: #f0f6fc;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+    .header .sub {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    .header .version {
+        display: inline-block;
+        margin-top: 8px;
+        background: #1f6feb22;
+        color: #58a6ff;
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    /* Flow container */
+    .flow {
+        max-width: 680px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    /* Connector line */
+    .flow::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #21262d;
+        transform: translateX(-50%);
+        z-index: 0;
+    }
+
+    /* Phase headers */
+    .phase-label {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        margin: 32px 0 20px;
+    }
+    .phase-label:first-child { margin-top: 0; }
+    .phase-label span {
+        display: inline-block;
+        background: #161b22;
+        border: 1px solid #30363d;
+        color: #8b949e;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 4px 16px;
+        border-radius: 12px;
+    }
+
+    /* Step nodes */
+    .step {
+        position: relative;
+        z-index: 1;
+        margin: 14px auto;
+        max-width: 520px;
+    }
+    .step-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        transition: border-color 0.2s;
+    }
+    .step-card:hover { border-color: #484f58; }
+
+    .step-num {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: #fff;
+    }
+    .step-content { flex: 1; }
+    .step-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #f0f6fc;
+        margin-bottom: 3px;
+    }
+    .step-desc {
+        font-size: 12px;
+        color: #8b949e;
+        line-height: 1.5;
+    }
+    .step-owner {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 8px;
+        margin-top: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Owner colors */
+    .owner-christian { background: #1f6feb22; color: #58a6ff; }
+    .owner-claude { background: #23863622; color: #3fb950; }
+    .owner-both { background: #da363322; color: #f0883e; }
+
+    /* Step number colors by phase */
+    .num-discuss { background: #6e7681; }
+    .num-signal { background: #f0883e; }
+    .num-work { background: #238636; }
+    .num-deploy { background: #1f6feb; }
+    .num-test { background: #8957e5; }
+    .num-rework { background: #da3633; }
+    .num-complete { background: #3fb950; }
+
+    /* Signal steps (GO / COMMIT) */
+    .signal-step .step-card {
+        border-color: #f0883e55;
+        background: #161b22;
+    }
+    .signal-step .step-title {
+        color: #f0883e;
+    }
+    .signal-badge {
+        display: inline-block;
+        background: #f0883e;
+        color: #0d1117;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-right: 6px;
+        font-family: 'Consolas', monospace;
+    }
+
+    /* Decision diamond */
+    .decision {
+        position: relative;
+        z-index: 1;
+        margin: 20px auto;
+        max-width: 520px;
+        text-align: center;
+    }
+    .decision-box {
+        display: inline-block;
+        background: #161b22;
+        border: 2px solid #8957e5;
+        border-radius: 8px;
+        padding: 12px 24px;
+        transform: rotate(0deg);
+    }
+    .decision-text {
+        font-size: 13px;
+        font-weight: 600;
+        color: #d2a8ff;
+    }
+    .decision-paths {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 8px;
+    }
+    .decision-path {
+        font-size: 11px;
+        color: #8b949e;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .path-yes { color: #3fb950; }
+    .path-no { color: #f85149; }
+
+    /* Rework loop indicator */
+    .rework-loop {
+        position: relative;
+        z-index: 1;
+        margin: 16px auto;
+        max-width: 520px;
+    }
+    .loop-card {
+        background: #161b22;
+        border: 2px dashed #da363388;
+        border-radius: 8px;
+        padding: 14px 16px;
+        text-align: center;
+    }
+    .loop-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #f85149;
+        margin-bottom: 4px;
+    }
+    .loop-desc {
+        font-size: 11px;
+        color: #8b949e;
+        line-height: 1.5;
+    }
+    .loop-arrow {
+        font-size: 18px;
+        color: #da3633;
+        margin: 4px 0;
+    }
+
+    /* Legend */
+    .legend {
+        max-width: 520px;
+        margin: 48px auto 0;
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 16px 20px;
+    }
+    .legend-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+    }
+    .legend-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+    }
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* Rules section */
+    .rules {
+        max-width: 520px;
+        margin: 24px auto 0;
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 16px 20px;
+    }
+    .rules-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #f0883e;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+    .rule {
+        font-size: 12px;
+        color: #8b949e;
+        line-height: 1.6;
+        padding: 4px 0;
+        border-bottom: 1px solid #21262d;
+    }
+    .rule:last-child { border-bottom: none; }
+    .rule strong { color: #c9d1d9; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>OpsFlowBetter Change Process Flow</h1>
+    <div class="sub">The full lifecycle of every code change — from idea to production</div>
+    <div class="version">Established v0.78.0</div>
+</div>
+
+<div class="flow">
+
+    <!-- ═══ PHASE: PRE-WORK ═══ -->
+    <div class="phase-label"><span>Phase 1 — Pre-Work Scan</span></div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-discuss">0</div>
+            <div class="step-content">
+                <div class="step-title">Bookend Scan (Pre-Work)</div>
+                <div class="step-desc">Claude reads Tester feedback, scans PQ for current/new tasks, checks Backlog for changes, and triages anything pending.</div>
+                <span class="step-owner owner-claude">Claude</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ PHASE: DISCUSSION ═══ -->
+    <div class="phase-label"><span>Phase 2 — Discussion &amp; Planning</span></div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-discuss">1</div>
+            <div class="step-content">
+                <div class="step-title">Discuss &amp; Plan</div>
+                <div class="step-desc">Christian describes what's needed. Claude asks questions, takes notes, proposes solutions. No code changes yet — discussion is cheap, executing prematurely is expensive.</div>
+                <span class="step-owner owner-both">Both</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="step signal-step">
+        <div class="step-card">
+            <div class="step-num num-signal">⚡</div>
+            <div class="step-content">
+                <div class="step-title"><span class="signal-badge">GO</span> Signal</div>
+                <div class="step-desc">Christian says <strong>GO</strong> (or "do it", "execute", etc.) — this is the green light to start coding. If Christian is giving feedback without saying GO, Claude asks: "Want me to GO on this, or are you still thinking?"</div>
+                <span class="step-owner owner-christian">Christian</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ PHASE: WORK ═══ -->
+    <div class="phase-label"><span>Phase 3 — Build</span></div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-work">2</div>
+            <div class="step-content">
+                <div class="step-title">Claude Codes the Changes</div>
+                <div class="step-desc">Execute the agreed plan. Make code changes to HTML, CSS, JS. Keep TodoWrite list visible with progress updates.</div>
+                <span class="step-owner owner-claude">Claude</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-work">3</div>
+            <div class="step-content">
+                <div class="step-title">Update Suite Artifacts</div>
+                <div class="step-desc">Version bump all 9 pages (if not rework). Update changelog, tester sections, migrations. Keep HTML + localStorage in sync.</div>
+                <span class="step-owner owner-claude">Claude</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="step signal-step">
+        <div class="step-card">
+            <div class="step-num num-signal">⚡</div>
+            <div class="step-content">
+                <div class="step-title"><span class="signal-badge">COMMIT</span> Signal</div>
+                <div class="step-desc">Christian says <strong>COMMIT</strong> (or "commit that", etc.) — Claude packages the commit message in a code block. No commit happens until this signal.</div>
+                <span class="step-owner owner-christian">Christian</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ PHASE: DEPLOY ═══ -->
+    <div class="phase-label"><span>Phase 4 — Deploy</span></div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-deploy">4</div>
+            <div class="step-content">
+                <div class="step-title">Commit Message Handoff</div>
+                <div class="step-desc">Claude provides commit description in a code block. Shows DEPLOY POPUP with "Deployed" / "Hold on" options.</div>
+                <span class="step-owner owner-claude">Claude</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-deploy">5</div>
+            <div class="step-content">
+                <div class="step-title">Commit, Push &amp; Deploy</div>
+                <div class="step-desc">Christian copies commit message to Visual Studio, commits, pushes to GitHub. GitHub Pages deploys automatically. Christian clicks "Deployed" in Claude.</div>
+                <span class="step-owner owner-christian">Christian</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ PHASE: TEST ═══ -->
+    <div class="phase-label"><span>Phase 5 — Test</span></div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-test">6</div>
+            <div class="step-content">
+                <div class="step-title">Claude Self-Test on Live Site</div>
+                <div class="step-desc">Navigate to live site in Chrome. Verify each test item (inspect pages, check localStorage, read values). Enter notes into Tester page. Report PASS/FAIL with reasoning.</div>
+                <span class="step-owner owner-claude">Claude</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-test">7</div>
+            <div class="step-content">
+                <div class="step-title">User Verification</div>
+                <div class="step-desc">Christian reviews results, clicks PASS/FAIL/SKIP buttons on Tester. Can also do hands-on testing and add feedback at any time.</div>
+                <span class="step-owner owner-christian">Christian</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DECISION ═══ -->
+    <div class="decision">
+        <div class="decision-box">
+            <div class="decision-text">All Tests Pass?</div>
+        </div>
+        <div class="decision-paths">
+            <div class="decision-path path-yes">✓ YES → Phase 6</div>
+            <div class="decision-path path-no">✗ NO → Rework Loop</div>
+        </div>
+    </div>
+
+    <!-- ═══ REWORK LOOP ═══ -->
+    <div class="rework-loop">
+        <div class="loop-card">
+            <div class="loop-title">⟳ Rework Loop</div>
+            <div class="loop-desc">
+                Same version — no version bump. Claude fixes code, provides updated commit.<br>
+                Christian deploys. Claude re-tests ONLY failed items.<br>
+                Repeat until all PASS or SKIP. HALT banner stays RED throughout.
+            </div>
+            <div class="loop-arrow">↑ Back to Phase 4 (Commit Handoff)</div>
+        </div>
+    </div>
+
+    <!-- ═══ PHASE: COMPLETE ═══ -->
+    <div class="phase-label"><span>Phase 6 — Complete</span></div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-complete">8</div>
+            <div class="step-content">
+                <div class="step-title">Testing Complete</div>
+                <div class="step-desc">Christian clicks "Complete Testing". Claude shows TESTING STATUS POPUP with options: "Testing Complete" / "Back to you" / "Hold on".</div>
+                <span class="step-owner owner-both">Both</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-complete">9</div>
+            <div class="step-content">
+                <div class="step-title">Bookend Scan (Post-Work)</div>
+                <div class="step-desc">Claude re-checks Feedback and PQ for anything added during the work cycle. Triages new feedback to Backlog. Clears resolved items.</div>
+                <span class="step-owner owner-claude">Claude</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-card">
+            <div class="step-num num-complete">10</div>
+            <div class="step-content">
+                <div class="step-title">Next Task</div>
+                <div class="step-desc">Cycle repeats from Step 0. Pick up next PQ item or address new feedback.</div>
+                <span class="step-owner owner-both">Both</span>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /flow -->
+
+<!-- Legend -->
+<div class="legend">
+    <div class="legend-title">Legend</div>
+    <div class="legend-grid">
+        <div class="legend-item"><div class="legend-dot" style="background:#58a6ff"></div> Christian's action</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div> Claude's action</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f0883e"></div> Both / Handoff</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f0883e"></div> GO / COMMIT signal</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8957e5"></div> Decision point</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#da3633"></div> Rework loop</div>
+    </div>
+</div>
+
+<!-- Key Rules -->
+<div class="rules">
+    <div class="rules-title">Non-Negotiable Rules</div>
+    <div class="rule"><strong>No code before GO.</strong> Discussion and planning are free. Executing is expensive.</div>
+    <div class="rule"><strong>No commit message before COMMIT.</strong> Christian controls when changes ship.</div>
+    <div class="rule"><strong>Claude never commits or pushes.</strong> Commit message in code block only. Christian uses Visual Studio.</div>
+    <div class="rule"><strong>Rework stays in version.</strong> No version bump during rework. Only re-test failed items.</div>
+    <div class="rule"><strong>Bookend scans every cycle.</strong> Check for new feedback/tasks before AND after work.</div>
+    <div class="rule"><strong>All 9 pages get version bump.</strong> Every code change (unless rework) bumps all pages.</div>
+    <div class="rule"><strong>HTML + localStorage in sync.</strong> Always update both — HTML is the safety net fallback.</div>
+    <div class="rule"><strong>When in doubt, read the doc.</strong> Don't guess from faded context.</div>
+</div>
+
+</body>
+</html>

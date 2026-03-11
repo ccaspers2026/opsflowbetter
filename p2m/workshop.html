@@ -1458,8 +1458,8 @@
     ];
 
     var MATERIALS_PROMPT_FIELDS = [
-        { key: 'costKg',   promptLabel: 'Cost per kg',      parseKeys: ['cost per kg', 'cost/kg', 'price per kg', 'price/kg'], numeric: true, unit: 'USD' },
-        { key: 'color',    promptLabel: 'Available Colors',  parseKeys: ['colors', 'available colors', 'color options'], numeric: false, promptHint: '[comma-separated list of ALL color names, e.g. Black, White, Red, Blue]' }
+        { key: 'costKg',   promptLabel: 'Cost per kg',      parseKeys: ['cost per kg', 'cost/kg', 'price per kg', 'price/kg', 'costperkg'], numeric: true, unit: 'USD', jsonKey: 'costPerKg', jsonHint: 'standard retail price for a 1kg spool in USD, number only' },
+        { key: 'color',    promptLabel: 'Available Colors',  parseKeys: ['colors', 'available colors', 'color options'], numeric: false, jsonKey: 'colors', jsonHint: 'array of every individual color name exactly as the manufacturer lists them' }
     ];
 
     // Machine Economics AI-fillable fields (one prompt fills W3.1 + W3.2)
@@ -1642,6 +1642,58 @@
             return { prompt: 'All AI-fillable fields already have values.', parseResponse: function() { return { fields: {}, count: 0 }; } };
         }
 
+        // Detect if fieldDefs support JSON mode (materials use jsonKey)
+        var useJson = missing.some(function(fd) { return !!fd.jsonKey; });
+
+        var prompt;
+        if (useJson) {
+            prompt = buildJsonPrompt(missing, introLine);
+        } else {
+            prompt = buildTextPrompt(missing, fieldDefs, introLine);
+        }
+
+        var parseResponse = useJson
+            ? function(response) { return parseJsonResponse(response, missing); }
+            : function(response) { return parseTextResponse(response, fieldDefs); };
+
+        return { prompt: prompt, parseResponse: parseResponse };
+    }
+
+    // --- JSON prompt builder (Materials) ---
+    function buildJsonPrompt(missing, introLine) {
+        var lines = [];
+        lines.push(introLine);
+        lines.push('Search the manufacturer\'s official product listing for this exact filament type and provide pricing and color data.');
+        lines.push('');
+        lines.push('Respond with ONLY a JSON code block in this exact format, nothing else before or after:');
+        lines.push('');
+        lines.push('```json');
+        lines.push('{');
+        var jsonLines = [];
+        missing.forEach(function(fd) {
+            if (fd.jsonKey === 'colors') {
+                jsonLines.push('  "' + fd.jsonKey + '": ["Color1", "Color2", "Color3"]');
+            } else {
+                jsonLines.push('  "' + fd.jsonKey + '": 0.00');
+            }
+        });
+        lines.push(jsonLines.join(',\n'));
+        lines.push('}');
+        lines.push('```');
+        lines.push('');
+        lines.push('STRICT RULES:');
+        lines.push('- Output ONLY the JSON code block \u2014 no explanations, no reasoning, no commentary');
+        missing.forEach(function(fd) {
+            if (fd.jsonHint) lines.push('- ' + fd.jsonKey + ': ' + fd.jsonHint);
+        });
+        lines.push('- Never group colors (no "variants", "various", "and more", "multiple")');
+        lines.push('- Use exact manufacturer color names (e.g. "Galaxy Black" not "Black Galaxy")');
+        lines.push('- Do not include URLs, footnotes, or citations anywhere in your response');
+        return lines.join('\n');
+    }
+
+    // --- Text prompt builder (Fleet, static cards) ---
+    function buildTextPrompt(missing, fieldDefs, introLine) {
         var lines = [];
         lines.push(introLine || 'Please look up the following information.');
         lines.push('Please provide the following specs in exactly this format:');
@@ -1657,68 +1709,123 @@
         });
         lines.push('');
         lines.push('Respond with ONLY the specs in the format above, nothing else.');
+        return lines.join('\n');
+    }
 
-        var prompt = lines.join('\n');
+    // --- JSON response parser (Materials) ---
+    function parseJsonResponse(response, missing) {
+        var result = { fields: {}, count: 0, errors: [] };
+        if (!response || !response.trim()) {
+            result.errors.push('Empty response');
+            return result;
+        }
 
-        var parseResponse = function(response) {
-            var result = { fields: {}, count: 0, errors: [] };
-            if (!response || !response.trim()) {
-                result.errors.push('Empty response');
-                return result;
+        // Extract JSON from code block or raw text
+        var jsonStr = response.trim();
+        var codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (codeBlockMatch) {
+            jsonStr = codeBlockMatch[1].trim();
+        } else {
+            // Try to find raw JSON object
+            var braceStart = jsonStr.indexOf('{');
+            var braceEnd = jsonStr.lastIndexOf('}');
+            if (braceStart !== -1 && braceEnd > braceStart) {
+                jsonStr = jsonStr.substring(braceStart, braceEnd + 1);
             }
-            var respLines = response.trim().split('\n');
-            fieldDefs.forEach(function(fd) {
-                for (var i = 0; i < respLines.length; i++) {
-                    var line = respLines[i].trim();
-                    if (!line) continue;
-                    var matched = false;
-                    var allKeys = [fd.promptLabel].concat(fd.parseKeys || []);
-                    for (var k = 0; k < allKeys.length; k++) {
-                        var keyLower = allKeys[k].toLowerCase();
-                        var lineLower = line.toLowerCase();
-                        var colonIdx = lineLower.indexOf(keyLower);
-                        if (colonIdx !== -1) {
-                            var afterKey = line.substring(colonIdx + allKeys[k].length).replace(/^[\s:]+/, '').trim();
-                            if (!afterKey) continue;
-                            if (fd.numeric) {
-                                var numMatch = afterKey.match(/[\d,]+\.?\d*/);
-                                if (numMatch) {
-                                    result.fields[fd.key] = numMatch[0].replace(/,/g, '');
-                                    result.count++;
-                                    matched = true;
-                                }
-                            } else if (fd.transform === 'volume') {
-                                var volNorm = afterKey
-                                    .replace(/mm/gi, '')
-                                    .replace(/\u00d7/g, 'x')
-                                    .replace(/×/g, 'x')
-                                    .replace(/\*/g, 'x')
-                                    .trim();
-                                var volMatch = volNorm.match(/(\d+)\s*x\s*(\d+)\s*x\s*(\d+)/i);
-                                if (volMatch) {
-                                    result.fields[fd.key] = volMatch[1] + ' x ' + volMatch[2] + ' x ' + volMatch[3];
-                                    result.count++;
-                                    matched = true;
-                                } else {
-                                    result.fields[fd.key] = afterKey.trim();
-                                    result.count++;
-                                    matched = true;
-                                }
-                            } else {
-                                result.fields[fd.key] = afterKey;
+        }
+
+        var parsed;
+        try {
+            parsed = JSON.parse(jsonStr);
+        } catch (e) {
+            result.errors.push('Could not parse JSON: ' + e.message);
+            // Fallback: try text-based parsing
+            return parseTextResponse(response, missing);
+        }
+
+        missing.forEach(function(fd) {
+            var val = parsed[fd.jsonKey];
+            if (val === undefined || val === null) return;
+
+            if (fd.jsonKey === 'colors' && Array.isArray(val)) {
+                // Join array into comma-separated string for storage
+                var cleaned = val.map(function(c) {
+                    return String(c).replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim();
+                }).filter(function(c) { return c.length > 0; });
+                result.fields[fd.key] = cleaned.join(', ');
+                result.count++;
+            } else if (fd.numeric) {
+                var num = parseFloat(val);
+                if (!isNaN(num) && num > 0) {
+                    result.fields[fd.key] = String(num);
+                    result.count++;
+                }
+            } else {
+                result.fields[fd.key] = String(val).trim();
+                if (result.fields[fd.key]) result.count++;
+            }
+        });
+
+        return result;
+    }
+
+    // --- Text response parser (Fleet, static cards — legacy) ---
+    function parseTextResponse(response, fieldDefs) {
+        var result = { fields: {}, count: 0, errors: [] };
+        if (!response || !response.trim()) {
+            result.errors.push('Empty response');
+            return result;
+        }
+        var respLines = response.trim().split('\n');
+        fieldDefs.forEach(function(fd) {
+            for (var i = 0; i < respLines.length; i++) {
+                var line = respLines[i].trim();
+                if (!line) continue;
+                var matched = false;
+                var allKeys = [fd.promptLabel].concat(fd.parseKeys || []);
+                for (var k = 0; k < allKeys.length; k++) {
+                    var keyLower = allKeys[k].toLowerCase();
+                    var lineLower = line.toLowerCase();
+                    var colonIdx = lineLower.indexOf(keyLower);
+                    if (colonIdx !== -1) {
+                        var afterKey = line.substring(colonIdx + allKeys[k].length).replace(/^[\s:]+/, '').trim();
+                        if (!afterKey) continue;
+                        if (fd.numeric) {
+                            var numMatch = afterKey.match(/[\d,]+\.?\d*/);
+                            if (numMatch) {
+                                result.fields[fd.key] = numMatch[0].replace(/,/g, '');
                                 result.count++;
                                 matched = true;
                             }
-                            if (matched) break;
+                        } else if (fd.transform === 'volume') {
+                            var volNorm = afterKey
+                                .replace(/mm/gi, '')
+                                .replace(/\u00d7/g, 'x')
+                                .replace(/\u00d7/g, 'x')
+                                .replace(/\*/g, 'x')
+                                .trim();
+                            var volMatch = volNorm.match(/(\d+)\s*x\s*(\d+)\s*x\s*(\d+)/i);
+                            if (volMatch) {
+                                result.fields[fd.key] = volMatch[1] + ' x ' + volMatch[2] + ' x ' + volMatch[3];
+                                result.count++;
+                                matched = true;
+                            } else {
+                                result.fields[fd.key] = afterKey.trim();
+                                result.count++;
+                                matched = true;
+                            }
+                        } else {
+                            result.fields[fd.key] = afterKey;
+                            result.count++;
+                            matched = true;
                         }
+                        if (matched) break;
                     }
-                    if (matched) break;
                 }
-            });
-            return result;
-        };
-
-        return { prompt: prompt, parseResponse: parseResponse };
+                if (matched) break;
+            }
+        });
+        return result;
     }
 
     function calcMaintHour() {
@@ -2465,12 +2572,14 @@
             matAiBody.className = 'ai-assist-body' + (matHasEmpty2 ? ' show' : '');
             matAiBody.innerHTML =
                 '<div class="ai-assist-label">Your Prompt:</div>' +
+                '<div class="ai-assist-hint">Copy this prompt into any AI chat. Tested with Claude, ChatGPT, and Grok. Response must be JSON.</div>' +
                 '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(matAiConfig.prompt) + '</textarea>' +
                 '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
                 (matHasEmpty2 ? '' : '<button class="btn-ai-clear" id="btnAiClear">Clear AI Fields</button>') +
                 '<hr class="ai-assist-divider">' +
                 '<div class="ai-assist-label">Paste AI Response:</div>' +
-                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
+                '<div class="ai-assist-hint">Paste the JSON code block from your AI. The parser will extract the data automatically.</div>' +
+                '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the JSON response here..."></textarea>' +
                 '<button class="btn-ai-apply disabled" id="btnAiApply" disabled>Apply</button>' +
                 '<div class="ai-results-list" id="aiResultsList"></div>';
         } else {
@@ -2484,8 +2593,8 @@
         fieldsDiv.innerHTML = '<div class="detail-section-label">Material Details</div>';
 
         var fields = [
-            { key: 'type', label: 'Type', placeholder: 'PETG-HF', hint: 'Filament type &mdash; one card per type per supplier' },
-            { key: 'supplier', label: 'Supplier', placeholder: 'Bambu Lab', hint: 'One supplier per card &mdash; add another card for a different supplier' },
+            { key: 'type', label: 'Type', placeholder: 'PETG-HF', hint: 'Filament type \u2014 one card per type per supplier' },
+            { key: 'supplier', label: 'Supplier', placeholder: 'Bambu Lab', hint: 'One supplier per card \u2014 add another card for a different supplier' },
             { key: 'costKg', label: 'Price per kg ($)', placeholder: '12.99' }
         ];
 
@@ -2741,13 +2850,16 @@
                         aiToggle.classList.add('expanded');
                         aiToggle.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
                         aiBody.className = 'ai-assist-body show';
+                        var isJsonMode = dynType === 'materials';
                         aiBody.innerHTML =
                             '<div class="ai-assist-label">Your Prompt:</div>' +
+                            (isJsonMode ? '<div class="ai-assist-hint">Copy this prompt into any AI chat. Tested with Claude, ChatGPT, and Grok. Response must be JSON.</div>' : '') +
                             '<textarea class="ai-assist-prompt-textarea" id="aiPromptText">' + escHtml(config.prompt) + '</textarea>' +
                             '<button class="btn-ai-copy" id="btnAiCopy">Copy to Clipboard</button>' +
                             '<hr class="ai-assist-divider">' +
                             '<div class="ai-assist-label">Paste AI Response:</div>' +
-                            '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="Paste the AI response here..."></textarea>' +
+                            (isJsonMode ? '<div class="ai-assist-hint">Paste the JSON code block from your AI. The parser will extract the data automatically.</div>' : '') +
+                            '<textarea class="ai-assist-response-textarea" id="aiResponseText" placeholder="' + (isJsonMode ? 'Paste the JSON response here...' : 'Paste the AI response here...') + '"></textarea>' +
                             '<button class="btn-ai-apply disabled" id="btnAiApply" disabled>Apply</button>' +
                             '<div class="ai-results-list" id="aiResultsList"></div>';
                         bindAiCopyBtn(itemId);
@@ -2821,6 +2933,27 @@
                         if (dynType === 'materials' && el.dataset.field === 'color') {
                             renderColorTags(item);
                         }
+                        // Live-update card title and cost per gram as fields change
+                        if (dynType === 'materials' && (el.dataset.field === 'type' || el.dataset.field === 'supplier')) {
+                            var titleEl = document.getElementById('detailTitle');
+                            if (titleEl) titleEl.textContent = item.type && item.supplier ? item.type + ' \u2014 ' + item.supplier : 'Configure this material';
+                            var stepEl = document.getElementById('detailStepInfo');
+                            if (stepEl) stepEl.textContent = getMaterialNumber(item) + ' \u2014 ' + (item.type || 'New Material');
+                        }
+                        if (dynType === 'materials' && el.dataset.field === 'costKg') {
+                            var effCost = parseFloat(item.costKg) || 0;
+                            var cpgVal = effCost > 0 ? (effCost / 1000).toFixed(5) : '\u2014';
+                            var calcEl = document.querySelector('.field-calculated');
+                            if (calcEl) calcEl.innerHTML = '$' + (effCost > 0 ? effCost.toFixed(2) : '\u2014') + '/kg \u2192 $' + cpgVal + '/g';
+                        }
+                        if (dynType === 'fleet' && (el.dataset.field === 'brand' || el.dataset.field === 'model')) {
+                            var titleEl2 = document.getElementById('detailTitle');
+                            if (titleEl2) titleEl2.textContent = ((item.brand || '') + ' ' + (item.model || '')).trim() || 'Configure this printer';
+                            var stepEl2 = document.getElementById('detailStepInfo');
+                            if (stepEl2) stepEl2.textContent = getFleetNumber(item) + ' \u2014 ' + (item.name || 'New Printer');
+                        }
+                        // Update detail LED live
+                        setDetailLed(item.status_led);
                     }
                 };
                 el.addEventListener('input', handler);
@@ -3037,6 +3170,41 @@
                 var newConfig = createClaudePromptConfig(fieldDefs, item, newIntro);
                 var promptEl = document.getElementById('aiPromptText');
                 if (promptEl) promptEl.value = newConfig.prompt;
+            }
+
+            // --- Live UI updates after Apply ---
+            // Show Clear AI Fields button if not already present
+            if (!document.getElementById('btnAiClear')) {
+                var copyBtn = document.getElementById('btnAiCopy');
+                if (copyBtn) {
+                    var clearBtn = document.createElement('button');
+                    clearBtn.className = 'btn-ai-clear';
+                    clearBtn.id = 'btnAiClear';
+                    clearBtn.textContent = 'Clear AI Fields';
+                    copyBtn.parentNode.insertBefore(clearBtn, copyBtn.nextSibling);
+                    bindAiClearBtn(itemId, dynType);
+                }
+            }
+
+            // Live-update card title and cost per gram
+            if (dynType === 'materials') {
+                var titleEl = document.getElementById('detailTitle');
+                if (titleEl) titleEl.textContent = item.type && item.supplier ? item.type + ' \u2014 ' + item.supplier : 'Configure this material';
+                var stepEl = document.getElementById('detailStepInfo');
+                if (stepEl) stepEl.textContent = getMaterialNumber(item) + ' \u2014 ' + (item.type || 'New Material');
+                // Refresh cost per gram display
+                var effCost = parseFloat(item.costKg) || 0;
+                var cpgVal = effCost > 0 ? (effCost / 1000).toFixed(5) : '\u2014';
+                var calcEl = document.querySelector('.field-calculated');
+                if (calcEl) calcEl.innerHTML = '$' + (effCost > 0 ? effCost.toFixed(2) : '\u2014') + '/kg \u2192 $' + cpgVal + '/g';
+                // Update detail LED
+                setDetailLed(item.status_led);
+            } else if (dynType === 'fleet') {
+                var titleEl2 = document.getElementById('detailTitle');
+                if (titleEl2) titleEl2.textContent = ((item.brand || '') + ' ' + (item.model || '')).trim() || 'Configure this printer';
+                var stepEl2 = document.getElementById('detailStepInfo');
+                if (stepEl2) stepEl2.textContent = getFleetNumber(item) + ' \u2014 ' + (item.name || 'New Printer');
+                setDetailLed(item.status_led);
             }
         });
     }
