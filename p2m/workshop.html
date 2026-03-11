@@ -684,6 +684,68 @@
             font-weight: 600;
         }
 
+        /* ===== COLOR TAG LIST ===== */
+        .color-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 6px 0;
+            min-height: 32px;
+        }
+        .color-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 3px 8px 3px 10px;
+            font-size: 11px;
+            color: #c9d1d9;
+            line-height: 1.3;
+        }
+        .color-tag-remove {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: all 0.15s;
+        }
+        .color-tag-remove:hover { background: #da363344; color: #f85149; }
+        .color-tag-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: transparent;
+            border: 1px dashed #30363d;
+            border-radius: 12px;
+            padding: 3px 10px;
+            font-size: 11px;
+            color: #8b949e;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .color-tag-add:hover { border-color: #58a6ff; color: #58a6ff; }
+        .color-tag-input {
+            background: #0d1117;
+            border: 1px solid #58a6ff;
+            border-radius: 12px;
+            padding: 3px 10px;
+            font-size: 11px;
+            color: #c9d1d9;
+            outline: none;
+            width: 90px;
+        }
+
         /* ===== CARD LOCK ===== */
         .card-locked-msg {
             background: #161b2288;
@@ -1491,8 +1553,81 @@
         var supplier = (mat.supplier || '').trim();
         var mlNum = getMaterialNumber(mat);
         if (type && supplier) return mlNum + ': I use ' + type + ' 3D printing filament from ' + supplier + '.';
-        if (type) return mlNum + ': I use ' + type + ' 3D printing filament.';
-        return 'I use [enter type and supplier] 3D printing filament.';
+        return null; // Both type and supplier required — do not build partial prompts
+    }
+
+    // --- Color Tag List Helpers ---
+    function parseColorString(colorStr) {
+        if (!colorStr || !colorStr.trim()) return [];
+        return colorStr.split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c.length > 0; });
+    }
+
+    function colorArrayToString(colors) {
+        return colors.join(', ');
+    }
+
+    function renderColorTags(mat) {
+        var container = document.getElementById('colorTagsContainer');
+        if (!container) return;
+        var hiddenInput = document.querySelector('.field-input[data-dyn="materials"][data-id="' + mat.id + '"][data-field="color"]');
+        var colors = parseColorString(mat.color || '');
+        var html = '';
+        var editLocked = !isEditUnlocked();
+        colors.forEach(function(c, idx) {
+            html += '<span class="color-tag">' + escHtml(c) +
+                (editLocked ? '' : '<button class="color-tag-remove" data-idx="' + idx + '" title="Remove">&times;</button>') +
+                '</span>';
+        });
+        if (!editLocked) {
+            html += '<button class="color-tag-add" id="btnAddColor">+ Add</button>';
+        }
+        container.innerHTML = html;
+
+        // Bind remove buttons
+        container.querySelectorAll('.color-tag-remove').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var idx = parseInt(btn.dataset.idx, 10);
+                colors.splice(idx, 1);
+                mat.color = colorArrayToString(colors);
+                if (hiddenInput) hiddenInput.value = mat.color;
+                mat.verified = false;
+                mat.status_led = getDynamicCardStatus(mat);
+                saveState();
+                renderColorTags(mat);
+            });
+        });
+
+        // Bind add button
+        var addBtn = document.getElementById('btnAddColor');
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                // Replace add button with inline input
+                var inputEl = document.createElement('input');
+                inputEl.type = 'text';
+                inputEl.className = 'color-tag-input';
+                inputEl.placeholder = 'Color name';
+                addBtn.replaceWith(inputEl);
+                inputEl.focus();
+
+                var commitColor = function() {
+                    var val = inputEl.value.trim();
+                    if (val) {
+                        colors.push(val);
+                        mat.color = colorArrayToString(colors);
+                        if (hiddenInput) hiddenInput.value = mat.color;
+                        mat.verified = false;
+                        mat.status_led = getDynamicCardStatus(mat);
+                        saveState();
+                    }
+                    renderColorTags(mat);
+                };
+                inputEl.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') { e.preventDefault(); commitColor(); }
+                    if (e.key === 'Escape') { renderColorTags(mat); }
+                });
+                inputEl.addEventListener('blur', commitColor);
+            });
+        }
     }
 
     function createClaudePromptConfig(fieldDefs, currentValues, introLine) {
@@ -2351,7 +2486,6 @@
         var fields = [
             { key: 'type', label: 'Type', placeholder: 'PETG-HF', hint: 'Filament type &mdash; one card per type per supplier' },
             { key: 'supplier', label: 'Supplier', placeholder: 'Bambu Lab', hint: 'One supplier per card &mdash; add another card for a different supplier' },
-            { key: 'color', label: 'Color', placeholder: 'Various' },
             { key: 'costKg', label: 'Price per kg ($)', placeholder: '12.99' }
         ];
 
@@ -2363,6 +2497,16 @@
                 (f.hint ? '<div class="field-hint">' + escHtml(f.hint) + '</div>' : '');
             fieldsDiv.appendChild(group);
         });
+
+        // Color tag list — stored as comma-separated string, displayed as individual tags
+        var colorGroup = document.createElement('div');
+        colorGroup.className = 'field-group';
+        colorGroup.innerHTML = '<label class="field-label">Colors</label>' +
+            '<input type="hidden" class="field-input" data-dyn="materials" data-id="' + matId + '" data-field="color" value="' + escHtml(mat.color || '') + '">' +
+            '<div class="color-tags-container" id="colorTagsContainer"></div>' +
+            '<div class="field-hint">Available colors at this price point</div>';
+        fieldsDiv.appendChild(colorGroup);
+        // Render initial tags after DOM insert (deferred below in attachDynListeners setTimeout)
 
         // Cost per gram from costKg
         var effectiveCostKg = parseFloat(mat.costKg) || 0;
@@ -2389,6 +2533,8 @@
 
         showPanel();
         attachDynListeners('materials', matId);
+        // Render color tags after DOM is ready
+        setTimeout(function() { renderColorTags(mat); }, 60);
     }
 
     function verifyMaterial(id) {
@@ -2616,9 +2762,12 @@
                         var item2 = aiStateArr.find(function(x) { return x.id === itemId; });
                         if (!item2) return;
                         var introFn2 = dynType === 'fleet' ? getFleetIntro : getMaterialIntro;
-                        var config2 = createClaudePromptConfig(aiFieldDefs, item2, introFn2(item2));
-                        var promptEl = document.getElementById('aiPromptText');
-                        if (promptEl) promptEl.value = config2.prompt;
+                        var intro2 = introFn2(item2);
+                        if (intro2 !== null) {
+                            var config2 = createClaudePromptConfig(aiFieldDefs, item2, intro2);
+                            var promptEl = document.getElementById('aiPromptText');
+                            if (promptEl) promptEl.value = config2.prompt;
+                        }
                     }
                 };
                 if (gateInput) {
@@ -2661,9 +2810,16 @@
                             if (promptEl) {
                                 var liveFieldDefs = dynType === 'fleet' ? FLEET_PROMPT_FIELDS : MATERIALS_PROMPT_FIELDS;
                                 var liveIntroFn = dynType === 'fleet' ? getFleetIntro : getMaterialIntro;
-                                var liveConfig = createClaudePromptConfig(liveFieldDefs, item, liveIntroFn(item));
-                                promptEl.value = liveConfig.prompt;
+                                var liveIntro = liveIntroFn(item);
+                                if (liveIntro !== null) {
+                                    var liveConfig = createClaudePromptConfig(liveFieldDefs, item, liveIntro);
+                                    promptEl.value = liveConfig.prompt;
+                                }
                             }
+                        }
+                        // Live-update color tag list when color field changes via AI
+                        if (dynType === 'materials' && el.dataset.field === 'color') {
+                            renderColorTags(item);
                         }
                     }
                 };
@@ -2872,11 +3028,16 @@
             item.verified = false;
             item.status_led = getDynamicCardStatus(item);
             saveState();
+            // Re-render color tags if materials
+            if (dynType === 'materials') renderColorTags(item);
             renderAiResults(result, fieldDefs);
             showToast('Applied ' + result.count + ' field(s) from AI response');
-            var newConfig = createClaudePromptConfig(fieldDefs, item, introFn(item));
-            var promptEl = document.getElementById('aiPromptText');
-            if (promptEl) promptEl.value = newConfig.prompt;
+            var newIntro = introFn(item);
+            if (newIntro !== null) {
+                var newConfig = createClaudePromptConfig(fieldDefs, item, newIntro);
+                var promptEl = document.getElementById('aiPromptText');
+                if (promptEl) promptEl.value = newConfig.prompt;
+            }
         });
     }
 
