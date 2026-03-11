@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.77.0</span></p>
+        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.78.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,40 +630,38 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.77.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.78.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Cloudflare KV Data Store (v0.77.0)',
+        title: 'Materials Library Restructure (v0.78.0)',
         priority: 'PRIMARY',
         items: [
-            'API Health: GET api.opsflowbetter.com/health returns status:ok and kv:bound',
-            'KV Write: PUT /kv/test_key with X-Upload-Secret returns ok:true',
-            'KV Read: GET /kv/test_key returns the value just written',
-            'KV Delete: DELETE /kv/test_key returns ok:true, deleted:true',
-            'KV Auth: Request without X-Upload-Secret returns 401 Unauthorized',
-            'KV Version: GET /kv/opsflow_version returns "0.77.0"',
+            'Workshop \u2192 Materials Library: ML.1 card shows single Supplier field (not Primary/Backup)',
+            'Workshop \u2192 Materials Library: ML.1 card shows single Price per kg field (not Primary/Backup prices)',
+            'Workshop \u2192 Materials Library: Cost per gram auto-calculates from Price per kg',
+            'Workshop \u2192 Materials Library: AI Assist prompt asks for Cost per kg and Popular Suppliers (not primary/backup)',
+            'Workshop \u2192 Materials Library: Mark as Complete validates name + price per kg',
         ]
     },
     {
-        title: 'Sync Helper Integration (v0.77.0)',
+        title: 'Data Migration (v0.78.0)',
         priority: 'PRIMARY',
         items: [
-            'All 8 P2M pages load opsflow-sync.js without console errors',
-            'LaunchPad loads opsflow-sync.js without console errors',
-            'Version displays correctly on all pages (v0.77.0)',
-            'Set opsflow_upload_secret in localStorage \u2014 OpsFlow.backupAll() in console works',
-            'Clear localStorage, reload \u2014 auto-restore recovers data from KV',
+            'Migration: Old test materials with supplierPrimary/costPrimary fields are cleared',
+            'Migration: Materials Library resets to single PETG-HF default card',
+            'Migration: Adding a new material card works with new field structure',
         ]
     },
     {
-        title: 'Versions & Changelog (v0.77.0)',
+        title: 'Backlog & Versions (v0.78.0)',
         priority: null,
         items: [
-            'Changelog: v0.77.0 entry shows KV Data Store + Sync Helper + Dynamic Versions',
-            'Changelog: Version counter shows 104',
-            'LaunchPad shows v0.77.0 in top bar',
-            'All 8 P2M pages show v0.77.0 in their version line',
+            'Tasks \u2192 Backlog: "P3.1 Material Bill per Product" exists in SOON section',
+            'Tasks \u2192 Backlog: "P3.1 COGS Auto-Calculate from Materials Library" exists in SOON section',
+            'Changelog: v0.78.0 entry shows Materials Library Restructure',
+            'Changelog: Version counter shows 105',
+            'All 9 pages show v0.78.0',
         ]
     }
 ];

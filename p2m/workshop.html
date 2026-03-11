@@ -810,7 +810,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop <span class="suite-ver">v0.77.0</span></p>
+            <p class="version">Workshop <span class="suite-ver">v0.78.0</span></p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -996,7 +996,7 @@
     ];
 
     var DEFAULT_MATERIALS = [
-        { id: 'm1', name: 'PETG-HF', type: 'PETG (High Flow)', color: 'Various', costKg: '12.99', costGram: '0.01299', stock: '10', supplier: 'Bambu Lab (10+ roll bulk pricing)', supplierPrimary: 'Bambu Lab', costPrimary: '12.99', supplierBackup: '', costBackup: '' }
+        { id: 'm1', name: 'PETG-HF', type: 'PETG (High Flow)', color: 'Various', costKg: '12.99', costGram: '0.01299', stock: '10', supplier: 'Bambu Lab' }
     ];
 
     var DEFAULT_SOFTWARE = [
@@ -1096,6 +1096,23 @@
         // v0.73.0: Remove W3.5 Packaging Defaults (moved to Pipeline P4.1)
         if (s.statics && s.statics['3.5']) {
             delete s.statics['3.5'];
+        }
+
+        // v0.78.0: Materials Library restructure — one filament, one supplier per card
+        // Clean up old primary/backup fields and reset test data to clean slate
+        if (s.materials && s.materials.length > 0) {
+            var needsReset = false;
+            for (var mi = 0; mi < s.materials.length; mi++) {
+                if (s.materials[mi].supplierPrimary !== undefined || s.materials[mi].costPrimary !== undefined) {
+                    needsReset = true;
+                    break;
+                }
+            }
+            if (needsReset) {
+                // Reset to single default material — user will re-enter fresh cards
+                s.materials = DEFAULT_MATERIALS.map(function(m) { return Object.assign({}, m, { status_led: 'red', verified: false }); });
+                if (s.nextDynId) s.nextDynId.materials = 2;
+            }
         }
 
         if (!s.statics || !s.statics['1.2'] || !s.statics['1.2'].values) return;
@@ -1376,8 +1393,8 @@
 
     var MATERIALS_PROMPT_FIELDS = [
         { key: 'type',     promptLabel: 'Material Type',    parseKeys: ['material type', 'type', 'category'],  numeric: false },
-        { key: 'costPrimary', promptLabel: 'Cost per kg',   parseKeys: ['cost per kg', 'cost/kg', 'price per kg', 'price/kg'], numeric: true, unit: 'USD' },
-        { key: 'supplierPrimary', promptLabel: 'Popular Suppliers', parseKeys: ['popular suppliers', 'suppliers', 'supplier', 'vendor', 'where to buy'], numeric: false }
+        { key: 'costKg',   promptLabel: 'Cost per kg',      parseKeys: ['cost per kg', 'cost/kg', 'price per kg', 'price/kg'], numeric: true, unit: 'USD' },
+        { key: 'supplier', promptLabel: 'Popular Suppliers', parseKeys: ['popular suppliers', 'suppliers', 'supplier', 'vendor', 'where to buy'], numeric: false }
     ];
 
     // Machine Economics AI-fillable fields (one prompt fills W3.1 + W3.2)
@@ -1838,7 +1855,7 @@
                 state.materials.forEach(function(mat, idx) {
                     var mlNum = 'ML.' + (idx + 1);
                     var matTitle = (mat.name || 'New Material');
-                    var matEffCost = Math.max(parseFloat(mat.costPrimary) || 0, parseFloat(mat.costBackup) || 0) || parseFloat(mat.costKg) || 0;
+                    var matEffCost = parseFloat(mat.costKg) || 0;
                     var matDesc = (mat.type || 'Unconfigured') + '\n$' + (matEffCost > 0 ? matEffCost.toFixed(2) : '—') + '/kg';
                     content.appendChild(createCard('mat-' + mat.id, mlNum, matTitle, matDesc, 'Material costs', mat.status_led, function(mid) {
                         return function() { openMaterialCard(mid); };
@@ -2290,7 +2307,7 @@
         var matToggleBtn = document.createElement('button');
         matToggleBtn.id = 'btnAiToggle';
         if (hasName) {
-            var matHasEmpty = !mat.type || !mat.costPrimary || !mat.supplierPrimary;
+            var matHasEmpty = !mat.type || !mat.costKg || !mat.supplier;
             var matAiConfig = createClaudePromptConfig(MATERIALS_PROMPT_FIELDS, mat, getMaterialIntro(mat));
             matToggleBtn.className = 'ai-assist-toggle' + (matHasEmpty ? ' expanded' : '');
             matToggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
@@ -2303,7 +2320,7 @@
         var matAiBody = document.createElement('div');
         matAiBody.id = 'aiAssistBody';
         if (hasName) {
-            var matHasEmpty2 = !mat.type || !mat.costPrimary || !mat.supplierPrimary;
+            var matHasEmpty2 = !mat.type || !mat.costKg || !mat.supplier;
             matAiBody.className = 'ai-assist-body' + (matHasEmpty2 ? ' show' : '');
             matAiBody.innerHTML =
                 '<div class="ai-assist-label">Your Prompt:</div>' +
@@ -2329,10 +2346,8 @@
             { key: 'name', label: 'Material Name', placeholder: 'PETG-HF' },
             { key: 'type', label: 'Type', placeholder: 'PETG (High Flow)' },
             { key: 'color', label: 'Color', placeholder: 'Various' },
-            { key: 'supplierPrimary', label: 'Primary Supplier', placeholder: 'Bambu Lab', hint: 'Where you usually buy this material' },
-            { key: 'costPrimary', label: 'Primary Price per kg ($)', placeholder: '30' },
-            { key: 'supplierBackup', label: 'Backup Supplier', placeholder: 'PolyMaker', hint: 'Alternative source (optional)' },
-            { key: 'costBackup', label: 'Backup Price per kg ($)', placeholder: '35' },
+            { key: 'supplier', label: 'Supplier', placeholder: 'Bambu Lab', hint: 'One supplier per card &mdash; add another card for a different supplier' },
+            { key: 'costKg', label: 'Price per kg ($)', placeholder: '12.99' },
             { key: 'stock', label: 'Stock on Hand (kg)', placeholder: '10' }
         ];
 
@@ -2345,20 +2360,15 @@
             fieldsDiv.appendChild(group);
         });
 
-        // Cost per kg = higher of primary and backup (conservative costing)
-        var pCost = parseFloat(mat.costPrimary) || 0;
-        var bCost = parseFloat(mat.costBackup) || 0;
-        var effectiveCostKg = Math.max(pCost, bCost);
-        // Migrate: if old costKg exists and no primary/backup, use costKg as primary
-        if (!pCost && !bCost && mat.costKg) effectiveCostKg = parseFloat(mat.costKg) || 0;
-        var cpg = effectiveCostKg > 0 ? (effectiveCostKg / 1000).toFixed(3) : '\u2014';
-        var costSource = (bCost > 0 && bCost > pCost) ? 'Using backup price (highest)' : (pCost > 0 ? 'Using primary price' : 'Enter supplier prices');
+        // Cost per gram from costKg
+        var effectiveCostKg = parseFloat(mat.costKg) || 0;
+        var cpg = effectiveCostKg > 0 ? (effectiveCostKg / 1000).toFixed(5) : '\u2014';
 
         var calcGroup = document.createElement('div');
         calcGroup.className = 'field-group';
-        calcGroup.innerHTML = '<label class="field-label field-label-calc">COGS Cost per kg ($) <span class="calc-badge">Auto-calculated</span></label>' +
+        calcGroup.innerHTML = '<label class="field-label field-label-calc">Cost per gram ($) <span class="calc-badge">Auto-calculated</span></label>' +
             '<div class="field-calculated">$' + (effectiveCostKg > 0 ? effectiveCostKg.toFixed(2) : '\u2014') + '/kg \u2192 $' + cpg + '/g</div>' +
-            '<div class="field-hint">' + costSource + ' \u2014 always uses the higher price for conservative costing</div>';
+            '<div class="field-hint">Used for COGS calculations in the Pipeline</div>';
         fieldsDiv.appendChild(calcGroup);
         body.appendChild(fieldsDiv);
 
@@ -2381,11 +2391,10 @@
         if (!requireEdit('mark complete')) return;
         var m = state.materials.find(function(x) { return x.id === id; });
         if (!m) return;
-        var mEffCost = Math.max(parseFloat(m.costPrimary) || 0, parseFloat(m.costBackup) || 0) || parseFloat(m.costKg) || 0;
-        if (!m.name || mEffCost <= 0) { showToast('Please fill in at least the material name and a supplier price', 'error'); return; }
+        var mEffCost = parseFloat(m.costKg) || 0;
+        if (!m.name || mEffCost <= 0) { showToast('Please fill in at least the material name and price per kg', 'error'); return; }
         m.verified = true;
-        m.costKg = mEffCost.toString();
-        m.costGram = (mEffCost / 1000).toFixed(3);
+        m.costGram = (mEffCost / 1000).toFixed(5);
         render();
         openMaterialCard(id);
     }
@@ -2661,7 +2670,7 @@
             openFleetCard(id);
         } else if (phaseNum === 4) {
             var id = 'm' + state.nextDynId.materials++;
-            state.materials.push({ id: id, name: '', type: '', color: '', costKg: '', costGram: '', stock: '', supplierPrimary: '', costPrimary: '', supplierBackup: '', costBackup: '', status_led: 'red', verified: false });
+            state.materials.push({ id: id, name: '', type: '', color: '', costKg: '', costGram: '', stock: '', supplier: '', status_led: 'red', verified: false });
             render();
             openMaterialCard(id);
         } else if (phaseNum === 6) {

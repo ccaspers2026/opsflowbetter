@@ -449,7 +449,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks <span class="suite-ver">v0.77.0</span></p>
+        <p class="version">Tasks <span class="suite-ver">v0.78.0</span></p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -469,7 +469,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">104</div>
+        <div class="num" style="color:#3fb950;">105</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -508,6 +508,22 @@
     </div>
 
     <!-- ── SOON (medium) ── -->
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">P3.1 Material Bill per Product</div>
+            <div class="desc">Add ability to assign material types and quantities (grams) per product in P2M Pipeline. Each product can use multiple materials (e.g., PETG-HF body + TPU bumpers + PLA supports). Material bill feeds into COGS auto-calculation. Requires Materials Library to be populated first.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Pipeline / Workshop &bull; v0.78.0 Materials Library review</div>
+        </div>
+    </div>
+    <div class="task">
+        <span class="priority medium"></span>
+        <div class="content">
+            <div class="title">P3.1 COGS Auto-Calculate from Materials Library</div>
+            <div class="desc">Auto-calculate material cost component of COGS using Material Bill &times; worst-case price from Materials Library. For each material type used, use the highest price across all supplier cards for that type (conservative costing). Sums across all material types for total material cost per unit.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Pipeline / Workshop &bull; v0.78.0 Materials Library review</div>
+        </div>
+    </div>
     <div class="task">
         <span class="priority medium"></span>
         <div class="content">
@@ -2925,6 +2941,38 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.77.0_complete_t085_t086');
+    }
+
+    // ── v0.78.0: Add P3.1 Material Bill + COGS Auto-Calculate backlog items ──
+    if (ran.indexOf('v0.78.0_materials_backlog') === -1) {
+        var exists1 = false, exists2 = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].title.indexOf('Material Bill per Product') !== -1) exists1 = true;
+            if (data.backlog[i].title.indexOf('COGS Auto-Calculate') !== -1) exists2 = true;
+        }
+        if (!exists1) {
+            data.backlog.push({
+                id: 'bl_v0780_material_bill',
+                title: 'P3.1 Material Bill per Product',
+                desc: 'Add ability to assign material types and quantities (grams) per product in P2M Pipeline. Each product can use multiple materials (e.g., PETG-HF body + TPU bumpers + PLA supports). Material bill feeds into COGS auto-calculation. Requires Materials Library to be populated first.',
+                tag: 'FEATURE',
+                meta: 'Pipeline / Workshop \u2022 v0.78.0 Materials Library review',
+                priority: 'medium'
+            });
+            changed = true;
+        }
+        if (!exists2) {
+            data.backlog.push({
+                id: 'bl_v0780_cogs_auto',
+                title: 'P3.1 COGS Auto-Calculate from Materials Library',
+                desc: 'Auto-calculate material cost component of COGS using Material Bill \u00d7 worst-case price from Materials Library. For each material type used, use the highest price across all supplier cards for that type (conservative costing). Sums across all material types for total material cost per unit.',
+                tag: 'FEATURE',
+                meta: 'Pipeline / Workshop \u2022 v0.78.0 Materials Library review',
+                priority: 'medium'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.78.0_materials_backlog');
     }
 
     if (changed) saveTasks(data);

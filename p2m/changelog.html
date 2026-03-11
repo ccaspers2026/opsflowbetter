@@ -297,20 +297,20 @@
         <div class="p2m-header">
             <div>
                 <h1>Changelog</h1>
-                <p class="version">Changelog <span class="suite-ver">v0.77.0</span></p>
+                <p class="version">Changelog <span class="suite-ver">v0.78.0</span></p>
                 <p class="tagline">Version history &mdash; every change, every commit</p>
             </div>
         </div>
 
         <div class="current-version">
             <span class="version-badge">CURRENT</span>
-            <h2>Version 0.77.0 - Cloudflare KV Data Store &amp; Sync</h2>
-            <p>Released March 10, 2026 &mdash; Cloudflare Worker extended with KV namespace for centralized data storage. New shared opsflow-sync.js helper auto-syncs localStorage to KV on every page, auto-restores if localStorage is wiped, and dynamically sets version from KV. Stepping stone toward full database migration. Architecture diagram backlog items added for all major subsystems.</p>
+            <h2>Version 0.78.0 - Materials Library Restructure</h2>
+            <p>Released March 10, 2026 &mdash; Materials Library simplified to one filament type per card, one supplier per card. Removed primary/backup supplier complexity in favor of clean, single-vendor entries. COGS calculation updated. Migration resets test data to clean slate. Two new SOON backlog items added for future P3.1 Material Bill per Product and COGS Auto-Calculate from Materials Library.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">104</div>
+                <div class="stat-value">105</div>
                 <div class="stat-label">Versions</div>
             </div>
             <div class="stat">
@@ -332,6 +332,21 @@
         </div>
 
         <div class="timeline">
+
+            <!-- v0.78.0 -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v0.78.0</span>
+                    <span class="version-date">March 10, 2026</span>
+                </div>
+                <span class="tag tag-update">UPDATE</span>
+                <ul>
+                    <li><strong>Materials Library Restructure (T-005):</strong> Simplified from primary/backup supplier model to one filament type + one supplier per card. Removed supplierPrimary, costPrimary, supplierBackup, costBackup fields. Single supplier and costKg fields. COGS calculation simplified</li>
+                    <li><strong>AI Assist Updated:</strong> Materials prompt fields updated to match new single-supplier card structure</li>
+                    <li><strong>Data Migration:</strong> Existing materials with old primary/backup fields reset to clean default (PETG-HF). User re-enters fresh cards with simplified structure</li>
+                    <li><strong>New Backlog (SOON):</strong> P3.1 Material Bill per Product, P3.1 COGS Auto-Calculate from Materials Library &mdash; future integration between Materials Library and Pipeline COGS</li>
+                </ul>
+            </div>
 
             <!-- v0.77.0 -->
             <div class="version-entry">
