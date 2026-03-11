@@ -3472,6 +3472,58 @@ function runMigrations() {
         markMigrationRun('v0.82.0_complete_kv_backlog');
     }
 
+    // ── v0.82.1: Seed tester config for HTML entity sweep (T-088) ──
+    if (ran.indexOf('v0.82.1_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            version: 'v0.82.1',
+            sections: [
+                {
+                    title: 'HTML Entity Sweep \u2014 Workshop (T-088)',
+                    priority: 'PRIMARY',
+                    items: [
+                        'W1.3 hint: "Services & Integrations" renders & not &amp;',
+                        'W1.3 purpose: em-dash renders as \u2014 not &mdash;',
+                        'Edit & Re-verify buttons show & not &amp;',
+                        'AI Assist hint: "brand & model" renders correctly',
+                        'Color tag \u00D7 remove button renders correctly'
+                    ]
+                },
+                {
+                    title: 'HTML Entity Sweep \u2014 Services (T-088)',
+                    priority: 'PRIMARY',
+                    items: [
+                        'Category headers: Sales & Marketing, Operations & Planning render correctly',
+                        'Service descriptions: all & symbols render correctly (Helium 10, Seller Central, etc.)',
+                        'Edit form populates desc without &amp; workaround'
+                    ]
+                },
+                {
+                    title: 'HTML Entity Sweep \u2014 Other Pages (T-088)',
+                    priority: null,
+                    items: [
+                        'Pipeline: "Save & Upload" button renders correctly',
+                        'Pipeline: "Uploaded to R2 & URL saved" renders correctly',
+                        'Media Center: size arrows show \u2192 not &rarr;',
+                        'Media Center: "Uploading\u2026" and "Processing\u2026" show ellipsis correctly',
+                        'Feedback: empty state em-dash renders as \u2014',
+                        'Tasks: PQ heading em-dash renders as \u2014',
+                        'Tasks: backlog \u00D7 delete and \u2191 promote buttons render correctly',
+                        'LaunchPad: sphere \u00D7 delete button renders correctly'
+                    ]
+                },
+                {
+                    title: 'Versions & Infrastructure (v0.82.1)',
+                    priority: null,
+                    items: [
+                        'All 9 pages show v0.82.1',
+                        'No console errors on any page'
+                    ]
+                }
+            ]
+        });
+        markMigrationRun('v0.82.1_seed_tester_config');
+    }
+
     if (changed) saveTasks(data);
 }
 

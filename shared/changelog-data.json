@@ -1,5 +1,17 @@
 [
   {
+    "version": "v0.82.1",
+    "date": "March 11, 2026",
+    "tag": "FIX",
+    "title": "HTML Entity Sweep Suite-Wide",
+    "items": [
+      "HTML Entity Sweep (T-088): Replaced HTML entities (&mdash; &amp; &times; &bull; &rarr; &hellip; &rsquo; &uarr;) with Unicode equivalents in all JavaScript strings across 8 files. Prevents double-escaping when strings pass through escHtml() or innerHTML assignment",
+      "Affected pages: Workshop (hint text, purpose strings, buttons), Services (descriptions, category labels), Pipeline (upload UI), Media Center (status arrows, ellipsis), Feedback, Tasks, Changelog, LaunchPad",
+      "Removed &amp; decode workaround in services.html edit form (no longer needed with clean source data)",
+      "Workflow doc updated: new rule to embed workflow actions in task plans, updated HTML entity gotcha for JS strings vs raw HTML"
+    ]
+  },
+  {
     "version": "v0.82.0",
     "date": "March 11, 2026",
     "tag": "INFRA",
