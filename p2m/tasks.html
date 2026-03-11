@@ -3133,6 +3133,30 @@ function runMigrations() {
         markMigrationRun('v0.79.0_tester_rework_status');
     }
 
+    // ── v0.79.0 rework: Move T-013 and T-009 to Recently Completed ──
+    if (ran.indexOf('v0.79.0_complete_t013_t009') === -1) {
+        var doneItems = [
+            { match: 'Electricity rate calculation instructions', version: 'v0.79.0', note: 'Collapsible instructions added to W1.1 card with 5-step utility bill guide' },
+            { match: 'Add fleet capacity value calculation', version: 'v0.79.0', note: 'Fleet capacity summary bar shows total hrs/day and hrs/week across active printers' }
+        ];
+        if (!data.completed) data.completed = [];
+        for (var c = 0; c < doneItems.length; c++) {
+            for (var i = data.priority.length - 1; i >= 0; i--) {
+                if (data.priority[i].title && data.priority[i].title.indexOf(doneItems[c].match) !== -1) {
+                    var item = data.priority.splice(i, 1)[0];
+                    item.status = 'done';
+                    item.completedAt = '2026-03-11';
+                    item.completedVersion = doneItems[c].version;
+                    item.completionNote = doneItems[c].note;
+                    data.completed.unshift(item);
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        markMigrationRun('v0.79.0_complete_t013_t009');
+    }
+
     if (changed) saveTasks(data);
 }
 
