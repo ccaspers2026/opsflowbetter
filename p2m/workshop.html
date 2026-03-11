@@ -996,7 +996,7 @@
     ];
 
     var DEFAULT_MATERIALS = [
-        { id: 'm1', type: 'PETG-HF', color: 'Various', costKg: '12.99', costGram: '0.01299', stock: '10', supplier: 'Bambu Lab' }
+        { id: 'm1', type: 'PETG-HF', color: 'Various', costKg: '12.99', costGram: '0.01299', supplier: 'Bambu Lab' }
     ];
 
     var DEFAULT_SOFTWARE = [
@@ -2352,8 +2352,7 @@
             { key: 'type', label: 'Type', placeholder: 'PETG-HF', hint: 'Filament type &mdash; one card per type per supplier' },
             { key: 'supplier', label: 'Supplier', placeholder: 'Bambu Lab', hint: 'One supplier per card &mdash; add another card for a different supplier' },
             { key: 'color', label: 'Color', placeholder: 'Various' },
-            { key: 'costKg', label: 'Price per kg ($)', placeholder: '12.99' },
-            { key: 'stock', label: 'Stock on Hand (kg)', placeholder: '10' }
+            { key: 'costKg', label: 'Price per kg ($)', placeholder: '12.99' }
         ];
 
         fields.forEach(function(f) {
@@ -2687,7 +2686,7 @@
             openFleetCard(id);
         } else if (phaseNum === 4) {
             var id = 'm' + state.nextDynId.materials++;
-            state.materials.push({ id: id, type: '', color: '', costKg: '', costGram: '', stock: '', supplier: '', status_led: 'red', verified: false });
+            state.materials.push({ id: id, type: '', color: '', costKg: '', costGram: '', supplier: '', status_led: 'red', verified: false });
             render();
             openMaterialCard(id);
         } else if (phaseNum === 6) {
