@@ -547,7 +547,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.78.0</span></p>
+        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.79.0</span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -630,38 +630,44 @@ var _testerConfig = (function() {
     return null;
 })();
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.78.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.79.0';
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Materials Library Restructure (v0.78.0)',
+        title: 'W1.1 Electricity Rate Instructions (v0.79.0)',
         priority: 'PRIMARY',
         items: [
-            'Workshop \u2192 Materials Library: ML.1 card shows single Supplier field (not Primary/Backup)',
-            'Workshop \u2192 Materials Library: ML.1 card shows single Price per kg field (not Primary/Backup prices)',
-            'Workshop \u2192 Materials Library: Cost per gram auto-calculates from Price per kg',
-            'Workshop \u2192 Materials Library: AI Assist prompt asks for Cost per kg and Popular Suppliers (not primary/backup)',
-            'Workshop \u2192 Materials Library: Mark as Complete validates name + price per kg',
+            'Workshop \u2192 W1.1: Open card \u2192 "How to calculate this value" toggle visible below Purpose',
+            'Workshop \u2192 W1.1: Click toggle \u2192 instructions expand with 5-step guide',
+            'Workshop \u2192 W1.1: Click toggle again \u2192 instructions collapse',
+            'Workshop \u2192 W1.1: Hint text updated (no longer Duke Energy specific)',
         ]
     },
     {
-        title: 'Data Migration (v0.78.0)',
+        title: 'Fleet Capacity Summary (v0.79.0)',
         priority: 'PRIMARY',
         items: [
-            'Migration: Old test materials with supplierPrimary/costPrimary fields are cleared',
-            'Migration: Materials Library resets to single PETG-HF default card',
-            'Migration: Adding a new material card works with new field structure',
+            'Workshop \u2192 Phase 2: Capacity summary bar shows below fleet cards',
+            'Workshop \u2192 Phase 2: Summary shows total hrs/day and hrs/week across active printers',
+            'Workshop \u2192 Phase 2: Capacity numbers match sum of Productive Hours/Day across 7 printers',
         ]
     },
     {
-        title: 'Backlog & Versions (v0.78.0)',
+        title: 'PQ Cleanup (v0.79.0)',
         priority: null,
         items: [
-            'Tasks \u2192 Backlog: "P3.1 Material Bill per Product" exists in SOON section',
-            'Tasks \u2192 Backlog: "P3.1 COGS Auto-Calculate from Materials Library" exists in SOON section',
-            'Changelog: v0.78.0 entry shows Materials Library Restructure',
-            'Changelog: Version counter shows 105',
-            'All 9 pages show v0.78.0',
+            'Tasks \u2192 PQ: Down to 3 items (T-009 fleet capacity, T-013 W1.1, T-030 W1.2)',
+            'Tasks \u2192 Recently Completed: T-004, T-005, T-006, T-007, T-008, T-012 present',
+            'Tasks \u2192 PQ: T-009 title updated to "Add fleet capacity value calculation"',
+        ]
+    },
+    {
+        title: 'Versions & Changelog (v0.79.0)',
+        priority: null,
+        items: [
+            'Changelog: v0.79.0 entry shows Workshop Instructions & Fleet Capacity',
+            'Changelog: Version counter shows 106',
+            'All 9 pages show v0.79.0',
         ]
     }
 ];
