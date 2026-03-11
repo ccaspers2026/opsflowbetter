@@ -1,0 +1,1509 @@
+[
+  {
+    "version": "v0.82.0",
+    "date": "March 11, 2026",
+    "tag": "INFRA",
+    "title": "KV Cache Architecture & Data-Driven Pages",
+    "items": [
+      "Full KV Cache Layer (T-089): New OpsFlow.get(key) and OpsFlow.set(key, data) API with stale detection. KV is source of truth, localStorage is cache. Stale threshold of 5 minutes triggers KV refresh. Graceful degradation when KV unreachable",
+      "Data-Driven Changelog: Timeline rendered entirely from JSON data (localStorage/KV/static file). Changelog HTML reduced from 2275 lines to ~290 lines. New shared/changelog-data.json as seed file. Zero hardcoded timeline entries in HTML",
+      "Data-Driven Tester Config: TEST_VERSION and TEST_SECTIONS loaded from opsflow_tester_config (localStorage/KV). Tester HTML no longer needs version-specific edits on each version bump",
+      "All P2M Pages Migrated: Every page converted from direct localStorage.getItem/setItem to OpsFlow.getLocal()/OpsFlow.set(). Unified data access pattern across Pipeline, Workshop, Services, Media, Tasks, Feedback, Tester, LaunchPad",
+      "SYNC_KEYS Audit & Fix: Corrected mismatches between SYNC_KEYS and actual localStorage key names (opsflow_tasks vs opsflow_tasks_v2, opsflow_workshop vs workshopState_v2). All keys now match reality",
+      "Script Load Order: opsflow-sync.js moved before main script blocks on all 9 pages so OpsFlow API is available during initialization"
+    ]
+  },
+  {
+    "version": "v0.81.0",
+    "date": "March 11, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Task Status Lifecycle & Archive (T-091): Status cycle updated to New → Discussing → In Progress → Done (terminal, no wrap). Archive button appears on Done items — click to move to Recently Completed with timestamp. Claude auto-updates statuses during workflow steps",
+      "Lessons Learned Workflow Step (T-090): After each version’s testing completes, Claude delivers a brief retro summary before reviewing the PQ — covering what shipped, what went well, improvements, and patterns discovered"
+    ]
+  },
+  {
+    "version": "v0.80.0",
+    "date": "March 11, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Tester REWORK Status (T-087): When any test item is marked FAIL, the HALT banner enters amber REWORK state with pulsing animation. Complete Testing button is disabled and shows FAIL count. Alert blocks completion until all FAILs are flipped to PASS. Prevents premature test completion with unresolved failures",
+      "Feedback Section Removed from Tester (T-071): Feedback form (category, priority, text input) removed from Tester page — now a standalone page at feedback.html. Tester page refocused on testing workflow only. Page title updated from “Test & Feedback” to “Tester”"
+    ]
+  },
+  {
+    "version": "v0.79.0",
+    "date": "March 11, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "W1.1 Electricity Rate Instructions (T-013): Collapsible “How to calculate this value” section with step-by-step guide for deriving per-kWh rate from a utility bill. Covers energy charges, tiered rates, time-of-use pricing, and sanity-check range",
+      "Fleet Capacity Summary (T-009): Phase 2 now shows total productive hours/day and hours/week across all active printers below the fleet cards. Auto-updates when fleet changes",
+      "PQ Cleanup: 6 completed items (T-004, T-005, T-006, T-007, T-008, T-012) moved to Recently Completed. T-009 split into done (verification) and remaining (capacity calc). Process review backlog items added"
+    ]
+  },
+  {
+    "version": "v0.78.0",
+    "date": "March 10, 2026",
+    "tag": "UPDATE",
+    "title": null,
+    "items": [
+      "Materials Library Restructure (T-005): Simplified from primary/backup supplier model to one filament type + one supplier per card. Removed supplierPrimary, costPrimary, supplierBackup, costBackup fields. Single supplier and costKg fields. COGS calculation simplified",
+      "AI Assist Updated: Materials prompt fields updated to match new single-supplier card structure",
+      "Data Migration: Existing materials with old primary/backup fields reset to clean default (PETG-HF). User re-enters fresh cards with simplified structure",
+      "New Backlog (SOON): P3.1 Material Bill per Product, P3.1 COGS Auto-Calculate from Materials Library — future integration between Materials Library and Pipeline COGS"
+    ]
+  },
+  {
+    "version": "v0.77.0",
+    "date": "March 10, 2026",
+    "tag": "INFRA",
+    "title": null,
+    "items": [
+      "Cloudflare KV Data Store (T-085/T-086): Extended existing Worker with KV namespace binding. New API endpoints: GET/PUT/DELETE /kv/:key, GET /kv-list, POST /kv-bulk. All authenticated via X-Upload-Secret. Stepping stone to full database migration",
+      "Shared Sync Helper (opsflow-sync.js): New shared JS module loaded on every page. Auto-sets version from KV, backs up localStorage to KV on page unload, auto-restores from KV if localStorage is wiped. Recovery mode for browser data loss",
+      "Dynamic Version Display: All 9 pages now use <span class=\"suite-ver\"> for version numbers, updated dynamically by opsflow-sync.js from KV. Eliminates need to manually edit version strings in HTML",
+      "Architecture Diagram Backlog: Added 6 sub-items under existing architecture diagrams parent task: P2M Pipeline, Workshop Calc Engine, Suite Topology, Data Storage & Sync, Image Pipeline, Services Flow",
+      "Secret Rotation: Rotated UPLOAD_SECRET and REMOVEBG_API_KEY to fresh GUIDs"
+    ]
+  },
+  {
+    "version": "v0.76.0",
+    "date": "March 10, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "LaunchPad Admin Mode (T-083): Gear icon in top bar toggles admin mode. Add, edit, and delete sphere shortcuts via modal form. Create new groups and rename existing ones by clicking the group label. All changes save to localStorage",
+      "Rework: “New” status badge color changed from invisible dark grey to visible light grey (#c9d1d9) so it actually shows on dark background"
+    ]
+  },
+  {
+    "version": "v0.75.0",
+    "date": "March 10, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Unique Task IDs: Every PQ and Backlog item now has a permanent ID (T-001, T-002, etc.) that never changes regardless of sort order or position. Displayed on each task card for easy reference",
+      "Status LEDs: Task status cycles through 4 states: New (gray) → Discussing (yellow) → In Progress (blue, pulsing) → Done (green). Click to cycle. Both user and Claude can update",
+      "Primary/Backup Suppliers: Materials Library now has separate Primary and Backup Supplier fields with individual pricing. COGS always uses the higher of the two prices for conservative costing",
+      "Migration: Existing tasks auto-assigned IDs. Old “working” status migrated to “In Progress”. Old single supplier field preserved via costKg fallback"
+    ]
+  },
+  {
+    "version": "v0.74.0",
+    "date": "March 10, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Card Reference Labels: Materials Library cards now show ML.1, ML.2, etc. Software & Tools cards show ST.1, ST.2, etc. Fleet already had PF.1, PF.2 — all dynamic cards now have shorthand reference IDs",
+      "Detail panel headers: Opening any dynamic card shows its reference (e.g. “ML.1 — PETG-HF”) for quick identification",
+      "AI Prompt references: Fleet and material AI prompts now include the card reference (PF.x / ML.x) for context"
+    ]
+  },
+  {
+    "version": "v0.73.0",
+    "date": "March 10, 2026",
+    "tag": "REFACTOR",
+    "title": null,
+    "items": [
+      "W3.5 Removed: Packaging Defaults removed from Workshop Setup — packaging is product-specific and belongs in the Pipeline (P4.1 Packaging Design), not as a workshop-level default",
+      "Pipeline bridge updated: P3.1 COGS bridge no longer pulls packaging from Workshop — references P4.1 instead. P3.2 Pricing Strategy bridge cleaned up",
+      "Migration: Existing localStorage data cleaned up automatically — W3.5 state removed on load"
+    ]
+  },
+  {
+    "version": "v0.72.0",
+    "date": "March 10, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Machine Economics AI Assist: AI Assist on W3.1 generates a smart prompt from your fleet composition (models, prices, counts) and fills both W3.1 lifespan and W3.2 maintenance budget + hours/year in one paste",
+      "Card Locking: W3.1/W3.2 locked until all fleet cards are green, W3.3 locked until W1.1 + fleet verified, W3.4 locked until W3.1–W3.3 verified — enforces correct data entry order",
+      "Enhanced hints: Improved field hints on W3.1 (lifespan ranges), W3.2 (utilization guidance), W3.5 (packaging cost sources), with contextual help for new users facing blank fields"
+    ]
+  },
+  {
+    "version": "v0.71.2",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Clear AI Fields: New button appears on fleet and materials cards when all AI-fillable fields already have values — one click clears the fields, regenerates the prompt, and re-opens the card ready for a fresh AI lookup"
+    ]
+  },
+  {
+    "version": "v0.71.1",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Materials AI Assist: Materials Library cards now have AI Assist — enter material name, get prompt for type, cost/kg, and popular suppliers",
+      "Apply button gate: Apply button starts disabled across all AI Assist panels, enables only when paste field has content",
+      "Engine refactor: createClaudePromptConfig() now accepts introLine parameter — fully card-agnostic with getFleetIntro() and getMaterialIntro() helpers",
+      "Unified watcher: attachDynListeners AI Assist block handles both fleet and materials with card-specific config lookup"
+    ]
+  },
+  {
+    "version": "v0.71.0",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Brand field: New “Brand” field between Printer Name and Model — separates manufacturer from model number for cleaner data structure",
+      "AI Assist updated: Prompt now composes “I have a [Brand] [Model] 3D printer” using both fields; model removed from AI-fillable fields since user enters brand/model before AI Assist activates",
+      "Migration: Existing fleet data auto-splits combined model values (e.g., “Bambu Lab X1C” → brand: “Bambu Lab”, model: “X1C”) with smart lookup map and generic fallback",
+      "Vendor-neutral hint: AI Assist disabled hint updated to “enter brand & model to enable”"
+    ]
+  },
+  {
+    "version": "v0.70.1",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Model gate: AI Assist toggle disabled on new printers with hint “enter printer model to enable” — prevents dead-end prompts with placeholder text",
+      "Auto-expand: When user enters a model and tabs out, AI Assist auto-expands with prompt pre-generated and ready to copy",
+      "Model lookup list: Brand/model names persist to localStorage as users add printers — seeds from existing fleet on page load, future: dropdown typeahead",
+      "Refactored bindings: Copy and Apply button handlers extracted to reusable bindAiCopyBtn() and bindAiApplyBtn() functions"
+    ]
+  },
+  {
+    "version": "v0.70.0",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "AI Assist (beta): Fleet card detail panels now include a collapsible AI Assist section — generates a smart Claude prompt based on known values, user copies to Claude, pastes response, and fields auto-fill",
+      "Reusable engine: createClaudePromptConfig() accepts field definitions and current values, returns prompt + parser — designed for Suite-wide reuse",
+      "Response parser: Handles case-insensitive key:value pairs, numeric extraction, build volume normalization (256x256x256 → 256 x 256 x 256), and shows fill results",
+      "Build Volume rename: “Build Plate (mm)” → “Build Volume (mm)” with X×Y×Z format; migration adds Z dimension to existing 2D data",
+      "Backlog: Template Builder (Suite-wide template definitions) and Forms Builder (dynamic form generation) added as Later-priority items"
+    ]
+  },
+  {
+    "version": "v0.69.0",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "PF.X numbering: Fleet printer cards now display PF.1, PF.2, PF.3, etc. based on array position — auto-renumbers when printers are added or removed",
+      "Card display reorg: step-number shows PF.X, title shows printer name, description shows model, output shows status",
+      "Detail panel header: Shows “PF.X — Printer Name” format (e.g., PF.1 — Galileo Seven)",
+      "Data review: Confirmed all fleet fields (price, watts, status, hours, name, model, speed, plate) are sufficient for P2M pipeline flow",
+      "Feedback triage: 2 items from v0.61.2 and v0.67.1 moved to Backlog (product template, services indicator)"
+    ]
+  },
+  {
+    "version": "v0.68.0",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "W1.3 linked fields: Service Subscriptions and Breakdown auto-pull from Services page — filters to production, sales, and operations categories only (manufacturing costs, not general infrastructure)",
+      "W1.3 Total Monthly: Auto-calculated Internet + Service Subscriptions with full breakdown",
+      "remove.bg updated: Changed from credits ($0.20/credit) to Lite subscription ($8.10/mo) on Services page",
+      "Helium 10 fix: Corrected HTML default from $39/mo to FREE (trial)",
+      "Hover.com added: Domain registration ($15/yr) added to Services under Infrastructure",
+      "Backlog: Added AI product image tool evaluation and user-driven cost line items"
+    ]
+  },
+  {
+    "version": "v0.67.0",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Payment Structure dropdown: “How do you pay for your space?” — Mortgage with Escrow, Mortgage without Escrow, Rent, Own Outright — controls which cost fields are visible or disabled",
+      "disableWhen system: New conditional field disable (parallel to showWhen hide) — greyed-out fields with “Included in your escrow amount” hint",
+      "Escrow field: Monthly Escrow ($/mo) visible only for Mortgage with Escrow — bundles property tax & insurance",
+      "Rent & Own Outright: Rent shows Monthly Rent + Renter Insurance; Own Outright shows Property Tax + Insurance + Maintenance only",
+      "Allocated Cost: Calculation branches by payment structure — correct sum for each scenario"
+    ]
+  },
+  {
+    "version": "v0.66.1",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "W1.2 Calculation Method: Dropdown with Dedicated Business Space, US Home Office, and UK Home Office options — adapts visible fields based on selection",
+      "Cost breakdown: Replaced single “Monthly Cost” with Mortgage/Rent, Property Tax, Insurance, and Maintenance sub-fields",
+      "Auto-calculated: Business-Use % and Allocated Monthly Cost computed from square footage ratio and method selection",
+      "Conditional fields: Total Home Sq Ft hides when Dedicated Business Space is selected (100% allocation)"
+    ]
+  },
+  {
+    "version": "v0.66.0",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Status tracking: Clickable “Working” badge on PQ and Backlog items — pulsing green dot shows active task at a glance",
+      "Edit/Save: Inline editing for task titles and descriptions with pencil button, Save/Cancel controls, and Escape to cancel. Edit disabled on Working PQ items.",
+      "Promote to Backlog: “↑ Backlog” button on Feedback items (both Feedback and Tester pages) — maps category & priority, adds to Backlog, removes from Feedback"
+    ]
+  },
+  {
+    "version": "v0.65.4",
+    "date": "March 9, 2026",
+    "tag": "UPDATE",
+    "title": null,
+    "items": [
+      "Feedback triage: Processed 3 user feedback items into Backlog — task status tracking, inline edit/save, feedback-to-backlog promotion",
+      "Migrations: Injected 3 new Backlog items and cleared processed feedback from localStorage",
+      "Workflow doc: Fixed “all 7 pages” → “all 8 pages” in Step 2"
+    ]
+  },
+  {
+    "version": "v0.65.3",
+    "date": "March 9, 2026",
+    "tag": "FEATURE",
+    "title": null,
+    "items": [
+      "Feedback page: New standalone page at feedback.html — submit ideas, bugs, and notes without navigating to the Tester",
+      "Nav bar updated: “Feedback” link added between Tasks and Tester on all 8 P2M pages",
+      "Shared storage: Feedback form on both pages reads/writes the same localStorage key — items appear in both places"
+    ]
+  },
+  {
+    "version": "v0.65.2",
+    "date": "March 9, 2026",
+    "tag": "UPDATE",
+    "title": null,
+    "items": [
+      "W1.1 completed: Moved [WS] W1.1 Electricity Rate from Priority Queue to Recently Completed (51 total)",
+      "HTML PQ sync: Priority Queue HTML updated to match live localStorage state (W3.1 now Up Next)",
+      "Feedback-first rule: Added Step 0 to workflow — Claude reads Tester feedback before starting any work",
+      "Tester version fix: HTML source versionTag corrected from stale v0.58.0"
+    ]
+  },
+  {
+    "version": "v0.65.1",
+    "date": "March 9, 2026",
+    "tag": "UPDATE",
+    "title": null,
+    "items": [
+      "Backlog expansion: Added 31 new backlog items across 4 categories — [WS] Workshop (13), [SVC] Services (2), [KW] Keywords Everywhere (4), [AI] Claude Integration (12)",
+      "Processing type tags: Each backlog item tagged with (MANUAL), (ASSIST), or (AUTOMATE) in description for easy scanning and prioritization",
+      "W1.1 verified: Electricity Rate ($0.107/kWh) confirmed from Duke Energy bill and marked Green in Workshop. HTML default state updated as safety net.",
+      "Workflow doc: Added Keywords Everywhere API reference, Claude Integration Plan summary with automation levels, and updated current state"
+    ]
+  },
+  {
+    "version": "v0.65.0",
+    "date": "March 8, 2026",
+    "tag": "FEATURE",
+    "title": "Backlog Delete Action",
+    "items": [
+      "X delete button: Every Backlog card now has a red × button to remove unwanted items. Positioned before the Promote button for quick access",
+      "Confirm dialog: Browser confirm() prevents accidental deletes — shows item title so you know exactly what you’re removing",
+      "Auto-cleanup: The “Add X delete action” backlog item removed itself via migration — first completed Up Next item from the Priority Queue"
+    ]
+  },
+  {
+    "version": "v0.64.8",
+    "date": "March 8, 2026",
+    "tag": "FIX",
+    "title": "Sort Fix & Backlog Corrections",
+    "items": [
+      "Sort bug fixed: priOrder mapped high to 0 (falsy in JS) — 0 || 1 made Now items sort identically to Soon. Changed to { high:1, medium:2, low:3 } so all values are truthy",
+      "Debounce confirmed: 2-second deferred re-sort now works correctly for all priority transitions (Now ↔ Soon ↔ Later)",
+      "Backlog corrected: “Complete Testing” item updated to 2-state enable/disable spec matching user’s intent (disabled during TESTING IN PROGRESS, enabled when all items tested)",
+      "Architecture diagrams: New backlog item for building interactive arch diagrams across the Suite (Later priority)"
+    ]
+  },
+  {
+    "version": "v0.64.7",
+    "date": "March 8, 2026",
+    "tag": "FIX",
+    "title": "Priority LED UX & Feedback Pipeline",
+    "items": [
+      "Debounced re-sort: Priority LED click-to-cycle now updates in place — list re-sorts after 2 seconds of no clicks instead of immediately, preventing items from jumping away from cursor",
+      "PQ LEDs stable: Priority Queue LED cycling unchanged (PQ doesn’t sort by priority), but benefits from consistent UX pattern",
+      "Feedback → Backlog: 2 v0.64.6 feedback items triaged into Backlog — “X delete on Backlog items” (Soon) and “Complete Testing disable” (Later) — auto-cleared from feedback via migration",
+      "Dev self-testing: Added pre-handoff verification step to dev workflow — Claude visually checks live site before handing off to tester"
+    ]
+  },
+  {
+    "version": "v0.64.6",
+    "date": "March 8, 2026",
+    "tag": "FEATURE",
+    "title": "Backlog Sort & Clickable Priority LEDs",
+    "items": [
+      "Auto-sort: Backlog renders in priority order — Now (high) first, Soon (medium) middle, Later (low) last — sorted on every render and persisted",
+      "Click-to-cycle: Click any Backlog priority LED to cycle Now → Soon → Later → Now. Re-sorts automatically after change",
+      "HTML defaults sorted: Static HTML backlog reordered with Now/Soon/Later section comments for clean fallback seeding",
+      "Feedback processed: 2 improvement items (sort request + LED click request) addressed by this version’s code, auto-cleared via migration"
+    ]
+  },
+  {
+    "version": "v0.64.5",
+    "date": "March 8, 2026",
+    "tag": "FEATURE",
+    "title": "localStorage Migrations",
+    "items": [
+      "Migration system: Tasks page now runs keyed migrations on load — injects new backlog items and clears processed feedback directly into localStorage without requiring manual resets",
+      "First migrations: Workshop review (Now) and Priority LED feature (Now) injected into Backlog; Workshop feedback item auto-cleared from tester feedback",
+      "Migration tracking: Each migration runs once per browser via opsflow_tasks_migrations key — safe to re-run, idempotent, won’t duplicate items"
+    ]
+  },
+  {
+    "version": "v0.64.4",
+    "date": "March 8, 2026",
+    "tag": "FEATURE",
+    "title": "Priority LED Labels & Feedback Pipeline",
+    "items": [
+      "Priority LEDs: Backlog and PQ items now display Now/Soon/Later text labels next to their priority dot — high = Now (red), medium = Soon (orange), low = Later (blue)",
+      "Feedback → Backlog pipeline: Tester feedback items are triaged into Backlog at priority-appropriate positions (Now = top, Soon = middle, Later = bottom), then removed from feedback",
+      "New backlog items: Workshop review & process update (Now), Priority LED manual editing feature (Now) — 27 total backlog items",
+      "Workflow improvement: Established formal process — feedback drives tasks, tasks drive work, user controls promotion and sequencing"
+    ]
+  },
+  {
+    "version": "v0.64.3",
+    "date": "March 8, 2026",
+    "tag": "FEATURE",
+    "title": "Tester Auto-Reset",
+    "items": [
+      "Auto-reset: Tester page generates a fingerprint from TEST_SECTIONS content; when sections change for the same version, test state and HALT auto-clear on page load",
+      "Fresh tests guaranteed: No more manual “Reset Current Version” needed after dev pushes updated test items",
+      "Feedback preserved: Auto-reset only clears test results and HALT — submitted feedback items are never lost",
+      "Changelog backfill: Added missing v0.64.1 and v0.64.2 entries, updated Milestones 3 (90%) and 4 (38%), bumped Versions Shipped to 78"
+    ]
+  },
+  {
+    "version": "v0.64.2",
+    "date": "March 8, 2026",
+    "tag": "FIX",
+    "title": "LED First-Click Visual Sync",
+    "items": [
+      "First-click fix: cycleLED now reads the displayed auto-computed status (autoStatus) instead of the stored status, so the first click always produces a visible change",
+      "Visual consistency: Eliminates the “phantom click” where the first LED click appeared to do nothing because stored and displayed status were out of sync"
+    ]
+  },
+  {
+    "version": "v0.64.1",
+    "date": "March 8, 2026",
+    "tag": "FIX",
+    "title": "LED Date Advance & Toast Notification",
+    "items": [
+      "Date advance fix: Cycling LED to green now always pushes the renewal date forward by one billing cycle, then catches up if still past due",
+      "Toast notification: When cycling a LED to green on a service without a renewal period set, a toast guides the user to configure Monthly/Yearly in the edit modal",
+      "Version bump: All P2M pages updated to v0.64.1"
+    ]
+  },
+  {
+    "version": "v0.64.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "Interactive Tasks & LED Cycle",
+    "items": [
+      "Promote: Backlog items now have “↑ Promote” button to move them into the Priority Queue",
+      "Demote: PQ items have “↓ Backlog” button to send them back to Backlog",
+      "Reorder: PQ items have position dropdown to change their order in the queue",
+      "Persistence: Task state stored in localStorage (opsflow_tasks_v2), seeds from static HTML on first load",
+      "LED click-to-cycle: Click any service LED to cycle green → yellow → red → green",
+      "Auto-advance renewal: When cycling a service LED back to green, renewal date auto-advances by billing cycle (monthly/yearly)",
+      "Processed 3 v0.63.0 feedback items (all addressed by this version’s interactive tasks feature)"
+    ]
+  },
+  {
+    "version": "v0.63.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "Services & Integrations",
+    "items": [
+      "New page: Services & Integrations dashboard — third-party service tracker with LED status indicators",
+      "7 services: remove.bg, Helium 10, Amazon Seller Central, Cloudflare, Onshape, Monday.com, Calendly",
+      "Service cards: at-a-glance cost, credits, renewal date, billing type, and status LED per service",
+      "Smart status: LED auto-computes from renewal proximity and credit levels (green/yellow/red)",
+      "Management: add, edit, and delete services via modal — data persisted in localStorage",
+      "Categories: services grouped by Production Tools, Sales & Marketing, Operations, Infrastructure",
+      "LaunchPad: S&I sphere activated (was “UP NEXT”, now LIVE with purple glow)",
+      "Navigation: “Services” link added to P2M nav bar across all pages",
+      "Promoted 5 remaining feedback items to Backlog with priorities (19 total)",
+      "Feedback → Backlog flow established: promote or remove, no lingering items"
+    ]
+  },
+  {
+    "version": "v0.62.0",
+    "date": "March 7, 2026",
+    "tag": "UX",
+    "title": "Readability & Feedback Cleanup",
+    "items": [
+      "Grey text brightened: all #484f58 meta text upgraded to #8b949e for readability (recurring accessibility feedback)",
+      "Layout fix: Complete Testing bar moved above Feedback section per user request",
+      "Clear All Feedback: confirmation dialog now shows item count and detailed warning",
+      "Feedback audit: cleaned 20 completed/duplicate items from localStorage (30 → 10 remaining)",
+      "Backlog: added “Monday.com-style Workshop task manager” from v0.61.0 feedback"
+    ]
+  },
+  {
+    "version": "v0.61.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "Always-On Feedback",
+    "items": [
+      "Feedback decoupled from test sessions: submit ideas, bugs, or notes anytime without starting a test",
+      "Feedback no longer triggers HALT state — only PASS/FAIL/SKIP test interactions do",
+      "New storage format: flat array with version tags per item (migrates old format automatically)",
+      "Feedback items now display newest first with date + version in meta line",
+      "“Reset Current Version” no longer clears feedback — test data and feedback are independent",
+      "Separated admin actions: “Clear Test History” and “Clear All Feedback” as distinct buttons",
+      "Resolved localStorage defaults sync (Priority Queue #1) — already handled by build process"
+    ]
+  },
+  {
+    "version": "v0.60.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "Tester HALT Indicator & Priority LEDs",
+    "items": [
+      "HALT banner: RED pulsing LED when testing is in progress (“Do Not Modify”), GREEN when complete (“Ready for Dev”), grey when idle",
+      "HALT state triggers automatically on any PASS/FAIL/SKIP click or feedback submission",
+      "HALT state persists in localStorage per version — survives page refresh",
+      "Priority LED dropdown: Now (red), Soon (yellow), Later (blue) — defaults to Soon",
+      "Feedback items display colored LED dot + priority label in meta line",
+      "Backlog: added “Reduce repetitive manual testing” from v0.59.0 feedback"
+    ]
+  },
+  {
+    "version": "v0.59.0",
+    "date": "March 7, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "Card-Based LaunchPad Redesign",
+    "items": [
+      "Card groups: Tools & Personal sections now render as individual cards that dynamically flow via CSS Grid",
+      "Layout widened from 1000px to 1400px — uses full viewport width",
+      "Personal groups split into separate cards: Trading, Banking, Shopping, AI & Media",
+      "Amazon moved from Finance to Shopping group (it’s shopping, not banking)",
+      "Colored ground shadows: each sphere now casts a glow matching its color via CSS --glow variable",
+      "Grey text standardized with CSS custom properties: --text-dim (#8b949e), --text-primary (#c9d1d9), --text-bright (#e6edf3)",
+      "Responsive card grid: auto-fill with minmax(280px, 1fr) — flows on desktop, tablet, and mobile",
+      "Glow map in JS propagates --glow to sphere-item level for both hover glow and ground shadow"
+    ]
+  },
+  {
+    "version": "v0.58.0",
+    "date": "March 7, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "LaunchPad Tester Feedback & Layout Polish",
+    "items": [
+      "Bug fix: Capsule pills were collapsed — replaced two-div approach with split gradient on single element",
+      "S&I sphere label text brightened — opacity now only on sphere, not the label",
+      "Ground shadows reworked to subtle light reflection (dark-on-dark was invisible)",
+      "Version number added to LaunchPad upper-right corner",
+      "Layout tightened: reduced spacing, padding, and margins across all sections",
+      "Personal spheres grouped by category: Trading, Finance, AI & Media",
+      "Removed BG Removal carry-forward test (irrelevant to LaunchPad changes)",
+      "Backlog: Tasks/Tester root-level migration, favicon icons on spheres"
+    ]
+  },
+  {
+    "version": "v0.57.0",
+    "date": "March 7, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "LaunchPad Polish & Link Expansion",
+    "items": [
+      "Bug fix: GitHub sphere URL corrected from ccasperslocal to ccaspers2026",
+      "Added 8 new sphere links from Chrome homepage shortcuts",
+      "Tools: Seller Central, OnShape, Monday, Calendly added",
+      "Personal: TradingView, TraderSync, Discord, Claude added",
+      "Capsule pills reworked: full page names centered over two-tone pill (no more split words)",
+      "Ground shadows improved: higher opacity, blur filter, wider spread for better visibility",
+      "Tasks page updated with v0.56.0 tester feedback items in priority queue"
+    ]
+  },
+  {
+    "version": "v0.56.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "LaunchPad & Suite Navigation",
+    "items": [
+      "New LaunchPad page at root level (/launchpad.html) — future Chrome homepage",
+      "3D sphere links with radial gradients, inset shadows, specular highlights, and ground shadows",
+      "Three sections: Suite (P2M, Services & Integrations), Tools & Services (Helium 10, remove.bg, Cloudflare, GitHub), Personal (tastytrade, Truist, OptionStrat, YouTube, Amazon, ChatGPT)",
+      "Tools & Personal sections are localStorage-driven (opsflow_launchpad) — add/remove/change links without pushing code",
+      "P2M sub-links panel below Suite spheres for quick navigation into P2M pages",
+      "Time-based greeting (Good morning/afternoon/evening)",
+      "Hover effect: scale up 12%, colored glow, ground shadow spreads",
+      "OpsFlowBetter brand link in all P2M nav bars now routes to /launchpad.html",
+      "Cleaned up premature dock bar CSS from P2M shared component block"
+    ]
+  },
+  {
+    "version": "v0.55.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "Shared Nav+Header Component & Professional Logo",
+    "items": [
+      "Created “P2M Shared Components” CSS block — identical on all 6 pages (nav + header)",
+      "New .p2m-header class: h1 22px/600/#fff, version 13px/#58a6ff, tagline 12px/#8b949e",
+      "All inline header styles eliminated — every page uses CSS classes only",
+      "New upward-trending flow arrow SVG logo replaces old “OFB” text-in-a-box",
+      "Logo: blue rounded square with white rising trend arrow (24x24)",
+      "Nav .suite-home uses display:flex; align-items:center for clean logo alignment"
+    ]
+  },
+  {
+    "version": "v0.54.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "Standardized Headers & OFB Logo",
+    "items": [
+      "All 6 page headers now follow same pattern: Title + Version tag (blue) + Tagline (gray)",
+      "Media Pipeline: header and controls split into separate bars",
+      "OFB logo icon (blue rounded square with “OFB”) replaces “← Suite Home” text in nav",
+      "Hovering OFB logo shows “OpsFlowBetter Suite Home” tooltip"
+    ]
+  },
+  {
+    "version": "v0.53.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "P2M-Only Nav & Suite Home",
+    "items": [
+      "Removed “Our Products” and “OpsFlowBetter” from nav — non-P2M pages don’t belong in P2M nav",
+      "Added “← Suite Home” link in upper-left corner of nav bar to return to opsflowbetter.com",
+      "P2M links centered in nav: Pipeline | Media Pipeline | Workshop | Changelog | Tasks | Tester",
+      "Architecture rule: nav only shows pages within its own application (subdomain/subfolder scoping)"
+    ]
+  },
+  {
+    "version": "v0.52.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "Fixed Nav Bar, Uniform Colors & Auto-Toggle OFF",
+    "items": [
+      "Suite nav is now position: fixed at the top of every page — centered, same height, same pixels across all 6 pages",
+      "Body padding-top: 36px on all pages so content doesn’t hide behind the nav",
+      "All nav links are uniform blue (#58a6ff) — no more per-link rainbow colors",
+      "Current page shown as white bold text (not a link)",
+      "BG Removal toggle auto-flips to OFF after each successful credit use to prevent accidental burns"
+    ]
+  },
+  {
+    "version": "v0.51.0",
+    "date": "March 7, 2026",
+    "tag": "FEATURE",
+    "title": "Standardized Nav, Inline Queue Buttons & localStorage Data Layer",
+    "items": [
+      "Suite nav (.suite-nav) standardized across all 6 pages — same class, 12px font, flex layout, pipe separators, current-page highlight",
+      "Queue action buttons (X + Process/Retry) now display inline via flexbox instead of stacking vertically",
+      "Tasks page reads from opsflow_tasks localStorage if present — allows remote updates without code deploys",
+      "Tester page loads TEST_VERSION & TEST_SECTIONS from opsflow_tester_config localStorage if present",
+      "Static HTML remains as fallback when no localStorage data exists"
+    ]
+  },
+  {
+    "version": "v0.50.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "“Image Pipeline” → “Media Pipeline”",
+    "items": [
+      "Renamed “Image Pipeline” to “Media Pipeline” across all 6 pages — future-proofs for video support",
+      "Nav links, page titles, and topbar labels all updated",
+      "Tasks page: Priority #1 completed, queue renumbered",
+      "Tasks recently-completed list updated (25 items)"
+    ]
+  },
+  {
+    "version": "v0.49.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "BG Removal Toggle, Image Pipeline Rename & Gallery Dedup",
+    "items": [
+      "BG Removal ON/OFF toggle in top bar — defaults to OFF so no credits are used on upload. Turn ON when ready to crop. Persists in localStorage.",
+      "When toggle is OFF, uploads save to cloud storage only — no credits consumed, no auto-processing",
+      "Process/Retry buttons blocked when toggle is OFF with clear toast message",
+      "Credit-related errors now show “Cropping bypassed — add credits and retry to crop” instead of red error",
+      "“Media Center” renamed to “Image Pipeline” across all 5 pages",
+      "Gallery filter dropdown deduplicates properly — no more repeated product names",
+      "Gallery entries show Current (green) or Older (gray) badge per product",
+      "Upload flow deduplicates gallery entries by R2 key — re-uploads update instead of duplicating"
+    ]
+  },
+  {
+    "version": "v0.48.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Local Previews, Auto-Retry, Tooltip Hints & UX Renames",
+    "items": [
+      "Instant image thumbnails via local canvas preview (canvas.toDataURL) — images appear immediately after upload, no CDN propagation delay",
+      "Auto-retry with backoff for failed processing jobs (30s → 60s → gives up) — skips auto-retry when credits are exhausted",
+      "Tooltip ? hint icons added to credits badge, Dismiss Done, and Retry Failed buttons — hover to see what each element does",
+      "“Processing Queue” tab renamed to “Upload Status”",
+      "“Clear Done” renamed to “Dismiss Done” — clarifies images stay in cloud storage",
+      "“Process All” renamed to “Retry Failed”",
+      "Gallery and queue thumbnails now prefer local preview URL over CDN URL for immediate display"
+    ]
+  },
+  {
+    "version": "v0.47.0",
+    "date": "March 6, 2026",
+    "tag": "FIX",
+    "title": "Image Retry Engine, Credits Badge & Gallery Dedup",
+    "items": [
+      "New multi-step image retry engine — gallery/queue thumbnails and preview popup now try: strip cache-bust → base URL → fresh cache-bust → then show fallback",
+      "Fixed duplicate gallery entries when using Process All — now updates existing entry instead of creating new one",
+      "Credits badge renamed from “remove.bg: 0 credits” to “BG Removal: 0 credits” with tooltip explaining the service"
+    ]
+  },
+  {
+    "version": "v0.46.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Gallery UX, Preview Retry, Design Consistency",
+    "items": [
+      "Uploaded images now appear in Media Gallery immediately with “Original” badge — no more empty gallery after failed processing",
+      "Gallery entries update in-place when BG removal succeeds — no duplicates",
+      "Preview popup retries without cache-bust query params before showing error message",
+      "Media Center nav left-aligned — nav links now cluster near logo instead of floating center",
+      "Font stack standardized to “Segoe UI” across all pages (Workshop was using system font stack)",
+      "Content max-width standardized to 1200px on Changelog and Tasks pages",
+      "Padding and spacing normalized across all pages (24px 20px standard)",
+      "Changelog h1 reduced from 28px to 24px to match other pages"
+    ]
+  },
+  {
+    "version": "v0.45.0",
+    "date": "March 6, 2026",
+    "tag": "FIX",
+    "title": "Preview Fix, Queue UX, Nav Standardization",
+    "items": [
+      "Fixed broken image preview popup — now shows “Image could not be loaded” error message instead of broken icon",
+      "X (remove) button now available on stuck “Uploading” and “Processing” queue items — no more orphaned entries",
+      "Toast notification duration increased from 3s to 5s for better readability",
+      "All user-facing “R2” references replaced with “cloud storage” — friendlier terminology",
+      "Navigation fully standardized across Pipeline, Media Center, Workshop, Changelog, and Tasks — same order, same links, current page highlighted on every page"
+    ]
+  },
+  {
+    "version": "v0.44.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Workshop Card System Complete & Nav Sync",
+    "items": [
+      "Workshop fully redesigned as card-based system — 6 phases with LED indicators matching Pipeline visual language",
+      "Detail panels with editable form fields, auto-save, and “Mark as Complete” verification for each card",
+      "Dynamic cards for Fleet (7 printers pre-populated), Materials, and Software phases — add/remove as needed",
+      "Machine Economics phase auto-calculates depreciation, maintenance, electricity, and blended hourly rate",
+      "Navigation now consistent across all 5 pages: Pipeline, Media Center, Workshop, Changelog, Tasks",
+      "Workshop version synced from v0.27.1 to v0.44.0"
+    ]
+  },
+  {
+    "version": "v0.43.1",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Gallery Cleanup, Task Tracker & UX Fixes",
+    "items": [
+      "Gallery cards now show “Image unavailable” fallback instead of broken thumbnails",
+      "Hover any gallery card to reveal × remove button — cleans up junk entries",
+      "Added “Clear Gallery” and “Clear Done” buttons for bulk cleanup",
+      "New Task Tracker page — living backlog with priorities, milestones, and stats",
+      "Tasks link (purple) added to navigation on all pages"
+    ]
+  },
+  {
+    "version": "v0.43.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Auto-Process, File Validation & UX Polish",
+    "items": [
+      "Images now auto-process immediately after upload — no manual “Process” button click needed",
+      "File type validation rejects non-image files (MP4, PDF, etc.) with a clear toast message",
+      "File browser dialog now only shows image file types",
+      "Queue “×” button now shows tooltip: “Remove from queue (image stays in R2)”",
+      "Action buttons reordered: delete left, primary action right",
+      "Navigation standardized across Pipeline, Media Center, and Changelog pages",
+      "Changelog CURRENT badge updated to reflect latest version"
+    ]
+  },
+  {
+    "version": "v0.42.1",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Image Preview Popup (No More New Tabs)",
+    "items": [
+      "Clicking any image now opens a sleek overlay popup instead of a new browser tab",
+      "Media Center: queue thumbnails, View links, and gallery cards all use the popup",
+      "Pipeline: marketing bar thumb, modal image preview, and Image Fixer original/result all use the popup",
+      "Popup shows product label, close button (× or Escape), and “Open in new tab” link if needed",
+      "Click outside the image or press Escape to dismiss"
+    ]
+  },
+  {
+    "version": "v0.42.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Shared Product List (Single Source of Truth)",
+    "items": [
+      "Pipeline now syncs product names to a shared opsflow_products localStorage key on every save and load",
+      "Media Center reads from that one shared key instead of digging through Pipeline internals",
+      "“+ Add” button also writes back to the shared list so products added from Media Center are visible everywhere",
+      "Replaces the 3-source fallback hack with a clean single source of truth — ready for a future database migration"
+    ]
+  },
+  {
+    "version": "v0.41.1",
+    "date": "March 6, 2026",
+    "tag": "FIX",
+    "title": "Media Center Product Dropdown & Upload Fix",
+    "items": [
+      "Product dropdown now pulls from 3 sources: Pipeline state, queue history, and gallery — no longer empty when visiting Media Center directly",
+      "Added “+ Add” button for manual product entry when no Pipeline products exist",
+      "Auto-selects the only product if there’s just one, so paste/drop/browse work immediately",
+      "Fixes paste and file browse being silently blocked when dropdown was empty"
+    ]
+  },
+  {
+    "version": "v0.41.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Auto-Crop & Center After Background Removal",
+    "items": [
+      "Worker now sends crop: true to remove.bg API so returned images are tightly cropped around the product",
+      "Media Center adds a post-processing step: fetches the cropped image, scans for the product bounding box, and re-draws it centered on a clean 2000×2000 white canvas at ~90% fill",
+      "Both single Process and batch Process All jobs now auto-crop before finalizing",
+      "Products fill most of the frame instead of floating in excessive whitespace"
+    ]
+  },
+  {
+    "version": "v0.40.2",
+    "date": "March 6, 2026",
+    "tag": "FIX",
+    "title": "Image Cache-Busting After Processing",
+    "items": [
+      "R2 uploads now set Cache-Control: max-age=60 so Cloudflare edge doesn't cache stale images forever",
+      "After Media Center processes an image, URL gets ?v=timestamp to force browser refresh",
+      "Media Center updates Pipeline state with fresh URL so portfolio shows the processed version",
+      "Both single Process and Process All batch jobs now apply cache-busting"
+    ]
+  },
+  {
+    "version": "v0.40.1",
+    "date": "March 6, 2026",
+    "tag": "FIX",
+    "title": "Media Center Product Selector",
+    "items": [
+      "Added product selector dropdown to Media Center — must pick a product before uploading",
+      "Dropdown auto-populates from Pipeline product list, pre-selects last active product",
+      "Validates product selection on drag & drop, paste, and file browse"
+    ]
+  },
+  {
+    "version": "v0.40.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Media Center & Server-Side Background Removal",
+    "items": [
+      "NEW: Media Center page with processing queue and media gallery",
+      "NEW: Server-side background removal via remove.bg API through Cloudflare Worker",
+      "NEW: /remove-bg Worker endpoint — fetches raw image from R2, sends to remove.bg, uploads clean version back",
+      "NEW: /credits Worker endpoint — check remaining remove.bg API credits",
+      "Pipeline popup now uploads raw image instantly, queues BG removal for Media Center",
+      "Removed browser-based @imgly/background-removal (CDN import issues) and coi-serviceworker",
+      "Drop zone supports drag & drop, clipboard paste, and file browse",
+      "Queue shows pending/processing/done/failed with Process All button",
+      "Media Gallery tab with per-product filtering",
+      "Added Media Center link to Pipeline navigation bar"
+    ]
+  },
+  {
+    "version": "v0.39.1",
+    "date": "March 6, 2026",
+    "tag": "FIX",
+    "title": "Fix Self-Hosted Import Path",
+    "items": [
+      "Changed import from index.js → index.mjs to match actual R2-hosted filename",
+      "Removed publicPath override — ONNX models load from IMG.LY default CDN at runtime",
+      "Handle both mod.default and mod.removeBackground exports for compatibility"
+    ]
+  },
+  {
+    "version": "v0.39.0",
+    "date": "March 6, 2026",
+    "tag": "FEATURE",
+    "title": "Self-Hosted AI Background Removal",
+    "items": [
+      "Self-host @imgly/background-removal library on R2 — eliminates CDN import failures",
+      "All WASM + ONNX model files served from images.opsflowbetter.com/libs/bgremoval/",
+      "Added publicPath config so AI models load from our own CDN, not third-party",
+      "Setup script (worker/setup-bgremoval.js) downloads and uploads library to R2",
+      "Retry button now imports from self-hosted URL instead of unpkg"
+    ]
+  },
+  {
+    "version": "v0.38.0",
+    "date": "March 5, 2026",
+    "tag": "FIX",
+    "title": "AI Background Removal Fix & Image Display",
+    "items": [
+      "Added cross-origin isolation service worker (coi-serviceworker.js) — enables SharedArrayBuffer required by the AI WASM engine on GitHub Pages",
+      "Switched AI library CDN from jsDelivr to unpkg for more reliable module loading",
+      "Fixed product image filling the entire browser window after Save — now capped at 200px height",
+      "Removed confusing “Use PhotoRoom” manual fallback text — replaced with cleaner retry guidance",
+      "Page will auto-reload once on first visit to activate the service worker (transparent to user)"
+    ]
+  },
+  {
+    "version": "v0.37.0",
+    "date": "March 5, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "Image Fixer Reliability & Clipboard Paste",
+    "items": [
+      "R2 upload now shows visible error messages instead of failing silently",
+      "Inline R2 secret entry field replaces unreliable browser prompt() — themed to match the modal, with Enter key support",
+      "Console logging for R2 uploads (open DevTools → Console to debug if needed)",
+      "AI background removal timeout increased from 30s to 60s for slow connections",
+      "“Retry” link appears if AI model fails to load — re-imports module and retries without page reload",
+      "Clipboard paste (Ctrl+V) support in the Image Fixer — paste an image from Phone Link, screenshot tools, etc.",
+      "Drop zone text updated to show all three input methods: drag & drop, paste, or click to browse",
+      "Added .wrangler/ to .gitignore to keep Cloudflare cache out of the repo"
+    ]
+  },
+  {
+    "version": "v0.36.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "R2 Auto-Upload — Image Fixer to Cloud Pipeline",
+    "items": [
+      "Cloudflare Worker script for R2 image uploads with shared-secret auth and CORS support",
+      "Image Fixer now auto-uploads processed Amazon-ready JPEGs to R2 after processing — no manual upload step",
+      "Uploading again overwrites the existing image (R2 PUT semantics) — always latest version",
+      "Image URL auto-populated in state and modal fields after successful upload",
+      "R2 root auto-learned so future manual URL entries offer images.opsflowbetter.com in the dropdown",
+      "Graceful fallback: if R2 upload fails, download button appears with error details",
+      "Upload secret stored in localStorage (one-time prompt on first use)"
+    ]
+  },
+  {
+    "version": "v0.35.0",
+    "date": "March 5, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "Marketing Bar Cleanup & Button Relocation",
+    "items": [
+      "Removed confusing color swatch dots and “3 colors” count from the marketing summary bar — variants label now reads “3 variants” in text only",
+      "Moved “Product Marketing” button from the summary bar to below the Overall Progress bar where it’s more prominent and uses existing empty space",
+      "Button now spans full width of the progress section for easy visibility",
+      "Marketing summary bar is now a slim, uncluttered status line with tagline excerpt and image thumbnail only"
+    ]
+  },
+  {
+    "version": "v0.34.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Product Marketing Modal",
+    "items": [
+      "New “Product Marketing” modal consolidates tagline, image URL, Image Fixer, and color variants into one polished form",
+      "Replaced three separate bars (tagline, image URL, color variants) with a clean summary bar showing key data at a glance",
+      "Summary bar shows: tagline excerpt, image thumbnail, color swatches, and green “Product Marketing” button",
+      "Drag-and-drop image upload with animated progress bar (Loading AI → Analyzing → Removing background → Compositing → Done)",
+      "Native browser color picker for variant hex colors — click the swatch to pick any color visually",
+      "Inline variant editing: name, hex color, and per-variant image URL all editable in the modal",
+      "Modal closes on Escape key or clicking the backdrop",
+      "Image URL root dropdown with auto-parse preserved in modal",
+      "Live image preview as you type/paste the URL",
+      "Amazon specs shown inline below the Image Fixer drop zone"
+    ]
+  },
+  {
+    "version": "v0.33.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Built-In Image Fixer",
+    "items": [
+      "New “Image Fixer” button on the product image bar — upload a raw photo for instant Amazon-ready processing",
+      "AI-powered background removal using @imgly/background-removal (runs entirely in browser, no server, no API key, no cost)",
+      "Auto-composites product on pure white (RGB 255,255,255) background at 2000x2000 pixels",
+      "Centers product at 85% fill ratio per Amazon requirements",
+      "Side-by-side original vs result preview with download button",
+      "Exports as JPEG at 95% quality — ready to upload to R2 bucket",
+      "Fallback mode: if AI model can’t load, resizes image on white background with link to PhotoRoom for external bg removal",
+      "~30MB AI model downloads on first use, then cached by browser for instant subsequent processing",
+      "Brightened grey text across all pages (#484f58 → #6e7681) for better readability"
+    ]
+  },
+  {
+    "version": "v0.32.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Color Variant Tracking",
+    "items": [
+      "New colorVariants state field — each product stores an array of variants with name, hex color, and optional image URL",
+      "Variant chip UI in Pipeline product bar — visual swatches with color dots and labels",
+      "Click variant chip to edit (rename, change color, set image URL); right-click to remove",
+      "“+ Add” button for creating new variants with color name and hex code",
+      "Portfolio cards now display color swatches row when variants exist",
+      "Translucent/clear variants show checkered pattern swatch",
+      "Pre-populated: 45 RPM Adaptor (Matte Black, Stone Grey, Translucent Clear) and Improbability Spinner (Deep Space Blue, Nebula Purple, Glow Green)",
+      "Variants persist in localStorage, migrate on product rename, clean up on product remove"
+    ]
+  },
+  {
+    "version": "v0.31.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Smart Image URL & Portfolio Image Upgrade",
+    "items": [
+      "Smart image URL input with root prefix dropdown — auto-learns URL roots from previous entries, stored in localStorage",
+      "Pick a saved root (e.g. images.opsflowbetter.com/) and just type the filename — no more pasting full URLs",
+      "Pasting a full URL auto-parses root and filename, saves root for future use",
+      "Display shows root in grey + filename in blue for easy scanning",
+      "Added “Specs” button with Amazon-ready image requirements panel (1600px min, white bg, 85% fill, JPEG, max 10MB)",
+      "Portfolio images now render on white background with object-fit:contain and 8px padding for professional display",
+      "Placeholder cards retain dark background when no image is set"
+    ]
+  },
+  {
+    "version": "v0.30.1",
+    "date": "March 5, 2026",
+    "tag": "FIX",
+    "title": "Tagline & Image URL Persistence Fix",
+    "items": [
+      "Fixed loadState() not restoring taglines and imageUrls from localStorage — data was lost on page reload",
+      "Added taglines and imageUrls to the state merge in loadState() alongside products, checklists, and gateSignatures"
+    ]
+  },
+  {
+    "version": "v0.30.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Phase 2 Data: 45 RPM Adaptor",
+    "items": [
+      "G1 GO/NO-GO gate passed — Niche Viability Score 24/30, income math feasible at $12.99",
+      "P2.1 CAD Design — Fusion 360 model with full dimensional specs (38.1mm OD, 7.14mm spindle hole, knurled grip)",
+      "P2.2 Prototype & Iterate — 4 prototype versions tested on Audio-Technica, Crosley, and Pioneer turntables",
+      "P2.3 Lock Print Settings — Production slicer profile locked: 19 min/unit, 6.8g PETG-HF, 8-unit batch layout",
+      "G2 Design Lock gate passed — Phase 1 estimates validated with real data, viability score improved to 25/30",
+      "Default state updated: 45 RPM Adaptor now green through Phase 2 with full checklist completion",
+      "Welcome page version count updated to 42"
+    ]
+  },
+  {
+    "version": "v0.29.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Product Image URL & Portfolio Photos",
+    "items": [
+      "New “Product image” URL field per product in the Pipeline — paste a link to any hosted image",
+      "Inline click-to-edit UI with thumbnail preview in the product bar area",
+      "Portfolio cards on the OpsFlowBetter homepage now display real product photos when an image URL is set, with graceful fallback to placeholder",
+      "Image URLs migrate correctly on product rename and are cleaned up on product removal",
+      "Future-proof architecture — URL field maps directly to a backend API image field with zero migration needed"
+    ]
+  },
+  {
+    "version": "v0.28.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Product Portfolio Taglines",
+    "items": [
+      "New “Portfolio tagline” field on each product in the Pipeline — a short marketing line that describes the product for prospects",
+      "Click-to-edit inline UI below the product bar, with Enter to save and Escape to cancel",
+      "Taglines auto-populate into the Product Portfolio cards on the OpsFlowBetter homepage via the existing data bridge",
+      "Taglines migrate correctly on product rename and are cleaned up on product removal",
+      "Tagline editing respects the read-only edit lock"
+    ]
+  },
+  {
+    "version": "v0.27.1",
+    "date": "March 5, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "Product Portfolio Showcase",
+    "items": [
+      "Elevated Product Portfolio to its own dedicated section on the OpsFlowBetter homepage — “Built with our own tools. Tracked in real time.”",
+      "“Our Products” nav link added to homepage top nav, Pipeline header, and Workshop header (green accent, links to /#portfolio)",
+      "Portfolio section now hidden until products exist in Pipeline, then renders as a proper marketing showcase with auto-populated status badges and progress bars"
+    ]
+  },
+  {
+    "version": "v0.27.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Read-Only Edit Lock",
+    "items": [
+      "Password-protected edit lock across Pipeline and Workshop — read-only by default, visitors can browse but not modify data",
+      "Lock icon in header toggles between locked (read-only) and unlocked (edit mode)",
+      "All state-modifying actions guarded: LED cycling, Mark as Complete, gate decisions, product add/remove/rename, card verify/unverify, field editing, reset",
+      "Workshop fields disabled when locked — inputs greyed out to prevent accidental edits",
+      "Shared lock state between Pipeline and Workshop via localStorage — unlock once, edit everywhere",
+      "Toast notifications inform visitors they’re in read-only mode when they attempt changes"
+    ]
+  },
+  {
+    "version": "v0.26.1",
+    "date": "March 5, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "Collapsible Workshop Phases",
+    "items": [
+      "Workshop phase columns are now collapsible — click the phase header to toggle cards open/closed",
+      "Collapse arrow indicator rotates to show state (down = expanded, right = collapsed)",
+      "Collapsed state persists across sessions via localStorage",
+      "Improves mobile UX by letting users focus on one phase at a time"
+    ]
+  },
+  {
+    "version": "v0.26.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Product Portfolio + OpsFlowBetter Page Audit",
+    "items": [
+      "Product Portfolio on OpsFlowBetter homepage — auto-populated from Pipeline localStorage, shows product name, status badge, progress bar, and phase dots",
+      "Status badges derived from Pipeline progress: In Development → Design Locked → Production Ready → Coming Soon → Live on Amazon",
+      "Placeholder product images with camera icon — ready for real photography",
+      "OpsFlowBetter index.html: updated P2M description (31 steps), removed \"Workshop Ops\" from Coming Soon (it's live!), fixed changelog link, added cache-bust meta tags, added Workshop Setup button",
+      "P2M welcome.html: updated stats (31 steps, 35 versions), fixed Phase 3/4/5 step tags, added Workshop & Data Bridge features, updated roadmap to reflect shipped features, fixed footer version from v0.9.0 to v0.26.0"
+    ]
+  },
+  {
+    "version": "v0.25.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Workshop → Pipeline Data Bridge + Workshop Enhancements",
+    "items": [
+      "Workshop → Pipeline data bridge — Pipeline reads Workshop localStorage to display blended rate, material costs, packaging, fleet, and labor data in relevant step detail panels (P1.5, P2.1, P2.3, P3.1, P3.2)",
+      "Blended Rate summary banner in Workshop header — prominently displays the all-in $/hr rate with component breakdown (Dep + Maint + Elec)",
+      "W3.5 Packaging Defaults card — poly bag, FNSKU label, insert card costs with auto-calculated total per unit",
+      "Hours per Machine per Year now editable in W3.2 Maintenance (was hardcoded at 800) — feeds maintenance-per-hour calculation",
+      "Bridge-disconnected hint on data-dependent Pipeline steps when Workshop not yet configured"
+    ]
+  },
+  {
+    "version": "v0.24.1",
+    "date": "March 5, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "Pipeline Completion Summary Bar",
+    "items": [
+      "Completion summary bar in Pipeline product bar — shows percentage, step count, and overall LED",
+      "Matches Workshop header pattern for visual consistency across pages"
+    ]
+  },
+  {
+    "version": "v0.24.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Mark as Complete Button & P/W Prefixes",
+    "items": [
+      "Mark as Complete button on all Pipeline step detail panels (non-gate)",
+      "Undo Completion button when step is green — reverts to yellow with 5-second undo toast",
+      "Pipeline step numbers prefixed with “P” (P1.1, P2.1, etc.) for cross-page clarity",
+      "Workshop card numbers prefixed with “W” (W1.1, W3.2, etc.) for cross-page clarity",
+      "Gates remain G1, G2, G5 — no prefix needed"
+    ]
+  },
+  {
+    "version": "v0.23.0",
+    "date": "March 5, 2026",
+    "tag": "WORKSHOP",
+    "title": "Workshop Audit — Data Accuracy & UX Overhaul",
+    "items": [
+      "Labor 5.1 restructured: Owner role with labor absorption decision (was generic operator at $12/hr)",
+      "H2D max speed corrected from 500 to 300mm/s",
+      "Purchase price and wattage fields added to all Fleet cards",
+      "Phase 3 depreciation and electricity now auto-calculate from Fleet data (no manual entry)",
+      "All alert() popups replaced with toast notifications",
+      "All confirm() dialogs replaced with instant action + 5-second undo toast",
+      "Reset State button with undo toast (matches Pipeline pattern)"
+    ]
+  },
+  {
+    "version": "v0.22.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Undo Toast for Revise Decision",
+    "items": [
+      "Revise Decision now clears instantly — no more confirm popup",
+      "5-second undo toast with one-click restore of previous signature and decision",
+      "Previous decision state snapshot enables clean undo without data loss"
+    ]
+  },
+  {
+    "version": "v0.21.2",
+    "date": "March 5, 2026",
+    "tag": "FIX",
+    "title": "NO-GO Checklist Fix",
+    "items": [
+      "NO-GO now locks “Decision made” and “Decision documented with date” checkboxes",
+      "hasDecision checks for signature existence instead of LED color — covers all three decision types"
+    ]
+  },
+  {
+    "version": "v0.21.1",
+    "date": "March 5, 2026",
+    "tag": "FIX",
+    "title": "Gate UX Fixes",
+    "items": [
+      "Detail panel stays open after GO, Revisit Later, and NO-GO decisions",
+      "Detail panel stays open after LED cycle and Revise Decision",
+      "Removed NO-GO confirm dialog — decision records immediately"
+    ]
+  },
+  {
+    "version": "v0.21.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "localStorage Persistence",
+    "items": [
+      "All state persists across browser refreshes via localStorage",
+      "Auto-saves on every LED cycle, checkbox toggle, gate decision, product add/remove/rename",
+      "Reset button in product bar to restore defaults with confirmation",
+      "State loads from localStorage on page init, falls back to hardcoded defaults"
+    ]
+  },
+  {
+    "version": "v0.20.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Gate Celebration & LED Colors",
+    "items": [
+      "Gate LED colors on pipeline cards — red, yellow, green now render correctly",
+      "“BOOM Baby!” celebration popup on GO decision with auto-dismiss",
+      "Detail panel stays open after GO click so user sees locked checkboxes and signature"
+    ]
+  },
+  {
+    "version": "v0.19.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Soft-Lock Gate Decisions",
+    "items": [
+      "Gate decisions soft-lock after button click — buttons replaced by locked signature block",
+      "“Revise Decision” link with confirm dialog to re-open gate for new decision",
+      "Revising clears signature, resets gate to red, and re-shows decision buttons"
+    ]
+  },
+  {
+    "version": "v0.18.1",
+    "date": "March 5, 2026",
+    "tag": "ENHANCEMENT",
+    "title": "Automation-Only Checklist Items",
+    "items": [
+      "Gate checklist now has three states: locked (green + lock), disabled/auto (greyed + “auto” tag), and user-checkable",
+      "“Decision made” and “Decision documented with date” are disabled until a decision button is clicked",
+      "New “auto” badge on automation-only items so users know they can’t manually check them"
+    ]
+  },
+  {
+    "version": "v0.18.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Gate Electronic Signature",
+    "items": [
+      "Electronic signature block on gate decisions — records name, decision, and timestamp",
+      "Signature auto-populates and locks when GO, Revisit Later, or NO-GO is clicked",
+      "Color-coded decision label (green GO, yellow Revisit, red NO-GO) with lock icon"
+    ]
+  },
+  {
+    "version": "v0.17.1",
+    "date": "March 5, 2026",
+    "tag": "FIX",
+    "title": "Fix Detail Panel Click",
+    "items": [
+      "Fixed regression: clicking pipeline cards threw ReferenceError (steps → stepDefinitions) breaking detail panel"
+    ]
+  },
+  {
+    "version": "v0.17.0",
+    "date": "March 5, 2026",
+    "tag": "FEATURE",
+    "title": "Auto-Lock Checklists",
+    "items": [
+      "Checklist items auto-check and lock (green + lock icon) when step LED is green",
+      "G1 gate checklist wired to gate decision state — items lock based on actual criteria evaluation and decision",
+      "getAutoLockedChecklist() function handles step-level and gate-level lock logic",
+      "Locked checkboxes are disabled with green accent color and lock emoji indicator"
+    ]
+  },
+  {
+    "version": "v0.16.1",
+    "date": "March 5, 2026",
+    "tag": "MINOR",
+    "title": "Gate Buttons & Spacing",
+    "items": [
+      "Gate decision buttons moved to bottom of detail panel for natural UI flow",
+      "Pipeline vertical spacing tightened — Phase 1 fits on screen without scrolling"
+    ]
+  },
+  {
+    "version": "v0.16.0",
+    "date": "March 5, 2026",
+    "tag": "MAJOR",
+    "title": "Gate Decision UX",
+    "items": [
+      "Gate cards now show G1, G2, G5 labels matching step numbering pattern",
+      "GO / NO-GO / Revisit Later decision buttons on gate detail panels",
+      "Gate LED no longer cycles on click — decisions made via buttons only",
+      "Gate status message shows current decision and what it unlocks",
+      "Cache-busting meta tags on all pages — browser always loads latest after deploy"
+    ]
+  },
+  {
+    "version": "v0.15.0",
+    "date": "March 5, 2026",
+    "tag": "MAJOR",
+    "title": "G1 Gate Auto-Population",
+    "items": [
+      "G1 GO/NO-GO gate auto-populates Pass/Fail and Notes columns from Steps 1.4 and 1.5 data",
+      "Niche score, income math, fleet feasibility, competition gap, and printability pulled automatically",
+      "Auto-calculated badge indicator on G1 gate panel",
+      "Workshop: fleet “Hours/Day Available” renamed to “Productive Hours/Day” with corrected placeholder",
+      "Workshop: fleet machine count in Maintenance card now auto-calculated from active fleet"
+    ]
+  },
+  {
+    "version": "v0.14.1",
+    "date": "March 5, 2026",
+    "tag": "MINOR",
+    "title": "Workshop UX & Real Data",
+    "items": [
+      "Calculated fields now display dashed border and “Auto-calculated” badge to distinguish from user-input fields",
+      "Workshop defaults populated with verified data from Workshop Operations Plan v1.5",
+      "Software cost field supports billing cycle dropdown (Free / Monthly / Yearly / One-Time)",
+      "Card 5.2 pre-populated with Frances — Additive Manufacturing Assistant, $20/hr, 5–8 hrs/week",
+      "Card 5.1 purpose clarified — production labor only, not business owner overhead"
+    ]
+  },
+  {
+    "version": "v0.14.0",
+    "date": "March 5, 2026",
+    "tag": "MAJOR",
+    "title": "Workshop Card-Based Redesign",
+    "items": [
+      "Workshop redesigned as card-based system matching Pipeline visual language — 6 phases, 20+ cards, LED status indicators",
+      "Phase 1: Facility & Utilities (electricity rate, workspace, internet/services)",
+      "Phase 2: Printer Fleet with dynamic add/remove cards (7 printers pre-populated)",
+      "Phase 3: Machine Economics with auto-calculated blended hourly rate from depreciation + maintenance + electricity",
+      "Phase 4: Materials Library with dynamic cards, auto-calculated cost per gram",
+      "Phase 5: Labor (primary operator + optional additional labor)",
+      "Phase 6: Software & Tools with dynamic add/remove cards",
+      "Slide-in detail panel with data entry forms, purpose descriptions, and \"Mark as Complete\" verification",
+      "localStorage persistence — all Workshop data survives page reload",
+      "Overall completion tracking with percentage, card count, and LED in header",
+      "Phase progress bars showing per-phase completion",
+      "Steps 1.4 and 1.5 LEDs set to GREEN for 45 RPM Adaptor"
+    ]
+  },
+  {
+    "version": "v0.13.0",
+    "date": "March 5, 2026",
+    "tag": "MAJOR",
+    "title": "Workshop Setup + Income Target Math",
+    "items": [
+      "Workshop Setup page (workshop.html) — standalone page defining printer fleet (7 machines), machine rates ($0.35/hr blended), materials inventory, labor rates, and software stack",
+      "Workshop Summary Card — at-a-glance view of active printers, daily print hours, blended rate, materials stocked, and operator rate",
+      "Editable tables with add/remove rows for printers, materials, and software",
+      "Step 1.5 (Income Target Math) for 45 RPM Adaptor — backward math from $2k/month: 154 units/month, 5.1/day, ~29% net margin, one printer sufficient. Three price scenarios ($9.99-$14.99) all feasible.",
+      "Full three-layer data model for Step 1.5: Analysis (7 sections), Evidence (4 tables), Automation Roadmap (5 gaps)",
+      "Pipeline header now includes Workshop link alongside About P2M and Changelog",
+      "Welcome page nav updated with Workshop link",
+      "Step 1.5 references softened from hardcoded \"Bambu X1C\" to \"see Workshop Setup\" for fleet/rate data",
+      "Step 1.5 LED set to YELLOW for 45 RPM Adaptor"
+    ]
+  },
+  {
+    "version": "v0.12.0",
+    "date": "March 5, 2026",
+    "tag": "MAJOR",
+    "title": "Phase-Gated Locking + Step Descriptions",
+    "items": [
+      "Phase-gated card locking — future phases are locked (grey LED, grey border, lock icon) until prerequisite gate or phase steps are completed",
+      "Lock rules: Phase 1 always open. Phase 2 unlocks at G1 green. Phase 3 at G2 green. Phases 4/5/7 unlock when all prior phase steps are green. Phase 6 at G5 green.",
+      "Locked card preview — clicking a locked card still opens the detail panel with a lock banner explaining what to complete, read-only checklists, and disabled LED cycling",
+      "Lock icon (🔒) displayed on locked step cards and gates in both desktop and mobile views",
+      "Expanded all 30+ step descriptions with outcome expectations — every step now tells the user exactly what they'll \"walk away with\" after completing it",
+      "Phase 2 step purposes (2.1, 2.2, 2.3) updated to reference G2 gate validation of Phase 1 estimates",
+      "Changelog link simplified from \"v0.11.0 Changelog\" to \"Changelog\" — version now shown in header subtitle",
+      "Red LED cards now show matching red left border (was transparent)"
+    ]
+  },
+  {
+    "version": "v0.11.0",
+    "date": "March 5, 2026",
+    "tag": "MAJOR",
+    "title": "Niche Viability Score + Flow Integrity",
+    "items": [
+      "Step 1.4 (Niche Viability Score) for 45 RPM Adaptor — 6-factor scoring with Summary, Analysis, Evidence, and Automation Roadmap layers. Score: 25/30 STRONG GO",
+      "Phase 1 flow integrity cleanup — removed forward-looking data from Steps 1.1-1.4 that assumed prior product knowledge (specific tolerances, print times, three-model strategy). Data now reflects what a first-timer would know at each step.",
+      "Step 1.1 Unique Angle simplified to hypothesis (\"better durability and precision\") instead of pre-defining variant models",
+      "Steps 1.2/1.3 analysis sections reworded from certainties to hypotheses (e.g., \"should deliver\" instead of \"delivers\", specs \"TBD in Phase 2\")",
+      "Step 1.4 3D Print Feasibility scored as 4 (estimated) instead of 5 — exact print time, material weight, and tolerances deferred to Phase 2",
+      "G2 Design Lock gate upgraded — now includes checklist items to revisit Step 1.4 scores with confirmed Phase 2 data before proceeding to Phase 3",
+      "Detail panel toggle — clicking an already-open step card closes the panel (re-click to dismiss)",
+      "Remove product functionality — red × button on tabs with confirmation modal, prevents removing last product",
+      "Step 1.3 flipped to GREEN for 45 RPM Adaptor",
+      "Step 1.4 set to YELLOW for 45 RPM Adaptor (data populated, under review)"
+    ]
+  },
+  {
+    "version": "v0.10.0",
+    "date": "March 4, 2026",
+    "tag": "MAJOR",
+    "title": "OpsFlowBetter Launch + Competitive Analysis",
+    "items": [
+      "OpsFlowBetter.com brand landing page with P2M as first product, origin story, product roadmap",
+      "P2M Welcome/About marketing page with phase breakdown, feature grid, audience cards",
+      "Step 1.3 (Competitive Analysis) for 45 RPM Adaptor — 3 competitors (DIGITNOW, Frienda, bark and lindy) with full Summary, Analysis, and Evidence layers",
+      "Review Complaint Index in 1.3 Evidence — all negative quotes mapped to root causes and customer needs",
+      "Product name edit functionality — pencil icon on tabs, inline editing with save/cancel",
+      "Renamed \"My Widget\" to \"Improbability Spinner\" across all state",
+      "Automation Roadmap updated with API strategy (Keepa API, Canopy API, SP-API research)",
+      "Restructured files into /p2m/ subfolder — cleaner URLs for multi-product suite",
+      "GitHub Pages hosting live at opsflowbetter.com with custom DNS",
+      "p2m.opsflowbetter.com subdomain forward configured",
+      "Visual Studio .gitignore added to repo",
+      "JS syntax errors in 1.3 evidence tables (3 unclosed bracket arrays)",
+      "Table overflow on wide tables — scrollable wrapper for 10+ column tables"
+    ]
+  },
+  {
+    "version": "v0.9.0",
+    "date": "March 4, 2026",
+    "tag": "MAJOR",
+    "title": "Four-Layer Intelligence + Demo Product",
+    "items": [
+      "Automation Roadmap (4th collapsible layer) with expert attribution, gap cards, priority badges, and API automation paths",
+      "\"Improbability Spinner\" demo product - Hitchhiker's Guide-inspired Infinite Improbability Fidget Spinner with full data through Phase 3",
+      "Glossary tooltip system - 16 industry terms (BSR, ASIN, COGS, FBA, etc.) with floating popups that auto-detect in all content",
+      "Tooltip popups no longer clipped by scrollable panel - switched from CSS-only to body-level floating positioning",
+      "Product data isolation - each product has its own detail content; template serves as blank fallback",
+      "Step 1.2 (Market Research) flipped to GREEN for 45 RPM Adaptor after full review",
+      "Version history page (this page)"
+    ]
+  },
+  {
+    "version": "v0.8.0",
+    "date": "March 3, 2026",
+    "tag": "MAJOR",
+    "title": "Three-Layer Data Model",
+    "items": [
+      "Three-layer detail panel architecture: Summary (blue), Analysis (gold), Evidence (gray)",
+      "Collapsible layer sections with click-to-expand headers and arrow indicators",
+      "Step 1.2 populated with real Helium 10 Xray data (39 ASINs, $13k market, 626 searches/mo)",
+      "Market Analysis layer with 7 sections: market share, concentration, review barriers, price tiers, competitive gaps, duplicate listings, pierceability verdict",
+      "Evidence layer with Xray summary table, top 5 competitor detail table, all 39 ASINs table, data source notes",
+      "Helium 10 CSV export folder created (Products/45-RPM-Adapters/Research/Helium10-Exports/)"
+    ]
+  },
+  {
+    "version": "v0.7.0",
+    "date": "March 3, 2026",
+    "tag": "FEATURE",
+    "title": "P2M Pipeline Naming + Service Model",
+    "items": [
+      "Renamed from \"Product Pipeline Flowchart\" to \"P2M Pipeline\" (Product-to-Market)",
+      "HTML file renamed from Product_Pipeline_Flowchart.html to index.html",
+      "Header updated: \"P2M Pipeline — Product to Market — Idea to Revenue\"",
+      "URL locked in: p2m.opsflowbetter.com",
+      "SaaS Vision Notes updated with P2M service model (7 phases = 7 service offerings)",
+      "Step ownership model captured: Provider / Client-Provided / N-A / Collaborative",
+      "Architecture insight documented: flowchart IS the app, document is output"
+    ]
+  },
+  {
+    "version": "v0.6.0",
+    "date": "March 3, 2026",
+    "tag": "DATA",
+    "title": "Step 1.1 Walkthrough + LED Reset",
+    "items": [
+      "All 45 RPM Adaptor LEDs reset to red for structured walkthrough",
+      "Step 1.1 detail panel populated with real 45 RPM product data (name, category, problem, customer, unique angle)",
+      "Step 1.1 LED flipped to green after validation",
+      "P2M walkthrough process established: review data → validate → update detail panel → flip LED"
+    ]
+  },
+  {
+    "version": "v0.5.1",
+    "date": "March 3, 2026",
+    "tag": "FIX",
+    "title": "Category Field Update",
+    "items": [
+      "Updated category field: \"Home & Kitchen / Music Accessories (confirm from Amazon browse nodes -- see Section 5.2)\""
+    ]
+  },
+  {
+    "version": "v0.5.0",
+    "date": "March 2, 2026",
+    "tag": "FEATURE",
+    "title": "Detail Panel System",
+    "items": [
+      "Full detail panel with purpose, key questions, data table, checklist, tips, and output sections",
+      "Interactive checklists with per-product, per-step state tracking",
+      "LED click-to-cycle (red → yellow → green) in detail panel header",
+      "Detail panel content for all 30+ steps across 7 phases",
+      "Phase-colored table headers in detail panel",
+      "Tips section with lightbulb styling",
+      "Output section with green checkmark styling"
+    ]
+  },
+  {
+    "version": "v0.4.0",
+    "date": "March 2, 2026",
+    "tag": "FEATURE",
+    "title": "Product Tracker + Progress Bar",
+    "items": [
+      "Overall progress bar showing completion percentage per product",
+      "Product Tracker table showing phase-by-phase status across all products",
+      "Color-coded tracker cells (green = complete, partial counts, red = not started)",
+      "\"RC Plane Hangar\" added as second product with Phase 2 green (design already done)"
+    ]
+  },
+  {
+    "version": "v0.3.0",
+    "date": "March 1, 2026",
+    "tag": "FEATURE",
+    "title": "Multi-Product Tabs + Decision Gates",
+    "items": [
+      "Product tab bar with active state highlighting",
+      "\"+ Add Product\" button with modal dialog",
+      "Decision gate cards (diamond icon) between phases",
+      "Per-product LED state tracking (independent status per product per step)",
+      "Step cards show step number, title, description, and output indicator"
+    ]
+  },
+  {
+    "version": "v0.2.0",
+    "date": "March 1, 2026",
+    "tag": "FEATURE",
+    "title": "7-Phase Swim Lane Layout",
+    "items": [
+      "7 swim lane columns: Ideation, Design, Cost Model, Packaging, Listing, Marketing, Operations",
+      "Phase-colored headers with timeline indicators",
+      "LED status indicators (red/yellow/green) on each step card",
+      "Hover tooltips on pipeline step cards",
+      "Horizontal scrollable pipeline view",
+      "Phase legend in footer"
+    ]
+  },
+  {
+    "version": "v0.1.0",
+    "date": "February 28, 2026",
+    "tag": "INITIAL",
+    "title": "Initial Prototype - Product Pipeline Flowchart",
+    "items": [
+      "Initial HTML prototype created as \"Product Pipeline Flowchart\"",
+      "Dark theme UI (GitHub-inspired color scheme)",
+      "Basic step definitions for all 7 phases of the product launch workflow",
+      "45 RPM Vinyl Record Adaptor set as first test product",
+      "Caspers Creations branding in header",
+      "Single-page application architecture (no backend required)"
+    ]
+  },
+  {
+    "version": "v0.0.1",
+    "date": "February 27, 2026",
+    "tag": "CONCEPT",
+    "title": "Product Launch System Concept",
+    "items": [
+      "Initial concept: duplicatable product launch system for 3D-printed products",
+      "7-phase framework defined: Ideation, Design, Cost, Packaging, Listing, Marketing, Operations",
+      "45 RPM Vinyl Record Adaptor selected as first case study",
+      "Workshop Operations Plan created as foundation document",
+      "Product Master Plan JavaScript generator built (v2.js)"
+    ]
+  }
+]

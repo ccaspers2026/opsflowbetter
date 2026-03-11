@@ -475,7 +475,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tasks</h1>
-        <p class="version">Tasks <span class="suite-ver">v0.81.0</span></p>
+        <p class="version">Tasks <span class="suite-ver"></span></p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
     </div>
 </div>
@@ -1777,6 +1777,7 @@
     This page auto-refreshes every 5 minutes &bull; Last updated: v0.65.1 &mdash; March 8, 2026
 </div>
 
+<script src="../shared/opsflow-sync.js"></script>
 <script>
 /* ── Interactive Tasks with localStorage ───────────────────────────
    On first load, parses PQ and Backlog from static HTML into localStorage.
@@ -1789,13 +1790,13 @@ function esc(s) { var d = document.createElement('div'); d.textContent = s || ''
 
 function loadTasks() {
     try {
-        var d = JSON.parse(localStorage.getItem(TASKS_KEY));
+        var d = OpsFlow.getLocal(TASKS_KEY);
         if (d && !d.completed) d.completed = [];
         return d;
     } catch(e) { return null; }
 }
 function saveTasks(data) {
-    localStorage.setItem(TASKS_KEY, JSON.stringify(data));
+    OpsFlow.set(TASKS_KEY, data);
 }
 
 // ── Seed from static HTML on first load ──────────────────────────
@@ -2127,7 +2128,7 @@ function archiveItem(section, id) {
     if (!data.completed) data.completed = [];
     item.status = 'done';
     item.completedAt = new Date().toISOString().split('T')[0];
-    if (!item.completedVersion) item.completedVersion = localStorage.getItem('opsflow_version') || '';
+    if (!item.completedVersion) item.completedVersion = OpsFlow.getLocal('opsflow_version') || '';
     if (!item.completionNote) item.completionNote = 'Archived by user';
     data.completed.unshift(item);
     saveTasks(data);
@@ -2234,12 +2235,13 @@ function cyclePQPriority(id) {
 var MIGRATIONS_KEY = 'opsflow_tasks_migrations';
 
 function getRunMigrations() {
-    try { return JSON.parse(localStorage.getItem(MIGRATIONS_KEY)) || []; } catch(e) { return []; }
+    var data = OpsFlow.getLocal(MIGRATIONS_KEY);
+    return Array.isArray(data) ? data : [];
 }
 function markMigrationRun(key) {
     var ran = getRunMigrations();
     if (ran.indexOf(key) === -1) ran.push(key);
-    localStorage.setItem(MIGRATIONS_KEY, JSON.stringify(ran));
+    OpsFlow.set(MIGRATIONS_KEY, ran);
 }
 
 function runMigrations() {
@@ -2295,14 +2297,14 @@ function runMigrations() {
     // ── v0.64.4: Clear processed feedback (Workshop review) ──
     if (ran.indexOf('v0.64.4_clear_workshop_feedback') === -1) {
         try {
-            var fb = JSON.parse(localStorage.getItem('opsflow_feedback')) || [];
+            var fb = OpsFlow.getLocal('opsflow_feedback') || [];
             var filtered = [];
             for (var i = 0; i < fb.length; i++) {
                 if (fb[i].text && fb[i].text.indexOf('Workshop needs to be reviewed') !== -1) continue;
                 filtered.push(fb[i]);
             }
             if (filtered.length !== fb.length) {
-                localStorage.setItem('opsflow_feedback', JSON.stringify(filtered));
+                OpsFlow.set('opsflow_feedback', filtered);
             }
         } catch(e) {}
         markMigrationRun('v0.64.4_clear_workshop_feedback');
@@ -2311,7 +2313,7 @@ function runMigrations() {
     // ── v0.64.6: Clear sort & click-to-cycle feedback (both addressed by code) ──
     if (ran.indexOf('v0.64.6_clear_sort_feedback') === -1) {
         try {
-            var fb = JSON.parse(localStorage.getItem('opsflow_feedback')) || [];
+            var fb = OpsFlow.getLocal('opsflow_feedback') || [];
             var filtered = [];
             for (var i = 0; i < fb.length; i++) {
                 if (fb[i].text && fb[i].text.indexOf('Sort the Task list Backlog') !== -1) continue;
@@ -2319,7 +2321,7 @@ function runMigrations() {
                 filtered.push(fb[i]);
             }
             if (filtered.length !== fb.length) {
-                localStorage.setItem('opsflow_feedback', JSON.stringify(filtered));
+                OpsFlow.set('opsflow_feedback', filtered);
             }
         } catch(e) {}
         markMigrationRun('v0.64.6_clear_sort_feedback');
@@ -2360,7 +2362,7 @@ function runMigrations() {
     // ── v0.64.7: Clear the 2 feedback items (now in Backlog) ──
     if (ran.indexOf('v0.64.7_clear_feedback') === -1) {
         try {
-            var fb = JSON.parse(localStorage.getItem('opsflow_feedback')) || [];
+            var fb = OpsFlow.getLocal('opsflow_feedback') || [];
             var filtered = [];
             for (var i = 0; i < fb.length; i++) {
                 if (fb[i].text && fb[i].text.indexOf('Complete Testing button should Disable') !== -1) continue;
@@ -2368,7 +2370,7 @@ function runMigrations() {
                 filtered.push(fb[i]);
             }
             if (filtered.length !== fb.length) {
-                localStorage.setItem('opsflow_feedback', JSON.stringify(filtered));
+                OpsFlow.set('opsflow_feedback', filtered);
             }
         } catch(e) {}
         markMigrationRun('v0.64.7_clear_feedback');
@@ -2448,7 +2450,7 @@ function runMigrations() {
 
     // ── v0.65.1: Clear the 3 processed feedback items ──
     if (ran.indexOf('v0.65.1_clear_feedback') === -1) {
-        var fb = JSON.parse(localStorage.getItem('opsflow_feedback') || '[]');
+        var fb = OpsFlow.getLocal('opsflow_feedback') || [];
         var before = fb.length;
         fb = fb.filter(function(f) {
             if (f.text && f.text.indexOf('Break out Feedback form') !== -1) return false;
@@ -2456,7 +2458,7 @@ function runMigrations() {
             if (f.text && f.text.indexOf('generic electricity rate') !== -1) return false;
             return true;
         });
-        if (fb.length !== before) localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
+        if (fb.length !== before) OpsFlow.set('opsflow_feedback', fb);
         markMigrationRun('v0.65.1_clear_feedback');
     }
 
@@ -2590,7 +2592,7 @@ function runMigrations() {
 
     // ── v0.65.4: Clear the 3 processed feedback items ──
     if (ran.indexOf('v0.65.4_clear_feedback') === -1) {
-        var fb = JSON.parse(localStorage.getItem('opsflow_feedback') || '[]');
+        var fb = OpsFlow.getLocal('opsflow_feedback') || [];
         var matchTexts = ['Add button on backlog tasks', 'Give me Edit/Save for all items', 'Allow me to Promote Feedback items'];
         fb = fb.filter(function(item) {
             for (var m = 0; m < matchTexts.length; m++) {
@@ -2598,7 +2600,7 @@ function runMigrations() {
             }
             return true;
         });
-        localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
+        OpsFlow.set('opsflow_feedback', fb);
         markMigrationRun('v0.65.4_clear_feedback');
     }
 
@@ -2736,7 +2738,7 @@ function runMigrations() {
     // ── v0.69.0: Clear triaged feedback items from opsflow_feedback ──
     if (ran.indexOf('v0.69.0_clear_triaged_feedback') === -1) {
         try {
-            var fb = JSON.parse(localStorage.getItem('opsflow_feedback')) || [];
+            var fb = OpsFlow.getLocal('opsflow_feedback') || [];
             var fbChanged = false;
             for (var i = fb.length - 1; i >= 0; i--) {
                 if (fb[i].text && (fb[i].text.indexOf('product template') !== -1 || fb[i].text.indexOf('indicator showing what is required') !== -1)) {
@@ -2744,7 +2746,7 @@ function runMigrations() {
                     fbChanged = true;
                 }
             }
-            if (fbChanged) localStorage.setItem('opsflow_feedback', JSON.stringify(fb));
+            if (fbChanged) OpsFlow.set('opsflow_feedback', fb);
         } catch(e) {}
         markMigrationRun('v0.69.0_clear_triaged_feedback');
     }
@@ -3368,6 +3370,108 @@ function runMigrations() {
         markMigrationRun('v0.81.0_auto_status');
     }
 
+    // ── v0.82.0: Set T-089 to in-progress, T-091 to done ──
+    if (ran.indexOf('v0.82.0_auto_status') === -1) {
+        for (var s = 0; s < data.priority.length; s++) {
+            var pt = data.priority[s];
+            if (pt.title && pt.title.indexOf('Data-driven changelog') !== -1) {
+                pt.status = 'in-progress';
+                changed = true;
+            }
+            if (pt.title && pt.title.indexOf('Archive') !== -1 && pt.title.indexOf('Status') !== -1) {
+                if (pt.status !== 'done') {
+                    pt.status = 'done';
+                    changed = true;
+                }
+            }
+        }
+        markMigrationRun('v0.82.0_auto_status');
+    }
+
+    // ── v0.82.0: Seed tester config for data-driven tester ──
+    if (ran.indexOf('v0.82.0_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            version: 'v0.82.0',
+            sections: [
+                {
+                    title: 'KV Cache Layer (T-089)',
+                    priority: 'PRIMARY',
+                    items: [
+                        'shared/opsflow-sync.js: OpsFlow.get() returns data from localStorage when fresh',
+                        'shared/opsflow-sync.js: OpsFlow.set() writes to both localStorage and KV',
+                        'shared/opsflow-sync.js: OpsFlow.getLocal() returns sync data without async',
+                        'shared/opsflow-sync.js: OpsFlow.isStale() returns true after 5 minutes',
+                        'shared/opsflow-sync.js: SYNC_KEYS includes all real localStorage key names'
+                    ]
+                },
+                {
+                    title: 'Data-Driven Changelog (T-089)',
+                    priority: 'PRIMARY',
+                    items: [
+                        'Changelog: Timeline renders from data (not hardcoded HTML)',
+                        'Changelog: Current version banner shows latest entry dynamically',
+                        'Changelog: Stats bar shows correct version count from data',
+                        'Changelog: All 116 version entries visible in timeline',
+                        'Changelog: First load seeds from shared/changelog-data.json'
+                    ]
+                },
+                {
+                    title: 'Data-Driven Tester Config (T-089)',
+                    priority: null,
+                    items: [
+                        'Tester: Test sections load from opsflow_tester_config in localStorage',
+                        'Tester: Version shows v0.82.0 from config (not hardcoded)',
+                        'Tester: Fallback message shows if config missing'
+                    ]
+                },
+                {
+                    title: 'P2M Page Migration (T-089)',
+                    priority: null,
+                    items: [
+                        'Pipeline: saveState/loadState use OpsFlow.set()/getLocal()',
+                        'Workshop: saveState/loadState use OpsFlow.set()/getLocal()',
+                        'Services: loadServices/saveServices use OpsFlow.getLocal()/set()',
+                        'Tasks: loadTasks/saveTasks use OpsFlow.getLocal()/set()',
+                        'Tester: loadData/saveData use OpsFlow.getLocal()/set()',
+                        'Feedback: loadFeedback/saveFeedback use OpsFlow.getLocal()/set()',
+                        'Media Center: loadQueue/saveQueue/loadGallery/saveGallery use OpsFlow',
+                        'LaunchPad: loadConfig/saveConfig use OpsFlow.getLocal()/set()'
+                    ]
+                },
+                {
+                    title: 'Versions & Infrastructure (v0.82.0)',
+                    priority: null,
+                    items: [
+                        'All 9 pages show v0.82.0',
+                        'opsflow-sync.js loads BEFORE main script on all pages',
+                        'Changelog: shared/changelog-data.json contains all 116 entries'
+                    ]
+                }
+            ]
+        });
+        markMigrationRun('v0.82.0_seed_tester_config');
+    }
+
+    // ── v0.82.0: Complete KV-related backlog items addressed by this version ──
+    if (ran.indexOf('v0.82.0_complete_kv_backlog') === -1) {
+        var kvBlIds = ['bl_kv_tester_config', 'bl_kv_version_only', 'bl_kv_version_bump_procedure'];
+        if (data.backlog) {
+            for (var bi = data.backlog.length - 1; bi >= 0; bi--) {
+                if (kvBlIds.indexOf(data.backlog[bi].id) !== -1) {
+                    var item = data.backlog.splice(bi, 1)[0];
+                    if (!data.completed) data.completed = [];
+                    item.status = 'done';
+                    item.completedAt = '2026-03-11';
+                    item.completedVersion = 'v0.82.0';
+                    item.completionNote = 'Addressed by T-089 KV cache architecture overhaul';
+                    data.completed.unshift(item);
+                    changed = true;
+                }
+            }
+        }
+        markMigrationRun('v0.82.0_complete_kv_backlog');
+    }
+
     if (changed) saveTasks(data);
 }
 
@@ -3375,7 +3479,6 @@ function runMigrations() {
 runMigrations();
 renderTasks();
 </script>
-<script src="../shared/opsflow-sync.js"></script>
 <script>OpsFlow.init();</script>
 
 </body>

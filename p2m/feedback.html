@@ -248,7 +248,7 @@
 <div class="p2m-header">
     <div>
         <h1>Feedback</h1>
-        <p class="version">Feedback <span class="suite-ver">v0.81.0</span></p>
+        <p class="version">Feedback <span class="suite-ver"></span></p>
         <p class="tagline">Drop ideas, bugs, or notes anytime &mdash; Claude picks these up before starting work</p>
     </div>
 </div>
@@ -278,16 +278,18 @@
     <div class="feedback-list" id="feedbackList"></div>
 </div>
 
+<script src="../shared/opsflow-sync.js"></script>
 <script>
 // ── Storage ──────────────────────────────────────────────────────
 var FEEDBACK_KEY = 'opsflow_feedback';
 var PAGE_VERSION = 'v0.79.0';
 
 function loadFeedback() {
-    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; } catch(e) { return []; }
+    var data = OpsFlow.getLocal(FEEDBACK_KEY);
+    return Array.isArray(data) ? data : [];
 }
 function saveFeedback(fb) {
-    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(fb));
+    OpsFlow.set(FEEDBACK_KEY, fb);
 }
 
 function escHtml(str) {
@@ -334,7 +336,7 @@ function promoteFeedbackToBacklog(id) {
     var priority = priMap[item.priority] || 'medium';
 
     // Load tasks and add to backlog
-    var data = JSON.parse(localStorage.getItem('opsflow_tasks_v2') || '{}');
+    var data = OpsFlow.getLocal('opsflow_tasks_v2') || {};
     if (!data.backlog) data.backlog = [];
     data.backlog.push({
         id: 'bl_' + Date.now(),
@@ -346,7 +348,7 @@ function promoteFeedbackToBacklog(id) {
         created: new Date().toISOString().split('T')[0],
         source: 'feedback promotion'
     });
-    localStorage.setItem('opsflow_tasks_v2', JSON.stringify(data));
+    OpsFlow.set('opsflow_tasks_v2', data);
 
     // Remove from feedback
     fb = fb.filter(function(f) { return f.id !== id; });
@@ -405,7 +407,6 @@ function renderFeedback() {
 // ── Init ──
 renderFeedback();
 </script>
-<script src="../shared/opsflow-sync.js"></script>
 <script>OpsFlow.init();</script>
 
 </body>

@@ -392,7 +392,7 @@
 <div class="p2m-header">
     <div>
         <h1>Tester</h1>
-        <p class="version">Tester <span id="versionTag" class="suite-ver">v0.81.0</span></p>
+        <p class="version">Tester <span id="versionTag" class="suite-ver"></span></p>
         <p class="tagline">Click PASS / FAIL / SKIP per item &bull; drop feedback anytime &bull; hit Complete when done testing</p>
     </div>
 </div>
@@ -435,49 +435,25 @@
     </details>
 </div>
 
+<script src="../shared/opsflow-sync.js"></script>
 <script>
-// ── Test Data (updated each version by dev) ──────────────────────
-/* ── localStorage override ─────────────────────────────────────────
-   If opsflow_tester_config exists, load TEST_VERSION & TEST_SECTIONS
-   from it. Otherwise fall back to hardcoded defaults below.
+// ── Test Data (loaded from OpsFlow cache layer — T-089) ──────────
+/* ── Data-driven test config ──────────────────────────────────────
+   Config loaded from opsflow_tester_config (localStorage/KV).
+   Written by migrations in tasks.html on each version bump.
+   Fallback: version from KV, generic "no config" section.
 ──────────────────────────────────────────────────────────────────── */
-var _testerConfig = (function() {
-    try {
-        var raw = localStorage.getItem('opsflow_tester_config');
-        if (raw) return JSON.parse(raw);
-    } catch(e) {}
-    return null;
-})();
+var _testerConfig = OpsFlow.getLocal('opsflow_tester_config');
 
-var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version : 'v0.81.0';
+var TEST_VERSION = (_testerConfig && _testerConfig.version) ? _testerConfig.version
+    : (localStorage.getItem('opsflow_version') || 'v0.82.0');
 
 var TEST_SECTIONS = (_testerConfig && _testerConfig.sections) ? _testerConfig.sections : [
     {
-        title: 'Task Status Lifecycle & Archive (T-091)',
-        priority: 'PRIMARY',
-        items: [
-            'Tasks: Status badge cycle is New \u2192 Discussing \u2192 In Progress \u2192 Done (clicking at Done does nothing \u2014 no wrap)',
-            'Tasks: PQ item at Done status shows Archive button next to status badge',
-            'Tasks: Click Archive \u2192 item moves to Recently Completed with today\u2019s date',
-            'Tasks: Backlog item at Done status also shows Archive button and works the same',
-            'Tasks: Archive button styling \u2014 dashed grey border, turns green on hover',
-        ]
-    },
-    {
-        title: 'Status Auto-Update via Migrations (T-091)',
-        priority: 'PRIMARY',
-        items: [
-            'Tasks: T-091 PQ item status set to "in-progress" by migration (was "new")',
-            'Tasks: T-089 PQ item status set to "discussing" or unchanged (verify not stale at "new")',
-        ]
-    },
-    {
-        title: 'Versions & Changelog (v0.81.0)',
+        title: 'Test configuration not loaded',
         priority: null,
         items: [
-            'All 9 pages show v0.81.0',
-            'Changelog: v0.81.0 entry present with FEATURE tag (T-091, T-090)',
-            'Changelog: Version counter shows 108',
+            'Visit Tasks page first to trigger migrations, then reload Tester'
         ]
     }
 ];
@@ -489,17 +465,14 @@ var HALT_KEY = 'opsflow_tester_halt';
 
 function getHaltState() {
     try {
-        var raw = localStorage.getItem(HALT_KEY);
-        if (raw) {
-            var h = JSON.parse(raw);
-            if (h.version === TEST_VERSION) return h.state;
-        }
+        var h = OpsFlow.getLocal(HALT_KEY);
+        if (h && h.version === TEST_VERSION) return h.state;
     } catch(e) {}
     return 'idle';
 }
 
 function setHaltState(state) {
-    localStorage.setItem(HALT_KEY, JSON.stringify({ version: TEST_VERSION, state: state, timestamp: new Date().toISOString() }));
+    OpsFlow.set(HALT_KEY, { version: TEST_VERSION, state: state, timestamp: new Date().toISOString() });
     renderHaltBanner();
 }
 
@@ -532,28 +505,28 @@ var FINGERPRINT_KEY = 'opsflow_tester_fingerprint';
     if (stored !== fp) {
         // Sections changed — clear this version's test data (preserve other versions & feedback)
         try {
-            var data = JSON.parse(localStorage.getItem('opsflow_tester')) || {};
+            var data = OpsFlow.getLocal('opsflow_tester') || {};
             delete data[TEST_VERSION];
-            localStorage.setItem('opsflow_tester', JSON.stringify(data));
+            OpsFlow.set('opsflow_tester', data);
         } catch(e) {}
         // Reset HALT state for this version
         try {
-            var h = JSON.parse(localStorage.getItem('opsflow_tester_halt'));
-            if (h && h.version === TEST_VERSION) localStorage.removeItem('opsflow_tester_halt');
+            var h = OpsFlow.getLocal('opsflow_tester_halt');
+            if (h && h.version === TEST_VERSION) OpsFlow.remove('opsflow_tester_halt');
         } catch(e) {}
         localStorage.setItem(FINGERPRINT_KEY, fp);
     }
 })();
 
-// ── Storage ──────────────────────────────────────────────────────
+// ── Storage (OpsFlow cache layer — T-089) ────────────────────────
 var STORAGE_KEY = 'opsflow_tester';
 var FEEDBACK_KEY = 'opsflow_feedback';
 
 function loadData() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+    return OpsFlow.getLocal(STORAGE_KEY) || {};
 }
 function saveData(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    OpsFlow.set(STORAGE_KEY, data);
 }
 function getVersionData() {
     var data = loadData();
@@ -565,13 +538,12 @@ function getVersionData() {
 }
 
 // ── Feedback (independent of test sessions) ──────────────────────
-// Flat array of items, each tagged with version for context.
-// Persists across test resets — not tied to any version lifecycle.
 function loadFeedback() {
-    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; } catch(e) { return []; }
+    var data = OpsFlow.getLocal(FEEDBACK_KEY);
+    return Array.isArray(data) ? data : [];
 }
 function saveFeedback(fb) {
-    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(fb));
+    OpsFlow.set(FEEDBACK_KEY, fb);
 }
 function getVersionFeedback() {
     return loadFeedback().filter(function(f) { return f.version === TEST_VERSION; });
@@ -817,7 +789,7 @@ function resetCurrent() {
 
 function clearAllHistory() {
     if (!confirm('Clear ALL test history for ALL versions? This cannot be undone.')) return;
-    localStorage.removeItem(STORAGE_KEY);
+    OpsFlow.remove(STORAGE_KEY);
     render();
 }
 
@@ -894,7 +866,6 @@ function renderHistory() {
 // ── Boot ─────────────────────────────────────────────────────────
 render();
 </script>
-<script src="../shared/opsflow-sync.js"></script>
 <script>OpsFlow.init();</script>
 </body>
 </html>

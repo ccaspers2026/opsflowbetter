@@ -516,7 +516,7 @@
     <a href="/launchpad.html" class="brand"><span class="ops">Ops</span><span class="flow">Flow</span><span class="better">Better</span></a>
     <div class="topbar-meta">
         <button class="admin-toggle" id="adminToggle" title="Toggle admin mode">&#9881;</button>
-        LaunchPad <span class="suite-ver">v0.81.0</span>
+        LaunchPad <span class="suite-ver"></span>
     </div>
 </div>
 
@@ -590,6 +590,7 @@
     OpsFlowBetter &mdash; Built by makers, for makers &mdash; High Point, NC
 </div>
 
+<script src="shared/opsflow-sync.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════
 // LaunchPad v0.77.0 — Admin mode: Add / Edit / Delete spheres
@@ -699,12 +700,11 @@
     var STORAGE_KEY = 'opsflow_launchpad';
     function loadConfig() {
         try {
-            var stored = localStorage.getItem(STORAGE_KEY);
-            return stored ? JSON.parse(stored) : null;
+            return OpsFlow.getLocal(STORAGE_KEY);
         } catch(e) { return null; }
     }
     function saveConfig() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ tools: tools, personal: personal }));
+        OpsFlow.set(STORAGE_KEY, { tools: tools, personal: personal });
     }
 
     var config = loadConfig();
@@ -1057,7 +1057,6 @@
 
 })();
 </script>
-<script src="shared/opsflow-sync.js"></script>
 <script>OpsFlow.init();</script>
 </body>
 </html>

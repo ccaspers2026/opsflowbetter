@@ -897,7 +897,7 @@
     <div class="p2m-header">
         <div>
             <h1>Workshop Setup</h1>
-            <p class="version">Workshop <span class="suite-ver">v0.81.0</span></p>
+            <p class="version">Workshop <span class="suite-ver"></span></p>
             <p class="tagline">Configure your production capabilities &mdash; every card feeds your product pipeline</p>
         </div>
         <div class="header-right">
@@ -937,6 +937,7 @@
         <div class="detail-body" id="detailBody"></div>
     </div>
 
+    <script src="../shared/opsflow-sync.js"></script>
     <script>
     // ===================================================================
     // WORKSHOP STATE & CARD DEFINITIONS
@@ -1132,9 +1133,8 @@
 
     function loadState() {
         try {
-            var saved = localStorage.getItem('workshopState_v2');
-            if (saved) {
-                var s = JSON.parse(saved);
+            var s = OpsFlow.getLocal('workshopState_v2');
+            if (s) {
                 migrateState(s);
                 return s;
             }
@@ -1268,7 +1268,7 @@
 
     function saveState() {
         try {
-            localStorage.setItem('workshopState_v2', JSON.stringify(state));
+            OpsFlow.set('workshopState_v2', state);
         } catch (e) { /* ignore */ }
     }
 
@@ -1892,7 +1892,7 @@
     // ── Service Cost Helpers (reads from Services page localStorage) ──
     function getManufacturingServices() {
         try {
-            var services = JSON.parse(localStorage.getItem('opsflow_services')) || [];
+            var services = OpsFlow.getLocal('opsflow_services') || [];
             return services.filter(function(s) {
                 return s.category === 'production' || s.category === 'sales' || s.category === 'operations';
             });
@@ -3433,8 +3433,8 @@
     var MODEL_LOOKUP_KEY = 'opsflow_printer_models';
 
     function getModelLookup() {
-        try { return JSON.parse(localStorage.getItem(MODEL_LOOKUP_KEY)) || []; }
-        catch(e) { return []; }
+        var data = OpsFlow.getLocal(MODEL_LOOKUP_KEY);
+        return Array.isArray(data) ? data : [];
     }
 
     function saveModelLookup(modelName) {
@@ -3447,7 +3447,7 @@
         }
         if (!exists) {
             models.push(normalized);
-            localStorage.setItem(MODEL_LOOKUP_KEY, JSON.stringify(models));
+            OpsFlow.set(MODEL_LOOKUP_KEY, models);
         }
     }
 
@@ -3491,7 +3491,6 @@
     });
 
     </script>
-<script src="../shared/opsflow-sync.js"></script>
 <script>OpsFlow.init();</script>
 </body>
 </html>

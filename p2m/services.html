@@ -360,7 +360,7 @@
 <div class="p2m-header">
     <div>
         <h1>Services &amp; Integrations</h1>
-        <p class="version">Services <span class="suite-ver">v0.81.0</span></p>
+        <p class="version">Services <span class="suite-ver"></span></p>
         <p class="tagline">Third-party services, costs, credits &amp; renewal tracking</p>
     </div>
     <div>
@@ -429,6 +429,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="../shared/opsflow-sync.js"></script>
 <script>
 // ── Toast ────────────────────────────────────────────────────
 var _toastTimer;
@@ -440,14 +441,15 @@ function showToast(msg) {
     _toastTimer = setTimeout(function() { el.classList.remove('show'); }, 3500);
 }
 
-// ── localStorage data layer ──────────────────────────────────
+// ── Data layer (OpsFlow cache — T-089) ──────────────────────
 var STORAGE_KEY = 'opsflow_services';
 
 function loadServices() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; }
+    var data = OpsFlow.getLocal(STORAGE_KEY);
+    return Array.isArray(data) ? data : [];
 }
 function saveServices(list) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    OpsFlow.set(STORAGE_KEY, list);
 }
 
 // ── Seed default data if empty ───────────────────────────────
@@ -829,7 +831,6 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
 // ── Init ──
 render();
 </script>
-<script src="../shared/opsflow-sync.js"></script>
 <script>OpsFlow.init();</script>
 </body>
 </html>

@@ -536,7 +536,7 @@
 <div class="p2m-header">
     <div>
         <h1>Media Pipeline</h1>
-        <p class="version">Media Pipeline <span class="suite-ver">v0.81.0</span></p>
+        <p class="version">Media Pipeline <span class="suite-ver"></span></p>
         <p class="tagline">Upload, process &amp; manage product images</p>
     </div>
 </div>
@@ -653,6 +653,7 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="../shared/opsflow-sync.js"></script>
 <script>
 // ── Configuration ────────────────────────────────────────────────
 const R2_UPLOAD_API = 'https://api.opsflowbetter.com/upload/';
@@ -781,18 +782,20 @@ function promptR2Secret() {
     return s || '';
 }
 
-// ── Storage ──────────────────────────────────────────────────────
+// ── Storage (OpsFlow cache layer — T-089) ────────────────────────
 function loadQueue() {
-    try { queue = JSON.parse(localStorage.getItem(QUEUE_STORAGE_KEY)) || []; } catch { queue = []; }
+    queue = OpsFlow.getLocal(QUEUE_STORAGE_KEY) || [];
+    if (!Array.isArray(queue)) queue = [];
 }
 function saveQueue() {
-    localStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(queue));
+    OpsFlow.set(QUEUE_STORAGE_KEY, queue);
 }
 function loadGallery() {
-    try { gallery = JSON.parse(localStorage.getItem(GALLERY_STORAGE_KEY)) || []; } catch { gallery = []; }
+    gallery = OpsFlow.getLocal(GALLERY_STORAGE_KEY) || [];
+    if (!Array.isArray(gallery)) gallery = [];
 }
 function saveGallery() {
-    localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(gallery));
+    OpsFlow.set(GALLERY_STORAGE_KEY, gallery);
 }
 
 // ── Credits ──────────────────────────────────────────────────────
@@ -827,17 +830,17 @@ function populateProductSelector() {
     var products = [];
     var activeProduct = null;
     try {
-        var stored = JSON.parse(localStorage.getItem('opsflow_products'));
+        var stored = OpsFlow.getLocal('opsflow_products');
         if (Array.isArray(stored) && stored.length) {
             products = stored.slice().sort();
         }
-    } catch {}
+    } catch(e) {}
 
     // Get active product from Pipeline state for pre-selection
     try {
-        var pState = JSON.parse(localStorage.getItem('p2m_pipeline_state'));
+        var pState = OpsFlow.getLocal('p2m_pipeline_state');
         if (pState && pState.activeProduct) activeProduct = pState.activeProduct;
-    } catch {}
+    } catch(e) {}
 
     // Rebuild dropdown
     sel.innerHTML = '<option value="">— Select a product —</option>';
@@ -877,10 +880,10 @@ function addCustomProduct() {
     sel.value = name;
     // Sync back to shared product list
     try {
-        var products = JSON.parse(localStorage.getItem('opsflow_products')) || [];
+        var products = OpsFlow.getLocal('opsflow_products') || [];
         if (products.indexOf(name) === -1) {
             products.push(name);
-            localStorage.setItem('opsflow_products', JSON.stringify(products));
+            OpsFlow.set('opsflow_products', products);
         }
     } catch {}
     showToast('Product added: ' + name, 'success');
@@ -901,11 +904,11 @@ function checkProductSelected() {
 // Update the Pipeline's stored image URL so portfolio shows the fresh processed image
 function updatePipelineImageUrl(productName, newUrl) {
     try {
-        var pState = JSON.parse(localStorage.getItem('p2m_pipeline_state'));
+        var pState = OpsFlow.getLocal('p2m_pipeline_state');
         if (pState) {
             if (!pState.imageUrls) pState.imageUrls = {};
             pState.imageUrls[productName] = newUrl;
-            localStorage.setItem('p2m_pipeline_state', JSON.stringify(pState));
+            OpsFlow.set('p2m_pipeline_state', pState);
             console.log('[Media] Updated pipeline image URL for', productName, '→', newUrl);
         }
     } catch (e) {
@@ -1680,7 +1683,6 @@ window.addToMediaQueue = function(product, fileName, r2Key, url) {
 // ── Boot ─────────────────────────────────────────────────────────
 init();
 </script>
-<script src="../shared/opsflow-sync.js"></script>
 <script>OpsFlow.init();</script>
 </body>
 </html>

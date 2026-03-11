@@ -2286,7 +2286,7 @@
         <div class="p2m-header">
             <div>
                 <h1>Pipeline</h1>
-                <p class="version">Pipeline <span class="suite-ver">v0.81.0</span></p>
+                <p class="version">Pipeline <span class="suite-ver"></span></p>
                 <p class="tagline">7-phase product pipeline &mdash; idea to revenue</p>
             </div>
             <div class="header-right">
@@ -2500,6 +2500,7 @@
         <div class="detail-body" id="detailBody"></div>
     </div>
 
+    <script src="../shared/opsflow-sync.js"></script>
     <script>
         // ============================================================================
         // STATE MANAGEMENT
@@ -2742,10 +2743,8 @@
         const IMG_ROOTS_KEY = 'opsflow_image_roots';
 
         function getImageRoots() {
-            try {
-                const raw = localStorage.getItem(IMG_ROOTS_KEY);
-                return raw ? JSON.parse(raw) : [];
-            } catch(e) { return []; }
+            var data = OpsFlow.getLocal(IMG_ROOTS_KEY);
+            return Array.isArray(data) ? data : [];
         }
 
         function addImageRoot(root) {
@@ -2753,9 +2752,8 @@
             const roots = getImageRoots();
             if (!roots.includes(root)) {
                 roots.unshift(root);
-                // Keep max 10 roots
                 if (roots.length > 10) roots.length = 10;
-                localStorage.setItem(IMG_ROOTS_KEY, JSON.stringify(roots));
+                OpsFlow.set(IMG_ROOTS_KEY, roots);
             }
         }
 
@@ -2797,7 +2795,7 @@
         function queueForMediaCenter(product, fileName, r2Key, url) {
             try {
                 var queueKey = 'opsflow_media_queue';
-                var queue = JSON.parse(localStorage.getItem(queueKey)) || [];
+                var queue = OpsFlow.getLocal(queueKey) || [];
                 // Don't duplicate — check if same r2Key already pending
                 var exists = queue.some(function(j) { return j.r2Key === r2Key && (j.status === 'pending' || j.status === 'processing'); });
                 if (exists) { console.log('[Media] Already queued:', r2Key); return; }
@@ -2812,7 +2810,7 @@
                     addedAt: new Date().toISOString(),
                     processedAt: null,
                 });
-                localStorage.setItem(queueKey, JSON.stringify(queue));
+                OpsFlow.set(queueKey, queue);
                 console.log('[Media] Queued for BG removal:', r2Key);
             } catch (e) {
                 console.warn('[Media] Failed to queue:', e);
@@ -3781,19 +3779,18 @@
 
         function saveState() {
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                OpsFlow.set(STORAGE_KEY, state);
                 // Sync shared product list for cross-page use (Media Pipeline, etc.)
-                localStorage.setItem('opsflow_products', JSON.stringify(Object.keys(state.products)));
+                OpsFlow.set('opsflow_products', Object.keys(state.products));
             } catch (e) {
-                // Silent fail — localStorage might be full or disabled
+                // Silent fail
             }
         }
 
         function loadState() {
             try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const parsed = JSON.parse(saved);
+                const parsed = OpsFlow.getLocal(STORAGE_KEY);
+                if (parsed) {
                     // Merge saved state over defaults to handle new fields added in updates
                     if (parsed.products) state.products = parsed.products;
                     if (parsed.checklists) state.checklists = parsed.checklists;
@@ -3804,7 +3801,7 @@
                     if (parsed.activeProduct) state.activeProduct = parsed.activeProduct;
                 }
                 // Sync shared product list on load for cross-page use
-                localStorage.setItem('opsflow_products', JSON.stringify(Object.keys(state.products)));
+                OpsFlow.set('opsflow_products', Object.keys(state.products));
             } catch (e) {
                 // Silent fail — corrupted data, just use defaults
             }
@@ -3816,9 +3813,8 @@
 
         function getWorkshopData() {
             try {
-                const raw = localStorage.getItem('workshopState_v2');
-                if (!raw) return null;
-                const ws = JSON.parse(raw);
+                const ws = OpsFlow.getLocal('workshopState_v2');
+                if (!ws) return null;
                 // Extract key values from Workshop state
                 const getVal = (cardId, key) => (ws.statics && ws.statics[cardId] && ws.statics[cardId].values && ws.statics[cardId].values[key]) || '';
 
@@ -3958,7 +3954,7 @@
         function resetState() {
             if (!requireEdit('reset')) return;
             if (confirm('Reset all pipeline data to defaults? This cannot be undone.')) {
-                localStorage.removeItem(STORAGE_KEY);
+                OpsFlow.remove(STORAGE_KEY);
                 state = JSON.parse(JSON.stringify(defaultState));
                 renderPipeline();
                 closeDetailPanel();
@@ -5667,7 +5663,6 @@
         renderMarketingBar();
         render();
     </script>
-<script src="../shared/opsflow-sync.js"></script>
 <script>OpsFlow.init();</script>
 </body>
 </html>
