@@ -84,16 +84,24 @@ var OpsFlow = (function () {
     /**
      * Get the suite version — tries localStorage first, falls back to KV
      */
+    function stripQuotes(s) {
+        if (typeof s === 'string' && s.length >= 2 && s[0] === '"' && s[s.length - 1] === '"') {
+            return s.slice(1, -1);
+        }
+        return s;
+    }
+
     function getVersion() {
         var local = localStorage.getItem(VERSION_KV_KEY);
-        if (local) return Promise.resolve(local);
+        if (local) return Promise.resolve(stripQuotes(local));
 
         return kvRequest('GET', VERSION_KV_KEY).then(function (res) {
             if (res.ok && res.value) {
-                localStorage.setItem(VERSION_KV_KEY, res.value);
-                return res.value;
+                var clean = stripQuotes(res.value);
+                localStorage.setItem(VERSION_KV_KEY, clean);
+                return clean;
             }
-            return '0.76.0'; // fallback default
+            return '0.77.0'; // fallback default
         });
     }
 
