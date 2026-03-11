@@ -662,6 +662,24 @@
     <div class="task">
         <span class="priority low"></span>
         <div class="content">
+            <div class="title">[WS] AI Assist &mdash; test prompts by hand before coding</div>
+            <div class="desc">(PROCESS) Formalize prompt R&amp;D as a workflow step: before coding any AI Assist feature, test the prompt manually across Claude, ChatGPT, and Grok. Lock the format, then code. Prevents expensive rework cycles from untested prompt assumptions.</div>
+            <div class="meta"><span class="tag tag-ux">UX</span> Workflow &bull; v0.78.0 process review</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WS] Sweep all hint text for HTML entity escaping issues</div>
+            <div class="desc">(FIX) Audit all field hints across Workshop for &amp;mdash; and similar HTML entities that get double-escaped by escHtml(). Replace with Unicode characters. Applies to fleet, materials, software, and static card hints.</div>
+            <div class="meta"><span class="tag tag-fix">FIX</span> Workshop &bull; v0.78.0 process review</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
             <div class="title">System GO/NO-GO indicator on page headers</div>
             <div class="desc">Small LED-style indicator on each page header showing service health. Draws status from Services page data. Green = all good, yellow = degraded, red = offline.</div>
             <div class="meta"><span class="tag tag-ux">UX</span> All pages &bull; After Services page is built</div>
@@ -3029,6 +3047,60 @@ function runMigrations() {
             changed = true;
         }
         markMigrationRun('v0.78.0_disable_buttons_backlog');
+    }
+
+    if (ran.indexOf('v0.78.0_process_review_backlog') === -1) {
+        var items = [
+            { id: 'bl_v0780_prompt_rd', title: '[WS] AI Assist \u2014 test prompts by hand before coding', desc: 'Formalize prompt R&D as a workflow step: before coding any AI Assist feature, test the prompt manually across Claude, ChatGPT, and Grok. Lock the format, then code. Prevents expensive rework cycles from untested prompt assumptions.', tag: 'UX', meta: 'Workflow \u2022 v0.78.0 process review', priority: 'low' },
+            { id: 'bl_v0780_hint_sweep', title: '[WS] Sweep all hint text for HTML entity escaping issues', desc: 'Audit all field hints across Workshop for &mdash; and similar HTML entities that get double-escaped by escHtml(). Replace with Unicode characters. Applies to fleet, materials, software, and static card hints.', tag: 'FIX', meta: 'Workshop \u2022 v0.78.0 process review', priority: 'low' }
+        ];
+        items.forEach(function(newItem) {
+            var exists = false;
+            for (var i = 0; i < data.backlog.length; i++) {
+                if (data.backlog[i].title.indexOf(newItem.title.substring(0, 30)) !== -1) { exists = true; break; }
+            }
+            if (!exists) { data.backlog.push(newItem); changed = true; }
+        });
+        markMigrationRun('v0.78.0_process_review_backlog');
+    }
+
+    // ── v0.78.0 rework: Move completed PQ items to Recently Completed ──
+    if (ran.indexOf('v0.78.0_pq_cleanup') === -1) {
+        var completeTitles = [
+            { match: 'Review Phase 2 Data Inputs', version: 'v0.78.0', note: 'Addressed during AI Assist rework \u2014 all Phase 2 inputs reviewed and updated' },
+            { match: 'Materials Library Data Input Review', version: 'v0.78.0', note: 'JSON prompt, color tags, live updates all implemented' },
+            { match: 'W3.3', version: 'v0.78.0', note: 'Electricity per Print Hour verified green with real data' },
+            { match: 'W3.4', version: 'v0.78.0', note: 'Blended Hourly Rate verified green with real data' },
+            { match: 'W3.2', version: 'v0.78.0', note: 'Maintenance allocation verified green with real data' },
+            { match: 'Verify PETG-HF', version: 'v0.78.0', note: 'PETG-HF entry verified via AI Assist \u2014 price confirmed at $19.99/kg' }
+        ];
+        if (!data.completed) data.completed = [];
+        for (var c = 0; c < completeTitles.length; c++) {
+            for (var i = data.priority.length - 1; i >= 0; i--) {
+                if (data.priority[i].title && data.priority[i].title.indexOf(completeTitles[c].match) !== -1) {
+                    var item = data.priority.splice(i, 1)[0];
+                    item.status = 'done';
+                    item.completedAt = '2026-03-11';
+                    item.completedVersion = completeTitles[c].version;
+                    item.completionNote = completeTitles[c].note;
+                    data.completed.unshift(item);
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        // T-009: Printer Fleet — split into completed (verification) and remaining (capacity value)
+        for (var i = data.priority.length - 1; i >= 0; i--) {
+            if (data.priority[i].title && data.priority[i].title.indexOf('Printer Fleet') !== -1 && data.priority[i].title.indexOf('capacity') !== -1) {
+                // Update title to reflect only the remaining work
+                data.priority[i].title = '[WS] Printer Fleet \u2014 Add fleet capacity value calculation';
+                data.priority[i].desc = 'All 7 printers verified green. Remaining: build fleet capacity value calculation (total print hours available per day/week across fleet). Original task split from verify + capacity.';
+                data.priority[i].status = 'new';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.78.0_pq_cleanup');
     }
 
     if (changed) saveTasks(data);
