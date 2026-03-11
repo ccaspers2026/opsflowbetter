@@ -469,7 +469,7 @@
         <div class="label">Backlog</div>
     </div>
     <div class="stat-card">
-        <div class="num" style="color:#3fb950;">103</div>
+        <div class="num" style="color:#3fb950;">104</div>
         <div class="label">Versions Shipped</div>
     </div>
     <div class="stat-card">
@@ -2755,23 +2755,40 @@ function runMigrations() {
         markMigrationRun('v0.76.0_bl_arch_diagrams');
     }
 
+    // ── v0.77.0: Move T-083 (LaunchPad Admin) from PQ to Recently Completed ──
+    if (ran.indexOf('v0.77.0_complete_t083') === -1) {
+        for (var i = 0; i < data.priority.length; i++) {
+            if (data.priority[i].title && data.priority[i].title.indexOf('Add/Edit/Delete') !== -1) {
+                var item = data.priority.splice(i, 1)[0];
+                if (!data.completed) data.completed = [];
+                item.completedAt = '2026-03-10';
+                item.completedVersion = 'v0.76.0';
+                item.status = 'completed';
+                data.completed.unshift(item);
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.77.0_complete_t083');
+    }
+
     // ── v0.77.0: Update T-085 and T-086 status to in-progress ──
-    if (ran.indexOf('v0.77.0_t085_t086_in_progress') === -1) {
-        var allItems = (data.priority || []).concat(data.backlog || []);
-        for (var i = 0; i < allItems.length; i++) {
-            var t = allItems[i].title || '';
-            if (t.indexOf('entraliz') !== -1 && t.indexOf('ersion') !== -1) {
-                // T-085: Centralized version
-                allItems[i].status = 'in-progress';
+    if (ran.indexOf('v0.77.0_t085_t086_status_fix') === -1) {
+        var allPQ = data.priority || [];
+        for (var i = 0; i < allPQ.length; i++) {
+            var t = allPQ[i].title || '';
+            // T-085: "Make Version Number Persistent"
+            if (t.indexOf('Version Number Persistent') !== -1) {
+                allPQ[i].status = 'in-progress';
                 changed = true;
             }
-            if (t.indexOf('localStorage') !== -1 && t.indexOf('backup') !== -1) {
-                // T-086: Eliminate localStorage-as-backup
-                allItems[i].status = 'in-progress';
+            // T-086: "data backup as HTML"
+            if (t.indexOf('data backup') !== -1 || t.indexOf('keeping data backup') !== -1) {
+                allPQ[i].status = 'in-progress';
                 changed = true;
             }
         }
-        markMigrationRun('v0.77.0_t085_t086_in_progress');
+        markMigrationRun('v0.77.0_t085_t086_status_fix');
     }
 
     if (changed) saveTasks(data);
