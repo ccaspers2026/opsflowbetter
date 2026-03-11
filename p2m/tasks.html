@@ -1777,7 +1777,7 @@
     This page auto-refreshes every 5 minutes &bull; Last updated: v0.65.1 &mdash; March 8, 2026
 </div>
 
-<script src="../shared/opsflow-sync.js?v=082"></script>
+<script src="../shared/opsflow-sync.js?v=083"></script>
 <script>
 /* ── Interactive Tasks with localStorage ───────────────────────────
    On first load, parses PQ and Backlog from static HTML into localStorage.
@@ -3522,6 +3522,104 @@ function runMigrations() {
             ]
         });
         markMigrationRun('v0.82.1_seed_tester_config');
+    }
+
+    // ── v0.83.0: Set T-014 to In Progress ──
+    if (ran.indexOf('v0.83.0_t014_in_progress') === -1) {
+        var pq = data.priorityQueue || [];
+        for (var pi = 0; pi < pq.length; pi++) {
+            if (pq[pi].title && pq[pi].title.indexOf('W5.1') !== -1) {
+                pq[pi].status = 'in-progress';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.83.0_t014_in_progress');
+    }
+
+    // ── v0.83.0: Complete W5.2 backlog item (merged into Labor Roster) ──
+    if (ran.indexOf('v0.83.0_complete_w52') === -1) {
+        var bl = data.backlog || [];
+        for (var bi = 0; bi < bl.length; bi++) {
+            if (bl[bi].title && bl[bi].title.indexOf('W5.2') !== -1) {
+                var completed52 = bl.splice(bi, 1)[0];
+                completed52.status = 'done';
+                completed52.completedVersion = 'v0.83.0';
+                completed52.completedDate = new Date().toISOString();
+                completed52.completedNote = 'Merged into Labor Roster (T-014)';
+                if (!data.recentlyCompleted) data.recentlyCompleted = [];
+                data.recentlyCompleted.unshift(completed52);
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.83.0_complete_w52');
+    }
+
+    // ── v0.83.0: Add Lookup Data Maintenance backlog item ──
+    if (ran.indexOf('v0.83.0_add_lookup_data_bl') === -1) {
+        if (!data.backlog) data.backlog = [];
+        data.backlog.push({
+            id: 'bl_lookup_data_maint',
+            title: '[ADMIN] Lookup Data Maintenance \u2014 Manage dropdown options',
+            desc: 'Admin tool to manage configurable dropdown lists (Labor roles, statuses, etc.) without code changes. Prevents data quality issues from hardcoded dropdown options that require version bumps to update.',
+            priority: 'low',
+            status: 'new',
+            tags: ['FEATURE', 'Admin \u2022 Data Management'],
+            created: new Date().toISOString()
+        });
+        changed = true;
+        markMigrationRun('v0.83.0_add_lookup_data_bl');
+    }
+
+    // ── v0.83.0: Seed tester config ──
+    if (ran.indexOf('v0.83.0_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            version: 'v0.83.0',
+            sections: [
+                {
+                    title: 'Labor Roster \u2014 Workshop Phase 5 (T-014)',
+                    priority: 'PRIMARY',
+                    items: [
+                        'Phase 5 column shows LR.1 card (Christian Caspers) instead of old W5.1/W5.2',
+                        'LR.1 card opens with correct data: Owner/Operator, $0, Absorbed, 4 hrs/day',
+                        'Click "+ Add Labor" creates new blank LR.2 card',
+                        'Role dropdown shows Owner/Operator, Employee, Contractor, Helper',
+                        'Labor in Pricing dropdown shows Absorbed / Include in COGS options',
+                        'Mark as Complete turns card green, Edit & Re-verify resets it',
+                        'Remove Labor Entry removes card with undo toast',
+                        'Labor summary shows below roster (e.g. "1 active, 1 absorbed")'
+                    ]
+                },
+                {
+                    title: 'Pipeline COGS Bridge (P3.1)',
+                    priority: 'SECONDARY',
+                    items: [
+                        'P3.1 COGS bridge shows "Labor: Christian Caspers: Absorbed" (not old format)',
+                        'Adding a costed labor entry shows their rate in the bridge'
+                    ]
+                },
+                {
+                    title: 'Data Migration',
+                    priority: 'SECONDARY',
+                    items: [
+                        'Old W5.1/W5.2 static cards no longer appear in Phase 5',
+                        'Christian Caspers data migrated correctly from W5.1 to LR.1',
+                        'W5.2 backlog item moved to Recently Completed'
+                    ]
+                },
+                {
+                    title: 'Versions & Infrastructure (v0.83.0)',
+                    priority: 'INFRA',
+                    items: [
+                        'All 9 pages show v0.83.0',
+                        'No console errors on any page',
+                        'Changelog shows v0.83.0 entry'
+                    ]
+                }
+            ]
+        });
+        markMigrationRun('v0.83.0_seed_tester_config');
     }
 
     if (changed) saveTasks(data);

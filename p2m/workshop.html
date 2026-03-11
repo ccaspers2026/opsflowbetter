@@ -937,7 +937,7 @@
         <div class="detail-body" id="detailBody"></div>
     </div>
 
-    <script src="../shared/opsflow-sync.js?v=082"></script>
+    <script src="../shared/opsflow-sync.js?v=083"></script>
     <script>
     // ===================================================================
     // WORKSHOP STATE & CARD DEFINITIONS
@@ -948,7 +948,7 @@
         2: { name: 'Printer Fleet', color: '#7c3aed', dynamic: true, dynamicLabel: '+ Add Printer' },
         3: { name: 'Machine Economics', color: '#059669' },
         4: { name: 'Materials Library', color: '#d97706', dynamic: true, dynamicLabel: '+ Add Material' },
-        5: { name: 'Labor', color: '#dc2626' },
+        5: { name: 'Labor', color: '#dc2626', dynamic: true, dynamicLabel: '+ Add Labor' },
         6: { name: 'Software & Tools', color: '#db2777', dynamic: true, dynamicLabel: '+ Add Tool' }
     };
 
@@ -1050,34 +1050,7 @@
             ],
             allLinked: true
         },
-        '5.1': {
-            phase: 5, number: 'W5.1', title: 'Owner / Primary Operator',
-            description: 'Owner role and labor absorption decision',
-            output: 'Labor cost baseline',
-            purpose: 'Document the owner\'s role in workshop operations. During startup phase, owner labor is absorbed personally and NOT included in product pricing — this is a deliberate business decision that keeps products competitively priced while building volume. Track your hours here for future automation ROI analysis (e.g., Tesla Optimus investment case).',
-            fields: [
-                { key: 'name', label: 'Owner Name', type: 'text', placeholder: 'Christian Caspers', hint: '' },
-                { key: 'role', label: 'Role', type: 'text', placeholder: 'Owner / Operator', hint: 'Your workshop role' },
-                { key: 'laborAbsorbed', label: 'Labor in Product Pricing?', type: 'select', options: ['No — Owner Absorbed', 'Yes — Include in COGS'], placeholder: 'No — Owner Absorbed', hint: 'Confirmed business decision: owner labor absorbed during startup' },
-                { key: 'hoursDay', label: 'Hours Available per Day', type: 'text', placeholder: '4', hint: 'Realistic daily availability for print operations' }
-            ]
-        },
-        '5.2': {
-            phase: 5, number: 'W5.2', title: 'Additional Labor',
-            description: 'Helpers, contractors, future hires',
-            output: 'Expanded labor capacity',
-            purpose: 'Document anyone who helps with workshop operations — even part-time. Machine cleaning, plate clearing, packaging, QC — it all counts as labor cost that should be reflected in your COGS.',
-            fields: [
-                { key: 'helper1Name', label: 'Name', type: 'text', placeholder: 'Frances', hint: '' },
-                { key: 'helper1Title', label: 'Title', type: 'text', placeholder: 'Additive Manufacturing Assistant', hint: 'What they do in the workshop' },
-                { key: 'helper1Role', label: 'Primary Duties', type: 'select', options: ['', 'Machine Maintenance', 'Post-Processing', 'QC', 'Packaging', 'General Workshop', 'Operator', 'Other'] },
-                { key: 'helper1Rate', label: 'Hourly Rate ($)', type: 'text', placeholder: '20', hint: '' },
-                { key: 'helper1HoursMin', label: 'Min Hours per Week', type: 'text', placeholder: '5', hint: 'Confirmed low end from Operations Plan' },
-                { key: 'helper1HoursMax', label: 'Max Hours per Week', type: 'text', placeholder: '8', hint: 'Confirmed high end — may expand to 10-14 with packaging' },
-                { key: 'helper1Tasks', label: 'Typical Tasks', type: 'text', placeholder: 'Cleaning, IPA wipes, lubrication, pulling plates, packaging (future)', hint: 'What does a typical shift look like?' }
-            ],
-            optional: true
-        }
+        // W5.1 and W5.2 replaced by dynamic Labor Roster (v0.83.0, T-014)
     };
 
     var DEFAULT_FLEET = [
@@ -1100,6 +1073,13 @@
         { id: 's3', name: 'AutoFarm3D Full', purpose: 'Farm Management', version: '3.15.4-AF', license: 'Beta', cost: '0', costCycle: 'Free', notes: 'Beta tester arrangement — retail would be $29.99/printer/mo ($209.93/mo for 7 printers). Smart queue, QuinlyVision AI, order mgmt.' }
     ];
 
+    // Labor Roster — repeatable cards for Phase 5 (v0.83.0, T-014)
+    var LABOR_ROLE_OPTIONS = ['Owner/Operator', 'Employee', 'Contractor', 'Helper'];
+
+    var DEFAULT_LABOR = [
+        { id: 'l1', name: 'Christian Caspers', role: 'Owner/Operator', rate: '0', laborInPricing: 'No \u2014 Absorbed', hoursDay: '4', status: 'Active' }
+    ];
+
     // ===================================================================
     // STATE MANAGEMENT
     // ===================================================================
@@ -1113,7 +1093,8 @@
             fleet: DEFAULT_FLEET.map(function(p) { return Object.assign({}, p, { status_led: 'red', verified: false }); }),
             materials: DEFAULT_MATERIALS.map(function(m) { return Object.assign({}, m, { status_led: 'red', verified: false }); }),
             software: DEFAULT_SOFTWARE.map(function(sw) { return Object.assign({}, sw, { status_led: 'red', verified: false }); }),
-            nextDynId: { fleet: 8, materials: 3, software: 4 }
+            labor: DEFAULT_LABOR.map(function(l) { return Object.assign({}, l, { status_led: 'red', verified: false }); }),
+            nextDynId: { fleet: 8, materials: 3, software: 4, labor: 2 }
         };
         Object.keys(STATIC_CARDS).forEach(function(id) {
             s.statics[id] = { status: 'red', verified: false, values: {} };
@@ -1264,6 +1245,59 @@
             s.statics['1.3'].status = 'yellow';
         }
 
+        // v0.83.0: Migrate W5.1/W5.2 static cards → Labor Roster (dynamic array)
+        if (!s.labor) {
+            s.labor = [];
+            // Migrate W5.1 (Owner/Primary Operator)
+            if (s.statics && s.statics['5.1'] && s.statics['5.1'].values) {
+                var w51 = s.statics['5.1'].values;
+                var laborAbsVal = w51.laborAbsorbed || 'No \u2014 Owner Absorbed';
+                // Normalize old value format to new
+                var newPricingVal = 'No \u2014 Absorbed';
+                if (laborAbsVal.indexOf('Yes') !== -1) newPricingVal = 'Yes \u2014 Include in COGS';
+                s.labor.push({
+                    id: 'l1',
+                    name: w51.name || 'Christian Caspers',
+                    role: 'Owner/Operator',
+                    rate: newPricingVal === 'No \u2014 Absorbed' ? '0' : '',
+                    laborInPricing: newPricingVal,
+                    hoursDay: w51.hoursDay || '4',
+                    status: 'Active',
+                    status_led: s.statics['5.1'].verified ? 'green' : 'yellow',
+                    verified: s.statics['5.1'].verified || false
+                });
+            }
+            // Migrate W5.2 (Additional Labor) if it has data
+            if (s.statics && s.statics['5.2'] && s.statics['5.2'].values) {
+                var w52 = s.statics['5.2'].values;
+                if (w52.helper1Name && w52.helper1Name.trim()) {
+                    s.labor.push({
+                        id: 'l2',
+                        name: w52.helper1Name || '',
+                        role: 'Helper',
+                        rate: w52.helper1Rate || '0',
+                        laborInPricing: (w52.helper1Rate && parseFloat(w52.helper1Rate) > 0) ? 'Yes \u2014 Include in COGS' : 'No \u2014 Absorbed',
+                        hoursDay: w52.helper1HoursMin ? (parseFloat(w52.helper1HoursMin) / 5).toFixed(1) : '',
+                        status: 'Active',
+                        status_led: s.statics['5.2'].verified ? 'green' : 'yellow',
+                        verified: s.statics['5.2'].verified || false
+                    });
+                }
+            }
+            // If no data migrated, seed default
+            if (s.labor.length === 0) {
+                s.labor = DEFAULT_LABOR.map(function(l) { return Object.assign({}, l, { status_led: 'red', verified: false }); });
+            }
+            // Clean up old static entries
+            if (s.statics) {
+                delete s.statics['5.1'];
+                delete s.statics['5.2'];
+            }
+            // Ensure nextDynId has labor counter
+            if (!s.nextDynId) s.nextDynId = {};
+            s.nextDynId.labor = s.labor.length + 1;
+        }
+
     }
 
     function saveState() {
@@ -1379,6 +1413,7 @@
         state.fleet.forEach(function(p) { p.status_led = getDynamicCardStatus(p); });
         state.materials.forEach(function(m) { m.status_led = getDynamicCardStatus(m); });
         state.software.forEach(function(s) { s.status_led = getDynamicCardStatus(s); });
+        if (state.labor) state.labor.forEach(function(l) { l.status_led = getDynamicCardStatus(l); });
     }
 
     // ===================================================================
@@ -1483,6 +1518,20 @@
     function getSoftwareNumber(sw) {
         var idx = state.software.indexOf(sw);
         return 'ST.' + (idx + 1);
+    }
+
+    function getLaborNumber(labor) {
+        var idx = state.labor.indexOf(labor);
+        return 'LR.' + (idx + 1);
+    }
+
+    function calcLaborSummary() {
+        if (!state.labor) return { total: 0, active: 0, absorbed: 0, costedRate: 0 };
+        var active = state.labor.filter(function(l) { return l.status === 'Active'; });
+        var absorbed = active.filter(function(l) { return l.laborInPricing === 'No \u2014 Absorbed'; });
+        var costed = active.filter(function(l) { return l.laborInPricing === 'Yes \u2014 Include in COGS'; });
+        var totalRate = costed.reduce(function(s, l) { return s + (parseFloat(l.rate) || 0); }, 0);
+        return { total: state.labor.length, active: active.length, absorbed: absorbed.length, costedRate: totalRate };
     }
 
     // ===================================================================
@@ -2014,6 +2063,7 @@
         });
         if (phaseNum === 2) state.fleet.forEach(function(p) { cards.push({ id: 'fleet-' + p.id, status: p.status_led }); });
         if (phaseNum === 4) state.materials.forEach(function(m) { cards.push({ id: 'mat-' + m.id, status: m.status_led }); });
+        if (phaseNum === 5 && state.labor) state.labor.forEach(function(l) { cards.push({ id: 'labor-' + l.id, status: l.status_led }); });
         if (phaseNum === 6) state.software.forEach(function(s) { cards.push({ id: 'sw-' + s.id, status: s.status_led }); });
         return cards;
     }
@@ -2156,6 +2206,28 @@
                         return function() { openMaterialCard(mid); };
                     }(mat.id)));
                 });
+            }
+            if (p === 5 && state.labor) {
+                state.labor.forEach(function(labor, idx) {
+                    var lrNum = 'LR.' + (idx + 1);
+                    var lrTitle = labor.name || 'New Labor';
+                    var lrRole = labor.role || 'No role';
+                    var lrPricing = labor.laborInPricing === 'Yes \u2014 Include in COGS' ? '$' + (labor.rate || '0') + '/hr' : 'Absorbed';
+                    content.appendChild(createCard('labor-' + labor.id, lrNum, lrTitle, lrRole + '\n' + lrPricing, (labor.status || 'Active') + ' \u00b7 Labor config', labor.status_led, function(lid) {
+                        return function() { openLaborCard(lid); };
+                    }(labor.id)));
+                });
+                // Labor summary
+                var lSum = calcLaborSummary();
+                if (lSum.active > 0) {
+                    var lSumDiv = document.createElement('div');
+                    lSumDiv.className = 'fleet-capacity-summary';
+                    var lSumParts = lSum.active + ' active';
+                    if (lSum.absorbed > 0) lSumParts += ', ' + lSum.absorbed + ' absorbed';
+                    if (lSum.costedRate > 0) lSumParts += ', $' + lSum.costedRate.toFixed(2) + '/hr in COGS';
+                    lSumDiv.innerHTML = 'Labor Roster: ' + lSumParts;
+                    content.appendChild(lSumDiv);
+                }
             }
             if (p === 6) {
                 state.software.forEach(function(sw, idx) {
@@ -2869,6 +2941,138 @@
     }
 
     // ===================================================================
+    // DETAIL PANEL — LABOR ROSTER (Dynamic, v0.83.0)
+    // ===================================================================
+
+    function openLaborCard(laborId) {
+        var labor = state.labor.find(function(l) { return l.id === laborId; });
+        if (!labor) return;
+
+        activeCardId = 'labor-' + laborId;
+        highlightCard(activeCardId);
+
+        var lrNum = getLaborNumber(labor);
+        document.getElementById('detailStepInfo').textContent = lrNum + ' \u2014 ' + (labor.name || 'New Labor');
+        document.getElementById('detailTitle').textContent = labor.role || 'Configure this labor entry';
+        document.getElementById('detailPhaseInfo').textContent = 'Phase 5: Labor';
+        setDetailLed(labor.status_led);
+
+        var body = document.getElementById('detailBody');
+        body.innerHTML = '';
+
+        body.appendChild(makeSection('Purpose', 'Define this person\'s role, cost, and availability in your workshop. Each labor entry flows to the Pipeline COGS calculation \u2014 those marked "Include in COGS" add their hourly rate to per-unit cost, while absorbed labor is tracked for future ROI analysis.'));
+
+        var fieldsDiv = document.createElement('div');
+        fieldsDiv.className = 'detail-section';
+        fieldsDiv.innerHTML = '<div class="detail-section-label">Labor Details</div>';
+
+        // Name field
+        var nameGroup = document.createElement('div');
+        nameGroup.className = 'field-group';
+        nameGroup.innerHTML = '<label class="field-label">Name</label>' +
+            '<input class="field-input" type="text" data-dyn="labor" data-id="' + laborId + '" data-field="name" value="' + escHtml(labor.name || '') + '" placeholder="Full name">';
+        fieldsDiv.appendChild(nameGroup);
+
+        // Role dropdown
+        var roleGroup = document.createElement('div');
+        roleGroup.className = 'field-group';
+        var roleOpts = LABOR_ROLE_OPTIONS.map(function(o) {
+            return '<option value="' + escHtml(o) + '"' + (labor.role === o ? ' selected' : '') + '>' + escHtml(o) + '</option>';
+        }).join('');
+        roleGroup.innerHTML = '<label class="field-label">Role</label>' +
+            '<select class="field-select" data-dyn="labor" data-id="' + laborId + '" data-field="role">' +
+            '<option value="">Select role...</option>' + roleOpts + '</select>' +
+            '<div class="field-hint">Your role in workshop operations</div>';
+        fieldsDiv.appendChild(roleGroup);
+
+        // Hourly Rate
+        var rateGroup = document.createElement('div');
+        rateGroup.className = 'field-group';
+        rateGroup.innerHTML = '<label class="field-label">Hourly Rate ($)</label>' +
+            '<input class="field-input" type="text" data-dyn="labor" data-id="' + laborId + '" data-field="rate" value="' + escHtml(labor.rate || '') + '" placeholder="0">' +
+            '<div class="field-hint">Enter 0 for absorbed labor (no cost to products)</div>';
+        fieldsDiv.appendChild(rateGroup);
+
+        // Labor in Pricing dropdown
+        var pricingGroup = document.createElement('div');
+        pricingGroup.className = 'field-group';
+        var pricingOpts = ['No \u2014 Absorbed', 'Yes \u2014 Include in COGS'].map(function(o) {
+            return '<option value="' + o + '"' + (labor.laborInPricing === o ? ' selected' : '') + '>' + o + '</option>';
+        }).join('');
+        pricingGroup.innerHTML = '<label class="field-label">Labor in Product Pricing?</label>' +
+            '<select class="field-select" data-dyn="labor" data-id="' + laborId + '" data-field="laborInPricing">' + pricingOpts + '</select>' +
+            '<div class="field-hint">Absorbed = not included in COGS. Include = hourly rate flows to per-unit cost.</div>';
+        fieldsDiv.appendChild(pricingGroup);
+
+        // Hours Available per Day
+        var hoursGroup = document.createElement('div');
+        hoursGroup.className = 'field-group';
+        hoursGroup.innerHTML = '<label class="field-label">Hours Available per Day</label>' +
+            '<input class="field-input" type="text" data-dyn="labor" data-id="' + laborId + '" data-field="hoursDay" value="' + escHtml(labor.hoursDay || '') + '" placeholder="4">' +
+            '<div class="field-hint">Realistic daily availability for workshop operations</div>';
+        fieldsDiv.appendChild(hoursGroup);
+
+        // Status dropdown
+        var statusGroup = document.createElement('div');
+        statusGroup.className = 'field-group';
+        var statusOpts = ['Active', 'Inactive'].map(function(o) {
+            return '<option value="' + o + '"' + (labor.status === o ? ' selected' : '') + '>' + o + '</option>';
+        }).join('');
+        statusGroup.innerHTML = '<label class="field-label">Status</label>' +
+            '<select class="field-select" data-dyn="labor" data-id="' + laborId + '" data-field="status">' + statusOpts + '</select>';
+        fieldsDiv.appendChild(statusGroup);
+
+        body.appendChild(fieldsDiv);
+
+        // Actions
+        var actDiv = document.createElement('div');
+        actDiv.className = 'detail-section';
+        if (labor.verified) {
+            actDiv.innerHTML = '<div style="text-align:center;color:#2ea44f;font-weight:600;margin-bottom:8px;">&#10003; Verified</div>' +
+                '<button class="btn-unverify" id="btnUnverifyDyn">Edit & Re-verify</button>';
+        } else {
+            actDiv.innerHTML = '<button class="btn-verify" id="btnVerifyDyn">Mark as Complete</button>';
+        }
+        actDiv.innerHTML += '<button class="btn-remove-card" id="btnRemoveDyn">Remove Labor Entry</button>';
+        body.appendChild(actDiv);
+
+        showPanel();
+        attachDynListeners('labor', laborId);
+    }
+
+    function verifyLabor(id) {
+        if (!requireEdit('mark complete')) return;
+        var l = state.labor.find(function(x) { return x.id === id; });
+        if (!l) return;
+        if (!l.name || !l.role) { showToast('Please fill in at least the name and role', 'error'); return; }
+        l.verified = true;
+        render();
+        openLaborCard(id);
+    }
+
+    function unverifyLabor(id) {
+        if (!requireEdit('edit verified cards')) return;
+        var l = state.labor.find(function(x) { return x.id === id; });
+        if (l) l.verified = false;
+        render();
+        openLaborCard(id);
+    }
+
+    function removeLabor(id) {
+        if (!requireEdit('remove cards')) return;
+        var removed = state.labor.find(function(x) { return x.id === id; });
+        var idx = state.labor.indexOf(removed);
+        var lrNum = 'LR.' + (idx + 1);
+        state.labor = state.labor.filter(function(x) { return x.id !== id; });
+        closePanel();
+        render();
+        showToast('Labor "' + lrNum + ' \u2014 ' + (removed.name || 'Unnamed') + '" removed', null, function() {
+            state.labor.splice(idx, 0, removed);
+            render();
+        });
+    }
+
+    // ===================================================================
     // DYNAMIC FIELD LISTENERS
     // ===================================================================
 
@@ -2883,6 +3087,7 @@
                     if (dynType === 'fleet') verifyFleet(itemId);
                     else if (dynType === 'materials') verifyMaterial(itemId);
                     else if (dynType === 'software') verifySoftware(itemId);
+                    else if (dynType === 'labor') verifyLabor(itemId);
                 });
             }
             if (unverifyBtn) {
@@ -2890,6 +3095,7 @@
                     if (dynType === 'fleet') unverifyFleet(itemId);
                     else if (dynType === 'materials') unverifyMaterial(itemId);
                     else if (dynType === 'software') unverifySoftware(itemId);
+                    else if (dynType === 'labor') unverifyLabor(itemId);
                 });
             }
             if (removeBtn) {
@@ -2897,6 +3103,7 @@
                     if (dynType === 'fleet') removeFleet(itemId);
                     else if (dynType === 'materials') removeMaterial(itemId);
                     else if (dynType === 'software') removeSoftware(itemId);
+                    else if (dynType === 'labor') removeLabor(itemId);
                 });
             }
 
@@ -2986,7 +3193,7 @@
                 if (!isEditUnlocked()) { el.disabled = true; }
                 var handler = function() {
                     if (!isEditUnlocked()) { showToast('Read-only mode \u2014 unlock editing to change values', 'error'); return; }
-                    var arr = dynType === 'fleet' ? state.fleet : dynType === 'materials' ? state.materials : state.software;
+                    var arr = dynType === 'fleet' ? state.fleet : dynType === 'materials' ? state.materials : dynType === 'labor' ? state.labor : state.software;
                     var item = arr.find(function(x) { return x.id === el.dataset.id; });
                     if (item) {
                         item[el.dataset.field] = el.value;
@@ -3069,6 +3276,14 @@
                         } else if (dynType === 'fleet') {
                             var fleetNameLive = ((item.brand || '') + ' ' + (item.model || '')).trim();
                             updateGridCard('fleet-' + item.id, item.name || fleetNameLive || 'New Printer', fleetNameLive || 'No model', item.status_led);
+                        } else if (dynType === 'labor') {
+                            var lrPricingLive = item.laborInPricing === 'Yes \u2014 Include in COGS' ? '$' + (item.rate || '0') + '/hr' : 'Absorbed';
+                            updateGridCard('labor-' + item.id, item.name || 'New Labor', (item.role || 'No role') + '\n' + lrPricingLive, item.status_led);
+                            // Update detail panel header live
+                            var titleEl = document.getElementById('detailTitle');
+                            if (titleEl) titleEl.textContent = item.role || 'Configure this labor entry';
+                            var stepEl = document.getElementById('detailStepInfo');
+                            if (stepEl) stepEl.textContent = getLaborNumber(item) + ' \u2014 ' + (item.name || 'New Labor');
                         }
                     }
                 };
@@ -3094,6 +3309,11 @@
             state.materials.push({ id: id, type: '', color: '', costKg: '', costGram: '', supplier: '', status_led: 'red', verified: false });
             render();
             openMaterialCard(id);
+        } else if (phaseNum === 5) {
+            var id = 'l' + state.nextDynId.labor++;
+            state.labor.push({ id: id, name: '', role: '', rate: '', laborInPricing: 'No \u2014 Absorbed', hoursDay: '', status: 'Active', status_led: 'red', verified: false });
+            render();
+            openLaborCard(id);
         } else if (phaseNum === 6) {
             var id = 's' + state.nextDynId.software++;
             state.software.push({ id: id, name: '', purpose: '', version: '', license: 'Free', cost: '0', costCycle: 'Free', notes: '', status_led: 'red', verified: false });

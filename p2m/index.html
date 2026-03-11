@@ -2500,7 +2500,7 @@
         <div class="detail-body" id="detailBody"></div>
     </div>
 
-    <script src="../shared/opsflow-sync.js?v=082"></script>
+    <script src="../shared/opsflow-sync.js?v=083"></script>
     <script>
         // ============================================================================
         // STATE MANAGEMENT
@@ -3855,10 +3855,11 @@
                     cost: s.cost || '0'
                 }));
 
-                // Labor
-                const laborAbsorbed = getVal('5.1', 'laborAbsorbed') || 'No — Owner Absorbed';
-                const helperRate = parseFloat(getVal('5.2', 'helper1Rate')) || 0;
-                const helperName = getVal('5.2', 'helper1Name') || '';
+                // Labor roster (v0.83.0 — dynamic array)
+                const laborRoster = (ws.labor || []).filter(l => l.status === 'Active');
+                const laborInCogs = laborRoster.filter(l => l.laborInPricing === 'Yes \u2014 Include in COGS');
+                const laborAbsorbed = laborRoster.filter(l => l.laborInPricing !== 'Yes \u2014 Include in COGS');
+                const totalLaborRate = laborInCogs.reduce((s, l) => s + (parseFloat(l.rate) || 0), 0);
 
                 // Fleet roster
                 const fleet = activeFleet.map(p => ({
@@ -3881,9 +3882,10 @@
                     blendedRate: blendedRate.toFixed(2),
                     materials: materials,
                     software: software,
+                    laborRoster: laborRoster,
+                    laborInCogs: laborInCogs,
                     laborAbsorbed: laborAbsorbed,
-                    helperRate: helperRate,
-                    helperName: helperName
+                    totalLaborRate: totalLaborRate
                 };
             } catch (e) {
                 return null;
@@ -3938,8 +3940,18 @@
                     parts.push('<div class="bridge-row"><span class="bridge-label">Material:</span> <span class="bridge-value">' + ws.materials.map(m => m.name + ' @ $' + m.costGram + '/g').join(' · ') + '</span></div>');
                 }
                 parts.push('<div class="bridge-row"><span class="bridge-label">Packaging:</span> <span class="bridge-value bridge-sub">See P4.1 Packaging Design</span></div>');
-                parts.push('<div class="bridge-row"><span class="bridge-label">Labor:</span> <span class="bridge-value">' + ws.laborAbsorbed + '</span>' +
-                    (ws.helperRate > 0 ? ' <span class="bridge-sub">(' + ws.helperName + ' @ $' + ws.helperRate + '/hr)</span>' : '') + '</div>');
+                // Labor roster summary
+                var laborHtml = '';
+                if (ws.laborAbsorbed.length > 0) {
+                    laborHtml += ws.laborAbsorbed.map(function(l) { return l.name + ': Absorbed'; }).join(', ');
+                }
+                if (ws.laborInCogs.length > 0) {
+                    if (laborHtml) laborHtml += ' \u00b7 ';
+                    laborHtml += ws.laborInCogs.map(function(l) { return l.name + ' @ $' + (l.rate || '0') + '/hr'; }).join(', ');
+                }
+                if (!laborHtml) laborHtml = 'No labor entries';
+                parts.push('<div class="bridge-row"><span class="bridge-label">Labor:</span> <span class="bridge-value">' + laborHtml + '</span>' +
+                    (ws.totalLaborRate > 0 ? ' <span class="bridge-sub">($' + ws.totalLaborRate.toFixed(2) + '/hr total in COGS)</span>' : '') + '</div>');
                 html = '<div class="bridge-banner bridge-connected"><div class="bridge-header"><span class="bridge-icon">🔗</span> <strong>Workshop Data for COGS</strong></div>' + parts.join('') + '</div>';
             }
 

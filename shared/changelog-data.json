@@ -1,5 +1,17 @@
 [
   {
+    "version": "v0.83.0",
+    "date": "March 11, 2026",
+    "tag": "FEATURE",
+    "title": "Labor Roster \u2014 Repeatable Cards for Phase 5",
+    "items": [
+      "Labor Roster (T-014): Replaced static W5.1 (Owner) and W5.2 (Additional Labor) cards with a dynamic, repeatable Labor Roster in Workshop Phase 5. Same pattern as Printer Fleet and Materials Library \u2014 add, edit, verify, remove labor entries",
+      "Each labor entry captures: Name, Role (dropdown: Owner/Operator, Employee, Contractor, Helper), Hourly Rate, Labor in Pricing flag (Absorbed vs Include in COGS), Hours/Day, Status (Active/Inactive)",
+      "Pipeline COGS bridge (P3.1) updated to loop through active labor roster entries instead of reading single static fields. Shows absorbed vs costed labor with rate summary",
+      "Data migration preserves existing W5.1 data (Christian Caspers, Owner/Operator, Absorbed, 4 hrs/day) as first roster entry. W5.2 backlog item auto-completed as merged"
+    ]
+  },
+  {
     "version": "v0.82.1",
     "date": "March 11, 2026",
     "tag": "FIX",
