@@ -996,7 +996,7 @@
     ];
 
     var DEFAULT_MATERIALS = [
-        { id: 'm1', name: 'PETG-HF', type: 'PETG (High Flow)', color: 'Various', costKg: '12.99', costGram: '0.01299', stock: '10', supplier: 'Bambu Lab' }
+        { id: 'm1', type: 'PETG-HF', color: 'Various', costKg: '12.99', costGram: '0.01299', stock: '10', supplier: 'Bambu Lab' }
     ];
 
     var DEFAULT_SOFTWARE = [
@@ -1112,6 +1112,10 @@
                 // Reset to single default material — user will re-enter fresh cards
                 s.materials = DEFAULT_MATERIALS.map(function(m) { return Object.assign({}, m, { status_led: 'red', verified: false }); });
                 if (s.nextDynId) s.nextDynId.materials = 2;
+            }
+            // v0.78.0 rework: Remove deprecated 'name' field from any existing materials
+            for (var mj = 0; mj < s.materials.length; mj++) {
+                if (s.materials[mj].name !== undefined) delete s.materials[mj].name;
             }
         }
 
@@ -1392,9 +1396,8 @@
     ];
 
     var MATERIALS_PROMPT_FIELDS = [
-        { key: 'type',     promptLabel: 'Material Type',    parseKeys: ['material type', 'type', 'category'],  numeric: false },
         { key: 'costKg',   promptLabel: 'Cost per kg',      parseKeys: ['cost per kg', 'cost/kg', 'price per kg', 'price/kg'], numeric: true, unit: 'USD' },
-        { key: 'supplier', promptLabel: 'Popular Suppliers', parseKeys: ['popular suppliers', 'suppliers', 'supplier', 'vendor', 'where to buy'], numeric: false }
+        { key: 'color',    promptLabel: 'Available Colors',  parseKeys: ['colors', 'available colors', 'color options'], numeric: false }
     ];
 
     // Machine Economics AI-fillable fields (one prompt fills W3.1 + W3.2)
@@ -1484,9 +1487,12 @@
     }
 
     function getMaterialIntro(mat) {
-        var name = (mat.name || '').trim();
+        var type = (mat.type || '').trim();
+        var supplier = (mat.supplier || '').trim();
         var mlNum = getMaterialNumber(mat);
-        return name ? mlNum + ': I use ' + name + ' 3D printing filament.' : 'I use [enter material name] 3D printing filament.';
+        if (type && supplier) return mlNum + ': I use ' + type + ' 3D printing filament from ' + supplier + '.';
+        if (type) return mlNum + ': I use ' + type + ' 3D printing filament.';
+        return 'I use [enter type and supplier] 3D printing filament.';
     }
 
     function createClaudePromptConfig(fieldDefs, currentValues, introLine) {
@@ -1854,9 +1860,9 @@
             if (p === 4) {
                 state.materials.forEach(function(mat, idx) {
                     var mlNum = 'ML.' + (idx + 1);
-                    var matTitle = (mat.name || 'New Material');
+                    var matTitle = (mat.type || 'New Material');
                     var matEffCost = parseFloat(mat.costKg) || 0;
-                    var matDesc = (mat.type || 'Unconfigured') + '\n$' + (matEffCost > 0 ? matEffCost.toFixed(2) : '—') + '/kg';
+                    var matDesc = (mat.supplier || 'No supplier') + '\n$' + (matEffCost > 0 ? matEffCost.toFixed(2) : '—') + '/kg';
                     content.appendChild(createCard('mat-' + mat.id, mlNum, matTitle, matDesc, 'Material costs', mat.status_led, function(mid) {
                         return function() { openMaterialCard(mid); };
                     }(mat.id)));
@@ -2289,38 +2295,38 @@
         highlightCard(activeCardId);
 
         var mlNum = getMaterialNumber(mat);
-        document.getElementById('detailStepInfo').textContent = mlNum + ' \u2014 ' + (mat.name || 'New Material');
-        document.getElementById('detailTitle').textContent = mat.type || 'Configure this material';
+        document.getElementById('detailStepInfo').textContent = mlNum + ' \u2014 ' + (mat.type || 'New Material');
+        document.getElementById('detailTitle').textContent = mat.supplier ? mat.type + ' \u2014 ' + mat.supplier : 'Configure this material';
         document.getElementById('detailPhaseInfo').textContent = 'Phase 4: Materials Library';
         setDetailLed(mat.status_led);
 
         var body = document.getElementById('detailBody');
         body.innerHTML = '';
 
-        body.appendChild(makeSection('Purpose', 'Define this material\'s cost and availability. The cost per gram flows directly into every product\'s COGS calculation in the Pipeline.'));
+        body.appendChild(makeSection('Purpose', 'Define this material\'s cost and availability. One card per filament type per supplier. The cost per gram flows directly into every product\'s COGS calculation in the Pipeline.'));
 
         // --- AI Assist Section (Materials) ---
-        var hasName = !!(mat.name && mat.name.trim());
+        var hasIdentity = !!(mat.type && mat.type.trim() && mat.supplier && mat.supplier.trim());
         var matAiSection = document.createElement('div');
         matAiSection.className = 'ai-assist-section';
 
         var matToggleBtn = document.createElement('button');
         matToggleBtn.id = 'btnAiToggle';
-        if (hasName) {
-            var matHasEmpty = !mat.type || !mat.costKg || !mat.supplier;
+        if (hasIdentity) {
+            var matHasEmpty = !mat.costKg || !mat.color;
             var matAiConfig = createClaudePromptConfig(MATERIALS_PROMPT_FIELDS, mat, getMaterialIntro(mat));
             matToggleBtn.className = 'ai-assist-toggle' + (matHasEmpty ? ' expanded' : '');
             matToggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-chevron">\u25B2</span>';
         } else {
             matToggleBtn.className = 'ai-assist-toggle disabled';
-            matToggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-hint"> \u2014 enter material name to enable</span>';
+            matToggleBtn.innerHTML = '<span>\u25BC AI ASSIST <span class="ai-badge">beta</span></span><span class="ai-hint"> \u2014 enter type and supplier to enable</span>';
         }
         matAiSection.appendChild(matToggleBtn);
 
         var matAiBody = document.createElement('div');
         matAiBody.id = 'aiAssistBody';
-        if (hasName) {
-            var matHasEmpty2 = !mat.type || !mat.costKg || !mat.supplier;
+        if (hasIdentity) {
+            var matHasEmpty2 = !mat.costKg || !mat.color;
             matAiBody.className = 'ai-assist-body' + (matHasEmpty2 ? ' show' : '');
             matAiBody.innerHTML =
                 '<div class="ai-assist-label">Your Prompt:</div>' +
@@ -2343,10 +2349,9 @@
         fieldsDiv.innerHTML = '<div class="detail-section-label">Material Details</div>';
 
         var fields = [
-            { key: 'name', label: 'Material Name', placeholder: 'PETG-HF' },
-            { key: 'type', label: 'Type', placeholder: 'PETG (High Flow)' },
-            { key: 'color', label: 'Color', placeholder: 'Various' },
+            { key: 'type', label: 'Type', placeholder: 'PETG-HF', hint: 'Filament type &mdash; one card per type per supplier' },
             { key: 'supplier', label: 'Supplier', placeholder: 'Bambu Lab', hint: 'One supplier per card &mdash; add another card for a different supplier' },
+            { key: 'color', label: 'Color', placeholder: 'Various' },
             { key: 'costKg', label: 'Price per kg ($)', placeholder: '12.99' },
             { key: 'stock', label: 'Stock on Hand (kg)', placeholder: '10' }
         ];
@@ -2392,7 +2397,7 @@
         var m = state.materials.find(function(x) { return x.id === id; });
         if (!m) return;
         var mEffCost = parseFloat(m.costKg) || 0;
-        if (!m.name || mEffCost <= 0) { showToast('Please fill in at least the material name and price per kg', 'error'); return; }
+        if (!m.type || !m.supplier || mEffCost <= 0) { showToast('Please fill in type, supplier, and price per kg', 'error'); return; }
         m.verified = true;
         m.costGram = (mEffCost / 1000).toFixed(5);
         render();
@@ -2414,7 +2419,7 @@
         state.materials = state.materials.filter(function(x) { return x.id !== id; });
         closePanel();
         render();
-        showToast('Material "' + (removed.name || 'Unnamed') + '" removed', null, function() {
+        showToast('Material "' + (removed.type || 'Unnamed') + '" removed', null, function() {
             state.materials.splice(idx, 0, removed);
             render();
         });
@@ -2571,15 +2576,17 @@
                 // Determine card-specific config
                 var aiFieldDefs = dynType === 'fleet' ? FLEET_PROMPT_FIELDS : MATERIALS_PROMPT_FIELDS;
                 var aiStateArr = dynType === 'fleet' ? state.fleet : state.materials;
-                var aiGateField = dynType === 'fleet' ? 'model' : 'name';
-                var aiGateField2 = dynType === 'fleet' ? 'brand' : null;
+                var aiGateField = dynType === 'fleet' ? 'model' : 'type';
+                var aiGateField2 = dynType === 'fleet' ? 'brand' : 'supplier';
 
                 // Gate field watcher — auto-enable and expand AI Assist
                 var gateInput = document.querySelector('.field-input[data-dyn="' + dynType + '"][data-id="' + itemId + '"][data-field="' + aiGateField + '"]');
                 var gateInput2 = aiGateField2 ? document.querySelector('.field-input[data-dyn="' + dynType + '"][data-id="' + itemId + '"][data-field="' + aiGateField2 + '"]') : null;
                 var aiFieldWatcher = function() {
                     var gateVal = gateInput ? (gateInput.value || '').trim() : '';
-                    if (gateVal && aiToggle && aiToggle.classList.contains('disabled')) {
+                    var gateVal2 = gateInput2 ? (gateInput2.value || '').trim() : '';
+                    var gateReady = gateVal && (dynType === 'fleet' || gateVal2);
+                    if (gateReady && aiToggle && aiToggle.classList.contains('disabled')) {
                         // Enable and auto-expand
                         var item = aiStateArr.find(function(x) { return x.id === itemId; });
                         if (!item) return;
@@ -2605,7 +2612,7 @@
                             var brandVal = gateInput2 ? (gateInput2.value || '').trim() : '';
                             saveModelLookup(((brandVal ? brandVal + ' ' : '') + gateVal).trim());
                         }
-                    } else if (gateVal && aiToggle && !aiToggle.classList.contains('disabled')) {
+                    } else if (gateReady && aiToggle && !aiToggle.classList.contains('disabled')) {
                         // Gate field changed — regenerate prompt
                         var item2 = aiStateArr.find(function(x) { return x.id === itemId; });
                         if (!item2) return;
@@ -2670,7 +2677,7 @@
             openFleetCard(id);
         } else if (phaseNum === 4) {
             var id = 'm' + state.nextDynId.materials++;
-            state.materials.push({ id: id, name: '', type: '', color: '', costKg: '', costGram: '', stock: '', supplier: '', status_led: 'red', verified: false });
+            state.materials.push({ id: id, type: '', color: '', costKg: '', costGram: '', stock: '', supplier: '', status_led: 'red', verified: false });
             render();
             openMaterialCard(id);
         } else if (phaseNum === 6) {
