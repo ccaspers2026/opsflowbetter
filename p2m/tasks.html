@@ -1663,7 +1663,11 @@ var TASKS_KEY = 'opsflow_tasks_v2';
 function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
 function loadTasks() {
-    try { return JSON.parse(localStorage.getItem(TASKS_KEY)); } catch(e) { return null; }
+    try {
+        var d = JSON.parse(localStorage.getItem(TASKS_KEY));
+        if (d && !d.completed) d.completed = [];
+        return d;
+    } catch(e) { return null; }
 }
 function saveTasks(data) {
     localStorage.setItem(TASKS_KEY, JSON.stringify(data));
@@ -1736,6 +1740,30 @@ function seedFromHTML() {
                     meta: metaEl ? metaEl.textContent.replace(tagEl ? tagEl.textContent : '', '').trim() : '',
                     priority: pri,
                     status: 'new'
+                });
+            }
+        }
+    }
+
+    // Parse Recently Completed (section 2)
+    data.completed = [];
+    if (sections[2]) {
+        var tasks = sections[2].querySelectorAll('.task');
+        for (var i = 0; i < tasks.length; i++) {
+            var t = tasks[i];
+            var titleEl = t.querySelector('.title');
+            var descEl = t.querySelector('.desc');
+            var metaEl = t.querySelector('.meta');
+            var tagEl = t.querySelector('.tag');
+            if (titleEl) {
+                var metaTxt = metaEl ? metaEl.textContent.replace(tagEl ? tagEl.textContent : '', '').trim() : '';
+                data.completed.push({
+                    id: 'done_' + Date.now() + '_' + i,
+                    title: titleEl.textContent,
+                    desc: descEl ? descEl.textContent : '',
+                    tag: tagEl ? tagEl.textContent : 'FEATURE',
+                    meta: metaTxt,
+                    status: 'done'
                 });
             }
         }
@@ -1851,6 +1879,24 @@ function renderTasks() {
             html += '</div>';
         }
         sections[1].innerHTML = html;
+    }
+
+    // ── Recently Completed ──
+    if (sections[2] && data.completed && data.completed.length > 0) {
+        var html = '<h2>&#9989; Recently Completed <span class="count">' + data.completed.length + '</span></h2>';
+        for (var i = 0; i < data.completed.length; i++) {
+            var t = data.completed[i];
+            var taskIdLabel = t.taskNum ? formatTaskNum(t.taskNum) : '';
+            html += '<div class="task completed-task">';
+            html += '<span class="priority done"></span>';
+            html += '<div class="content">';
+            html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '</div>';
+            html += '<div class="desc">' + esc(t.desc) + '</div>';
+            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + (t.completedVersion ? ' &bull; ' + esc(t.completedVersion) : '') + (t.completedAt ? ' &bull; ' + esc(t.completedAt) : '') + '</div>';
+            html += '</div>';
+            html += '</div>';
+        }
+        sections[2].innerHTML = html;
     }
 }
 
@@ -2791,20 +2837,67 @@ function runMigrations() {
         markMigrationRun('v0.77.0_t085_t086_status_fix');
     }
 
+    // ── v0.77.0: Seed completed items from HTML into localStorage ──
+    if (ran.indexOf('v0.77.0_seed_completed') === -1) {
+        if (!data.completed) data.completed = [];
+        var sections = document.querySelectorAll('.section');
+        if (sections[2] && data.completed.length < 10) {
+            // Only seed if we have fewer than 10 completed items (migration-added only)
+            var tasks = sections[2].querySelectorAll('.task');
+            var seeded = [];
+            for (var i = 0; i < tasks.length; i++) {
+                var t = tasks[i];
+                var titleEl = t.querySelector('.title');
+                var descEl = t.querySelector('.desc');
+                var metaEl = t.querySelector('.meta');
+                var tagEl = t.querySelector('.tag');
+                if (titleEl) {
+                    var metaTxt = metaEl ? metaEl.textContent.replace(tagEl ? tagEl.textContent : '', '').trim() : '';
+                    seeded.push({
+                        id: 'done_seed_' + i,
+                        title: titleEl.textContent,
+                        desc: descEl ? descEl.textContent : '',
+                        tag: tagEl ? tagEl.textContent : 'FEATURE',
+                        meta: metaTxt,
+                        status: 'done'
+                    });
+                }
+            }
+            // Append HTML items after any migration-added items
+            data.completed = data.completed.concat(seeded);
+            changed = true;
+        }
+        markMigrationRun('v0.77.0_seed_completed');
+    }
+
     // ── v0.77.0: Fix PQ titles (long feedback text in title field) ──
     if (ran.indexOf('v0.77.0_fix_pq_titles') === -1) {
         var titleFixes = [
             { match: 'Make Version Number Persistent', newTitle: 'Centralized Version Number &mdash; KV Store', newDesc: 'Make version number persistent so we don&rsquo;t have to update several HTML pages each release. Implemented via Cloudflare KV in v0.77.0.' },
             { match: 'Constantly keeping data backup', newTitle: 'Data Backup to KV &mdash; Replace HTML-as-Backup', newDesc: 'Replace HTML-as-data-backup pattern with Cloudflare KV sync. Auto-backup localStorage on page unload, auto-restore if localStorage wiped. Implemented in v0.77.0.' },
             { match: 'Review P2M Phase 2 with me', newTitle: 'Review Phase 2 Data Inputs', newDesc: 'Review P2M Phase 2 data inputs to ensure users understand what to enter. Examine entries for automation or AI-assist opportunities.' },
-            { match: 'examine the Materials Library', newTitle: 'Materials Library Data Input Review', newDesc: 'Examine Materials Library data inputs (brands, suppliers) to ensure AI Prompt generates accurate data. Review shops like Bambu Lab, Amazon, PolyMaker.' }
+            { match: 'examine the Materials Library', newTitle: 'Materials Library Data Input Review', newDesc: 'Examine Materials Library data inputs (brands, suppliers) to ensure AI Prompt generates accurate data. Review shops like Bambu Lab, Amazon, PolyMaker.' },
+            { match: 'Add/Edit/Delete feature at', newTitle: 'LaunchPad Admin &mdash; Add/Edit/Delete Shortcuts', newDesc: 'Self-administration of LaunchPad shortcut balls. Add, edit, and delete links directly from the page. Implemented in v0.76.0.' }
         ];
+        // Fix titles in PQ
         for (var i = 0; i < data.priority.length; i++) {
             for (var f = 0; f < titleFixes.length; f++) {
                 if (data.priority[i].title.indexOf(titleFixes[f].match) !== -1) {
                     data.priority[i].title = titleFixes[f].newTitle;
                     data.priority[i].desc = titleFixes[f].newDesc;
                     changed = true;
+                }
+            }
+        }
+        // Fix titles in completed items too
+        if (data.completed) {
+            for (var i = 0; i < data.completed.length; i++) {
+                for (var f = 0; f < titleFixes.length; f++) {
+                    if (data.completed[i].title && data.completed[i].title.indexOf(titleFixes[f].match) !== -1) {
+                        data.completed[i].title = titleFixes[f].newTitle;
+                        data.completed[i].desc = titleFixes[f].newDesc;
+                        changed = true;
+                    }
                 }
             }
         }
