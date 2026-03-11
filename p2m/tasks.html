@@ -487,6 +487,16 @@
 <div class="section">
     <h2>&#128203; Backlog <span class="count">33</span></h2>
 
+    <!-- ── NOW (high) — v0.79.0 rework ── -->
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">[TST] Tester &mdash; Add REWORK status and block Complete Testing on FAILs</div>
+            <div class="desc">(FEATURE) When any test item is marked FAIL, Tester enters REWORK state. Complete Testing button is disabled while FAILs exist. HALT banner shows REWORK (red/amber). User flips FAIL &rarr; PASS after rework fix is deployed, then Complete Testing becomes available. Prevents premature test completion with unresolved failures.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> Tester &bull; v0.79.0 rework</div>
+        </div>
+    </div>
+
     <!-- ── NOW (high) ── -->
     <div class="task">
         <span class="priority high"></span>
@@ -3101,6 +3111,26 @@ function runMigrations() {
             }
         }
         markMigrationRun('v0.78.0_pq_cleanup');
+    }
+
+    // ── v0.79.0 rework: Add Tester REWORK status backlog item ──
+    if (ran.indexOf('v0.79.0_tester_rework_status') === -1) {
+        var existsRw = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].title && data.backlog[i].title.indexOf('REWORK status') !== -1) { existsRw = true; break; }
+        }
+        if (!existsRw) {
+            data.backlog.unshift({
+                id: 'bl_v0790_tester_rework',
+                title: '[TST] Tester \u2014 Add REWORK status and block Complete Testing on FAILs',
+                desc: '(FEATURE) When any test item is marked FAIL, Tester enters REWORK state. Complete Testing button is disabled while FAILs exist. HALT banner shows REWORK (red/amber). User flips FAIL \u2192 PASS after rework fix is deployed, then Complete Testing becomes available. Prevents premature test completion with unresolved failures.',
+                tag: 'FEATURE',
+                meta: 'Tester \u2022 v0.79.0 rework',
+                priority: 'high'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.79.0_tester_rework_status');
     }
 
     if (changed) saveTasks(data);
