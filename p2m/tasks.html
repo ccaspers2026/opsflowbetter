@@ -1777,7 +1777,7 @@
     This page auto-refreshes every 5 minutes &bull; Last updated: v0.65.1 &mdash; March 8, 2026
 </div>
 
-<script src="../shared/opsflow-sync.js?v=084"></script>
+<script src="../shared/opsflow-sync.js?v=085"></script>
 <script>
 /* ── Interactive Tasks with localStorage ───────────────────────────
    On first load, parses PQ and Backlog from static HTML into localStorage.
@@ -3676,6 +3676,67 @@ function runMigrations() {
             ]
         });
         markMigrationRun('v0.84.0_seed_tester_config');
+    }
+
+    // ── v0.85.0: Set T-093 to In Progress ──
+    if (ran.indexOf('v0.85.0_t093_in_progress') === -1) {
+        var pq = data.priority || [];
+        for (var t93 = 0; t93 < pq.length; t93++) {
+            if (pq[t93].id === 'pq_1773273951554') {
+                pq[t93].status = 'in-progress';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.85.0_t093_in_progress');
+    }
+
+    // ── v0.85.0: Set T-054 to Done (backup — may already be set via live JS) ──
+    if (ran.indexOf('v0.85.0_t054_done') === -1) {
+        var pq54 = data.priority || [];
+        for (var d54 = 0; d54 < pq54.length; d54++) {
+            if (pq54[d54].id === 'pq_1773269811531') {
+                pq54[d54].status = 'done';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.85.0_t054_done');
+    }
+
+    // ── v0.85.0: Seed tester config ──
+    if (ran.indexOf('v0.85.0_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            version: 'v0.85.0',
+            sections: [
+                {
+                    title: 'User Test Item (T-093)',
+                    priority: 'PRIMARY',
+                    items: [
+                        'User Test section appears in Tester with 1 item',
+                        'User can PASS/FAIL/SKIP and annotate the item',
+                        'Complete Testing button counts User Test item in total'
+                    ]
+                },
+                {
+                    title: 'Versions & Infrastructure (v0.85.0)',
+                    priority: 'INFRA',
+                    items: [
+                        'All 9 pages show v0.85.0',
+                        'No console errors on any page',
+                        'Changelog shows v0.85.0 entry'
+                    ]
+                },
+                {
+                    title: 'User Test',
+                    priority: 'MANUAL',
+                    items: [
+                        'User verification \u2014 annotate with findings'
+                    ]
+                }
+            ]
+        });
+        markMigrationRun('v0.85.0_seed_tester_config');
     }
 
     if (changed) saveTasks(data);

@@ -1,5 +1,15 @@
 [
   {
+    "version": "v0.85.0",
+    "date": "March 11, 2026",
+    "tag": "UPDATE",
+    "title": "User Test Item in Tester",
+    "items": [
+      "User Test section (T-093): Every Tester config now includes a 'User Test' section with a manual verification item. Christian can always PASS/FAIL and annotate findings, even when all automated test items pass",
+      "Workflow doc updated: User Test item is now a standard part of every tester config seed"
+    ]
+  },
+  {
     "version": "v0.84.0",
     "date": "March 11, 2026",
     "tag": "UPDATE",
