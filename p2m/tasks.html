@@ -177,6 +177,73 @@
         .tag-fun { background: #2d1b4e; color: #bc8cff; }
         .tag-rename { background: #1a2332; color: #79c0ff; }
 
+        /* ═══ Group Tags ═══ */
+        .group-tag {
+            display: inline-block;
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-left: 4px;
+            border: 1px solid;
+        }
+        .group-ai { background: #1a1a2e; color: #a78bfa; border-color: #4c3a8a; }
+        .group-pipeline { background: #1a2332; color: #58a6ff; border-color: #1f4a7a; }
+        .group-keywords { background: #2a1f0d; color: #f0883e; border-color: #6b4a1f; }
+        .group-workshop { background: #0d2818; color: #3fb950; border-color: #1a5c2e; }
+        .group-services { background: #1c1c2e; color: #79c0ff; border-color: #2a4a6e; }
+        .group-architecture { background: #2d1b4e; color: #bc8cff; border-color: #5a3a8a; }
+        .group-infrastructure { background: #0d2818; color: #56d364; border-color: #1a5c2e; }
+        .group-ux { background: #2a1f0d; color: #f0883e; border-color: #6b4a1f; }
+        .group-media { background: #1a2332; color: #79c0ff; border-color: #1f4a7a; }
+        .group-admin { background: #3d1519; color: #f85149; border-color: #6e2a2a; }
+        .group-qa { background: #1c2333; color: #58a6ff; border-color: #1f4a7a; }
+        .group-templates { background: #1a1a2e; color: #d2a8ff; border-color: #4c3a8a; }
+
+        /* ═══ Filter Bar ═══ */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+        }
+        .filter-bar label {
+            font-size: 11px;
+            color: #8b949e;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .filter-bar select {
+            background: #0d1117;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .filter-bar select:hover { border-color: #58a6ff; }
+        .filter-bar .filter-count {
+            font-size: 11px;
+            color: #484f58;
+            margin-left: auto;
+        }
+        .filter-bar .btn-clear-filter {
+            font-size: 11px;
+            color: #58a6ff;
+            background: none;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 3px 8px;
+            cursor: pointer;
+        }
+        .filter-bar .btn-clear-filter:hover { background: #1f2937; }
+
         .task .order-num {
             font-size: 18px;
             font-weight: 700;
@@ -1804,6 +1871,14 @@
    Completed section and Milestones remain static HTML (dev-managed).
 ──────────────────────────────────────────────────────────────────── */
 var TASKS_KEY = 'opsflow_tasks_v2';
+window._activeGroupFilter = ''; // group filter state
+
+var GROUP_LIST = ['AI', 'Admin', 'Architecture', 'Infrastructure', 'Keywords', 'Media', 'Pipeline', 'QA', 'Services', 'Templates', 'UX', 'Workshop'];
+
+function setGroupFilter(val) {
+    window._activeGroupFilter = val;
+    renderTasks();
+}
 
 function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
@@ -1963,7 +2038,8 @@ function renderTasks() {
                 html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'priority\', \'' + t.id + '\')" title="Click to cycle status"></span>' + resetBtn + (statusCls === 'done' ? '<button class="archive-btn" onclick="archiveItem(\'priority\', \'' + t.id + '\')" title="Archive to Recently Completed">&#128230; Archive</button>' : '') + '</div>';
                 html += '<div class="desc">' + esc(t.desc) + '</div>';
             }
-            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
+            var pqGroupTag = t.group ? '<span class="group-tag group-' + t.group.toLowerCase() + '">' + esc(t.group) + '</span>' : '';
+            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span>' + pqGroupTag + ' ' + esc(t.meta || '') + '</div>';
             html += '</div>';
             html += '<div class="task-actions">';
             if (isEditing) {
@@ -1993,13 +2069,35 @@ function renderTasks() {
             saveTasks(data); // persist sorted order
         }
 
+        // Apply group filter
+        var gf = window._activeGroupFilter || '';
+        var filtered = gf ? data.backlog.filter(function(t) { return t.group === gf; }) : data.backlog;
+
         var html = '<h2>&#128203; Backlog <span class="count">' + data.backlog.length + '</span></h2>';
-        for (var i = 0; i < data.backlog.length; i++) {
-            var t = data.backlog[i];
+
+        // ── Filter bar ──
+        html += '<div class="filter-bar">';
+        html += '<label>Group:</label>';
+        html += '<select onchange="setGroupFilter(this.value)">';
+        html += '<option value="">All Groups</option>';
+        for (var g = 0; g < GROUP_LIST.length; g++) {
+            var cnt = data.backlog.filter(function(t) { return t.group === GROUP_LIST[g]; }).length;
+            html += '<option value="' + GROUP_LIST[g] + '"' + (gf === GROUP_LIST[g] ? ' selected' : '') + '>' + GROUP_LIST[g] + ' (' + cnt + ')</option>';
+        }
+        html += '</select>';
+        if (gf) {
+            html += '<button class="btn-clear-filter" onclick="setGroupFilter(\'\')">Clear Filter</button>';
+        }
+        html += '<span class="filter-count">Showing ' + filtered.length + ' of ' + data.backlog.length + '</span>';
+        html += '</div>';
+
+        for (var i = 0; i < filtered.length; i++) {
+            var t = filtered[i];
             var pri = t.priority || 'medium';
             var statusCls = t.status || 'new';
             var isEditing = window._editingId === t.id;
             var taskIdLabel = t.taskNum ? formatTaskNum(t.taskNum) : '';
+            var blGroupTag = t.group ? '<span class="group-tag group-' + t.group.toLowerCase() + '">' + esc(t.group) + '</span>' : '';
             html += '<div class="task">';
             html += '<span class="priority ' + pri + '" onclick="cyclePriority(\'' + t.id + '\')" title="Click to change priority" style="cursor:pointer;"></span>';
             html += '<div class="content">';
@@ -2011,7 +2109,7 @@ function renderTasks() {
                 html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'backlog\', \'' + t.id + '\')" title="Click to cycle status"></span>' + blResetBtn + (statusCls === 'done' ? '<button class="archive-btn" onclick="archiveItem(\'backlog\', \'' + t.id + '\')" title="Archive to Recently Completed">&#128230; Archive</button>' : '') + '</div>';
                 html += '<div class="desc">' + esc(t.desc) + '</div>';
             }
-            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
+            html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span>' + blGroupTag + ' ' + esc(t.meta || '') + '</div>';
             html += '</div>';
             html += '<div class="task-actions">';
             if (isEditing) {
@@ -3836,6 +3934,39 @@ function runMigrations() {
             ]
         });
         markMigrationRun('v0.86.0_seed_tester_config');
+    }
+
+    // ── v0.86.0: Assign group tags to all PQ and Backlog items ──
+    if (ran.indexOf('v0.86.0_group_tags') === -1) {
+        var groupRules = [
+            { pattern: /^\[AI\]|Auto-generate|Auto-calculate/, group: 'AI' },
+            { pattern: /^\[KW\]|keyword/i, group: 'Keywords' },
+            { pattern: /^\[SVC\]|Services|Calendly|Wire S&I/i, group: 'Services' },
+            { pattern: /^\[WS\]|Workshop|Equipment Setup|Materials Library|Monday\.com/i, group: 'Workshop' },
+            { pattern: /^\[ARCH\]|Architecture|Diagram|Design & Spec/i, group: 'Architecture' },
+            { pattern: /^\[ADMIN\]|Admin.*section|Lookup Data/i, group: 'Admin' },
+            { pattern: /^\[UX\]|Editable.*Read-Only|color palette|progress bar|confirmation popup|icon.*logo|Tighten.*layout|GO.NO-GO|Favicon|stats dashboard|Backlog Grouping/i, group: 'UX' },
+            { pattern: /^\[RESEARCH\].*Depend/i, group: 'Architecture' },
+            { pattern: /Template Builder|Forms Builder|product template/i, group: 'Templates' },
+            { pattern: /Media Center|BG Removal|Reprocess All/i, group: 'Media' },
+            { pattern: /Cloud Storage|R2 data cleanup|Database migration|replace localStorage/i, group: 'Infrastructure' },
+            { pattern: /P2\.|P3\.|G2:|Phase 2|COGS|Material Bill/i, group: 'Pipeline' },
+            { pattern: /compatible.*cell phone|Browser compat/i, group: 'QA' },
+            { pattern: /Move Tester.*Feedback.*Tasks/i, group: 'Admin' }
+        ];
+        function assignGroup(item) {
+            if (item.group) return;
+            for (var r = 0; r < groupRules.length; r++) {
+                if (groupRules[r].pattern.test(item.title)) {
+                    item.group = groupRules[r].group;
+                    return;
+                }
+            }
+        }
+        for (var i = 0; i < data.priority.length; i++) assignGroup(data.priority[i]);
+        for (var i = 0; i < data.backlog.length; i++) assignGroup(data.backlog[i]);
+        changed = true;
+        markMigrationRun('v0.86.0_group_tags');
     }
 
     if (changed) saveTasks(data);
