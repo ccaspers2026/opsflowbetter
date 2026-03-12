@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2M Pipeline — Complete Flow Diagram</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #e6edf3; padding: 20px 20px; }
+
+  h1 { text-align: center; font-size: 26px; color: #58a6ff; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 6px; }
+  .version { text-align: center; color: #484f58; font-size: 11px; margin-bottom: 20px; }
+
+  /* ── Tabs ── */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .tab-btn {
+    padding: 8px 16px;
+    border: 2px solid #30363d;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    background: #161b22;
+    color: #8b949e;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { background: #21262d; color: #e6edf3; }
+  .tab-btn.active { color: #fff; border-color: var(--phase-color); background: var(--phase-bg); }
+  .tab-btn[data-tab="all"] { --phase-color: #58a6ff; --phase-bg: #111d2e; }
+  .tab-btn[data-tab="p1"] { --phase-color: #58a6ff; --phase-bg: #111d2e; }
+  .tab-btn[data-tab="p2"] { --phase-color: #d2a8ff; --phase-bg: #1a1527; }
+  .tab-btn[data-tab="p3"] { --phase-color: #7ee787; --phase-bg: #1a2217; }
+  .tab-btn[data-tab="p4"] { --phase-color: #f0883e; --phase-bg: #221a17; }
+  .tab-btn[data-tab="p5"] { --phase-color: #79c0ff; --phase-bg: #1a1a27; }
+  .tab-btn[data-tab="p6"] { --phase-color: #f778ba; --phase-bg: #271a22; }
+  .tab-btn[data-tab="p7"] { --phase-color: #56d364; --phase-bg: #1a2722; }
+
+  /* ── Tab content ── */
+  .tab-content { display: none; }
+  .tab-content.active { display: flex; flex-direction: column; align-items: center; }
+
+  .flow { max-width: 960px; margin: 0 auto; }
+
+  /* ── Box Styles ── */
+  .box {
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+    min-width: 260px;
+    max-width: 520px;
+    position: relative;
+  }
+  .box h3 { font-size: 15px; margin-bottom: 3px; }
+  .box p { font-size: 11px; opacity: 0.85; line-height: 1.4; }
+  .box .step-out { font-size: 10px; margin-top: 5px; opacity: 0.6; font-style: italic; }
+
+  .input-box { background: #1a2744; border: 2px solid #1f6feb; }
+  .input-box h3 { color: #58a6ff; }
+
+  .workshop-box { background: #1a2e1a; border: 2px solid #3fb950; }
+  .workshop-box h3 { color: #3fb950; }
+
+  .process-box { background: #1f1a2e; border: 2px solid #d2a8ff; }
+  .process-box h3 { color: #d2a8ff; }
+
+  .decision-box { background: #2d1f0e; border: 2px solid #f0883e; }
+  .decision-box h3 { color: #f0883e; }
+
+  .gate-box { background: linear-gradient(135deg, #2d1f0e, #1a1510); border: 3px solid #f0883e; }
+  .gate-box h3 { color: #f0883e; font-size: 16px; }
+  .gate-box p { color: #c9d1d9; }
+
+  .output-box { background: #0d2a1a; border: 2px dashed #3fb950; }
+  .output-box h3 { color: #3fb950; }
+
+  /* ── Arrows ── */
+  .arrow { color: #30363d; font-size: 22px; margin: 10px 0; letter-spacing: 3px; text-align: center; }
+  .arrow.green { color: #3fb950; }
+  .arrow.orange { color: #f0883e; }
+  .arrow.blue { color: #58a6ff; }
+
+  /* ── Phase Headers ── */
+  .phase-banner {
+    width: 100%;
+    max-width: 800px;
+    padding: 14px 24px;
+    border-radius: 10px;
+    margin: 10px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .phase-banner .phase-num { font-size: 28px; font-weight: 800; opacity: 0.3; min-width: 40px; }
+  .phase-banner h2 { font-size: 18px; margin-bottom: 2px; }
+  .phase-banner p { font-size: 11px; opacity: 0.7; }
+
+  .phase-banner.p1 { background: #111d2e; border-left: 4px solid #58a6ff; }
+  .phase-banner.p1 h2, .phase-banner.p1 .phase-num { color: #58a6ff; }
+  .phase-banner.p2 { background: #1a1527; border-left: 4px solid #d2a8ff; }
+  .phase-banner.p2 h2, .phase-banner.p2 .phase-num { color: #d2a8ff; }
+  .phase-banner.p3 { background: #1a2217; border-left: 4px solid #7ee787; }
+  .phase-banner.p3 h2, .phase-banner.p3 .phase-num { color: #7ee787; }
+  .phase-banner.p4 { background: #221a17; border-left: 4px solid #f0883e; }
+  .phase-banner.p4 h2, .phase-banner.p4 .phase-num { color: #f0883e; }
+  .phase-banner.p5 { background: #1a1a27; border-left: 4px solid #79c0ff; }
+  .phase-banner.p5 h2, .phase-banner.p5 .phase-num { color: #79c0ff; }
+  .phase-banner.p6 { background: #271a22; border-left: 4px solid #f778ba; }
+  .phase-banner.p6 h2, .phase-banner.p6 .phase-num { color: #f778ba; }
+  .phase-banner.p7 { background: #1a2722; border-left: 4px solid #56d364; }
+  .phase-banner.p7 h2, .phase-banner.p7 .phase-num { color: #56d364; }
+
+  /* ── Step Cards ── */
+  .step-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; max-width: 800px; margin: 6px 0; }
+  .step-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: left;
+    flex: 1;
+    min-width: 160px;
+    max-width: 220px;
+  }
+  .step-card .sid { font-size: 10px; font-weight: 700; margin-bottom: 2px; }
+  .step-card .stitle { font-size: 12px; color: #e6edf3; font-weight: 600; margin-bottom: 3px; }
+  .step-card .sdesc { font-size: 10px; color: #8b949e; line-height: 1.3; }
+  .step-card .sout { font-size: 9px; color: #3fb950; margin-top: 4px; font-style: italic; }
+
+  .p1-id { color: #58a6ff; } .p2-id { color: #d2a8ff; } .p3-id { color: #7ee787; }
+  .p4-id { color: #f0883e; } .p5-id { color: #79c0ff; } .p6-id { color: #f778ba; } .p7-id { color: #56d364; }
+
+  /* ── Side annotations ── */
+  .annotated-row { display: flex; gap: 16px; align-items: center; justify-content: center; width: 100%; max-width: 900px; }
+  .side-annotation {
+    background: #161b22; border: 1px dashed #484f58; border-radius: 8px;
+    padding: 8px 12px; max-width: 200px; min-width: 160px;
+  }
+  .side-annotation h4 { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .side-annotation p { font-size: 10px; color: #6e7681; line-height: 1.3; }
+  .side-annotation.compliance h4 { color: #79c0ff; }
+  .side-annotation.bom h4 { color: #f778ba; }
+  .side-annotation.qc h4 { color: #56d364; }
+  .side-annotation.notes h4 { color: #8b949e; }
+  .side-connector { color: #484f58; font-size: 14px; }
+
+  /* ── Callout ── */
+  .callout { border-radius: 8px; padding: 10px 16px; max-width: 700px; width: 100%; margin: 6px 0; text-align: left; }
+  .callout.multi-mat { background: #2a1a2a33; border: 1px solid #f778ba33; }
+  .callout.multi-mat h4 { color: #f778ba; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .callout p { font-size: 10px; color: #8b949e; line-height: 1.4; }
+
+  /* ── Split / Merge ── */
+  .split-row { display: flex; gap: 20px; align-items: flex-start; justify-content: center; width: 100%; }
+  .split-col { display: flex; flex-direction: column; align-items: center; }
+  .split-label { font-size: 10px; color: #8b949e; text-align: center; margin-bottom: 4px; font-style: italic; }
+  .input-row { display: flex; gap: 30px; align-items: flex-start; justify-content: center; width: 100%; }
+  .merge { width: 100%; max-width: 500px; display: flex; justify-content: center; align-items: center; position: relative; height: 40px; margin: 0 auto; }
+  .merge::before { content: ''; position: absolute; top: 0; left: calc(50% - 140px); width: 1px; height: 20px; background: #58a6ff; }
+  .merge::after { content: ''; position: absolute; top: 0; right: calc(50% - 140px); width: 1px; height: 20px; background: #3fb950; }
+  .merge-line { position: absolute; top: 20px; left: calc(50% - 140px); right: calc(50% - 140px); height: 1px; background: linear-gradient(to right, #58a6ff, #3fb950); }
+  .merge-down { position: absolute; bottom: 0; left: 50%; width: 1px; height: 20px; background: #8b949e; }
+
+  .loop { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .loop span { color: #f85149; font-size: 11px; font-weight: 600; }
+
+  /* ── Target ── */
+  .target-box {
+    background: linear-gradient(135deg, #0d2a1a, #0d1117);
+    border: 2px solid #3fb950; border-radius: 12px;
+    padding: 20px 28px; text-align: center; max-width: 520px; margin-top: 10px;
+  }
+  .target-box h3 { color: #3fb950; font-size: 20px; margin-bottom: 4px; }
+  .target-box p { color: #8b949e; font-size: 12px; }
+
+  /* ── Phase transition arrow (between tabs) ── */
+  .phase-exit {
+    margin-top: 16px;
+    padding: 10px 20px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 500px;
+  }
+  .phase-exit p { font-size: 11px; color: #8b949e; }
+  .phase-exit .next-link { color: #58a6ff; cursor: pointer; text-decoration: underline; font-weight: 600; }
+
+  /* ── Legend ── */
+  .legend { display: flex; gap: 14px; justify-content: center; margin: 0 0 16px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #8b949e; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* ── Parallel Sprint Zone ── */
+  .sprint-zone {
+    border: 2px dashed #f0883e;
+    border-radius: 16px;
+    padding: 16px 12px;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 820px;
+    position: relative;
+  }
+  .sprint-zone-label {
+    position: absolute;
+    top: -12px;
+    left: 24px;
+    background: #0d1117;
+    padding: 2px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #f0883e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .sprint-zone .sprint-note {
+    font-size: 10px;
+    color: #8b949e;
+    text-align: center;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ── Channel Badge ── */
+  .channel-badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .channel-badge.amazon { background: #2d1f0e; color: #f0883e; border: 1px solid #f0883e55; }
+  .channel-badge.etsy { background: #1f2d0e; color: #f07d3e; border: 1px solid #f07d3e55; }
+  .channel-badge.shopify { background: #0e2d1f; color: #56d364; border: 1px solid #56d36455; }
+  .channel-badge.all { background: #1a1a2e; color: #a78bfa; border: 1px solid #a78bfa55; }
+
+  /* ── Channel selector (visual concept) ── */
+  .channel-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin: 10px 0;
+    padding: 8px 16px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    max-width: 600px;
+  }
+  .channel-selector label { font-size: 11px; color: #8b949e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .channel-pill {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: default;
+    border: 1px solid #30363d;
+    background: #0d1117;
+    color: #8b949e;
+  }
+  .channel-pill.active { border-color: #f0883e; color: #f0883e; background: #2d1f0e; }
+  .channel-pill.future { opacity: 0.4; }
+
+  /* ── Dependency arrows ── */
+  .dep-note {
+    font-size: 9px;
+    color: #f85149;
+    padding: 2px 6px;
+    background: #3d151933;
+    border: 1px solid #f8514933;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .dep-note.soft { color: #f0883e; background: #2d1f0e33; border-color: #f0883e33; }
+  .unlock-note {
+    font-size: 10px;
+    color: #484f58;
+    text-align: center;
+    margin: 4px 0;
+    font-style: italic;
+  }
+
+  /* ── Common Data Box ── */
+  .common-data-box {
+    background: #161b22;
+    border: 1px solid #58a6ff44;
+    border-radius: 8px;
+    padding: 10px 16px;
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    margin: 6px 0;
+  }
+  .common-data-box h4 { font-size: 11px; color: #58a6ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .common-data-box p { font-size: 10px; color: #8b949e; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<h1>P2M Pipeline — Complete Flow</h1>
+<p class="subtitle">Product to Market &nbsp;|&nbsp; 7 Phases, 3 Gates, Idea to Revenue</p>
+<p class="version">Discussion Draft — March 2026</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#d2a8ff;"></div> Process Step</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#f0883e;"></div> Decision / Gate</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#1f6feb;"></div> Input</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#3fb950;"></div> Output / Deliverable</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#f778ba;"></div> BOM / Materials</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#79c0ff;"></div> Compliance</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#56d364;"></div> QC</div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="all" onclick="showTab('all')">All Phases</button>
+  <button class="tab-btn" data-tab="p1" onclick="showTab('p1')">1 Ideation</button>
+  <button class="tab-btn" data-tab="p2" onclick="showTab('p2')">2 Design</button>
+  <button class="tab-btn" data-tab="p3" onclick="showTab('p3')">3 Costing</button>
+  <button class="tab-btn" data-tab="p4" onclick="showTab('p4')">4 Packaging</button>
+  <button class="tab-btn" data-tab="p5" onclick="showTab('p5')">5 Listings</button>
+  <button class="tab-btn" data-tab="p6" onclick="showTab('p6')">6 Marketing</button>
+  <button class="tab-btn" data-tab="p7" onclick="showTab('p7')">7 Sustain</button>
+</div>
+
+<div class="flow">
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- ALL PHASES (scrollable full flow)                  -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-all">
+
+  <!-- P1 -->
+  <div class="phase-banner p1"><div class="phase-num">1</div><div><h2>Ideation & Validation</h2><p>Is this product worth building?</p></div></div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p1-id">P1.1</div><div class="stitle">Product Idea</div><div class="sdesc">Define product, target customer, unique angle</div><div class="sout">→ Product concept document</div></div>
+    <div class="step-card"><div class="sid p1-id">P1.2</div><div class="stitle">Market Research</div><div class="sdesc">Search terms, competitors, price range, complaints</div><div class="sout">→ Market research summary</div></div>
+    <div class="step-card"><div class="sid p1-id">P1.3</div><div class="stitle">Competitive Analysis</div><div class="sdesc">Top 3-5 competitors, strengths, weaknesses</div><div class="sout">→ Competitive positioning</div></div>
+  </div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p1-id">P1.4</div><div class="stitle">Niche Viability Score</div><div class="sdesc">6-factor scoring (min 18/30)</div><div class="sout">→ Viability score</div></div>
+    <div class="step-card"><div class="sid p1-id">P1.5</div><div class="stitle">Income Target Math</div><div class="sdesc">$2k/month backward calculation</div><div class="sout">→ Units/day & printer needs</div></div>
+  </div>
+  <div class="arrow blue">▼</div>
+  <div class="box gate-box"><h3>⬥ G1 — GO / NO-GO Gate</h3><p>Score ≥ 18/30 and income math works? → Phase 2</p></div>
+  <div class="arrow green">▼</div>
+
+  <!-- P2 -->
+  <div class="phase-banner p2"><div class="phase-num">2</div><div><h2>Design & Engineering</h2><p>Turn concept into a real, production-ready product</p></div></div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p2-id">P2.1</div><div class="stitle">Design Brief / CAD Spec</div><div class="sdesc">Complete spec per model + compliance check. DIY or contractor.</div><div class="sout">→ CAD files + spec per model</div></div>
+    <div class="step-card"><div class="sid p2-id">P2.2</div><div class="stitle">Prototype & Iterate</div><div class="sdesc">Print, test, log. Define QC criteria. Multi-material assembly.</div><div class="sout">→ Tested prototypes + QC criteria</div></div>
+    <div class="step-card"><div class="sid p2-id">P2.3</div><div class="stitle">Lock Settings + BOM</div><div class="sdesc">Finalize slicer profiles. Compile Bill of Materials.</div><div class="sout">→ Locked profiles + complete BOM</div></div>
+  </div>
+  <div class="arrow green">▼</div>
+  <div class="box gate-box"><h3>⬥ G2 — DESIGN LOCK Gate</h3><p>Design frozen. BOM complete. QC defined. → Phase 3</p></div>
+  <div class="arrow green">▼</div>
+
+  <!-- P3 -->
+  <div class="phase-banner p3"><div class="phase-num">3</div><div><h2>Cost Model & Pricing</h2><p>Calculate costs, build pricing tiers</p></div></div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p3-id">P3.1</div><div class="stitle">Per-Unit COGS</div><div class="sdesc">Material + machine time + hardware + packaging</div><div class="sout">→ COGS per model</div></div>
+    <div class="step-card"><div class="sid p3-id">P3.2</div><div class="stitle">Pricing Strategy</div><div class="sdesc">Cost + margin = price. Distributor/wholesale/retail.</div><div class="sout">→ Selling prices</div></div>
+    <div class="step-card"><div class="sid p3-id">P3.3</div><div class="stitle">Variation Pricing</div><div class="sdesc">Per model/size/material. Multi-pack discounts.</div><div class="sout">→ Price per variation</div></div>
+  </div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p3-id">P3.4</div><div class="stitle">Break-Even Analysis</div><div class="sdesc">Units to recover startup costs. Timeline.</div><div class="sout">→ Break-even timeline</div></div>
+  </div>
+  <div class="arrow green">▼</div>
+
+  <!-- ═══ PARALLEL SPRINT ZONE (P4 + P5 + P6) ═══ -->
+  <div class="channel-selector">
+    <label>Channel:</label>
+    <span class="channel-pill active">Amazon</span>
+    <span class="channel-pill future">Etsy</span>
+    <span class="channel-pill future">Shopify</span>
+    <span class="channel-pill future">+ Add</span>
+  </div>
+
+  <div class="sprint-zone">
+    <div class="sprint-zone-label">Parallel Sprint Zone — P4 / P5 / P6</div>
+
+    <!-- P4 -->
+    <div class="phase-banner p4"><div class="phase-num">4</div><div><h2>Packaging & FBA Prep</h2><p>Make it shippable — packaging, compliance, batch workflow</p></div></div>
+    <div class="step-row">
+      <div class="step-card"><div class="sid p4-id">P4.1</div><div class="stitle">Packaging Design</div><div class="sdesc">Box, insert, labels, poly bag, FNSKU</div><div class="sout">→ Packaging prototype</div></div>
+      <div class="step-card"><div class="sid p4-id">P4.2</div><div class="stitle">FBA Prep Checklist</div><div class="sdesc">Amazon requirements, size tier, labels</div><div class="sout">→ FBA compliance</div><div class="dep-note soft">Channel-specific</div></div>
+      <div class="step-card"><div class="sid p4-id">P4.3</div><div class="stitle">Prep & Ship Workflow</div><div class="sdesc">Print → QC → pack → label → box → ship</div><div class="sout">→ Batch SOP</div></div>
+    </div>
+    <div class="unlock-note">P4.1 unlocks → P5.3 Photography (need packaged product to shoot)</div>
+    <div class="arrow" style="font-size:16px;">▼</div>
+
+    <!-- P5 -->
+    <div class="phase-banner p5"><div class="phase-num">5</div><div><h2>Listings & Launch</h2><p>Barcodes, listing content, photography, go-live</p></div></div>
+    <div class="common-data-box">
+      <h4>Common Product Data (from P2/P3)</h4>
+      <p>Title, description, features, dimensions, weight, images, COGS, pricing — shared across all channels. Write once, adapt per channel.</p>
+    </div>
+    <div class="step-row">
+      <div class="step-card"><div class="sid p5-id">P5.1</div><div class="stitle">UPC / GTIN Codes</div><div class="sdesc">Purchase and assign barcodes per SKU</div><div class="sout">→ Barcode assignment</div></div>
+      <div class="step-card"><div class="sid p5-id">P5.2</div><div class="stitle">Listing Content</div><div class="sdesc">Title, bullets, description, keywords. SEO.</div><div class="sout">→ Listing content</div><div class="dep-note soft">Channel-specific format</div></div>
+      <div class="step-card"><div class="sid p5-id">P5.3</div><div class="stitle">Product Photography</div><div class="sdesc">7+ images: main, lifestyle, features, scale</div><div class="sout">→ 7 product images</div><div class="dep-note">Requires P4.1</div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-card"><div class="sid p5-id">P5.4</div><div class="stitle">Variations Setup</div><div class="sdesc">Parent/child listings for models, colors, packs</div><div class="sout">→ Variations configured</div><div class="dep-note soft">Channel-specific</div></div>
+      <div class="step-card"><div class="sid p5-id">P5.5</div><div class="stitle">Launch Checklist</div><div class="sdesc">10-step go-live. Inventory shipped, PPC ready.</div><div class="sout">→ Go-live checklist</div><div class="dep-note">Requires P5.2 + P5.3 + P4.2</div></div>
+    </div>
+    <div class="unlock-note">P5.2 Keyword research can start in parallel with P4 Photography</div>
+    <div class="arrow" style="font-size:16px;">▼</div>
+    <div class="box gate-box"><h3>⬥ G5 — LAUNCH READY Gate</h3><p>Per-channel: listing complete, images uploaded, inventory shipped, PPC configured. All channels must pass before go-live.</p></div>
+    <div class="arrow" style="font-size:16px;">▼</div>
+
+    <!-- P6 -->
+    <div class="phase-banner p6"><div class="phase-num">6</div><div><h2>Marketing & Growth</h2><p>Drive traffic, build reviews, grow to $2k/month</p></div></div>
+    <div class="step-row">
+      <div class="step-card"><div class="sid p6-id">P6.1</div><div class="stitle">Launch Strategy</div><div class="sdesc">PPC, social, F&F, communities</div><div class="sout">→ Marketing plan</div><div class="dep-note soft">Channel-specific</div></div>
+      <div class="step-card"><div class="sid p6-id">P6.2</div><div class="stitle">PPC Campaigns</div><div class="sdesc">Auto, exact, broad, product targeting</div><div class="sout">→ Active campaigns</div><div class="dep-note">Requires G5 PASS</div></div>
+      <div class="step-card"><div class="sid p6-id">P6.3</div><div class="stitle">Review Generation</div><div class="sdesc">Build to 25+ reviews. Vine, follow-ups.</div><div class="sout">→ 25+ reviews</div><div class="dep-note soft">Channel-specific</div></div>
+      <div class="step-card"><div class="sid p6-id">P6.4</div><div class="stitle">Growth Milestones</div><div class="sdesc">Track toward $2k/month. Weekly metrics.</div><div class="sout">→ $2k/month revenue</div></div>
+    </div>
+    <div class="sprint-note">Cards unlock based on cross-phase dependencies, not just sequential phase order. Locked cards show what they're waiting for.</div>
+  </div><!-- end sprint zone -->
+  <div class="arrow green">▼</div>
+
+  <!-- P7 -->
+  <div class="phase-banner p7"><div class="phase-num">7</div><div><h2>Sustain & Grow</h2><p>Keep it healthy — inventory, financials, optimization across all channels</p></div></div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p7-id">P7.1</div><div class="stitle">Inventory Management</div><div class="sdesc">Reorder points, batch sizing, safety stock per channel</div><div class="sout">→ Inventory policy</div></div>
+    <div class="step-card"><div class="sid p7-id">P7.2</div><div class="stitle">Monthly P&L</div><div class="sdesc">Revenue, costs, net profit — per-channel + total</div><div class="sout">→ P&L tracking</div></div>
+    <div class="step-card"><div class="sid p7-id">P7.3</div><div class="stitle">Continuous Optimization</div><div class="sdesc">PPC, listing, pricing, cost reduction</div><div class="sout">→ Optimization log</div></div>
+    <div class="step-card"><div class="sid p7-id">P7.4</div><div class="stitle">Channel Expansion</div><div class="sdesc">Add next channel, reuse P2/P3 data, run P4-P6</div><div class="sout">→ Multi-channel revenue</div></div>
+  </div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p7-id">P7.5</div><div class="stitle">Product Iteration</div><div class="sdesc">New variants, improvements, push across channels</div><div class="sout">→ Sustained $2k+/month</div></div>
+  </div>
+  <div class="arrow green">▼</div>
+  <div class="target-box"><h3>$2,000+/month per product (all channels)</h3><p>Sustainable multi-channel revenue. Repeat pipeline for next product.</p></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PHASE 1 TAB                                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-p1">
+  <div class="phase-banner p1"><div class="phase-num">1</div><div><h2>Ideation & Validation</h2><p>Is this product worth building? Market research, competitive analysis, viability scoring, and income math.</p></div></div>
+
+  <div class="step-row">
+    <div class="step-card"><div class="sid p1-id">P1.1</div><div class="stitle">Product Idea</div><div class="sdesc">Define the product, target customer, and unique angle. What problem does it solve? Who buys it?</div><div class="sout">→ Product concept document</div></div>
+    <div class="step-card"><div class="sid p1-id">P1.2</div><div class="stitle">Market Research</div><div class="sdesc">Search terms, competitor count, price range, review complaints. Amazon and Etsy landscape.</div><div class="sout">→ Market research summary</div></div>
+    <div class="step-card"><div class="sid p1-id">P1.3</div><div class="stitle">Competitive Analysis</div><div class="sdesc">Top 3-5 competitors, strengths, weaknesses. Where's the gap you fill?</div><div class="sout">→ Competitive positioning</div></div>
+  </div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p1-id">P1.4</div><div class="stitle">Niche Viability Score</div><div class="sdesc">6-factor scoring (min 18/30 to proceed). Demand, competition, margin potential, differentiation, production fit, scalability.</div><div class="sout">→ Viability score ≥ 18/30</div></div>
+    <div class="step-card"><div class="sid p1-id">P1.5</div><div class="stitle">Income Target Math</div><div class="sdesc">$2k/month backward calculation. Units per day needed, printer capacity, production feasibility.</div><div class="sout">→ Units/day and printer requirements</div></div>
+  </div>
+
+  <div class="arrow blue">▼</div>
+  <div class="box gate-box"><h3>⬥ G1 — GO / NO-GO Gate</h3><p>Score ≥ 18/30 and income math works? → GO to Phase 2. Otherwise archive the idea.</p></div>
+
+  <div class="phase-exit"><p>Passes gate → <span class="next-link" onclick="showTab('p2')">Phase 2: Design & Engineering →</span></p></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PHASE 2 TAB                                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-p2">
+  <div class="phase-banner p2"><div class="phase-num">2</div><div><h2>Design & Engineering</h2><p>Turn the validated concept into a real, printable, production-ready product. DIY or contractor path.</p></div></div>
+
+  <div class="input-row">
+    <div class="box input-box" style="flex:1; max-width:300px; padding:12px 18px;"><h3 style="font-size:13px;">Phase 1 Outputs</h3><p>Market positioning, models needed, price targets, competitive gaps</p></div>
+    <div class="box workshop-box" style="flex:1; max-width:300px; padding:12px 18px;"><h3 style="font-size:13px;">Workshop Setup</h3><p>Printer fleet, plate sizes, materials, nozzles, slicer, machine rate</p></div>
+  </div>
+  <div class="merge"><div class="merge-line"></div><div class="merge-down"></div></div>
+
+  <div class="annotated-row">
+    <div class="side-annotation compliance"><h4>Compliance Check</h4><p>Material safety, Amazon category rules, consumer regs. Check before designing — may drive choices.</p></div>
+    <div class="side-connector">◂</div>
+    <div class="box process-box" style="padding:14px 20px;"><h3>P2.1 — Design Brief / CAD Spec</h3><p>Complete spec per model. Enough to hand to a contractor or guide your own CAD work.</p><div class="step-out">→ CAD files + spec sheet per model</div></div>
+  </div>
+
+  <div class="callout multi-mat"><h4>Multi-Material / Multi-Part</h4><p>Products may use multiple materials (PETG-HF, PLA, TPU-85A) + purchased hardware (heat set inserts, bolts, nut plates). Spec captures per-part materials and assembly.</p></div>
+
+  <div class="arrow">▼</div>
+  <div class="box decision-box" style="padding:12px 20px;"><h3>Who Designs It?</h3><p>DIY (OnShape, Fusion, etc.) — or — Contractor (Fiverr, freelancer)</p></div>
+  <div class="arrow">▼</div>
+
+  <div class="split-row">
+    <div class="split-col" style="flex:1; max-width:240px;"><div class="split-label">Path A: DIY</div><div class="box process-box" style="min-width:200px; padding:12px 16px;"><h3 style="font-size:13px;">You Model in CAD</h3><p>Export STL/3MF/STEP</p></div></div>
+    <div class="split-col" style="flex:1; max-width:240px;"><div class="split-label">Path B: Contractor</div><div class="box process-box" style="min-width:200px; padding:12px 16px;"><h3 style="font-size:13px;">Send Brief → Receive Files</h3><p>Review & revise</p></div></div>
+  </div>
+  <div class="arrow">▼ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ▼</div>
+
+  <div class="annotated-row">
+    <div class="box process-box" style="padding:14px 20px;"><h3>P2.2 — Prototype & Iterate</h3><p>Print, test, log. Multi-material: test each material + assembly. Repeat until all models pass.</p><div class="step-out">→ Tested prototypes, confirmed dimensions</div></div>
+    <div class="side-connector">▸</div>
+    <div class="side-annotation qc"><h4>Define QC Criteria</h4><p>What's a reject? Warping, adhesion, tolerance, hardware fit, visual defects. Document now.</p></div>
+  </div>
+  <div class="loop"><span style="font-size:18px;">⟲</span> <span>FAIL → revise CAD → reprint</span></div>
+
+  <div class="arrow">▼</div>
+
+  <div class="annotated-row">
+    <div class="side-annotation bom"><h4>Bill of Materials</h4><p>Printed parts + purchased hardware + packaging components. Feeds Phase 3 COGS directly.</p></div>
+    <div class="side-connector">◂</div>
+    <div class="box process-box" style="padding:14px 20px;"><h3>P2.3 — Lock Print Settings + BOM</h3><p>Finalize slicer profiles. Confirm weights, times, plate capacity. Compile BOM.</p><div class="step-out">→ Locked profiles, production numbers, complete BOM</div></div>
+  </div>
+
+  <div style="margin-top:10px;">
+    <div class="side-annotation notes" style="max-width:500px; margin: 0 auto;"><h4>Planning Notes (for later)</h4><p>Packaging ideas (→ P4) &nbsp;|&nbsp; Photography angles (→ P5) &nbsp;|&nbsp; Listing talking points (→ P5)</p></div>
+  </div>
+
+  <div class="arrow green">▼</div>
+  <div class="box gate-box"><h3>⬥ G2 — DESIGN LOCK Gate</h3><p>Design frozen. CAD final. Profiles locked. BOM complete. QC defined. Compliance checked.</p></div>
+
+  <div class="phase-exit"><p>Passes gate → <span class="next-link" onclick="showTab('p3')">Phase 3: Cost Model & Pricing →</span></p></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PHASE 3 TAB                                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-p3">
+  <div class="phase-banner p3"><div class="phase-num">3</div><div><h2>Cost Model & Pricing</h2><p>BOM from Phase 2 + Workshop rates = your unit cost. Then build pricing tiers up through distribution and retail.</p></div></div>
+
+  <div class="input-row" style="margin-bottom:16px;">
+    <div class="box input-box" style="flex:1; max-width:260px; padding:12px 18px;"><h3 style="font-size:13px;">Phase 2: BOM</h3><p>Per-model weights, print times, hardware costs, plate capacity</p></div>
+    <div class="box workshop-box" style="flex:1; max-width:260px; padding:12px 18px;"><h3 style="font-size:13px;">Workshop Ops Plan</h3><p>Machine hourly rate, material cost/gram, maintenance, labor</p></div>
+  </div>
+
+  <div class="step-row">
+    <div class="step-card"><div class="sid p3-id">P3.1</div><div class="stitle">Per-Unit COGS</div><div class="sdesc">Material, machine time, labor, packaging, QC — driven by BOM. Four-Pillar Cost Model.</div><div class="sout">→ COGS calculation per model</div></div>
+    <div class="step-card"><div class="sid p3-id">P3.2</div><div class="stitle">Pricing Strategy</div><div class="sdesc">Your Cost → Distributor (40% margin) → Wholesale (40%) → Retail (50% keystone). Amazon separate channel.</div><div class="sout">→ Final selling prices</div></div>
+  </div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p3-id">P3.3</div><div class="stitle">Variation Pricing</div><div class="sdesc">Price each model/size/material variant. Multi-pack discounts (3-pk, 5-pk, 12-pk). GITD premium.</div><div class="sout">→ Pricing per variation</div></div>
+    <div class="step-card"><div class="sid p3-id">P3.4</div><div class="stitle">Break-Even Analysis</div><div class="sdesc">How many units to recover startup costs? Timeline to profitability.</div><div class="sout">→ Break-even timeline</div></div>
+  </div>
+
+  <div class="phase-exit"><p>Pricing locked → <span class="next-link" onclick="showTab('p4')">Phase 4: Packaging & FBA Prep →</span></p></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PHASE 4 TAB                                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-p4">
+  <div class="phase-banner p4"><div class="phase-num">4</div><div><h2>Packaging & FBA Prep</h2><p>Product is designed, costs are known. Now make it shippable — packaging, compliance, batch workflow.</p></div></div>
+
+  <div class="channel-selector" style="margin-bottom:16px;">
+    <span style="font-size:13px; color:#aaa; margin-right:8px;">Channel:</span>
+    <span class="channel-pill active">Amazon</span>
+    <span class="channel-pill" style="opacity:0.4;">Etsy</span>
+    <span class="channel-pill" style="opacity:0.4;">Shopify</span>
+    <span class="channel-pill" style="opacity:0.4; font-size:11px;">+ Add</span>
+  </div>
+
+  <div class="sprint-zone" style="margin-top:0;">
+    <div class="sprint-zone-label">Part of the Parallel Sprint Zone — P4 / P5 / P6</div>
+
+    <div class="step-row">
+      <div class="step-card"><div class="sid p4-id">P4.1</div><div class="stitle">Packaging Design</div><div class="sdesc">Box, insert, labels, poly bag, FNSKU, header card. Product in hand drives packaging decisions.</div><div class="sout">→ Packaging prototype</div><div class="unlock-note" style="border:0; padding:4px 0; margin:0; font-size:11px;">Unlocks → P5.3 Photography</div></div>
+      <div class="step-card"><div class="sid p4-id">P4.2</div><div class="stitle">FBA Prep Checklist</div><div class="sdesc">Channel-specific requirements, size tier, weight tier, labels, suffocation warnings, ASIN assignment.</div><div class="sout">→ FBA compliance</div><div class="dep-note soft">Channel-specific</div></div>
+      <div class="step-card"><div class="sid p4-id">P4.3</div><div class="stitle">Prep & Ship Workflow</div><div class="sdesc">8-step batch process: Print → QC → Pack → Label → Box → Weigh → Ship → Confirm.</div><div class="sout">→ Batch SOP</div></div>
+    </div>
+
+    <div class="sprint-note">P4.1 (Packaging) is a universal blocker — P5.3 Photography cannot start until packaging is complete. P4.2 is channel-specific; Amazon FBA prep differs from Etsy/Shopify fulfillment prep.</div>
+  </div>
+
+  <div class="phase-exit"><p>Packaging done → <span class="next-link" onclick="showTab('p5')">Phase 5: Listings & Launch →</span> &nbsp;(P5.2 keyword research can start in parallel)</p></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PHASE 5 TAB                                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-p5">
+  <div class="phase-banner p5"><div class="phase-num">5</div><div><h2>Listings & Launch</h2><p>Get it listed, get it live. Barcodes, content, photography, variations, go-live sequence.</p></div></div>
+
+  <div class="channel-selector" style="margin-bottom:16px;">
+    <span style="font-size:13px; color:#aaa; margin-right:8px;">Channel:</span>
+    <span class="channel-pill active">Amazon</span>
+    <span class="channel-pill" style="opacity:0.4;">Etsy</span>
+    <span class="channel-pill" style="opacity:0.4;">Shopify</span>
+    <span class="channel-pill" style="opacity:0.4; font-size:11px;">+ Add</span>
+  </div>
+
+  <div class="common-data-box">
+    <h4>Common Product Data (from P2/P3)</h4>
+    <p>Title, description, features, dimensions, weight, images, COGS, pricing — shared across all channels. Write once, adapt per channel.</p>
+  </div>
+
+  <div class="sprint-zone" style="margin-top:0;">
+    <div class="sprint-zone-label">Part of the Parallel Sprint Zone — P4 / P5 / P6</div>
+
+    <div class="step-row">
+      <div class="step-card"><div class="sid p5-id">P5.1</div><div class="stitle">UPC / GTIN Codes</div><div class="sdesc">Purchase and assign barcodes per SKU. GS1 or verified reseller. Universal across channels.</div><div class="sout">→ Barcode assignment</div></div>
+      <div class="step-card"><div class="sid p5-id">P5.2</div><div class="stitle">Listing Content</div><div class="sdesc">Title, bullets, description, backend keywords. SEO optimized per channel format.</div><div class="sout">→ Listing content</div><div class="dep-note soft">Channel-specific format</div></div>
+      <div class="step-card"><div class="sid p5-id">P5.3</div><div class="stitle">Product Photography</div><div class="sdesc">7+ images: main white-bg, lifestyle, features, scale, infographics. Shared across channels.</div><div class="sout">→ 7 product images</div><div class="dep-note">Requires P4.1 Packaging</div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-card"><div class="sid p5-id">P5.4</div><div class="stitle">Variations Setup</div><div class="sdesc">Parent/child listings for models, colors, packs. Structure varies by channel.</div><div class="sout">→ Variations configured</div><div class="dep-note soft">Channel-specific</div></div>
+      <div class="step-card"><div class="sid p5-id">P5.5</div><div class="stitle">Launch Checklist</div><div class="sdesc">Per-channel go-live: inventory shipped, listing active, PPC ready, honeymoon strategy.</div><div class="sout">→ Go-live checklist</div><div class="dep-note">Requires P5.2 + P5.3 + P4.2</div></div>
+    </div>
+
+    <div class="unlock-note">P5.1 (Barcodes) and P5.2 (Keyword research) can start in parallel with P4 — no dependency on packaging</div>
+  </div>
+
+  <div class="arrow green">▼</div>
+  <div class="box gate-box"><h3>⬥ G5 — LAUNCH READY Gate</h3><p>Per-channel: listing complete, images uploaded, inventory shipped, PPC configured. Each channel passes independently — launch channels as they're ready.</p></div>
+
+  <div class="phase-exit"><p>Channel launch ready → <span class="next-link" onclick="showTab('p6')">Phase 6: Marketing & Growth →</span></p></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PHASE 6 TAB                                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-p6">
+  <div class="phase-banner p6"><div class="phase-num">6</div><div><h2>Marketing & Growth</h2><p>Product is live — now drive traffic, build reviews, and grow toward the $2k/month target per channel.</p></div></div>
+
+  <div class="channel-selector" style="margin-bottom:16px;">
+    <span style="font-size:13px; color:#aaa; margin-right:8px;">Channel:</span>
+    <span class="channel-pill active">Amazon</span>
+    <span class="channel-pill" style="opacity:0.4;">Etsy</span>
+    <span class="channel-pill" style="opacity:0.4;">Shopify</span>
+    <span class="channel-pill" style="opacity:0.4; font-size:11px;">+ Add</span>
+  </div>
+
+  <div class="sprint-zone" style="margin-top:0;">
+    <div class="sprint-zone-label">Part of the Parallel Sprint Zone — P4 / P5 / P6</div>
+
+    <div class="step-row">
+      <div class="step-card"><div class="sid p6-id">P6.1</div><div class="stitle">Launch Strategy</div><div class="sdesc">PPC, social media, friends & family, communities, influencer outreach. Strategy adapts per channel.</div><div class="sout">→ Marketing plan</div><div class="dep-note soft">Channel-specific</div></div>
+      <div class="step-card"><div class="sid p6-id">P6.2</div><div class="stitle">PPC Campaigns</div><div class="sdesc">Auto, exact, broad, product targeting. Budget allocation and bid strategy per channel ad platform.</div><div class="sout">→ Active campaigns</div><div class="dep-note">Requires G5 PASS (per-channel)</div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-card"><div class="sid p6-id">P6.3</div><div class="stitle">Review Generation</div><div class="sdesc">Build social proof to 25+ reviews. Vine (Amazon), favorites (Etsy), follow-ups, inserts.</div><div class="sout">→ 25+ reviews</div><div class="dep-note soft">Channel-specific</div></div>
+      <div class="step-card"><div class="sid p6-id">P6.4</div><div class="stitle">Growth Milestones</div><div class="sdesc">Track toward $2k/month target across all channels combined. Weekly metrics per channel.</div><div class="sout">→ $2k/month revenue</div></div>
+    </div>
+
+    <div class="sprint-note">P6.1 (Launch Strategy) can be drafted while P5 is still in progress. P6.2 (PPC) requires G5 gate pass — channel must be live before spending ad dollars.</div>
+  </div>
+
+  <div class="phase-exit"><p>Revenue growing → <span class="next-link" onclick="showTab('p7')">Phase 7: Sustain & Grow →</span></p></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PHASE 7 TAB                                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-p7">
+  <div class="phase-banner p7"><div class="phase-num">7</div><div><h2>Sustain & Grow</h2><p>Product is selling. Keep it healthy — inventory, financials, optimization across all active channels.</p></div></div>
+
+  <div class="channel-selector" style="margin-bottom:16px;">
+    <span style="font-size:13px; color:#aaa; margin-right:8px;">Channel:</span>
+    <span class="channel-pill active">Amazon</span>
+    <span class="channel-pill" style="opacity:0.4;">Etsy</span>
+    <span class="channel-pill" style="opacity:0.4;">Shopify</span>
+    <span class="channel-pill" style="opacity:0.4; font-size:11px;">+ Add</span>
+  </div>
+
+  <div class="step-row">
+    <div class="step-card"><div class="sid p7-id">P7.1</div><div class="stitle">Inventory Management</div><div class="sdesc">Reorder points, batch sizing, safety stock. FBA replenishment + self-ship channels managed separately.</div><div class="sout">→ Inventory policy per channel</div></div>
+    <div class="step-card"><div class="sid p7-id">P7.2</div><div class="stitle">Monthly P&L</div><div class="sdesc">Revenue, costs, net profit. Per-channel breakdown + combined portfolio view.</div><div class="sout">→ P&L per channel + total</div></div>
+  </div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p7-id">P7.3</div><div class="stitle">Continuous Optimization</div><div class="sdesc">PPC tuning, listing A/B tests, pricing per channel. Cross-channel pricing strategy.</div><div class="sout">→ Optimization log</div></div>
+    <div class="step-card"><div class="sid p7-id">P7.4</div><div class="stitle">Channel Expansion</div><div class="sdesc">Add next channel (Etsy → Shopify). Reuse P2/P3 common data, run P4-P6 for new channel.</div><div class="sout">→ Multi-channel revenue</div></div>
+  </div>
+  <div class="step-row">
+    <div class="step-card"><div class="sid p7-id">P7.5</div><div class="stitle">Product Iteration</div><div class="sdesc">New variants, design improvements, new materials. Push updates across all active channels.</div><div class="sout">→ Sustained $2k+/month</div></div>
+  </div>
+
+  <div class="arrow green" style="margin-top:16px;">▼</div>
+  <div class="target-box"><h3>$2,000+/month per product (all channels)</h3><p>Sustainable multi-channel revenue. Repeat the pipeline for the next product.</p></div>
+</div>
+
+</div><!-- end .flow -->
+
+<script>
+function showTab(tabId) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  // Show selected
+  document.getElementById('tab-' + tabId).classList.add('active');
+  document.querySelector('.tab-btn[data-tab="' + tabId + '"]').classList.add('active');
+  // Scroll to top of flow
+  window.scrollTo({ top: document.querySelector('.tab-bar').offsetTop - 20, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
