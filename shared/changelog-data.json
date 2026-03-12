@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.86.0",
+    "date": "March 11, 2026",
+    "tag": "UPDATE",
+    "title": "Status Badge Reset & Workshop Complete",
+    "items": [
+      "Status Reset button: hover any non-New status badge to reveal a reset arrow that sends it back to New. Works on PQ and Backlog items. Fixes one-way status trap where Discussing/Done couldn't be reversed",
+      "T-036 (Workshop data review) and T-041 (Workshop review & process update) marked Done. All 6 Workshop phases GREEN, 100% completion, data flowing to Pipeline COGS",
+      "T-095 (AI Assist Prompt R&D) formalized in workflow doc. Fixed vv display bug in v0.85.0 rework"
+    ]
+  },
+  {
     "version": "v0.85.0",
     "date": "March 11, 2026",
     "tag": "UPDATE",

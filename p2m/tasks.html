@@ -336,6 +336,25 @@
             background: #3fb950;
         }
         .status-badge.done::after { content: 'Done'; }
+        .status-reset {
+            display: none;
+            font-size: 9px;
+            color: #6e7681;
+            cursor: pointer;
+            margin-left: 4px;
+            padding: 1px 5px;
+            border: 1px dashed #6e7681;
+            border-radius: 8px;
+            vertical-align: middle;
+            transition: all 0.2s;
+        }
+        .status-reset:hover {
+            color: #f85149;
+            border-color: #f85149;
+        }
+        .task-item:hover .status-reset.visible {
+            display: inline;
+        }
         @keyframes statusPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
@@ -1940,7 +1959,8 @@ function renderTasks() {
                 html += '<input class="edit-title" id="editTitle_' + t.id + '" value="' + esc(t.title).replace(/"/g, '&quot;') + '">';
                 html += '<textarea class="edit-desc" id="editDesc_' + t.id + '">' + esc(t.desc) + '</textarea>';
             } else {
-                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'priority\', \'' + t.id + '\')" title="Click to cycle status"></span>' + (statusCls === 'done' ? '<button class="archive-btn" onclick="archiveItem(\'priority\', \'' + t.id + '\')" title="Archive to Recently Completed">&#128230; Archive</button>' : '') + '</div>';
+                var resetBtn = (statusCls !== 'new' && statusCls !== undefined) ? '<span class="status-reset visible" onclick="resetStatus(\'priority\', \'' + t.id + '\', event)" title="Reset to New">\u21A9</span>' : '';
+                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'priority\', \'' + t.id + '\')" title="Click to cycle status"></span>' + resetBtn + (statusCls === 'done' ? '<button class="archive-btn" onclick="archiveItem(\'priority\', \'' + t.id + '\')" title="Archive to Recently Completed">&#128230; Archive</button>' : '') + '</div>';
                 html += '<div class="desc">' + esc(t.desc) + '</div>';
             }
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
@@ -1987,7 +2007,8 @@ function renderTasks() {
                 html += '<input class="edit-title" id="editTitle_' + t.id + '" value="' + esc(t.title).replace(/"/g, '&quot;') + '">';
                 html += '<textarea class="edit-desc" id="editDesc_' + t.id + '">' + esc(t.desc) + '</textarea>';
             } else {
-                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'backlog\', \'' + t.id + '\')" title="Click to cycle status"></span>' + (statusCls === 'done' ? '<button class="archive-btn" onclick="archiveItem(\'backlog\', \'' + t.id + '\')" title="Archive to Recently Completed">&#128230; Archive</button>' : '') + '</div>';
+                var blResetBtn = (statusCls !== 'new' && statusCls !== undefined) ? '<span class="status-reset visible" onclick="resetStatus(\'backlog\', \'' + t.id + '\', event)" title="Reset to New">\u21A9</span>' : '';
+                html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + esc(t.title) + '<span class="status-badge ' + statusCls + '" onclick="cycleStatus(\'backlog\', \'' + t.id + '\')" title="Click to cycle status"></span>' + blResetBtn + (statusCls === 'done' ? '<button class="archive-btn" onclick="archiveItem(\'backlog\', \'' + t.id + '\')" title="Archive to Recently Completed">&#128230; Archive</button>' : '') + '</div>';
                 html += '<div class="desc">' + esc(t.desc) + '</div>';
             }
             html += '<div class="meta"><span class="tag tag-' + (t.tag || 'feature').toLowerCase() + '">' + esc((t.tag || 'FEATURE').toUpperCase()) + '</span> ' + esc(t.meta || '') + '</div>';
@@ -2108,6 +2129,21 @@ function cycleStatus(section, id) {
             // Done is terminal — use Archive to move to Recently Completed
             if (current === 'done') break;
             arr[i].status = cycle[current] || 'new';
+            break;
+        }
+    }
+    saveTasks(data);
+    renderTasks();
+}
+
+function resetStatus(section, id, evt) {
+    if (evt) evt.stopPropagation();
+    var data = loadTasks();
+    if (!data) return;
+    var arr = section === 'priority' ? data.priority : data.backlog;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id === id) {
+            arr[i].status = 'new';
             break;
         }
     }
@@ -3737,6 +3773,69 @@ function runMigrations() {
             ]
         });
         markMigrationRun('v0.85.0_seed_tester_config');
+    }
+
+    // ── v0.86.0: T-036 Done, T-041 Done, T-095 Done ──
+    if (ran.indexOf('v0.86.0_close_tasks') === -1) {
+        var doneIds = ['pq_1773246337834', 'pq_1773246388097', 'pq_1773274553009'];
+        for (var di = 0; di < doneIds.length; di++) {
+            for (var pi = 0; pi < data.priority.length; pi++) {
+                if (data.priority[pi].id === doneIds[di]) {
+                    data.priority[pi].status = 'done';
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        markMigrationRun('v0.86.0_close_tasks');
+    }
+
+    // ── v0.86.0: T-023 reset to New (was stuck at Discussing/Done) ──
+    if (ran.indexOf('v0.86.0_reset_t023') === -1) {
+        for (var ri = 0; ri < data.priority.length; ri++) {
+            if (data.priority[ri].id === 'pq_1773278590815') {
+                data.priority[ri].status = 'new';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.86.0_reset_t023');
+    }
+
+    // ── v0.86.0: Seed tester config ──
+    if (ran.indexOf('v0.86.0_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            version: 'v0.86.0',
+            sections: [
+                {
+                    title: 'Status Reset Button (T-061 fix)',
+                    priority: 'PRIMARY',
+                    items: [
+                        'Reset button appears on hover for non-New status badges',
+                        'Clicking Reset sends status back to New',
+                        'Reset works on both PQ and Backlog items',
+                        'Reset button hidden when status is already New'
+                    ]
+                },
+                {
+                    title: 'Versions & Infrastructure (v0.86.0)',
+                    priority: 'INFRA',
+                    items: [
+                        'All 9 pages show v0.86.0',
+                        'No console errors on any page',
+                        'Changelog shows v0.86.0 entry'
+                    ]
+                },
+                {
+                    title: 'User Test',
+                    priority: 'MANUAL',
+                    items: [
+                        'User verification \u2014 annotate with findings'
+                    ]
+                }
+            ]
+        });
+        markMigrationRun('v0.86.0_seed_tester_config');
     }
 
     if (changed) saveTasks(data);
