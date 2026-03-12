@@ -3936,8 +3936,8 @@ function runMigrations() {
         markMigrationRun('v0.86.0_seed_tester_config');
     }
 
-    // ── v0.86.0: Assign group tags to all PQ and Backlog items ──
-    if (ran.indexOf('v0.86.0_group_tags') === -1) {
+    // ── v0.87.0: Assign group tags to all PQ and Backlog items ──
+    if (ran.indexOf('v0.87.0_group_tags') === -1) {
         var groupRules = [
             { pattern: /^\[AI\]|Auto-generate|Auto-calculate/, group: 'AI' },
             { pattern: /^\[KW\]|keyword/i, group: 'Keywords' },
@@ -3966,7 +3966,34 @@ function runMigrations() {
         for (var i = 0; i < data.priority.length; i++) assignGroup(data.priority[i]);
         for (var i = 0; i < data.backlog.length; i++) assignGroup(data.backlog[i]);
         changed = true;
-        markMigrationRun('v0.86.0_group_tags');
+        markMigrationRun('v0.87.0_group_tags');
+    }
+
+    // ── v0.87.0: Seed tester config ──
+    if (ran.indexOf('v0.87.0_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            TEST_VERSION: '0.87.0',
+            TEST_SECTIONS: [
+                { title: 'Group Tags', priority: 'FEATURE', items: [
+                    'PQ items show colored group tag pill (e.g., Pipeline) next to existing tag',
+                    'Backlog items show colored group tag pill next to existing tag',
+                    'All 12 groups have distinct colors and are readable'
+                ]},
+                { title: 'Filter Dropdown', priority: 'FEATURE', items: [
+                    'Filter bar appears at top of Backlog section with Group dropdown',
+                    'Dropdown shows all 12 groups with item counts (e.g., "AI (12)")',
+                    'Selecting a group filters the backlog to only that group',
+                    'Clear Filter button appears when a filter is active',
+                    '"Showing X of Y" counter updates correctly'
+                ]},
+                { title: 'Migration', priority: 'INFRA', items: [
+                    'v0.87.0_group_tags migration runs on first load and assigns groups',
+                    'Existing task data (titles, statuses, priorities) is preserved after migration'
+                ]},
+                { title: 'User Test', priority: 'MANUAL', items: ['User verification \u2014 annotate with findings'] }
+            ]
+        });
+        markMigrationRun('v0.87.0_seed_tester_config');
     }
 
     if (changed) saveTasks(data);

@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.87.0",
+    "date": "March 12, 2026",
+    "tag": "FEATURE",
+    "title": "Backlog Group Tags & Filter",
+    "items": [
+      "Group tags: All 73 PQ and Backlog items categorized into 12 groups (AI, Admin, Architecture, Infrastructure, Keywords, Media, Pipeline, QA, Services, Templates, UX, Workshop). Colored group pills displayed on every task card",
+      "Filter dropdown: Backlog section now has a Group filter with per-group item counts, Clear Filter button, and 'Showing X of Y' counter. Quickly scan related items without scrolling through 68+",
+      "Migration v0.87.0: Auto-assigns groups by title pattern matching on first load. Existing task data is preserved"
+    ]
+  },
+  {
     "version": "v0.86.0",
     "date": "March 11, 2026",
     "tag": "UPDATE",
