@@ -391,6 +391,50 @@
             animation: statusPulse 1.5s ease-in-out infinite;
         }
         .status-badge.in-progress::after { content: 'In Progress'; }
+        .status-badge.deployed {
+            color: #d2a8ff;
+            border: 1px solid #8b5cf6;
+            background: rgba(139, 92, 246, 0.15);
+        }
+        .status-badge.deployed::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #d2a8ff;
+        }
+        .status-badge.deployed::after { content: 'Deployed'; }
+        .status-badge.testing {
+            color: #f0c000;
+            border: 1px solid #f0c000;
+            background: rgba(240, 192, 0, 0.15);
+        }
+        .status-badge.testing::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f0c000;
+            animation: statusPulse 1.5s ease-in-out infinite;
+        }
+        .status-badge.testing::after { content: 'Testing'; }
+        .status-badge.rework {
+            color: #f85149;
+            border: 1px solid #f85149;
+            background: rgba(248, 81, 73, 0.15);
+        }
+        .status-badge.rework::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f85149;
+            animation: statusPulse 1.5s ease-in-out infinite;
+        }
+        .status-badge.rework::after { content: 'Rework'; }
         .status-badge.done {
             color: #3fb950;
             border: 1px solid #238636;
@@ -2024,8 +2068,8 @@ function renderTasks() {
 
             var pqPri = t.priority || 'medium';
             var statusCls = t.status || 'new';
-            var isInProgress = statusCls === 'in-progress';
-            var editDisabled = isInProgress ? ' disabled' : '';
+            var isActive = statusCls === 'in-progress' || statusCls === 'testing' || statusCls === 'rework';
+            var editDisabled = isActive ? ' disabled' : '';
             var isEditing = window._editingId === t.id;
             var taskIdLabel = t.taskNum ? formatTaskNum(t.taskNum) : '';
             html += '<div class="task">';
@@ -2212,14 +2256,14 @@ function reorderPQ(id, newPos) {
 }
 
 // ── Status Badge Cycle ───────────────────────────────────────────
-// Cycles: new → discussing → in-progress → done → new
+// Cycles: new → discussing → in-progress → deployed → testing → rework → in-progress (done is terminal, set by Claude after Testing Complete)
 // Uses 2-second debounce for smooth cycling
 var _statusTimer = null;
 
 function cycleStatus(section, id) {
     var data = loadTasks();
     if (!data) return;
-    var cycle = { 'new': 'discussing', 'discussing': 'in-progress', 'in-progress': 'done' };
+    var cycle = { 'new': 'discussing', 'discussing': 'in-progress', 'in-progress': 'deployed', 'deployed': 'testing', 'testing': 'rework', 'rework': 'in-progress' };
     var arr = section === 'priority' ? data.priority : data.backlog;
     for (var i = 0; i < arr.length; i++) {
         if (arr[i].id === id) {

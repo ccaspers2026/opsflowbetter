@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.88.1",
+    "date": "March 12, 2026",
+    "tag": "FEATURE",
+    "title": "Admin Section Complete — Landing Page + Diagrams",
+    "items": [
+      "Admin landing page (admin.html): Card-based hub linking to Tasks, Changelog, Tester, Feedback, and Diagrams. Reference section with Lookup Data placeholder",
+      "Diagrams page (diagrams.html): 3 live diagrams (P2M Complete Flow, Change Process Flow, Cloudflare Architecture) and 5 planned architecture diagram placeholders. Breadcrumb nav back to Admin",
+      "ADMIN nav label now links to admin.html across all 10 P2M pages. P2M Complete Flow diagram added to repo. Working folder reorganized"
+    ]
+  },
+  {
     "version": "v0.88.0",
     "date": "March 12, 2026",
     "tag": "FEATURE",
