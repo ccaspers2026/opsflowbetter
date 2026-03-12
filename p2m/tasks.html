@@ -55,6 +55,9 @@
         .suite-nav .sep { color: #30363d; }
         .suite-nav .admin-sep { margin: 0 4px; font-size: 10px; border-left: 1px solid #f0883e40; padding-left: 10px; margin-left: 6px; color: #f0883e80; font-weight: 600; letter-spacing: 0.5px; text-decoration: none; }
         .suite-nav .admin-sep:hover { color: #f0883e; text-decoration: none; }
+        .admin-breadcrumb { font-size: 12px; color: #8b949e; margin-bottom: 6px; }
+        .admin-breadcrumb a { color: #f0883e; text-decoration: none; }
+        .admin-breadcrumb a:hover { text-decoration: underline; }
 
         .p2m-header {
             display: flex;
@@ -595,17 +598,14 @@
         <a href="index.html">Pipeline</a> <span class="sep">|</span>
         <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
         <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-        <a href="services.html">Services</a> <a href="admin.html" class="admin-sep">ADMIN</a>
-        <a href="changelog.html">Changelog</a> <span class="sep">|</span>
-        <span class="current">Tasks</span> <span class="sep">|</span>
-        <a href="feedback.html">Feedback</a> <span class="sep">|</span>
-        <a href="tester.html">Tester</a>
+        <a href="services.html">Services</a> <span class="admin-sep current">ADMIN</span>
     </div>
 </div>
 
 <!-- ── P2M Page Header ───────────────────────────────── -->
 <div class="p2m-header">
     <div>
+        <div class="admin-breadcrumb"><a href="admin.html">Admin</a> &rsaquo; Tasks</div>
         <h1>Tasks</h1>
         <p class="version">Tasks <span class="suite-ver"></span></p>
         <p class="tagline">Living backlog &mdash; updated every version &bull; auto-refreshes every 5 minutes</p>
