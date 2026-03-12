@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.88.0",
+    "date": "March 12, 2026",
+    "tag": "FEATURE",
+    "title": "Admin Nav Split",
+    "items": [
+      "Nav bar now visually separates User pages (Pipeline, Media, Workshop, Services) from Admin pages (Changelog, Tasks, Feedback, Tester) with an orange ADMIN label divider",
+      "CSS-only change across all 8 P2M pages. No page moves, just clear visual grouping. Lays groundwork for Admin landing page and diagrams page",
+      "Backlog reorganized: 80 items, Admin restructure tasks added, P2M pipeline build-out tasks (P4-P7 cards, channel support, dependency system) queued in phase order"
+    ]
+  },
+  {
     "version": "v0.87.0",
     "date": "March 12, 2026",
     "tag": "FEATURE",
