@@ -345,12 +345,13 @@ var OpsFlow = (function () {
 
         // Set version text in UI
         getVersion().then(function (version) {
+            var cleanVer = version.replace(/^v/, '');
             var verSpans = document.querySelectorAll('.suite-ver');
             for (var i = 0; i < verSpans.length; i++) {
-                verSpans[i].textContent = 'v' + version;
+                verSpans[i].textContent = 'v' + cleanVer;
             }
             var el = document.getElementById('suite-version');
-            if (el) el.textContent = 'v' + version;
+            if (el) el.textContent = 'v' + cleanVer;
         });
 
         // Auto-backup on page unload (if secret is set)
