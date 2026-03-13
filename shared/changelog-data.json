@@ -1,5 +1,17 @@
 [
   {
+    "version": "v0.92.2",
+    "date": "March 13, 2026",
+    "tag": "FEATURE",
+    "title": "Auto-detect KV Failures \u2014 Services Page LED Updates Automatically",
+    "items": [
+      "opsflow-sync.js now detects KV write failures (daily limit, network, API outage) and automatically flips the Cloudflare service LED to red on the Services page",
+      "KV write success flips the LED back to green. Covers OpsFlow.set(), setVersion(), kvBulk(), and kvRequest()",
+      "Workflow doc updated: Checkpoint deploy now includes PQ/Backlog/Feedback housekeeping",
+      "Feedback triaged: Pipeline layout scroll issue (UX) and Workflow Dashboard proposal (Admin) added to Backlog"
+    ]
+  },
+  {
     "version": "v0.92.0",
     "date": "March 13, 2026",
     "tag": "FEATURE",

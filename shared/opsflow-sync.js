@@ -64,6 +64,35 @@ var OpsFlow = (function () {
 
     // ── Internal helpers ──
 
+    var SERVICES_KEY = 'opsflow_services';
+    var KV_SERVICE_ID = 's4'; // Cloudflare service in Services page
+
+    /**
+     * Update the Cloudflare KV service LED on the Services page.
+     * Called automatically on KV write success/failure.
+     * Only touches the status field — preserves all other service data.
+     */
+    function updateKVServiceStatus(newStatus) {
+        try {
+            var raw = localStorage.getItem(SERVICES_KEY);
+            if (!raw) return;
+            var services = JSON.parse(raw);
+            if (!Array.isArray(services)) return;
+            for (var i = 0; i < services.length; i++) {
+                if (services[i].id === KV_SERVICE_ID) {
+                    if (services[i].status !== newStatus) {
+                        services[i].status = newStatus;
+                        localStorage.setItem(SERVICES_KEY, JSON.stringify(services));
+                        console.log('[OpsFlow] KV service status \u2192 ' + newStatus);
+                    }
+                    break;
+                }
+            }
+        } catch (e) {
+            // Silent — don't let service status updates break core functionality
+        }
+    }
+
     function getSecret() {
         return localStorage.getItem(SECRET_KEY) || '';
     }
@@ -86,6 +115,7 @@ var OpsFlow = (function () {
             .then(function (res) { return res.json(); })
             .catch(function (err) {
                 console.warn('[OpsFlow] KV request failed:', err.message);
+                updateKVServiceStatus('red');
                 return { ok: false, error: err.message };
             });
     }
@@ -100,8 +130,18 @@ var OpsFlow = (function () {
             body: JSON.stringify({ entries: entries })
         })
         .then(function (res) { return res.json(); })
+        .then(function (res) {
+            if (!res.ok) {
+                console.warn('[OpsFlow] KV bulk write failed:', res.error);
+                updateKVServiceStatus('red');
+            } else {
+                updateKVServiceStatus('green');
+            }
+            return res;
+        })
         .catch(function (err) {
             console.warn('[OpsFlow] KV bulk write failed:', err.message);
+            updateKVServiceStatus('red');
             return { ok: false, error: err.message };
         });
     }
@@ -208,6 +248,9 @@ var OpsFlow = (function () {
             return kvRequest('PUT', key, raw).then(function (res) {
                 if (!res.ok) {
                     console.warn('[OpsFlow] KV write failed for ' + key + ':', res.error);
+                    updateKVServiceStatus('red');
+                } else {
+                    updateKVServiceStatus('green');
                 }
                 return res;
             });
@@ -282,7 +325,14 @@ var OpsFlow = (function () {
     function setVersion(version) {
         localStorage.setItem(VERSION_KV_KEY, version);
         touchSyncTimestamp(VERSION_KV_KEY);
-        return kvRequest('PUT', VERSION_KV_KEY, version);
+        return kvRequest('PUT', VERSION_KV_KEY, version).then(function (res) {
+            if (!res.ok) {
+                updateKVServiceStatus('red');
+            } else {
+                updateKVServiceStatus('green');
+            }
+            return res;
+        });
     }
 
     // ── Legacy backup/restore (kept for backward compat) ──
