@@ -59,7 +59,10 @@ var OpsFlow = (function () {
         'p2m_pipeline_state',
         // Media
         'opsflow_media_queue',
-        'opsflow_media_gallery'
+        'opsflow_media_gallery',
+        // Workflow
+        'opsflow_workflow_state',
+        'opsflow_workflow_cycles'
     ];
 
     // ── Internal helpers ──

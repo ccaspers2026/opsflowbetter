@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Dashboard - OpsFlowBetter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: #0d1117;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        /* Navigation Styles */
+        .suite-nav {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            padding: 8px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+        }
+
+        .suite-nav .suite-home {
+            display: flex;
+            align-items: center;
+            margin-right: 16px;
+            text-decoration: none;
+            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .suite-nav .suite-home:hover {
+            opacity: 0.8;
+            text-decoration: none;
+        }
+
+        .suite-nav .brand-ops {
+            color: #e6edf3;
+        }
+
+        .suite-nav .brand-flow {
+            color: #3b82f6;
+        }
+
+        .suite-nav .brand-better {
+            color: #8b5cf6;
+        }
+
+        .suite-nav .p2m-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .p2m-link {
+            color: #8b949e;
+            text-decoration: none;
+            padding: 2px 6px;
+        }
+
+        .p2m-link:hover {
+            color: #e6edf3;
+        }
+
+        .p2m-link.current {
+            color: #e6edf3;
+            font-weight: 600;
+        }
+
+        .nav-sep {
+            color: #30363d;
+        }
+
+        .p2m-admin-label {
+            color: #f0883e !important;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        /* Main Layout */
+        main {
+            margin-top: 45px;
+            padding: 32px 20px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 16px;
+        }
+
+        .breadcrumb a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            margin: 0 4px;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .page-header .version {
+            font-size: 11px;
+            color: #8b949e;
+            background: #161b22;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .page-header .tagline {
+            font-size: 14px;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+
+        /* Section Container */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e6edf3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Cycle Type Toggle */
+        .cycle-type-toggle {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 12px;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            width: fit-content;
+        }
+
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .radio-group input[type="radio"] {
+            cursor: pointer;
+        }
+
+        .radio-group label {
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* LED Pipeline */
+        .led-pipeline {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .pipeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            flex: 0 1 auto;
+        }
+
+        .pipeline-step:not(:last-child)::after {
+            content: "→";
+            position: absolute;
+            right: -18px;
+            top: 20px;
+            color: #30363d;
+            font-size: 18px;
+        }
+
+        @media (max-width: 1200px) {
+            .pipeline-step:not(:last-child)::after {
+                right: -20px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .led-pipeline {
+                gap: 16px;
+            }
+
+            .pipeline-step {
+                flex: 0 1 calc(50% - 6px);
+            }
+
+            .pipeline-step:not(:last-child)::after {
+                right: auto;
+                bottom: -18px;
+                top: auto;
+                content: "↓";
+                font-size: 16px;
+            }
+        }
+
+        .step-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            min-width: 100px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .step-card:hover:not(.disabled) {
+            border-color: #30363d;
+            background: #0d1117;
+        }
+
+        .step-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .step-card.disabled:hover {
+            border-color: #21262d;
+            background: #161b22;
+        }
+
+        .led-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .led-indicator.red {
+            background: #f85149;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(248, 81, 73, 0.5);
+        }
+
+        .led-indicator.yellow {
+            background: #d29922;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(210, 153, 34, 0.5);
+        }
+
+        .led-indicator.green {
+            background: #2ea44f;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(46, 164, 79, 0.5);
+        }
+
+        .step-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+
+        .step-who {
+            font-size: 11px;
+            color: #8b949e;
+            background: #0d1117;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* PQ Section */
+        .pq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pq-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .pq-item-title {
+            flex: 1;
+            color: #e6edf3;
+        }
+
+        .status-badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .status-badge.pending {
+            background: #3b434b;
+            color: #8b949e;
+        }
+
+        .status-badge.in-progress {
+            background: rgba(210, 153, 34, 0.2);
+            color: #d29922;
+        }
+
+        .status-badge.deployed {
+            background: rgba(46, 164, 79, 0.2);
+            color: #2ea44f;
+        }
+
+        .status-badge.testing {
+            background: rgba(88, 166, 255, 0.2);
+            color: #58a6ff;
+        }
+
+        .status-badge.done {
+            background: rgba(46, 164, 79, 0.2);
+            color: #2ea44f;
+        }
+
+        /* Cycle History */
+        .cycle-history {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-entry {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .history-version {
+            font-weight: 600;
+            color: #58a6ff;
+            min-width: 50px;
+        }
+
+        .history-type {
+            background: #3b434b;
+            color: #8b949e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            min-width: 80px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .history-time {
+            color: #8b949e;
+            margin-left: auto;
+            font-size: 11px;
+        }
+
+        /* Button Styles */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: #238636;
+            color: #fff;
+            border: 1px solid #1f6feb;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #2ea043;
+            border-color: #58a6ff;
+        }
+
+        .btn.secondary {
+            background: transparent;
+            color: #58a6ff;
+            border: 1px solid #30363d;
+        }
+
+        .btn.secondary:hover {
+            background: #161b22;
+            border-color: #58a6ff;
+        }
+
+        .btn.danger {
+            background: #da3633;
+            border-color: #f85149;
+        }
+
+        .btn.danger:hover {
+            background: #f85149;
+            border-color: #f0883e;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 32px;
+            text-align: center;
+            color: #8b949e;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                padding: 20px 16px;
+                margin-top: 50px;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
+            }
+
+            .section-title {
+                font-size: 14px;
+            }
+
+            .led-pipeline {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="suite-nav">
+        <a class="suite-home" href="../launchpad.html">
+            <span class="brand-ops">Ops</span><span class="brand-flow">Flow</span><span class="brand-better">Better</span>
+        </a>
+        <div class="p2m-links">
+            <a href="index.html" class="p2m-link">Pipeline</a>
+            <span class="nav-sep">|</span>
+            <a href="media-center.html" class="p2m-link">Media Pipeline</a>
+            <span class="nav-sep">|</span>
+            <a href="workshop.html" class="p2m-link">Workshop</a>
+            <span class="nav-sep">|</span>
+            <a href="services.html" class="p2m-link">Services</a>
+            <span class="nav-sep"></span>
+            <a href="admin.html" class="p2m-link p2m-admin-label current">ADMIN</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="breadcrumb">
+            <a href="admin.html">Admin</a>
+            <span>›</span>
+            <span>Workflow</span>
+        </div>
+
+        <div class="page-header">
+            <h1>
+                Workflow Dashboard
+                <span class="version" id="version-span">v1</span>
+            </h1>
+            <p class="tagline">Dev cycle tracking — coding to production</p>
+        </div>
+
+        <!-- Cycle Type Toggle -->
+        <div class="section">
+            <div class="cycle-type-toggle">
+                <div class="radio-group">
+                    <input type="radio" id="cycle-checkpoint" name="cycle-type" value="checkpoint" checked>
+                    <label for="cycle-checkpoint">Checkpoint</label>
+                </div>
+                <div class="radio-group">
+                    <input type="radio" id="cycle-completion" name="cycle-type" value="completion">
+                    <label for="cycle-completion">Completion</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Cycle Section -->
+        <div class="section">
+            <h2 class="section-title">Active Cycle</h2>
+            <div class="led-pipeline" id="led-pipeline">
+                <!-- Steps will be generated by JavaScript -->
+            </div>
+            <div class="btn-group">
+                <button class="btn danger" id="reset-cycle-btn">Reset Cycle</button>
+            </div>
+        </div>
+
+        <!-- Current PQ Section -->
+        <div class="section">
+            <h2 class="section-title">Current Priority Queue</h2>
+            <div class="pq-list" id="pq-list">
+                <div class="empty-state">
+                    <p>No items in Priority Queue</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cycle History -->
+        <div class="section">
+            <h2 class="section-title">Cycle History</h2>
+            <div class="cycle-history" id="cycle-history">
+                <div class="empty-state">
+                    <p>No completed cycles yet</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../shared/opsflow-sync.js"></script>
+    <script>
+        // Initialize OpsFlow
+        OpsFlow.init();
+
+        // Step definitions
+        const STEPS = [
+            { id: 'scan', name: 'Scan', who: 'Claude', order: 1 },
+            { id: 'coding', name: 'Coding', who: 'Claude', order: 2 },
+            { id: 'commit-ready', name: 'Commit Ready', who: 'Claude', order: 3 },
+            { id: 'committed', name: 'Committed', who: 'Christian', order: 4 },
+            { id: 'pushed', name: 'Pushed', who: 'Christian', order: 5 },
+            { id: 'deployed', name: 'Deployed', who: 'Auto', order: 6 },
+            { id: 'verify', name: 'Verify', who: 'Christian', order: 7 },
+            { id: 'testing', name: 'Testing', who: 'Auto', order: 8 },
+            { id: 'done', name: 'Done', who: 'Auto', order: 9 }
+        ];
+
+        // Storage keys
+        const STATE_KEY = 'opsflow_workflow_state';
+        const HISTORY_KEY = 'opsflow_workflow_cycles';
+        const PQ_KEY = 'opsflow_tasks_v2';
+
+        // Application state
+        let currentState = {};
+        let cycleType = 'checkpoint';
+
+        // Initialize state
+        function initializeState() {
+            const stored = OpsFlow.getLocal(STATE_KEY);
+            if (stored) {
+                currentState = stored;
+            } else {
+                STEPS.forEach(step => {
+                    currentState[step.id] = 'red';
+                });
+                saveState();
+            }
+        }
+
+        // Save state to localStorage
+        function saveState() {
+            OpsFlow.set(STATE_KEY, currentState);
+        }
+
+        // Cycle LED through colors: red → yellow → green → red
+        function cycleLED(stepId) {
+            const step = STEPS.find(s => s.id === stepId);
+            if (cycleType === 'checkpoint' && (step.order === 8 || step.order === 9)) {
+                return; // Don't allow cycling for testing/done in checkpoint mode
+            }
+
+            const current = currentState[stepId] || 'red';
+            const colors = ['red', 'yellow', 'green'];
+            const currentIndex = colors.indexOf(current);
+            const nextIndex = (currentIndex + 1) % colors.length;
+            currentState[stepId] = colors[nextIndex];
+            saveState();
+            render();
+        }
+
+        // Auto-detect LED states based on PQ and system state
+        function autoDetectStates() {
+            const tasksData = OpsFlow.getLocal(PQ_KEY);
+            const pq = (tasksData && tasksData.priorityQueue) ? tasksData.priorityQueue : [];
+
+            // Check for in-progress items → set Coding to yellow
+            const hasInProgress = pq.some(item => item.status === 'in-progress');
+            if (hasInProgress && currentState['coding'] === 'red') {
+                currentState['coding'] = 'yellow';
+                saveState();
+            }
+
+            // Check for deployed items → set Deployed to green
+            const hasDeployed = pq.some(item => item.status === 'deployed');
+            if (hasDeployed && currentState['deployed'] !== 'green') {
+                currentState['deployed'] = 'green';
+                saveState();
+            }
+
+            // Check for testing items → set Testing to yellow
+            const hasTesting = pq.some(item => item.status === 'testing');
+            if (hasTesting && currentState['testing'] === 'red') {
+                currentState['testing'] = 'yellow';
+                saveState();
+            }
+        }
+
+        // Render the LED pipeline
+        function renderPipeline() {
+            const pipeline = document.getElementById('led-pipeline');
+            pipeline.innerHTML = '';
+
+            STEPS.forEach(step => {
+                const isDisabled = cycleType === 'checkpoint' && (step.order === 8 || step.order === 9);
+                const status = currentState[step.id] || 'red';
+
+                const card = document.createElement('div');
+                card.className = `step-card ${isDisabled ? 'disabled' : ''}`;
+                if (!isDisabled) {
+                    card.addEventListener('click', () => cycleLED(step.id));
+                }
+
+                const led = document.createElement('div');
+                led.className = `led-indicator ${status}`;
+                led.textContent = status === 'red' ? '○' : status === 'yellow' ? '◐' : '✓';
+
+                const name = document.createElement('div');
+                name.className = 'step-name';
+                name.textContent = step.name;
+
+                const who = document.createElement('div');
+                who.className = 'step-who';
+                who.textContent = step.who;
+
+                card.appendChild(led);
+                card.appendChild(name);
+                card.appendChild(who);
+
+                pipeline.appendChild(card);
+            });
+        }
+
+        // Render PQ items
+        function renderPQ() {
+            const pqContainer = document.getElementById('pq-list');
+            const tasksData = OpsFlow.getLocal(PQ_KEY);
+            const pqData = (tasksData && tasksData.priorityQueue) ? tasksData.priorityQueue : [];
+
+            if (pqData.length === 0) {
+                pqContainer.innerHTML = '<div class="empty-state"><p>No items in Priority Queue</p></div>';
+                return;
+            }
+
+            pqContainer.innerHTML = '';
+            pqData.forEach(item => {
+                const statusClass = item.status ? item.status.toLowerCase().replace(/\s+/g, '-') : 'pending';
+                const pqItem = document.createElement('div');
+                pqItem.className = 'pq-item';
+                pqItem.innerHTML = `
+                    <span class="pq-item-title">${item.title || 'Untitled'}</span>
+                    <span class="status-badge ${statusClass}">${item.status || 'Pending'}</span>
+                `;
+                pqContainer.appendChild(pqItem);
+            });
+        }
+
+        // Render cycle history
+        function renderHistory() {
+            const historyContainer = document.getElementById('cycle-history');
+            const history = OpsFlow.getLocal(HISTORY_KEY) || [];
+
+            if (history.length === 0) {
+                historyContainer.innerHTML = '<div class="empty-state"><p>No completed cycles yet</p></div>';
+                return;
+            }
+
+            historyContainer.innerHTML = '';
+            const sortedHistory = [...history].reverse();
+            sortedHistory.slice(0, 20).forEach(entry => {
+                const time = new Date(entry.timestamp);
+                const timeStr = time.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-entry';
+                historyItem.innerHTML = `
+                    <span class="history-version">${entry.version}</span>
+                    <span class="history-type">${entry.type === 'completion' ? 'Completion' : 'Checkpoint'}</span>
+                    <span class="history-time">${timeStr}</span>
+                `;
+                historyContainer.appendChild(historyItem);
+            });
+        }
+
+        // Update version span
+        function updateVersion() {
+            const versionSpan = document.getElementById('version-span');
+            const versionNum = OpsFlow.getLocal('opsflow_version') || 1;
+            versionSpan.textContent = `v${versionNum}`;
+        }
+
+        // Main render function
+        function render() {
+            updateVersion();
+            renderPipeline();
+            renderPQ();
+            renderHistory();
+        }
+
+        // Reset cycle
+        document.getElementById('reset-cycle-btn').addEventListener('click', () => {
+            // Reset all LEDs to red
+            STEPS.forEach(step => {
+                currentState[step.id] = 'red';
+            });
+            saveState();
+
+            // Log the cycle completion
+            const history = OpsFlow.getLocal(HISTORY_KEY) || [];
+            const versionNum = OpsFlow.getLocal('opsflow_version') || 1;
+            history.push({
+                version: `v${versionNum}`,
+                type: cycleType,
+                timestamp: new Date().toISOString()
+            });
+            OpsFlow.set(HISTORY_KEY, history);
+
+            render();
+        });
+
+        // Cycle type toggle
+        document.getElementById('cycle-checkpoint').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                cycleType = 'checkpoint';
+                render();
+            }
+        });
+
+        document.getElementById('cycle-completion').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                cycleType = 'completion';
+                render();
+            }
+        });
+
+        // Listen for storage changes (PQ updates, version changes)
+        window.addEventListener('storage', (e) => {
+            if (e.key === PQ_KEY || e.key === 'opsflow_version') {
+                autoDetectStates();
+                render();
+            }
+        });
+
+        // Also check on page load
+        window.addEventListener('load', () => {
+            autoDetectStates();
+            render();
+        });
+
+        // Initialize
+        initializeState();
+        autoDetectStates();
+        render();
+    </script>
+</body>
+</html>

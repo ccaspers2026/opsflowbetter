@@ -1,5 +1,18 @@
 [
   {
+    "version": "v0.93.0",
+    "date": "March 13, 2026",
+    "tag": "FEATURE",
+    "title": "Workflow Dashboard \u2014 LED Pipeline for Dev Cycle Tracking",
+    "items": [
+      "New Admin page: workflow.html \u2014 9-step LED pipeline (Scan \u2192 Coding \u2192 Commit Ready \u2192 Committed \u2192 Pushed \u2192 Deployed \u2192 Verify \u2192 Testing \u2192 Done)",
+      "Click any LED to cycle red/yellow/green. Each step labeled with who does it (Claude, Christian, or Auto)",
+      "Checkpoint vs Completion toggle \u2014 disables Testing and Done steps for checkpoint deploys",
+      "Auto-detection: PQ in-progress items auto-set Coding LED, deployed items auto-set Deployed LED, testing items auto-set Testing LED",
+      "Current PQ display, cycle history log, Reset Cycle button. State persists to localStorage/KV"
+    ]
+  },
+  {
     "version": "v0.92.2",
     "date": "March 13, 2026",
     "tag": "FEATURE",
