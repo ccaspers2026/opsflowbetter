@@ -4008,12 +4008,12 @@
         // STEP DEFINITIONS & DETAIL CONTENT
         // ============================================================================
         const stepDefinitions = {
-            '1.1': { phase: 1, number: 'P1.1', title: 'Product Idea', description: 'Define the product, target customer, and unique angle', output: 'Product concept document' },
-            '1.2': { phase: 1, number: 'P1.2', title: 'Market Research', description: 'Search terms, competitor count, price range, review complaints', output: 'Market research summary' },
-            '1.3': { phase: 1, number: 'P1.3', title: 'Competitive Analysis', description: 'Top 3-5 competitors, strengths, weaknesses', output: 'Competitive positioning' },
-            '1.4': { phase: 1, number: 'P1.4', title: 'Niche Viability Score', description: '6-factor scoring (min 18/30 to proceed)', output: 'Viability score ≥ 18/30' },
-            '1.5': { phase: 1, number: 'P1.5', title: 'Income Target Math', description: '$2k/month backward calculation', output: 'Units/day and printer requirements' },
-            'g1': { phase: 1, number: 'G1', title: 'GO / NO-GO Gate', description: 'Pass → Phase 2 | Fail → Archive idea', isGate: true, output: 'GO / NO-GO decision' },
+            '1.1': { phase: 1, number: 'P1.1', title: 'Product Idea', description: 'Define the product, target customer, and unique angle. What problem does it solve? Who buys it?', output: 'Product concept document' },
+            '1.2': { phase: 1, number: 'P1.2', title: 'Market Research', description: 'Search terms, competitor count, price range, review complaints. Amazon and Etsy landscape.', output: 'Market research summary' },
+            '1.3': { phase: 1, number: 'P1.3', title: 'Competitive Analysis', description: 'Top 3-5 competitors, strengths, weaknesses. Where\'s the gap you fill?', output: 'Competitive positioning' },
+            '1.4': { phase: 1, number: 'P1.4', title: 'Niche Viability Score', description: '6-factor scoring (min 18/30). Demand, competition, margin, differentiation, production fit, scalability.', output: 'Viability score ≥ 18/30' },
+            '1.5': { phase: 1, number: 'P1.5', title: 'Income Target Math', description: '$2k/month backward calculation. Units per day, printer capacity, production feasibility.', output: 'Units/day and printer requirements' },
+            'g1': { phase: 1, number: 'G1', title: 'GO / NO-GO Gate', description: 'Score ≥ 18/30 and income math works? → Phase 2. Otherwise archive.', isGate: true, output: 'GO / NO-GO decision' },
             '2.1': { phase: 2, number: 'P2.1', title: 'Design Brief / CAD Spec', description: 'Complete spec per model + compliance check. DIY or contractor.', output: 'CAD files + spec per model' },
             '2.2': { phase: 2, number: 'P2.2', title: 'Prototype & Iterate', description: 'Print, test, log. Define QC criteria. Multi-material assembly.', output: 'Tested prototypes + QC criteria' },
             '2.3': { phase: 2, number: 'P2.3', title: 'Lock Settings + BOM', description: 'Finalize slicer profiles. Compile Bill of Materials.', output: 'Locked profiles + complete BOM' },
