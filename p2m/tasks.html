@@ -4042,6 +4042,31 @@ function runMigrations() {
         markMigrationRun('v0.87.0_seed_tester_config');
     }
 
+    // ── v0.92.0: Seed tester config for editable card infrastructure ──
+    if (ran.indexOf('v0.92.0_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            version: '0.92.0',
+            sections: [
+                { title: 'Editable Card Tables', priority: 'FEATURE', items: [
+                    'Open P1.1 for 45 RPM Adaptor \u2014 card opens with current data displayed',
+                    'Click Undo Completion \u2014 LED goes yellow, value cells show pencil on hover',
+                    'Click a value cell \u2014 textarea opens with current text, Save/Cancel buttons visible',
+                    'Edit text and click Save \u2014 cell updates with new text, blue left-border appears',
+                    'Click Cancel (or press Escape) \u2014 edit is discarded, original value restored',
+                    'Refresh page \u2014 edited values persist (stored in localStorage)',
+                    'Click Mark as Complete \u2014 LED goes green, value cells no longer editable'
+                ]},
+                { title: 'Edit Lock & State', priority: 'INFRA', items: [
+                    'Edit lock toggle works \u2014 clicking cell without edit mode shows lock prompt',
+                    'Edited cells show blue left-border indicator (cell-user-edited class)',
+                    'Multiple cards can have edited data independently (try P1.2 after P1.1)'
+                ]},
+                { title: 'User Test', priority: 'MANUAL', items: ['User verification \u2014 annotate with findings'] }
+            ]
+        });
+        markMigrationRun('v0.92.0_seed_tester_config');
+    }
+
     if (changed) saveTasks(data);
 }
 

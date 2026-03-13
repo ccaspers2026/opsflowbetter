@@ -1,5 +1,17 @@
 [
   {
+    "version": "v0.92.0",
+    "date": "March 13, 2026",
+    "tag": "FEATURE",
+    "title": "Editable Card Infrastructure \u2014 Click-to-Edit Table Values",
+    "items": [
+      "Card table value cells are now click-to-edit: hover shows pencil icon, click opens textarea with Save/Cancel, Escape cancels. Works on all cards across all phases",
+      "User-edited values persist to localStorage via new state.cardData structure. Edited cells show blue left-border indicator",
+      "Edit lock respected: cells are read-only when card LED is green (completed). Undo Completion reverts to yellow and re-enables editing",
+      "Foundation for P1.1 through G1 GREEN status: editable tables + existing interactive checklists + existing Mark as Complete = full card lifecycle"
+    ]
+  },
+  {
     "version": "v0.88.1",
     "date": "March 12, 2026",
     "tag": "FEATURE",

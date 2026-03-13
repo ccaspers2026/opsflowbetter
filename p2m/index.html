@@ -1090,6 +1090,81 @@
             max-width: 300px;
         }
 
+        /* Editable cell styles */
+        .detail-table td.cell-editable {
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.15s;
+        }
+        .detail-table td.cell-editable:hover {
+            background-color: rgba(56, 139, 253, 0.08);
+        }
+        .detail-table td.cell-editable::after {
+            content: '✎';
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 10px;
+            color: #484f58;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .detail-table td.cell-editable:hover::after {
+            opacity: 1;
+        }
+        .detail-table td.cell-editing {
+            padding: 4px;
+            background-color: rgba(56, 139, 253, 0.06);
+        }
+        .detail-table td.cell-editing::after {
+            display: none;
+        }
+        .cell-edit-textarea {
+            width: 100%;
+            min-height: 60px;
+            background: #0d1117;
+            color: #c9d1d9;
+            border: 1px solid #388bfd;
+            border-radius: 4px;
+            padding: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .cell-edit-textarea:focus {
+            box-shadow: 0 0 0 2px rgba(56, 139, 253, 0.3);
+        }
+        .cell-edit-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            justify-content: flex-end;
+        }
+        .cell-edit-actions button {
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #30363d;
+        }
+        .cell-edit-save {
+            background: #238636;
+            color: #fff;
+            border-color: #238636 !important;
+        }
+        .cell-edit-save:hover { background: #2ea043; }
+        .cell-edit-cancel {
+            background: transparent;
+            color: #8b949e;
+        }
+        .cell-edit-cancel:hover { background: #21262d; }
+        .detail-table td.cell-user-edited {
+            border-left: 2px solid #388bfd;
+        }
+
         .detail-table tr:nth-child(even) {
             background-color: #1a2030;
         }
@@ -2560,6 +2635,7 @@
                     '3.2': { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }
                 }
             },
+            cardData: {},
             gateSignatures: {},
             taglines: {
                 '45 RPM Adaptor': '',
@@ -3792,6 +3868,7 @@
                     // Merge saved state over defaults to handle new fields added in updates
                     if (parsed.products) state.products = parsed.products;
                     if (parsed.checklists) state.checklists = parsed.checklists;
+                    if (parsed.cardData) state.cardData = parsed.cardData;
                     if (parsed.gateSignatures) state.gateSignatures = parsed.gateSignatures;
                     if (parsed.taglines) state.taglines = parsed.taglines;
                     if (parsed.imageUrls) state.imageUrls = parsed.imageUrls;
@@ -5039,11 +5116,92 @@
                 table.appendChild(thead);
 
                 const tbody = document.createElement('tbody');
+                // Determine editable columns: for 2-col Field/Value tables, col 1 is editable
+                // For multi-col tables, last col is editable (evidence, result, etc.)
+                const numCols = content.table.headers.length;
+                const editableCols = numCols === 2 ? [1] : [numCols - 1];
+
                 content.table.rows.forEach((row, idx) => {
                     const tr = document.createElement('tr');
                     row.forEach((cell, cellIdx) => {
                         const td = document.createElement('td');
-                        td.innerHTML = addGlossaryToText(cell);
+                        const isEditable = editableCols.includes(cellIdx) && phaseUnlocked && status !== 'green';
+
+                        // Check for user-edited value
+                        const productKey = state.activeProduct;
+                        const userVal = state.cardData[productKey] && state.cardData[productKey][stepId] && state.cardData[productKey][stepId][idx + '_' + cellIdx];
+                        const displayVal = userVal !== undefined ? userVal : cell;
+
+                        td.innerHTML = addGlossaryToText(displayVal);
+
+                        if (userVal !== undefined) {
+                            td.classList.add('cell-user-edited');
+                        }
+
+                        if (isEditable) {
+                            td.classList.add('cell-editable');
+                            td.addEventListener('click', function(e) {
+                                if (td.classList.contains('cell-editing')) return;
+                                if (!requireEdit('edit card data')) return;
+
+                                td.classList.add('cell-editing');
+                                td.classList.remove('cell-editable');
+
+                                // Get raw text (strip HTML) — read from state fresh to avoid stale closures
+                                const currentUserVal = state.cardData[productKey] && state.cardData[productKey][stepId] && state.cardData[productKey][stepId][idx + '_' + cellIdx];
+                                const rawVal = currentUserVal !== undefined ? currentUserVal : cell;
+
+                                const textarea = document.createElement('textarea');
+                                textarea.className = 'cell-edit-textarea';
+                                textarea.value = rawVal.replace(/<[^>]+>/g, '');
+                                textarea.rows = Math.max(2, Math.ceil(rawVal.length / 50));
+
+                                const actions = document.createElement('div');
+                                actions.className = 'cell-edit-actions';
+
+                                const saveBtn = document.createElement('button');
+                                saveBtn.className = 'cell-edit-save';
+                                saveBtn.textContent = 'Save';
+                                saveBtn.addEventListener('click', function(ev) {
+                                    ev.stopPropagation();
+                                    const newVal = textarea.value.trim();
+                                    if (!state.cardData[productKey]) state.cardData[productKey] = {};
+                                    if (!state.cardData[productKey][stepId]) state.cardData[productKey][stepId] = {};
+                                    state.cardData[productKey][stepId][idx + '_' + cellIdx] = newVal;
+                                    saveState();
+                                    // Re-render the cell
+                                    td.innerHTML = addGlossaryToText(newVal);
+                                    td.classList.remove('cell-editing');
+                                    td.classList.add('cell-editable', 'cell-user-edited');
+                                });
+
+                                const cancelBtn = document.createElement('button');
+                                cancelBtn.className = 'cell-edit-cancel';
+                                cancelBtn.textContent = 'Cancel';
+                                cancelBtn.addEventListener('click', function(ev) {
+                                    ev.stopPropagation();
+                                    td.innerHTML = addGlossaryToText(displayVal);
+                                    td.classList.remove('cell-editing');
+                                    td.classList.add('cell-editable');
+                                    if (userVal !== undefined) td.classList.add('cell-user-edited');
+                                });
+
+                                actions.appendChild(saveBtn);
+                                actions.appendChild(cancelBtn);
+
+                                td.innerHTML = '';
+                                td.appendChild(textarea);
+                                td.appendChild(actions);
+                                textarea.focus();
+                                textarea.select();
+
+                                // Escape key cancels
+                                textarea.addEventListener('keydown', function(ke) {
+                                    if (ke.key === 'Escape') cancelBtn.click();
+                                });
+                            });
+                        }
+
                         tr.appendChild(td);
                     });
                     tbody.appendChild(tr);
