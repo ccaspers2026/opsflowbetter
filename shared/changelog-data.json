@@ -12,6 +12,51 @@
     ]
   },
   {
+    "version": "v0.91.0",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Rebuild P1 Card Content \u2014 Templates + 45 RPM Adaptor Product Data",
+    "items": [
+      "Rebuilt all P1 templateDetailContent (P1.1\u2013G1) and productDetailContent for 45 RPM Adaptor to match new card definitions from design review",
+      "Templates: New purpose statements, field structures, checklists, and tips aligned to P2M Flow. P1.4 factors renamed, P1.5 adds per-model sub-card concept, G1 adds CONDITIONAL GO option",
+      "45 RPM Adaptor: All real Helium 10/market data preserved but restructured. P1.3 adds 3-model product line (EasyLift, PinchGrip, The Crown). P1.4 rescored to 25/30. P1.5 includes per-model print time estimates",
+      "Application Design Document (v1.2) and P1 Card Review summaries added to docs"
+    ]
+  },
+  {
+    "version": "v0.90.1",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Align Phase 1 + Phase 2 Card Descriptions to P2M Flow Master",
+    "items": [
+      "P1.1\u2013P1.5 and G1 step definitions updated to match Flow diagram: richer descriptions, context questions, named scoring factors, production feasibility language",
+      "P2.1: CAD Design \u2192 Design Brief / CAD Spec (adds spec + compliance scope). P2.3: Lock Print Settings \u2192 Lock Settings + BOM. G2 gate criteria expanded to match Flow",
+      "Phase 2 card titles and outputs now reflect full BOM, QC criteria, and compliance language"
+    ]
+  },
+  {
+    "version": "v0.90.0",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Simplify Nav \u2014 Admin Hub Is Single Entry Point",
+    "items": [
+      "Removed Changelog, Tasks, Feedback, Tester links from top nav on all 10 pages",
+      "Nav now: Pipeline | Media Pipeline | Workshop | Services | ADMIN",
+      "Admin pages show ADMIN as current with orange breadcrumb (Admin > PageName) linking back to admin.html"
+    ]
+  },
+  {
+    "version": "v0.89.0",
+    "date": "March 13, 2026",
+    "tag": "FEATURE",
+    "title": "Deployed / Testing / Rework Status Badges",
+    "items": [
+      "3 new status badges: Deployed (purple), Testing (yellow pulse), Rework (red pulse)",
+      "Updated status lifecycle: In Progress \u2192 Deployed \u2192 Testing \u2192 Rework \u2192 In Progress",
+      "Workflow doc expanded: status lifecycle, who-sets-what table, group batch workflow, commit format"
+    ]
+  },
+  {
     "version": "v0.88.1",
     "date": "March 12, 2026",
     "tag": "FEATURE",
