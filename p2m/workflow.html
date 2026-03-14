@@ -181,6 +181,8 @@
         .action-btn-copy:hover { background: #30363d; }
         .action-btn-fail { background: #da3633; color: #fff; border-color: #da3633; }
         .action-btn-fail:hover { background: #f85149; }
+        .action-btn-issue { background: rgba(210,153,34,0.15); color: #d29922; border-color: #d29922; }
+        .action-btn-issue:hover { background: rgba(210,153,34,0.3); }
         .action-btn-dismiss { background: transparent; color: #484f58; border: none; font-size: 11px; margin-left: auto; cursor: pointer; }
         .action-btn-dismiss:hover { color: #8b949e; }
         @keyframes bannerIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
@@ -267,9 +269,11 @@
             </div>
         </div>
 
-        <!-- Priority Queue (full featured) -->
+        <!-- Priority Queue (full featured, collapsible) -->
         <div class="section">
-            <h2 class="section-title">&#127919; Priority Queue &mdash; Up Next <span id="pq-count" style="color:#484f58;font-size:12px;"></span></h2>
+            <h2 class="section-title collapsible" id="pq-toggle" title="Click to expand/collapse PQ">
+                <span class="collapse-arrow" id="pq-arrow">&#9660;</span> &#127919; Priority Queue &mdash; Up Next <span id="pq-count" style="color:#484f58;font-size:12px;"></span>
+            </h2>
             <div class="pq-list" id="pq-list"></div>
         </div>
 
@@ -858,13 +862,13 @@
                     if (seg.node.id === 'coding') trunkCodingX = seg.x;
 
                 } else if (seg.type === 'collapsed') {
-                    // Collapsed branch: fork down, green dot on sub-lane, merge back
+                    // Collapsed branch: fork down, dot on sub-lane, merge back
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
-                    drawBranchArc(svg, seg.x + 5, baseY, dotX - 8, miniY, COLORS.green);
-                    drawBranchArc(svg, dotX + 8, miniY, seg.x + COLLAPSED_WIDTH - 5, baseY, COLORS.green);
-                    drawSmallDot(svg, seg.x + 5, baseY, '#484f58');
-                    drawSmallDot(svg, seg.x + COLLAPSED_WIDTH - 5, baseY, '#484f58');
+                    var forkX = seg.x + 10;
+                    var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
+                    drawBranchArc(svg, forkX, baseY + 4, dotX, miniY - 12, COLORS.green);
+                    drawBranchArc(svg, dotX, miniY - 12, mergeBackX, baseY + 4, COLORS.green);
                     drawCollapsedBranch(svg, dotX, miniY, seg.branch, seg.bIdx);
 
                 } else if (seg.type === 'expanded') {
@@ -880,12 +884,12 @@
                     var mergeX = branchEndX + NODE_SPACING;
                     var branchColor = branch.type === 'completion' ? '#1f6feb' : COLORS.branch;
 
-                    // Branch arc down
-                    drawBranchArc(svg, branchStartX - NODE_SPACING * 0.5, baseY, branchStartX, branchY, branchColor);
+                    // Branch arc down (start just below trunk to avoid crossing trunk line)
+                    drawBranchArc(svg, branchStartX - NODE_SPACING * 0.4, baseY + 6, branchStartX, branchY, branchColor);
                     // Branch horizontal line
                     drawLine(svg, branchStartX, branchY, branchEndX, branchY, branchColor, 2);
                     // Merge arc back up
-                    drawBranchArc(svg, branchEndX, branchY, mergeX + NODE_SPACING * 0.5, baseY, branchColor);
+                    drawBranchArc(svg, branchEndX, branchY, mergeX + NODE_SPACING * 0.4, baseY + 6, branchColor);
 
                     // Branch label
                     var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (seg.bIdx + 1);
@@ -907,8 +911,8 @@
                         })(seg.bIdx, nodeId), nodeDef ? nodeDef.tip : '');
                     });
 
-                    // Merge point on trunk
-                    drawSmallDot(svg, mergeX + NODE_SPACING * 0.5, baseY, '#484f58');
+                    // Merge point on trunk (subtle, slightly below trunk line)
+                    drawSmallDot(svg, mergeX + NODE_SPACING * 0.4, baseY, '#484f58');
 
                 } else if (seg.type === 'discussion') {
                     // Discussion chain: fork down, purple dot on sub-lane, merge back if closed
@@ -916,12 +920,11 @@
                     var miniY = baseY + MINI_BRANCH_DROP;
                     var isOpen = !seg.branch.closed;
                     var PURPLE = '#8b5cf6';
-                    drawBranchArc(svg, seg.x + 5, baseY, dotX - 8, miniY, PURPLE);
-                    drawSmallDot(svg, seg.x + 5, baseY, '#484f58');
+                    var forkX = seg.x + 10;
+                    var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
+                    drawBranchArc(svg, forkX, baseY + 4, dotX, miniY - 12, PURPLE);
                     if (!isOpen) {
-                        // Closed: merge arc back up
-                        drawBranchArc(svg, dotX + 8, miniY, seg.x + COLLAPSED_WIDTH - 5, baseY, PURPLE);
-                        drawSmallDot(svg, seg.x + COLLAPSED_WIDTH - 5, baseY, '#484f58');
+                        drawBranchArc(svg, dotX, miniY - 12, mergeBackX, baseY + 4, PURPLE);
                     }
                     drawDiscussionDot(svg, dotX, miniY, seg.branch, seg.bIdx, isOpen);
 
@@ -1268,6 +1271,7 @@
             html += '<button class="action-btn action-btn-primary" data-respond="done">Done ✓</button>';
         }
 
+        html += '<button class="action-btn action-btn-issue" id="action-report-issue" title="Report a problem — opens a discussion linked to this action">&#9888; Report Issue</button>';
         html += '<button class="action-btn action-btn-dismiss" data-respond="dismissed">Dismiss</button>';
         html += '</div>';
 
@@ -1295,6 +1299,27 @@
                 respondToAction(btn.getAttribute('data-option'));
             });
         });
+
+        // Report Issue button — marks action as issue + opens discussion prompt
+        var issueBtn = document.getElementById('action-report-issue');
+        if (issueBtn) {
+            issueBtn.addEventListener('click', function() {
+                var action = OpsFlow.getLocal(ACTION_KEY);
+                if (!action) return;
+                // Mark action as issue (not done, not dismissed)
+                action.status = 'issue';
+                action.response = 'issue_reported';
+                action.updated = Date.now();
+                OpsFlow.set(ACTION_KEY, action);
+                renderActionBanner();
+                // Pre-fill discussion prompt with action context
+                document.getElementById('disc-prompt').classList.add('visible');
+                var textarea = document.getElementById('disc-topic');
+                textarea.value = 'Issue with: ' + (action.message || action.type) + '\n';
+                textarea.focus();
+                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+            });
+        }
     }
 
     // ═══ Action → Checkpoint LED auto-sync ═══
@@ -1571,6 +1596,23 @@
         });
         el.innerHTML = html;
     }
+
+    // PQ collapse toggle (persists to localStorage)
+    var _pqOpen = localStorage.getItem('opsflow_pq_open') !== 'false'; // open by default
+    (function initPQToggle() {
+        var list = document.getElementById('pq-list');
+        var arrow = document.getElementById('pq-arrow');
+        if (!_pqOpen) { list.style.display = 'none'; arrow.innerHTML = '&#9654;'; }
+    })();
+    document.getElementById('pq-toggle').addEventListener('click', function() {
+        _pqOpen = !_pqOpen;
+        localStorage.setItem('opsflow_pq_open', _pqOpen);
+        var list = document.getElementById('pq-list');
+        var arrow = document.getElementById('pq-arrow');
+        list.style.display = _pqOpen ? 'block' : 'none';
+        arrow.innerHTML = _pqOpen ? '&#9660;' : '&#9654;';
+        if (_pqOpen) renderPQ();
+    });
 
     document.getElementById('backlog-toggle').addEventListener('click', function() {
         _backlogOpen = !_backlogOpen;
