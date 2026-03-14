@@ -1270,11 +1270,13 @@
         } else if (action.type === 'test_request') {
             html += '<button class="action-btn action-btn-primary" data-respond="pass">Pass</button>';
             html += '<button class="action-btn action-btn-fail" data-respond="fail">Fail</button>';
-        } else if (action.type !== 'info') {
-            html += '<button class="action-btn action-btn-primary" data-respond="done">Done ✓</button>';
         }
 
+        // Button order: [Copy Commit] | Report Issue (center) | Done (right) — natural L→R flow
         html += '<button class="action-btn action-btn-issue" id="action-report-issue" title="Report a problem — opens a discussion linked to this action">&#9888; Report Issue</button>';
+        if (action.type !== 'info' && action.type !== 'test_request' && !(action.type === 'question' && action.options)) {
+            html += '<button class="action-btn action-btn-primary" data-respond="done">Done ✓</button>';
+        }
         html += '<button class="action-btn action-btn-dismiss" data-respond="dismissed">Dismiss</button>';
         html += '</div>';
 
