@@ -869,11 +869,11 @@
         svg.appendChild(path);
     }
 
-    // ═══ Smooth Path: cubic Bézier S-curves for branch rendering ═══
-    // Asymmetric control points ensure tangent continuity at junctions:
-    //   Fork (going DOWN): leaves trunk VERTICALLY, arrives at branch HORIZONTALLY
-    //   Merge (going UP):  leaves branch HORIZONTALLY, arrives at trunk VERTICALLY
-    // This means S-curves flow seamlessly into horizontal lines at both ends.
+    // ═══ Smooth Path: quadratic Bézier quarter-turns for branch rendering ═══
+    // Uses SVG Q (quadratic bezier) with control point at the L-corner.
+    //   Fork (DOWN, x increasing): Q control at (startX, endY) — leaves vertical, arrives horizontal
+    //   Merge (UP, x increasing):  Q control at (endX, startY) — leaves horizontal, arrives vertical
+    // Produces clean parabolic quarter-turn curves like professional git diagrams.
     function drawSmoothPath(svg, waypoints, color, opts) {
         if (waypoints.length < 2) return;
         opts = opts || {};
@@ -886,16 +886,12 @@
             if (Math.abs(p0.x - p1.x) < 1 || Math.abs(p0.y - p1.y) < 1) {
                 // Same row or same column: straight line
                 d += ' L ' + p1.x + ',' + p1.y;
+            } else if (p1.y > p0.y) {
+                // Going DOWN (fork): control at bottom-left corner
+                d += ' Q ' + p0.x + ',' + p1.y + ' ' + p1.x + ',' + p1.y;
             } else {
-                var midX = (p0.x + p1.x) / 2;
-                var midY = (p0.y + p1.y) / 2;
-                if (p1.y > p0.y) {
-                    // Going DOWN (fork): vertical start, horizontal arrival
-                    d += ' C ' + p0.x + ',' + midY + ' ' + midX + ',' + p1.y + ' ' + p1.x + ',' + p1.y;
-                } else {
-                    // Going UP (merge): horizontal start, vertical arrival
-                    d += ' C ' + midX + ',' + p0.y + ' ' + p1.x + ',' + midY + ' ' + p1.x + ',' + p1.y;
-                }
+                // Going UP (merge): control at bottom-right corner
+                d += ' Q ' + p1.x + ',' + p0.y + ' ' + p1.x + ',' + p1.y;
             }
         }
 
@@ -1016,8 +1012,8 @@
                     var branchEndX = seg.x + (nodeCount - 1) * NODE_SPACING;
                     var mergeX = branchEndX + NODE_SPACING;
                     var branchColor = branch.type === 'completion' ? '#1f6feb' : COLORS.branch;
-                    var forkAnchorX = branchStartX - NODE_SPACING;
-                    var mergeAnchorX = mergeX + NODE_SPACING;
+                    var forkAnchorX = branchStartX - NODE_SPACING * 0.6;
+                    var mergeAnchorX = mergeX + NODE_SPACING * 0.6;
 
                     // Register elements for collision avoidance
                     addElement(map, 'fork-exp-' + seg.bIdx, 'fork-point', forkAnchorX - 2, baseY - 2, 4, 4);
