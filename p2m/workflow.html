@@ -822,7 +822,7 @@
         return pts;
     }
 
-    // Draw a routed path with rounded corners at each turn
+    // Draw a routed path with rounded corners at each turn (used for row-wrap connectors)
     function drawRoutedPath(svg, waypoints, color, opts) {
         if (waypoints.length < 2) return;
         opts = opts || {};
@@ -835,39 +835,62 @@
             var next = waypoints[i + 1];
 
             if (next && i < waypoints.length - 1) {
-                // This is a corner point — draw line to just before corner, then arc
                 var dx1 = curr.x - prev.x;
                 var dy1 = curr.y - prev.y;
                 var dx2 = next.x - curr.x;
                 var dy2 = next.y - curr.y;
-
-                // Normalize to get direction
                 var len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
                 var len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
                 if (len1 === 0 || len2 === 0) { d += ' L ' + curr.x + ',' + curr.y; continue; }
-
-                // Clamp radius to half the shorter segment
                 var maxR = Math.min(len1 / 2, len2 / 2, r);
-
                 var ux1 = dx1 / len1, uy1 = dy1 / len1;
                 var ux2 = dx2 / len2, uy2 = dy2 / len2;
-
-                // Arc start: maxR before the corner
                 var arcStartX = curr.x - ux1 * maxR;
                 var arcStartY = curr.y - uy1 * maxR;
-                // Arc end: maxR after the corner
                 var arcEndX = curr.x + ux2 * maxR;
                 var arcEndY = curr.y + uy2 * maxR;
-
-                // Determine sweep direction (clockwise vs counter-clockwise)
                 var cross = ux1 * uy2 - uy1 * ux2;
                 var sweep = cross > 0 ? 1 : 0;
-
                 d += ' L ' + arcStartX + ',' + arcStartY;
                 d += ' A ' + maxR + ',' + maxR + ' 0 0 ' + sweep + ' ' + arcEndX + ',' + arcEndY;
             } else {
-                // Last point — just draw line to it
                 d += ' L ' + curr.x + ',' + curr.y;
+            }
+        }
+
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', opts.width || 2);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke-linecap', 'round');
+        if (opts.dash) path.setAttribute('stroke-dasharray', opts.dash);
+        if (opts.opacity) path.setAttribute('opacity', opts.opacity);
+        svg.appendChild(path);
+    }
+
+    // ═══ Smooth Path: cubic Bézier S-curves for branch rendering ═══
+    // Uses the D3 "bump" pattern: between two points at different X and Y,
+    // draws a cubic Bézier with control points at (x0, midY) and (x1, midY),
+    // producing a smooth S-curve with tangent continuity at both endpoints.
+    // Same-Y segments → straight horizontal lines.
+    // Same-X segments → straight vertical lines.
+    function drawSmoothPath(svg, waypoints, color, opts) {
+        if (waypoints.length < 2) return;
+        opts = opts || {};
+        var d = 'M ' + waypoints[0].x + ',' + waypoints[0].y;
+
+        for (var i = 1; i < waypoints.length; i++) {
+            var p0 = waypoints[i - 1];
+            var p1 = waypoints[i];
+
+            if (Math.abs(p0.x - p1.x) < 1 || Math.abs(p0.y - p1.y) < 1) {
+                // Same row or same column: straight line
+                d += ' L ' + p1.x + ',' + p1.y;
+            } else {
+                // Different X and Y: cubic Bézier S-curve
+                var midY = (p0.y + p1.y) / 2;
+                d += ' C ' + p0.x + ',' + midY + ' ' + p1.x + ',' + midY + ' ' + p1.x + ',' + p1.y;
             }
         }
 
@@ -971,11 +994,10 @@
                     addElement(map, 'fork-cp-' + seg.bIdx, 'fork-point', forkX - 2, baseY - 2, 4, 4);
                     addElement(map, 'dot-cp-' + seg.bIdx, 'branch-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
                     addElement(map, 'merge-cp-' + seg.bIdx, 'merge-point', mergeBackX - 2, baseY - 2, 4, 4);
-                    // Store path for drawing: fork down, across to dot, across to merge, back up
+                    // Store path: smooth S-curves through the dot center
                     seg._branchPath = [
                         { x: forkX, y: baseY },
-                        { x: forkX, y: miniY },
-                        { x: mergeBackX, y: miniY },
+                        { x: dotX, y: miniY },
                         { x: mergeBackX, y: baseY }
                     ];
 
@@ -998,10 +1020,11 @@
                     addElement(map, 'merge-exp-' + seg.bIdx, 'merge-point', mergeAnchorX - 2, baseY - 2, 4, 4);
 
                     // Store the full branch path as waypoints (drawn in phase 3c)
+                    // Uses offset X values so the S-curve has diagonal span
                     seg._branchPath = [
                         { x: forkAnchorX, y: baseY },
-                        { x: forkAnchorX, y: branchY },
-                        { x: mergeAnchorX, y: branchY },
+                        { x: branchStartX, y: branchY },
+                        { x: mergeX, y: branchY },
                         { x: mergeAnchorX, y: baseY }
                     ];
 
@@ -1031,19 +1054,17 @@
                     addElement(map, 'dot-disc-' + seg.bIdx, 'disc-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
 
                     if (isOpen) {
-                        // Open: fork down to dot level, horizontal to dot
+                        // Open: smooth S-curve from trunk down to dot
                         seg._branchPath = [
                             { x: forkX, y: baseY },
-                            { x: forkX, y: miniY },
                             { x: dotX, y: miniY }
                         ];
                     } else {
-                        // Closed: full fork, horizontal, merge
+                        // Closed: smooth S-curves through dot center and back up
                         addElement(map, 'merge-disc-' + seg.bIdx, 'merge-point', mergeBackX - 2, baseY - 2, 4, 4);
                         seg._branchPath = [
                             { x: forkX, y: baseY },
-                            { x: forkX, y: miniY },
-                            { x: mergeBackX, y: miniY },
+                            { x: dotX, y: miniY },
                             { x: mergeBackX, y: baseY }
                         ];
                     }
@@ -1112,9 +1133,9 @@
                 } else if (seg.type === 'collapsed') {
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
-                    // Draw the branch path: fork down → horizontal → merge up
+                    // Draw the branch path: smooth S-curves
                     if (seg._branchPath) {
-                        drawRoutedPath(svg, seg._branchPath, COLORS.green);
+                        drawSmoothPath(svg, seg._branchPath, COLORS.green);
                     }
                     drawCollapsedBranch(svg, dotX, miniY, seg.branch, seg.bIdx);
 
@@ -1125,9 +1146,9 @@
                     var branchStartX = seg.x;
                     var branchEndX = seg.x + (nodeKeys.length - 1) * NODE_SPACING;
 
-                    // Draw the full branch path: fork down → horizontal → merge up
+                    // Draw the full branch path: smooth S-curves
                     if (seg._branchPath) {
-                        drawRoutedPath(svg, seg._branchPath, branchColor);
+                        drawSmoothPath(svg, seg._branchPath, branchColor);
                     }
 
                     // Branch label
@@ -1158,9 +1179,9 @@
                     var miniY = baseY + MINI_BRANCH_DROP;
                     var isOpen = !seg.branch.closed;
                     var PURPLE = '#8b5cf6';
-                    // Draw the branch path
+                    // Draw the branch path: smooth S-curves
                     if (seg._branchPath) {
-                        drawRoutedPath(svg, seg._branchPath, PURPLE);
+                        drawSmoothPath(svg, seg._branchPath, PURPLE);
                     }
                     drawDiscussionDot(svg, dotX, miniY, seg.branch, seg.bIdx, isOpen);
 
@@ -1287,57 +1308,6 @@
         line.setAttribute('stroke', color); line.setAttribute('stroke-width', width || 2);
         line.setAttribute('stroke-linecap', 'round');
         svg.appendChild(line);
-    }
-
-    // Semi-circle arc: draws a half-circle from (x,y1) curving to (x,y2)
-    // direction: 'down' = fork (trunk→branch), 'up' = merge (branch→trunk)
-    // Draw a fork path: vertical drop from trunk with rounded corner to horizontal
-    // Goes from (x, trunkY) down to (x, branchY) then right, with radius-r corner
-    function drawForkPath(svg, x, trunkY, branchY, color, r) {
-        r = r || 12;
-        var drop = Math.abs(branchY - trunkY);
-        if (drop < r * 2) r = drop / 2;
-        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        var d = 'M ' + x + ',' + trunkY
-            + ' L ' + x + ',' + (branchY - r)
-            + ' A ' + r + ',' + r + ' 0 0 0 ' + (x + r) + ',' + branchY;
-        path.setAttribute('d', d);
-        path.setAttribute('stroke', color);
-        path.setAttribute('stroke-width', '2');
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke-linecap', 'round');
-        svg.appendChild(path);
-    }
-
-    // Draw a merge path: horizontal to vertical rise back to trunk with rounded corner
-    // Goes from horizontal at branchY up to (x, trunkY), with radius-r corner
-    function drawMergePath(svg, x, trunkY, branchY, color, r) {
-        r = r || 12;
-        var drop = Math.abs(branchY - trunkY);
-        if (drop < r * 2) r = drop / 2;
-        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        var d = 'M ' + (x - r) + ',' + branchY
-            + ' A ' + r + ',' + r + ' 0 0 0 ' + x + ',' + (branchY - r)
-            + ' L ' + x + ',' + trunkY;
-        path.setAttribute('d', d);
-        path.setAttribute('stroke', color);
-        path.setAttribute('stroke-width', '2');
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke-linecap', 'round');
-        svg.appendChild(path);
-    }
-
-    // Draw a mini-branch: fork down (rounded corner), horizontal line, merge up (rounded corner)
-    function drawMiniBranch(svg, forkX, mergeX, trunkY, branchY, color) {
-        var r = 12;
-        drawForkPath(svg, forkX, trunkY, branchY, color, r);
-        // Horizontal line at branch level between the two corners
-        var hStart = forkX + r;
-        var hEnd = mergeX - r;
-        if (hEnd > hStart) {
-            drawLine(svg, hStart, branchY, hEnd, branchY, color, 2);
-        }
-        drawMergePath(svg, mergeX, trunkY, branchY, color, r);
     }
 
     function drawNode(svg, x, y, color, label, who, onClick, tooltip) {
