@@ -941,29 +941,32 @@
             });
         });
 
-        // ── Draw row connectors (arc from right end of row N down to left start of row N+1) ──
+        // ── Draw row connectors (routed clear of branch elements) ──
         for (var ri = 0; ri < rows.length - 1; ri++) {
             var thisRowY = ri * ROW_HEIGHT + LEVEL_1_Y;
             var nextRowY = (ri + 1) * ROW_HEIGHT + LEVEL_1_Y;
-            var thisRowEndX = rows[ri].segments[rows[ri].segments.length - 1].x + rows[ri].segments[rows[ri].segments.length - 1].width;
-            var nextRowStartX = LEFT_PAD;
+            var lastSeg = rows[ri].segments[rows[ri].segments.length - 1];
+            var thisRowEndX = lastSeg.x + lastSeg.width + 20; // clear past last element
+            var nextRowStartX = LEFT_PAD - 20; // start before first element of next row
 
-            // Draw a U-shaped connector: right end → down → across → down to left start of next row
+            // Route: go right past last element → curve down below branches → sweep left → curve up to next row start
             var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            var midY = (thisRowY + nextRowY) / 2;
-            var d = 'M ' + thisRowEndX + ',' + thisRowY
-                + ' C ' + (thisRowEndX + 40) + ',' + thisRowY
-                + ' ' + (thisRowEndX + 40) + ',' + midY
-                + ' ' + ((thisRowEndX + nextRowStartX) / 2) + ',' + midY
-                + ' C ' + (nextRowStartX - 40) + ',' + midY
-                + ' ' + (nextRowStartX - 40) + ',' + nextRowY
-                + ' ' + nextRowStartX + ',' + nextRowY;
+            var clearanceY = thisRowY + MINI_BRANCH_DROP + 50; // well below branch dots
+            var midX = (thisRowEndX + nextRowStartX) / 2;
+            var d = 'M ' + (thisRowEndX - 20) + ',' + thisRowY
+                + ' C ' + (thisRowEndX + 30) + ',' + thisRowY
+                + ' ' + (thisRowEndX + 30) + ',' + clearanceY
+                + ' ' + midX + ',' + clearanceY
+                + ' C ' + (nextRowStartX - 30) + ',' + clearanceY
+                + ' ' + (nextRowStartX - 30) + ',' + nextRowY
+                + ' ' + (nextRowStartX + 20) + ',' + nextRowY;
             path.setAttribute('d', d);
             path.setAttribute('stroke', COLORS.trunk);
-            path.setAttribute('stroke-width', '3');
+            path.setAttribute('stroke-width', '2');
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke-linecap', 'round');
             path.setAttribute('stroke-dasharray', '6,4');
+            path.setAttribute('opacity', '0.5');
             svg.appendChild(path);
         }
     }
