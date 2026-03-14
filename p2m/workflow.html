@@ -54,7 +54,7 @@
         .cycle-label { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* ═══ SVG Canvas ═══ */
-        .svg-container { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 16px; overflow-x: auto; overflow-y: hidden; }
+        .svg-container { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 16px; overflow-x: auto; overflow-y: auto; }
         .svg-container svg { display: block; }
         /* SVG node hover */
         .svg-container svg .node-circle { cursor: pointer; transition: filter 0.15s; }
@@ -173,9 +173,10 @@
     var NODE_SPACING = 100;
     var LEVEL_1_Y = 50;
     var LEVEL_2_Y = 150;
-    var LEVEL_3_Y = 250;
     var LEFT_PAD = 60;
-    var BRANCH_CURVE = 30;
+    var MAX_ROW_WIDTH = 1080;
+    var ROW_HEIGHT = 180;
+    var COLLAPSED_WIDTH = 60;
 
     var COLORS = { red: '#f85149', yellow: '#d29922', green: '#2ea44f', trunk: '#30363d', branch: '#30363d' };
 
@@ -315,133 +316,262 @@
         renderHistory();
     }
 
+    // ═══ Helper: is branch all green (collapsed)? ═══
+    function isBranchComplete(branch) {
+        var keys = Object.keys(branch.nodes);
+        for (var i = 0; i < keys.length; i++) {
+            if (branch.nodes[keys[i]] !== 'green') return false;
+        }
+        return keys.length > 0;
+    }
+
+    // ═══ Helper: width a branch takes on the trunk ═══
+    function branchWidth(branch) {
+        if (isBranchComplete(branch)) return COLLAPSED_WIDTH;
+        var nodeCount = Object.keys(branch.nodes).length;
+        return nodeCount * NODE_SPACING + NODE_SPACING; // nodes + merge gap
+    }
+
     function renderSVG() {
         var svg = document.getElementById('workflow-svg');
         svg.innerHTML = '';
 
-        // Calculate dimensions
-        var trunkNodeCount = 3; // start, scan, coding
         var hasCompletion = story.branches.some(function(b) { return b.type === 'completion'; });
-        if (hasCompletion) trunkNodeCount += 1; // + "Done" node at end of trunk
+        var hasExpandedBranch = story.branches.some(function(b) { return !isBranchComplete(b); });
 
-        var maxBranchNodes = 0;
-        story.branches.forEach(function(b) {
-            var count = Object.keys(b.nodes).length;
-            if (count > maxBranchNodes) maxBranchNodes = count;
+        // ── Build a list of "segments" to lay out ──
+        // Segments: trunk nodes first, then each branch (collapsed or expanded)
+        // We'll walk through and assign x positions, wrapping rows as needed
+        var segments = [];
+
+        // Trunk nodes always come first
+        TRUNK_NODES.forEach(function(node, i) {
+            segments.push({ type: 'trunk', node: node, width: NODE_SPACING });
         });
 
-        var branchCount = story.branches.length;
-        // Width: trunk + space for all branches laid out horizontally
-        var totalBranchWidth = 0;
-        story.branches.forEach(function(b) {
-            totalBranchWidth += Object.keys(b.nodes).length * NODE_SPACING + NODE_SPACING;
+        // Each branch
+        story.branches.forEach(function(branch, bIdx) {
+            segments.push({
+                type: isBranchComplete(branch) ? 'collapsed' : 'expanded',
+                branch: branch,
+                bIdx: bIdx,
+                width: branchWidth(branch)
+            });
         });
 
-        var trunkWidth = trunkNodeCount * NODE_SPACING;
-        var svgWidth = Math.max(LEFT_PAD + trunkWidth + totalBranchWidth + 100, 600);
-        var svgHeight = branchCount > 0 ? LEVEL_2_Y + 70 : LEVEL_1_Y + 70;
-        // If any completion branch exists with testing, add level 3 space
-        if (hasCompletion) svgHeight = LEVEL_2_Y + 70;
+        // Story Done node if completion exists
+        if (hasCompletion) {
+            segments.push({ type: 'storyDone', width: NODE_SPACING });
+        }
+
+        // Arrowhead at end
+        segments.push({ type: 'arrow', width: 50 });
+
+        // ── Assign rows and x positions ──
+        var rows = []; // array of { segments: [], startX, y1, y2, width }
+        var currentRow = { segments: [], startX: LEFT_PAD, width: 0 };
+        var x = LEFT_PAD;
+
+        for (var si = 0; si < segments.length; si++) {
+            var seg = segments[si];
+            var segW = seg.width;
+
+            // Would this segment overflow the row?
+            // Don't break in the middle of trunk nodes (first 3 always on row 0)
+            var wouldOverflow = (x + segW) > MAX_ROW_WIDTH && currentRow.segments.length > 0;
+            var isTrunk = seg.type === 'trunk';
+
+            if (wouldOverflow && !isTrunk) {
+                // Finish this row
+                currentRow.width = x - currentRow.startX;
+                rows.push(currentRow);
+                // Start new row
+                currentRow = { segments: [], startX: LEFT_PAD, width: 0 };
+                x = LEFT_PAD;
+            }
+
+            seg.x = x;
+            seg.rowIdx = rows.length; // will be set properly after push
+            currentRow.segments.push(seg);
+            x += segW;
+        }
+        // Push last row
+        if (currentRow.segments.length > 0) {
+            currentRow.width = x - currentRow.startX;
+            rows.push(currentRow);
+        }
+
+        // ── Calculate SVG dimensions ──
+        var svgWidth = MAX_ROW_WIDTH + 40;
+        var svgHeight = rows.length * ROW_HEIGHT + 20;
+        if (!hasExpandedBranch) svgHeight = rows.length * (LEVEL_1_Y + 70);
 
         svg.setAttribute('width', svgWidth);
-        svg.setAttribute('height', svgHeight);
-        svg.setAttribute('viewBox', '0 0 ' + svgWidth + ' ' + svgHeight);
+        svg.setAttribute('height', Math.max(svgHeight, 120));
+        svg.setAttribute('viewBox', '0 0 ' + svgWidth + ' ' + Math.max(svgHeight, 120));
 
-        // ── Draw trunk line ──
-        var trunkStartX = LEFT_PAD;
-        var trunkEndX = LEFT_PAD + (trunkNodeCount - 1) * NODE_SPACING;
+        // ── Draw each row ──
+        var trunkCodingX = 0; // track where "coding" node is for branch arcs
 
-        // Extend trunk through all branch merge points
-        var lastMergeX = trunkEndX;
-        var branchX = trunkEndX + NODE_SPACING; // first branch starts after coding node
-        story.branches.forEach(function(b) {
-            var nodeCount = Object.keys(b.nodes).length;
-            var mergeX = branchX + (nodeCount - 1) * NODE_SPACING + NODE_SPACING;
-            if (mergeX > lastMergeX) lastMergeX = mergeX;
-            branchX = mergeX + NODE_SPACING * 0.5;
-        });
+        rows.forEach(function(row, rIdx) {
+            var baseY = rIdx * ROW_HEIGHT + LEVEL_1_Y;
+            var branchY = rIdx * ROW_HEIGHT + LEVEL_2_Y;
 
-        if (hasCompletion) {
-            // Done node at the end
-            lastMergeX += NODE_SPACING;
-        }
+            // Draw trunk line for this row
+            var rowStartX = row.segments[0].x;
+            var rowEndX = row.segments[row.segments.length - 1].x + row.segments[row.segments.length - 1].width - 20;
 
-        // Main trunk line + ending arrowhead
-        var arrowTipX = lastMergeX + 30;
-        drawLine(svg, trunkStartX, LEVEL_1_Y, arrowTipX, LEVEL_1_Y, COLORS.trunk, 3);
-        drawArrowhead(svg, arrowTipX, LEVEL_1_Y, '#484f58');
+            // Draw row trunk line
+            drawLine(svg, rowStartX, baseY, rowEndX, baseY, COLORS.trunk, 3);
 
-        // ── Draw trunk nodes ──
-        var trunkPositions = {};
-        TRUNK_NODES.forEach(function(node, i) {
-            var x = trunkStartX + i * NODE_SPACING;
-            trunkPositions[node.id] = x;
-            var color = COLORS[story.trunk[node.id] || 'red'];
-            drawNode(svg, x, LEVEL_1_Y, color, node.label, node.who, function() {
-                cycleTrunkNode(node.id);
+            // Draw each segment on this row
+            row.segments.forEach(function(seg) {
+                if (seg.type === 'trunk') {
+                    var color = COLORS[story.trunk[seg.node.id] || 'red'];
+                    drawNode(svg, seg.x, baseY, color, seg.node.label, seg.node.who, function() {
+                        cycleTrunkNode(seg.node.id);
+                    });
+                    if (seg.node.id === 'coding') trunkCodingX = seg.x;
+
+                } else if (seg.type === 'collapsed') {
+                    // Collapsed branch: green dot on trunk with version label
+                    var dotX = seg.x + COLLAPSED_WIDTH / 2;
+                    drawCollapsedBranch(svg, dotX, baseY, seg.branch, seg.bIdx);
+
+                } else if (seg.type === 'expanded') {
+                    // Full expanded branch
+                    var branch = seg.branch;
+                    var nodeKeys = branch.type === 'completion'
+                        ? CHECKPOINT_NODES.concat(COMPLETION_EXTRA).map(function(n) { return n.id; })
+                        : CHECKPOINT_NODES.map(function(n) { return n.id; });
+                    var nodeCount = nodeKeys.length;
+
+                    var branchStartX = seg.x;
+                    var branchEndX = seg.x + (nodeCount - 1) * NODE_SPACING;
+                    var mergeX = branchEndX + NODE_SPACING;
+                    var branchColor = branch.type === 'completion' ? '#1f6feb' : COLORS.branch;
+
+                    // Branch arc down
+                    drawBranchArc(svg, branchStartX - NODE_SPACING * 0.5, baseY, branchStartX, branchY, branchColor);
+                    // Branch horizontal line
+                    drawLine(svg, branchStartX, branchY, branchEndX, branchY, branchColor, 2);
+                    // Merge arc back up
+                    drawBranchArc(svg, branchEndX, branchY, mergeX + NODE_SPACING * 0.5, baseY, branchColor);
+
+                    // Branch label
+                    var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (seg.bIdx + 1);
+                    if (branch.version) labelText += ' (' + branch.version + ')';
+                    var labelCenterX = branchStartX + (branchEndX - branchStartX) / 2;
+                    drawText(svg, labelCenterX, branchY - 28, labelText, '10px', branch.type === 'completion' ? '#58a6ff' : '#484f58', 'branch-label');
+
+                    // Delete button
+                    drawDeleteBtn(svg, branchEndX + 14, branchY - 32, seg.bIdx);
+
+                    // Branch nodes
+                    var allNodeDefs = CHECKPOINT_NODES.concat(COMPLETION_EXTRA);
+                    nodeKeys.forEach(function(nodeId, nIdx) {
+                        var nx = branchStartX + nIdx * NODE_SPACING;
+                        var nodeDef = allNodeDefs.find(function(n) { return n.id === nodeId; });
+                        var ncolor = COLORS[branch.nodes[nodeId] || 'red'];
+                        drawNode(svg, nx, branchY, ncolor, nodeDef ? nodeDef.label : nodeId, nodeDef ? nodeDef.who : '', (function(bi, ni) {
+                            return function() { cycleBranchNode(bi, ni); };
+                        })(seg.bIdx, nodeId));
+                    });
+
+                    // Merge point on trunk
+                    drawSmallDot(svg, mergeX + NODE_SPACING * 0.5, baseY, '#484f58');
+
+                } else if (seg.type === 'storyDone') {
+                    var doneStatus = 'red';
+                    var compBranch = story.branches.find(function(b) { return b.type === 'completion'; });
+                    if (compBranch && compBranch.nodes['done'] === 'green') doneStatus = 'green';
+                    else if (compBranch && compBranch.nodes['testing'] !== 'red') doneStatus = 'yellow';
+                    drawNode(svg, seg.x, baseY, COLORS[doneStatus], 'Story Done', 'Auto', function() {});
+
+                } else if (seg.type === 'arrow') {
+                    drawArrowhead(svg, seg.x, baseY, '#484f58');
+                }
             });
         });
 
-        // ── Draw branches ──
-        branchX = trunkPositions['coding'] + NODE_SPACING;
+        // ── Draw row connectors (arc from right end of row N down to left start of row N+1) ──
+        for (var ri = 0; ri < rows.length - 1; ri++) {
+            var thisRowY = ri * ROW_HEIGHT + LEVEL_1_Y;
+            var nextRowY = (ri + 1) * ROW_HEIGHT + LEVEL_1_Y;
+            var thisRowEndX = rows[ri].segments[rows[ri].segments.length - 1].x + rows[ri].segments[rows[ri].segments.length - 1].width;
+            var nextRowStartX = LEFT_PAD;
 
-        story.branches.forEach(function(branch, bIdx) {
-            var nodeKeys = branch.type === 'completion'
-                ? CHECKPOINT_NODES.concat(COMPLETION_EXTRA).map(function(n) { return n.id; })
-                : CHECKPOINT_NODES.map(function(n) { return n.id; });
-            var nodeCount = nodeKeys.length;
+            // Draw a U-shaped connector: right end → down → across → down to left start of next row
+            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            var midY = (thisRowY + nextRowY) / 2;
+            var d = 'M ' + thisRowEndX + ',' + thisRowY
+                + ' C ' + (thisRowEndX + 40) + ',' + thisRowY
+                + ' ' + (thisRowEndX + 40) + ',' + midY
+                + ' ' + ((thisRowEndX + nextRowStartX) / 2) + ',' + midY
+                + ' C ' + (nextRowStartX - 40) + ',' + midY
+                + ' ' + (nextRowStartX - 40) + ',' + nextRowY
+                + ' ' + nextRowStartX + ',' + nextRowY;
+            path.setAttribute('d', d);
+            path.setAttribute('stroke', COLORS.trunk);
+            path.setAttribute('stroke-width', '3');
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke-linecap', 'round');
+            path.setAttribute('stroke-dasharray', '6,4');
+            svg.appendChild(path);
+        }
+    }
 
-            var branchStartX = branchX;
-            var branchEndX = branchX + (nodeCount - 1) * NODE_SPACING;
-            var mergeX = branchEndX + NODE_SPACING;
+    // ═══ Collapsed branch: green dot with version tooltip ═══
+    function drawCollapsedBranch(svg, x, y, branch, bIdx) {
+        // Small green checkmark dot on the trunk
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('style', 'cursor:pointer;');
 
-            // Branch arc down from trunk
-            drawBranchArc(svg, branchStartX - NODE_SPACING * 0.5, LEVEL_1_Y, branchStartX, LEVEL_2_Y, branch.type === 'completion' ? '#1f6feb' : COLORS.branch);
+        // Glow
+        var glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        glow.setAttribute('cx', x); glow.setAttribute('cy', y);
+        glow.setAttribute('r', 10);
+        glow.setAttribute('fill', COLORS.green); glow.setAttribute('opacity', '0.25');
+        g.appendChild(glow);
 
-            // Branch horizontal line
-            drawLine(svg, branchStartX, LEVEL_2_Y, branchEndX, LEVEL_2_Y, branch.type === 'completion' ? '#1f6feb' : COLORS.branch, 2);
+        // Circle
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x); circle.setAttribute('cy', y);
+        circle.setAttribute('r', 7);
+        circle.setAttribute('fill', COLORS.green);
+        circle.setAttribute('stroke', '#0d1117'); circle.setAttribute('stroke-width', '1.5');
+        g.appendChild(circle);
 
-            // Merge arc back up to trunk
-            drawBranchArc(svg, branchEndX, LEVEL_2_Y, mergeX + NODE_SPACING * 0.5, LEVEL_1_Y, branch.type === 'completion' ? '#1f6feb' : COLORS.branch);
+        // Checkmark
+        var check = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        check.setAttribute('x', x); check.setAttribute('y', y + 3);
+        check.setAttribute('font-size', '8px'); check.setAttribute('fill', '#fff');
+        check.setAttribute('text-anchor', 'middle');
+        check.setAttribute('style', 'pointer-events:none;');
+        check.textContent = '\u2713';
+        g.appendChild(check);
 
-            // Branch label
-            var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (bIdx + 1);
-            if (branch.version) labelText += ' (' + branch.version + ')';
-            var labelCenterX = branchStartX + (branchEndX - branchStartX) / 2;
-            drawText(svg, labelCenterX, LEVEL_2_Y - 28, labelText, '10px', branch.type === 'completion' ? '#58a6ff' : '#484f58', 'branch-label');
+        // Version label below
+        var label = branch.version || '';
+        var labelType = branch.type === 'completion' ? 'Done' : 'CP';
+        drawText(svg, x, y + 20, labelType, '8px', '#2ea44f', 'node-label', true);
+        drawText(svg, x, y + 30, label, '8px', '#484f58', 'node-label', true);
 
-            // Delete button (right of label)
-            drawDeleteBtn(svg, branchEndX + 14, LEVEL_2_Y - 32, bIdx);
+        // Tooltip on hover: show branch details
+        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = (branch.type === 'completion' ? 'Completion' : 'Checkpoint') + ' ' + label + ' \u2014 All steps complete';
+        g.appendChild(title);
 
-            // Branch nodes
-            var allNodeDefs = CHECKPOINT_NODES.concat(COMPLETION_EXTRA);
-            nodeKeys.forEach(function(nodeId, nIdx) {
-                var x = branchStartX + nIdx * NODE_SPACING;
-                var nodeDef = allNodeDefs.find(function(n) { return n.id === nodeId; });
-                var color = COLORS[branch.nodes[nodeId] || 'red'];
-                drawNode(svg, x, LEVEL_2_Y, color, nodeDef ? nodeDef.label : nodeId, nodeDef ? nodeDef.who : '', (function(bi, ni) {
-                    return function() { cycleBranchNode(bi, ni); };
-                })(bIdx, nodeId));
-            });
-
-            // Merge point on trunk (small dot)
-            drawLine(svg, trunkPositions['coding'], LEVEL_1_Y, mergeX + NODE_SPACING * 0.5, LEVEL_1_Y, COLORS.trunk, 3);
-            drawSmallDot(svg, mergeX + NODE_SPACING * 0.5, LEVEL_1_Y, '#484f58');
-
-            branchX = mergeX + NODE_SPACING;
+        // Click to delete (same as expanded)
+        g.addEventListener('click', function() {
+            if (confirm('Delete completed branch ' + label + '?')) {
+                story.branches.splice(bIdx, 1);
+                saveStory();
+                render();
+            }
         });
 
-        // Done node on trunk if completion exists
-        if (hasCompletion) {
-            var doneX = lastMergeX;
-            var doneStatus = 'red';
-            // Check if the completion branch's done node is green
-            var compBranch = story.branches.find(function(b) { return b.type === 'completion'; });
-            if (compBranch && compBranch.nodes['done'] === 'green') doneStatus = 'green';
-            else if (compBranch && compBranch.nodes['testing'] !== 'red') doneStatus = 'yellow';
-
-            drawNode(svg, doneX, LEVEL_1_Y, COLORS[doneStatus], 'Story Done', 'Auto', function() {});
-        }
+        svg.appendChild(g);
     }
 
     // ── SVG Drawing Helpers ──

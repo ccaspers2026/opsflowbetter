@@ -1,5 +1,17 @@
 [
   {
+    "version": "v0.94.1",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Workflow Dashboard \u2014 Branch Collapsing + Row Wrapping",
+    "items": [
+      "Completed branches (all nodes green) collapse to a small green checkmark dot on the trunk with version label \u2014 reclaims horizontal space automatically",
+      "Row wrapping: when the diagram exceeds container width, trunk wraps to a new row below with a dashed connector arc. No horizontal scrolling needed",
+      "Collapsed branches are clickable to delete. Expanded branches retain the \u00D7 delete button",
+      "Dynamic SVG height adjusts based on number of rows and whether any branches are expanded"
+    ]
+  },
+  {
     "version": "v0.94.0",
     "date": "March 13, 2026",
     "tag": "UPDATE",
