@@ -338,7 +338,7 @@
         });
 
         var trunkWidth = trunkNodeCount * NODE_SPACING;
-        var svgWidth = Math.max(LEFT_PAD + trunkWidth + totalBranchWidth + 60, 600);
+        var svgWidth = Math.max(LEFT_PAD + trunkWidth + totalBranchWidth + 100, 600);
         var svgHeight = branchCount > 0 ? LEVEL_2_Y + 70 : LEVEL_1_Y + 70;
         // If any completion branch exists with testing, add level 3 space
         if (hasCompletion) svgHeight = LEVEL_2_Y + 70;
@@ -366,8 +366,10 @@
             lastMergeX += NODE_SPACING;
         }
 
-        // Main trunk line
-        drawLine(svg, trunkStartX, LEVEL_1_Y, lastMergeX, LEVEL_1_Y, COLORS.trunk, 3);
+        // Main trunk line + ending arrowhead
+        var arrowTipX = lastMergeX + 30;
+        drawLine(svg, trunkStartX, LEVEL_1_Y, arrowTipX, LEVEL_1_Y, COLORS.trunk, 3);
+        drawArrowhead(svg, arrowTipX, LEVEL_1_Y, '#484f58');
 
         // ── Draw trunk nodes ──
         var trunkPositions = {};
@@ -405,7 +407,11 @@
             // Branch label
             var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (bIdx + 1);
             if (branch.version) labelText += ' (' + branch.version + ')';
-            drawText(svg, branchStartX + (branchEndX - branchStartX) / 2, LEVEL_2_Y - 28, labelText, '10px', branch.type === 'completion' ? '#58a6ff' : '#484f58', 'branch-label');
+            var labelCenterX = branchStartX + (branchEndX - branchStartX) / 2;
+            drawText(svg, labelCenterX, LEVEL_2_Y - 28, labelText, '10px', branch.type === 'completion' ? '#58a6ff' : '#484f58', 'branch-label');
+
+            // Delete button (right of label)
+            drawDeleteBtn(svg, branchEndX + 14, LEVEL_2_Y - 32, bIdx);
 
             // Branch nodes
             var allNodeDefs = CHECKPOINT_NODES.concat(COMPLETION_EXTRA);
@@ -501,6 +507,50 @@
         dot.setAttribute('r', 4);
         dot.setAttribute('fill', color);
         svg.appendChild(dot);
+    }
+
+    function drawArrowhead(svg, x, y, color) {
+        var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        // Spear pointing right: tip at x+10, base at x-2
+        var points = (x) + ',' + (y - 6) + ' ' + (x + 12) + ',' + y + ' ' + (x) + ',' + (y + 6);
+        arrow.setAttribute('points', points);
+        arrow.setAttribute('fill', color);
+        arrow.setAttribute('opacity', '0.5');
+        svg.appendChild(arrow);
+    }
+
+    function drawDeleteBtn(svg, x, y, branchIdx) {
+        // Small X button above the branch label
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('style', 'cursor:pointer;');
+        g.setAttribute('class', 'branch-delete');
+        var bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        bg.setAttribute('cx', x); bg.setAttribute('cy', y);
+        bg.setAttribute('r', 8);
+        bg.setAttribute('fill', '#21262d');
+        bg.setAttribute('stroke', '#484f58');
+        bg.setAttribute('stroke-width', '1');
+        g.appendChild(bg);
+        var txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', x); txt.setAttribute('y', y + 4);
+        txt.setAttribute('font-size', '11px');
+        txt.setAttribute('fill', '#f85149');
+        txt.setAttribute('text-anchor', 'middle');
+        txt.setAttribute('font-weight', 'bold');
+        txt.setAttribute('style', 'pointer-events:none;');
+        txt.textContent = '\u00D7';
+        g.appendChild(txt);
+        g.addEventListener('click', function() {
+            if (confirm('Delete this branch?')) {
+                story.branches.splice(branchIdx, 1);
+                saveStory();
+                render();
+            }
+        });
+        // Hover effect
+        g.addEventListener('mouseenter', function() { bg.setAttribute('fill', '#da3633'); txt.setAttribute('fill', '#fff'); });
+        g.addEventListener('mouseleave', function() { bg.setAttribute('fill', '#21262d'); txt.setAttribute('fill', '#f85149'); });
+        svg.appendChild(g);
     }
 
     function drawText(svg, x, y, text, fontSize, color, className, centered) {

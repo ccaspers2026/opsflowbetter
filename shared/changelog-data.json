@@ -1,5 +1,17 @@
 [
   {
+    "version": "v0.94.0",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Workflow Dashboard Polish + ADMIN Nav Fix",
+    "items": [
+      "SVG arrowhead spear at end of trunk line for visual polish",
+      "Delete button (\u00D7) on checkpoint/completion branches \u2014 hover turns red, click to remove with confirmation",
+      "T-120: ADMIN nav link now clickable from all admin sub-pages (Tasks, Feedback, Tester, Changelog, Diagrams) \u2014 links back to admin.html hub",
+      "Backlog: Quick navigation between Tasks, Feedback, and Workflow pages"
+    ]
+  },
+  {
     "version": "v0.93.1",
     "date": "March 13, 2026",
     "tag": "UPDATE",

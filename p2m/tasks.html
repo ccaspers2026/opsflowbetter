@@ -598,7 +598,7 @@
         <a href="index.html">Pipeline</a> <span class="sep">|</span>
         <a href="media-center.html">Media Pipeline</a> <span class="sep">|</span>
         <a href="workshop.html">Workshop</a> <span class="sep">|</span>
-        <a href="services.html">Services</a> <span class="admin-sep current">ADMIN</span>
+        <a href="services.html">Services</a> <a href="admin.html" class="admin-sep current">ADMIN</a>
     </div>
 </div>
 
@@ -4087,6 +4087,46 @@ function runMigrations() {
         // Just invalidate the cache so it refreshes
         OpsFlow.invalidate('opsflow_changelog');
         markMigrationRun('v0.93.1_seed_changelog');
+    }
+
+    // ── v0.94.0: Set T-120 to In Progress ──
+    if (ran.indexOf('v0.94.0_t120_in_progress') === -1) {
+        if (data.priorityQueue) {
+            for (var i = 0; i < data.priorityQueue.length; i++) {
+                if (data.priorityQueue[i].title && data.priorityQueue[i].title.indexOf('T-120') !== -1) {
+                    data.priorityQueue[i].status = 'in-progress';
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        markMigrationRun('v0.94.0_t120_in_progress');
+    }
+
+    // ── v0.94.0: Add quick-nav backlog item ──
+    if (ran.indexOf('v0.94.0_quicknav_backlog') === -1) {
+        var exists = false;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].title && data.backlog[i].title.indexOf('Quick navigation') !== -1) { exists = true; break; }
+        }
+        if (!exists) {
+            data.backlog.unshift({
+                id: 'bl_v0940_quicknav',
+                title: 'Quick navigation between Tasks, Feedback, and Workflow',
+                desc: 'Add fast-access buttons or nav bar linking Tasks, Feedback, and Workflow pages. These 3 pages are central to the dev cycle and need to be at fingertips. Consider sub-nav bar, floating buttons, or keyboard shortcuts.',
+                tag: 'UX',
+                meta: 'Admin \u2022 Workflow \u2022 v0.94.0 feedback',
+                priority: 'medium'
+            });
+            changed = true;
+        }
+        markMigrationRun('v0.94.0_quicknav_backlog');
+    }
+
+    // ── v0.94.0: Seed updated changelog data ──
+    if (ran.indexOf('v0.94.0_seed_changelog') === -1) {
+        OpsFlow.invalidate('opsflow_changelog');
+        markMigrationRun('v0.94.0_seed_changelog');
     }
 
     if (changed) saveTasks(data);
