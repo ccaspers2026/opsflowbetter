@@ -965,15 +965,19 @@
                 } else if (seg.type === 'collapsed') {
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
-                    // Fork point on trunk
-                    var forkEl = addElement(map, 'fork-cp-' + seg.bIdx, 'fork-point', seg.x + 10 - 2, baseY - 2, 4, 4);
-                    // Branch dot
-                    var dotEl = addElement(map, 'dot-cp-' + seg.bIdx, 'branch-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
-                    // Merge point on trunk
-                    var mergeEl = addElement(map, 'merge-cp-' + seg.bIdx, 'merge-point', seg.x + COLLAPSED_WIDTH - 10 - 2, baseY - 2, 4, 4);
-                    // Connectors: trunk → fork → dot → merge → trunk
-                    addConnector(map, forkEl, 'bottom', dotEl, 'left', COLORS.green);
-                    addConnector(map, dotEl, 'right', mergeEl, 'top', COLORS.green);
+                    var forkX = seg.x + 10;
+                    var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
+                    // Register elements
+                    addElement(map, 'fork-cp-' + seg.bIdx, 'fork-point', forkX - 2, baseY - 2, 4, 4);
+                    addElement(map, 'dot-cp-' + seg.bIdx, 'branch-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
+                    addElement(map, 'merge-cp-' + seg.bIdx, 'merge-point', mergeBackX - 2, baseY - 2, 4, 4);
+                    // Store path for drawing: fork down, across to dot, across to merge, back up
+                    seg._branchPath = [
+                        { x: forkX, y: baseY },
+                        { x: forkX, y: miniY },
+                        { x: mergeBackX, y: miniY },
+                        { x: mergeBackX, y: baseY }
+                    ];
 
                 } else if (seg.type === 'expanded') {
                     var branch = seg.branch;
@@ -988,14 +992,18 @@
                     var forkAnchorX = branchStartX - NODE_SPACING * 0.4;
                     var mergeAnchorX = mergeX + NODE_SPACING * 0.4;
 
-                    // Fork point, branch line element, merge point
-                    var forkEl = addElement(map, 'fork-exp-' + seg.bIdx, 'fork-point', forkAnchorX - 2, baseY - 2, 4, 4);
-                    var branchLineEl = addElement(map, 'branch-line-' + seg.bIdx, 'branch-line', forkAnchorX, branchY - 1, mergeAnchorX - forkAnchorX, 2);
-                    var mergeEl = addElement(map, 'merge-exp-' + seg.bIdx, 'merge-point', mergeAnchorX - 2, baseY - 2, 4, 4);
+                    // Register elements for collision avoidance
+                    addElement(map, 'fork-exp-' + seg.bIdx, 'fork-point', forkAnchorX - 2, baseY - 2, 4, 4);
+                    addElement(map, 'branch-line-' + seg.bIdx, 'branch-line', forkAnchorX, branchY - 1, mergeAnchorX - forkAnchorX, 2);
+                    addElement(map, 'merge-exp-' + seg.bIdx, 'merge-point', mergeAnchorX - 2, baseY - 2, 4, 4);
 
-                    // Connector: fork down to branch line, branch line up to merge
-                    addConnector(map, forkEl, 'bottom', branchLineEl, 'left', branchColor);
-                    addConnector(map, branchLineEl, 'right', mergeEl, 'top', branchColor);
+                    // Store the full branch path as waypoints (drawn in phase 3c)
+                    seg._branchPath = [
+                        { x: forkAnchorX, y: baseY },
+                        { x: forkAnchorX, y: branchY },
+                        { x: mergeAnchorX, y: branchY },
+                        { x: mergeAnchorX, y: baseY }
+                    ];
 
                     // Register branch nodes
                     var allNodeDefs = CHECKPOINT_NODES.concat(COMPLETION_EXTRA);
@@ -1016,16 +1024,28 @@
                     var isOpen = !seg.branch.closed;
                     var PURPLE = '#8b5cf6';
                     var forkX = seg.x + 10;
+                    var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
 
-                    var forkEl = addElement(map, 'fork-disc-' + seg.bIdx, 'fork-point', forkX - 2, baseY - 2, 4, 4);
-                    var dotEl = addElement(map, 'dot-disc-' + seg.bIdx, 'disc-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
+                    // Register elements
+                    addElement(map, 'fork-disc-' + seg.bIdx, 'fork-point', forkX - 2, baseY - 2, 4, 4);
+                    addElement(map, 'dot-disc-' + seg.bIdx, 'disc-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
 
-                    addConnector(map, forkEl, 'bottom', dotEl, 'left', PURPLE);
-
-                    if (!isOpen) {
-                        var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
-                        var mergeEl = addElement(map, 'merge-disc-' + seg.bIdx, 'merge-point', mergeBackX - 2, baseY - 2, 4, 4);
-                        addConnector(map, dotEl, 'right', mergeEl, 'top', PURPLE);
+                    if (isOpen) {
+                        // Open: fork down to dot level, horizontal to dot
+                        seg._branchPath = [
+                            { x: forkX, y: baseY },
+                            { x: forkX, y: miniY },
+                            { x: dotX, y: miniY }
+                        ];
+                    } else {
+                        // Closed: full fork, horizontal, merge
+                        addElement(map, 'merge-disc-' + seg.bIdx, 'merge-point', mergeBackX - 2, baseY - 2, 4, 4);
+                        seg._branchPath = [
+                            { x: forkX, y: baseY },
+                            { x: forkX, y: miniY },
+                            { x: mergeBackX, y: miniY },
+                            { x: mergeBackX, y: baseY }
+                        ];
                     }
                 }
             });
@@ -1092,6 +1112,10 @@
                 } else if (seg.type === 'collapsed') {
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
+                    // Draw the branch path: fork down → horizontal → merge up
+                    if (seg._branchPath) {
+                        drawRoutedPath(svg, seg._branchPath, COLORS.green);
+                    }
                     drawCollapsedBranch(svg, dotX, miniY, seg.branch, seg.bIdx);
 
                 } else if (seg.type === 'expanded') {
@@ -1100,6 +1124,11 @@
                     var nodeKeys = seg._nodeKeys;
                     var branchStartX = seg.x;
                     var branchEndX = seg.x + (nodeKeys.length - 1) * NODE_SPACING;
+
+                    // Draw the full branch path: fork down → horizontal → merge up
+                    if (seg._branchPath) {
+                        drawRoutedPath(svg, seg._branchPath, branchColor);
+                    }
 
                     // Branch label
                     var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (seg.bIdx + 1);
@@ -1128,6 +1157,11 @@
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
                     var isOpen = !seg.branch.closed;
+                    var PURPLE = '#8b5cf6';
+                    // Draw the branch path
+                    if (seg._branchPath) {
+                        drawRoutedPath(svg, seg._branchPath, PURPLE);
+                    }
                     drawDiscussionDot(svg, dotX, miniY, seg.branch, seg.bIdx, isOpen);
 
                 } else if (seg.type === 'storyDone') {
