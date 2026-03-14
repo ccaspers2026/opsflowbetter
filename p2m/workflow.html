@@ -748,148 +748,358 @@
         return nodeCount * NODE_SPACING + NODE_SPACING; // nodes + merge gap
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // DRAWING ENGINE — Layout-first with connection points
+    // Phase 1: Build element map (positions, sizes, anchors)
+    // Phase 2: Build connector list (source anchor → target anchor)
+    // Phase 3: Draw everything from the computed layout
+    // ═══════════════════════════════════════════════════════════════
+
+    var CORNER_R = 12; // radius for all rounded corners
+
+    // Element: { id, type, x, y, w, h, anchors: { top, bottom, left, right } }
+    function createElementMap() {
+        return { elements: [], connectors: [] };
+    }
+
+    function addElement(map, id, type, x, y, w, h, meta) {
+        var el = {
+            id: id, type: type,
+            x: x, y: y, w: w, h: h,
+            meta: meta || {},
+            anchors: {
+                top:    { x: x + w / 2, y: y },
+                bottom: { x: x + w / 2, y: y + h },
+                left:   { x: x,         y: y + h / 2 },
+                right:  { x: x + w,     y: y + h / 2 }
+            }
+        };
+        map.elements.push(el);
+        return el;
+    }
+
+    function addConnector(map, fromEl, fromAnchor, toEl, toAnchor, color, opts) {
+        map.connectors.push({
+            from: { el: fromEl, anchor: fromAnchor },
+            to:   { el: toEl,   anchor: toAnchor },
+            color: color,
+            opts: opts || {}
+        });
+    }
+
+    // Route a connector between two anchor points using Manhattan routing
+    // Returns an array of {x,y} waypoints
+    function routeManhattan(fromPt, fromDir, toPt, toDir) {
+        var pts = [{ x: fromPt.x, y: fromPt.y }];
+        var r = CORNER_R;
+
+        if (fromDir === 'bottom' && toDir === 'top') {
+            // Going down then across then up — standard branch fork/merge
+            var midY = (fromPt.y + toPt.y) / 2;
+            pts.push({ x: fromPt.x, y: midY });
+            pts.push({ x: toPt.x,   y: midY });
+            pts.push({ x: toPt.x,   y: toPt.y });
+        } else if (fromDir === 'bottom' && toDir === 'left') {
+            // Fork: go down, then right to target's left side
+            pts.push({ x: fromPt.x, y: toPt.y });
+            pts.push({ x: toPt.x,   y: toPt.y });
+        } else if (fromDir === 'right' && toDir === 'top') {
+            // Merge: go right from branch, then up to trunk
+            pts.push({ x: toPt.x, y: fromPt.y });
+            pts.push({ x: toPt.x, y: toPt.y });
+        } else if (fromDir === 'right' && toDir === 'left') {
+            // Straight horizontal
+            pts.push({ x: toPt.x, y: toPt.y });
+        } else if (fromDir === 'bottom' && toDir === 'right') {
+            // Down then left (for row wraps going right-to-left)
+            pts.push({ x: fromPt.x, y: toPt.y });
+            pts.push({ x: toPt.x,   y: toPt.y });
+        } else {
+            // Fallback: L-shape
+            pts.push({ x: toPt.x, y: fromPt.y });
+            pts.push({ x: toPt.x, y: toPt.y });
+        }
+        return pts;
+    }
+
+    // Draw a routed path with rounded corners at each turn
+    function drawRoutedPath(svg, waypoints, color, opts) {
+        if (waypoints.length < 2) return;
+        opts = opts || {};
+        var r = opts.radius || CORNER_R;
+        var d = 'M ' + waypoints[0].x + ',' + waypoints[0].y;
+
+        for (var i = 1; i < waypoints.length; i++) {
+            var prev = waypoints[i - 1];
+            var curr = waypoints[i];
+            var next = waypoints[i + 1];
+
+            if (next && i < waypoints.length - 1) {
+                // This is a corner point — draw line to just before corner, then arc
+                var dx1 = curr.x - prev.x;
+                var dy1 = curr.y - prev.y;
+                var dx2 = next.x - curr.x;
+                var dy2 = next.y - curr.y;
+
+                // Normalize to get direction
+                var len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+                var len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                if (len1 === 0 || len2 === 0) { d += ' L ' + curr.x + ',' + curr.y; continue; }
+
+                // Clamp radius to half the shorter segment
+                var maxR = Math.min(len1 / 2, len2 / 2, r);
+
+                var ux1 = dx1 / len1, uy1 = dy1 / len1;
+                var ux2 = dx2 / len2, uy2 = dy2 / len2;
+
+                // Arc start: maxR before the corner
+                var arcStartX = curr.x - ux1 * maxR;
+                var arcStartY = curr.y - uy1 * maxR;
+                // Arc end: maxR after the corner
+                var arcEndX = curr.x + ux2 * maxR;
+                var arcEndY = curr.y + uy2 * maxR;
+
+                // Determine sweep direction (clockwise vs counter-clockwise)
+                var cross = ux1 * uy2 - uy1 * ux2;
+                var sweep = cross > 0 ? 1 : 0;
+
+                d += ' L ' + arcStartX + ',' + arcStartY;
+                d += ' A ' + maxR + ',' + maxR + ' 0 0 ' + sweep + ' ' + arcEndX + ',' + arcEndY;
+            } else {
+                // Last point — just draw line to it
+                d += ' L ' + curr.x + ',' + curr.y;
+            }
+        }
+
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', opts.width || 2);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke-linecap', 'round');
+        if (opts.dash) path.setAttribute('stroke-dasharray', opts.dash);
+        if (opts.opacity) path.setAttribute('opacity', opts.opacity);
+        svg.appendChild(path);
+    }
+
+    // ═══ Main render using the drawing engine ═══
     function renderSVG() {
         var svg = document.getElementById('workflow-svg');
         svg.innerHTML = '';
+        var map = createElementMap();
 
         var hasCompletion = story.branches.some(function(b) { return b.type === 'completion'; });
         var hasExpandedBranch = story.branches.some(function(b) { return !isBranchComplete(b); });
 
-        // ── Build a list of "segments" to lay out ──
-        // Segments: trunk nodes first, then each branch (collapsed or expanded)
-        // We'll walk through and assign x positions, wrapping rows as needed
+        // ── PHASE 1: Build segments and assign positions ──
         var segments = [];
 
-        // Trunk nodes always come first
-        TRUNK_NODES.forEach(function(node, i) {
+        TRUNK_NODES.forEach(function(node) {
             segments.push({ type: 'trunk', node: node, width: NODE_SPACING });
         });
 
-        // Each branch
         story.branches.forEach(function(branch, bIdx) {
             if (branch.type === 'discussion') {
-                // Discussions always render as compact segments
-                segments.push({
-                    type: 'discussion',
-                    branch: branch,
-                    bIdx: bIdx,
-                    width: COLLAPSED_WIDTH
-                });
+                segments.push({ type: 'discussion', branch: branch, bIdx: bIdx, width: COLLAPSED_WIDTH });
             } else {
                 segments.push({
                     type: isBranchComplete(branch) ? 'collapsed' : 'expanded',
-                    branch: branch,
-                    bIdx: bIdx,
-                    width: branchWidth(branch)
+                    branch: branch, bIdx: bIdx, width: branchWidth(branch)
                 });
             }
         });
 
-        // Story Done node if completion exists
-        if (hasCompletion) {
-            segments.push({ type: 'storyDone', width: NODE_SPACING });
-        }
-
-        // Arrowhead at end
+        if (hasCompletion) segments.push({ type: 'storyDone', width: NODE_SPACING });
         segments.push({ type: 'arrow', width: 50 });
 
-        // ── Assign rows and x positions ──
-        var rows = []; // array of { segments: [], startX, y1, y2, width }
+        // Row wrapping
+        var rows = [];
         var currentRow = { segments: [], startX: LEFT_PAD, width: 0 };
         var x = LEFT_PAD;
 
         for (var si = 0; si < segments.length; si++) {
             var seg = segments[si];
-            var segW = seg.width;
-
-            // Would this segment overflow the row?
-            // Don't break in the middle of trunk nodes (first 3 always on row 0)
-            var wouldOverflow = (x + segW) > MAX_ROW_WIDTH && currentRow.segments.length > 0;
-            var isTrunk = seg.type === 'trunk';
-
-            if (wouldOverflow && !isTrunk) {
-                // Finish this row
+            var wouldOverflow = (x + seg.width) > MAX_ROW_WIDTH && currentRow.segments.length > 0;
+            if (wouldOverflow && seg.type !== 'trunk') {
                 currentRow.width = x - currentRow.startX;
                 rows.push(currentRow);
-                // Start new row
                 currentRow = { segments: [], startX: LEFT_PAD, width: 0 };
                 x = LEFT_PAD;
             }
-
             seg.x = x;
-            seg.rowIdx = rows.length; // will be set properly after push
+            seg.rowIdx = rows.length;
             currentRow.segments.push(seg);
-            x += segW;
+            x += seg.width;
         }
-        // Push last row
         if (currentRow.segments.length > 0) {
             currentRow.width = x - currentRow.startX;
             rows.push(currentRow);
         }
 
-        // ── Calculate SVG dimensions ──
+        // SVG dimensions
         var svgWidth = MAX_ROW_WIDTH + 40;
         var svgHeight = rows.length * ROW_HEIGHT + 20;
-        var hasCollapsedOrDisc = story.branches.length > 0;
-        if (!hasExpandedBranch && hasCollapsedOrDisc) svgHeight = rows.length * (LEVEL_1_Y + MINI_BRANCH_DROP + 60);
+        if (!hasExpandedBranch && story.branches.length > 0) svgHeight = rows.length * (LEVEL_1_Y + MINI_BRANCH_DROP + 60);
         else if (!hasExpandedBranch) svgHeight = rows.length * (LEVEL_1_Y + 70);
-
         svg.setAttribute('width', svgWidth);
         svg.setAttribute('height', Math.max(svgHeight, 120));
         svg.setAttribute('viewBox', '0 0 ' + svgWidth + ' ' + Math.max(svgHeight, 120));
 
-        // ── Draw each row ──
-        var trunkCodingX = 0; // track where "coding" node is for branch arcs
+        // ── PHASE 2: Register elements + connectors into the map ──
+        var trunkCodingX = 0;
 
         rows.forEach(function(row, rIdx) {
             var baseY = rIdx * ROW_HEIGHT + LEVEL_1_Y;
             var branchY = rIdx * ROW_HEIGHT + LEVEL_2_Y;
-
-            // Draw trunk line for this row
             var rowStartX = row.segments[0].x;
             var rowEndX = row.segments[row.segments.length - 1].x + row.segments[row.segments.length - 1].width - 20;
 
-            // Draw row trunk line
-            drawLine(svg, rowStartX, baseY, rowEndX, baseY, COLORS.trunk, 2);
+            // Register the trunk line as an element for this row
+            var trunkEl = addElement(map, 'trunk-row-' + rIdx, 'trunk-line', rowStartX, baseY - 1, rowEndX - rowStartX, 2);
 
-            // Draw each segment on this row
+            row.segments.forEach(function(seg) {
+                if (seg.type === 'trunk') {
+                    addElement(map, 'trunk-' + seg.node.id, 'node', seg.x - NODE_R, baseY - NODE_R, NODE_R * 2, NODE_R * 2, { seg: seg });
+                    if (seg.node.id === 'coding') trunkCodingX = seg.x;
+
+                } else if (seg.type === 'collapsed') {
+                    var dotX = seg.x + COLLAPSED_WIDTH / 2;
+                    var miniY = baseY + MINI_BRANCH_DROP;
+                    // Fork point on trunk
+                    var forkEl = addElement(map, 'fork-cp-' + seg.bIdx, 'fork-point', seg.x + 10 - 2, baseY - 2, 4, 4);
+                    // Branch dot
+                    var dotEl = addElement(map, 'dot-cp-' + seg.bIdx, 'branch-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
+                    // Merge point on trunk
+                    var mergeEl = addElement(map, 'merge-cp-' + seg.bIdx, 'merge-point', seg.x + COLLAPSED_WIDTH - 10 - 2, baseY - 2, 4, 4);
+                    // Connectors: trunk → fork → dot → merge → trunk
+                    addConnector(map, forkEl, 'bottom', dotEl, 'left', COLORS.green);
+                    addConnector(map, dotEl, 'right', mergeEl, 'top', COLORS.green);
+
+                } else if (seg.type === 'expanded') {
+                    var branch = seg.branch;
+                    var nodeKeys = branch.type === 'completion'
+                        ? CHECKPOINT_NODES.concat(COMPLETION_EXTRA).map(function(n) { return n.id; })
+                        : CHECKPOINT_NODES.map(function(n) { return n.id; });
+                    var nodeCount = nodeKeys.length;
+                    var branchStartX = seg.x;
+                    var branchEndX = seg.x + (nodeCount - 1) * NODE_SPACING;
+                    var mergeX = branchEndX + NODE_SPACING;
+                    var branchColor = branch.type === 'completion' ? '#1f6feb' : COLORS.branch;
+                    var forkAnchorX = branchStartX - NODE_SPACING * 0.4;
+                    var mergeAnchorX = mergeX + NODE_SPACING * 0.4;
+
+                    // Fork point, branch line element, merge point
+                    var forkEl = addElement(map, 'fork-exp-' + seg.bIdx, 'fork-point', forkAnchorX - 2, baseY - 2, 4, 4);
+                    var branchLineEl = addElement(map, 'branch-line-' + seg.bIdx, 'branch-line', forkAnchorX, branchY - 1, mergeAnchorX - forkAnchorX, 2);
+                    var mergeEl = addElement(map, 'merge-exp-' + seg.bIdx, 'merge-point', mergeAnchorX - 2, baseY - 2, 4, 4);
+
+                    // Connector: fork down to branch line, branch line up to merge
+                    addConnector(map, forkEl, 'bottom', branchLineEl, 'left', branchColor);
+                    addConnector(map, branchLineEl, 'right', mergeEl, 'top', branchColor);
+
+                    // Register branch nodes
+                    var allNodeDefs = CHECKPOINT_NODES.concat(COMPLETION_EXTRA);
+                    nodeKeys.forEach(function(nodeId, nIdx) {
+                        var nx = branchStartX + nIdx * NODE_SPACING;
+                        addElement(map, 'bnode-' + seg.bIdx + '-' + nodeId, 'branch-node', nx - NODE_R, branchY - NODE_R, NODE_R * 2, NODE_R * 2, { seg: seg, nodeId: nodeId, nIdx: nIdx });
+                    });
+
+                    // Store metadata for drawing phase
+                    seg._forkAnchorX = forkAnchorX;
+                    seg._mergeAnchorX = mergeAnchorX;
+                    seg._branchColor = branchColor;
+                    seg._nodeKeys = nodeKeys;
+
+                } else if (seg.type === 'discussion') {
+                    var dotX = seg.x + COLLAPSED_WIDTH / 2;
+                    var miniY = baseY + MINI_BRANCH_DROP;
+                    var isOpen = !seg.branch.closed;
+                    var PURPLE = '#8b5cf6';
+                    var forkX = seg.x + 10;
+
+                    var forkEl = addElement(map, 'fork-disc-' + seg.bIdx, 'fork-point', forkX - 2, baseY - 2, 4, 4);
+                    var dotEl = addElement(map, 'dot-disc-' + seg.bIdx, 'disc-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
+
+                    addConnector(map, forkEl, 'bottom', dotEl, 'left', PURPLE);
+
+                    if (!isOpen) {
+                        var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
+                        var mergeEl = addElement(map, 'merge-disc-' + seg.bIdx, 'merge-point', mergeBackX - 2, baseY - 2, 4, 4);
+                        addConnector(map, dotEl, 'right', mergeEl, 'top', PURPLE);
+                    }
+                }
+            });
+        });
+
+        // Row-wrap connectors
+        for (var ri = 0; ri < rows.length - 1; ri++) {
+            var thisRowY = ri * ROW_HEIGHT + LEVEL_1_Y;
+            var nextRowY = (ri + 1) * ROW_HEIGHT + LEVEL_1_Y;
+            var lastSeg = rows[ri].segments[rows[ri].segments.length - 1];
+            var rowEndX = lastSeg.x + lastSeg.width + 20;
+            var nextStartX = LEFT_PAD - 20;
+            var clearanceY = thisRowY + MINI_BRANCH_DROP + 50;
+
+            var endEl = addElement(map, 'rowend-' + ri, 'row-end', rowEndX - 2, thisRowY - 2, 4, 4);
+            var startEl = addElement(map, 'rowstart-' + (ri + 1), 'row-start', nextStartX - 2, nextRowY - 2, 4, 4);
+            addConnector(map, endEl, 'bottom', startEl, 'top', COLORS.trunk, { clearanceY: clearanceY, dash: '6,4', opacity: 0.7 });
+        }
+
+        // ── PHASE 3: Draw everything from the map ──
+
+        // 3a: Draw trunk lines
+        rows.forEach(function(row, rIdx) {
+            var baseY = rIdx * ROW_HEIGHT + LEVEL_1_Y;
+            var rowStartX = row.segments[0].x;
+            var rowEndX = row.segments[row.segments.length - 1].x + row.segments[row.segments.length - 1].width - 20;
+            drawLine(svg, rowStartX, baseY, rowEndX, baseY, COLORS.trunk, 2);
+        });
+
+        // 3b: Draw connectors (routed paths with rounded corners)
+        map.connectors.forEach(function(conn) {
+            var fromPt = conn.from.el.anchors[conn.from.anchor];
+            var toPt = conn.to.el.anchors[conn.to.anchor];
+
+            if (conn.opts.clearanceY) {
+                // Row-wrap: go down to clearance, across, back up
+                var cY = conn.opts.clearanceY;
+                var waypoints = [
+                    { x: fromPt.x, y: fromPt.y },
+                    { x: fromPt.x, y: cY },
+                    { x: toPt.x,   y: cY },
+                    { x: toPt.x,   y: toPt.y }
+                ];
+                drawRoutedPath(svg, waypoints, conn.color, { dash: conn.opts.dash, opacity: conn.opts.opacity, radius: 16 });
+            } else {
+                // Standard Manhattan route
+                var waypoints = routeManhattan(fromPt, conn.from.anchor, toPt, conn.to.anchor);
+                drawRoutedPath(svg, waypoints, conn.color);
+            }
+        });
+
+        // 3c: Draw nodes and interactive elements
+        rows.forEach(function(row, rIdx) {
+            var baseY = rIdx * ROW_HEIGHT + LEVEL_1_Y;
+            var branchY = rIdx * ROW_HEIGHT + LEVEL_2_Y;
+
             row.segments.forEach(function(seg) {
                 if (seg.type === 'trunk') {
                     var color = COLORS[story.trunk[seg.node.id] || 'red'];
                     drawNode(svg, seg.x, baseY, color, seg.node.label, seg.node.who, function() {
                         cycleTrunkNode(seg.node.id);
                     }, seg.node.tip);
-                    if (seg.node.id === 'coding') trunkCodingX = seg.x;
 
                 } else if (seg.type === 'collapsed') {
-                    // Collapsed branch: semi-circle down, horizontal line, semi-circle up
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
-                    var forkX = seg.x + 10;
-                    var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
-                    drawMiniBranch(svg, forkX, mergeBackX, baseY, miniY, COLORS.green);
                     drawCollapsedBranch(svg, dotX, miniY, seg.branch, seg.bIdx);
 
                 } else if (seg.type === 'expanded') {
-                    // Full expanded branch — semi-circles + horizontal line
                     var branch = seg.branch;
-                    var nodeKeys = branch.type === 'completion'
-                        ? CHECKPOINT_NODES.concat(COMPLETION_EXTRA).map(function(n) { return n.id; })
-                        : CHECKPOINT_NODES.map(function(n) { return n.id; });
-                    var nodeCount = nodeKeys.length;
-
+                    var branchColor = seg._branchColor;
+                    var nodeKeys = seg._nodeKeys;
                     var branchStartX = seg.x;
-                    var branchEndX = seg.x + (nodeCount - 1) * NODE_SPACING;
-                    var mergeX = branchEndX + NODE_SPACING;
-                    var branchColor = branch.type === 'completion' ? '#1f6feb' : COLORS.branch;
-
-                    // Semi-circle fork down, horizontal line, semi-circle merge up
-                    var forkAnchorX = branchStartX - NODE_SPACING * 0.4;
-                    var mergeAnchorX = mergeX + NODE_SPACING * 0.4;
-                    var cornerR = 12;
-                    drawForkPath(svg, forkAnchorX, baseY, branchY, branchColor, cornerR);
-                    drawLine(svg, forkAnchorX + cornerR, branchY, mergeAnchorX - cornerR, branchY, branchColor, 2);
-                    drawMergePath(svg, mergeAnchorX, baseY, branchY, branchColor, cornerR);
+                    var branchEndX = seg.x + (nodeKeys.length - 1) * NODE_SPACING;
 
                     // Branch label
                     var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (seg.bIdx + 1);
@@ -911,26 +1121,13 @@
                         })(seg.bIdx, nodeId), nodeDef ? nodeDef.tip : '');
                     });
 
-                    // Merge point on trunk (subtle, slightly below trunk line)
-                    drawSmallDot(svg, mergeX + NODE_SPACING * 0.4, baseY, '#484f58');
+                    // Merge dot on trunk
+                    drawSmallDot(svg, seg._mergeAnchorX, baseY, '#484f58');
 
                 } else if (seg.type === 'discussion') {
-                    // Discussion: semi-circle down, horizontal line, semi-circle up if closed
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
                     var isOpen = !seg.branch.closed;
-                    var PURPLE = '#8b5cf6';
-                    var forkX = seg.x + 10;
-                    var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
-                    if (isOpen) {
-                        // Open: fork down + horizontal to dot (no merge back)
-                        var r = 12;
-                        drawForkPath(svg, forkX, baseY, miniY, PURPLE, r);
-                        drawLine(svg, forkX + r, miniY, dotX, miniY, PURPLE, 2);
-                    } else {
-                        // Closed: full mini-branch (fork, horizontal, merge)
-                        drawMiniBranch(svg, forkX, mergeBackX, baseY, miniY, PURPLE);
-                    }
                     drawDiscussionDot(svg, dotX, miniY, seg.branch, seg.bIdx, isOpen);
 
                 } else if (seg.type === 'storyDone') {
@@ -945,31 +1142,6 @@
                 }
             });
         });
-
-        // ── Draw row connectors: rounded-corner drop, horizontal dash, rounded-corner rise ──
-        for (var ri = 0; ri < rows.length - 1; ri++) {
-            var thisRowY = ri * ROW_HEIGHT + LEVEL_1_Y;
-            var nextRowY = (ri + 1) * ROW_HEIGHT + LEVEL_1_Y;
-            var lastSeg = rows[ri].segments[rows[ri].segments.length - 1];
-            var thisRowEndX = lastSeg.x + lastSeg.width + 20;
-            var nextRowStartX = LEFT_PAD - 20;
-
-            var clearanceY = thisRowY + MINI_BRANCH_DROP + 50;
-            var cR = 16;
-            // Fork down at end of row
-            drawForkPath(svg, thisRowEndX, thisRowY, clearanceY, COLORS.trunk, cR);
-            // Dashed horizontal line at clearance level
-            var hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            hLine.setAttribute('x1', thisRowEndX + cR); hLine.setAttribute('y1', clearanceY);
-            hLine.setAttribute('x2', nextRowStartX - cR); hLine.setAttribute('y2', clearanceY);
-            hLine.setAttribute('stroke', COLORS.trunk); hLine.setAttribute('stroke-width', '2');
-            hLine.setAttribute('stroke-linecap', 'round');
-            hLine.setAttribute('stroke-dasharray', '6,4');
-            hLine.setAttribute('opacity', '0.7');
-            svg.appendChild(hLine);
-            // Merge up at start of next row
-            drawMergePath(svg, nextRowStartX, nextRowY, clearanceY, COLORS.trunk, cR);
-        }
     }
 
     // ═══ Collapsed branch: green dot with version tooltip ═══
