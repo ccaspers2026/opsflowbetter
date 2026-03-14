@@ -1079,23 +1079,23 @@
 
         // ── PHASE 3: Draw everything from the map ──
 
-        // 3a: Draw trunk lines + row-wrap connectors
+        // 3a: Draw trunk lines + continuation markers between rows
         rows.forEach(function(row, rIdx) {
             var baseY = rIdx * ROW_HEIGHT + LEVEL_1_Y;
             var rowStartX = row.segments[0].x;
             var rowEndX = row.segments[row.segments.length - 1].x + row.segments[row.segments.length - 1].width - 20;
             drawLine(svg, rowStartX, baseY, rowEndX, baseY, COLORS.trunk, 2);
 
-            // Row-wrap: route down the right side, then left to next row start
+            // Continuation markers: numbered ball at end of row → matching ball at start of next
             if (rIdx < rows.length - 1) {
+                var markerNum = rIdx + 1;
                 var nextRow = rows[rIdx + 1];
                 var nextBaseY = (rIdx + 1) * ROW_HEIGHT + LEVEL_1_Y;
                 var nextStartX = nextRow.segments[0].x;
-                drawRoutedPath(svg, [
-                    { x: rowEndX, y: baseY },
-                    { x: rowEndX, y: nextBaseY },
-                    { x: nextStartX, y: nextBaseY }
-                ], COLORS.trunk, { dash: '4,4', opacity: 0.5, radius: 20 });
+                // End marker (right side of this row)
+                drawContinuationMarker(svg, rowEndX + 18, baseY, markerNum);
+                // Start marker (left side of next row)
+                drawContinuationMarker(svg, nextStartX - 18, nextBaseY, markerNum);
             }
         });
 
@@ -1358,6 +1358,28 @@
             drawText(g, x, y + NODE_R + 30, who, '9px', '#484f58', 'who-label', true);
         }
 
+        svg.appendChild(g);
+    }
+
+    // ═══ Continuation marker: numbered circle for row-wrap (classic flowchart convention) ═══
+    function drawContinuationMarker(svg, x, y, num) {
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x); circle.setAttribute('cy', y);
+        circle.setAttribute('r', 10);
+        circle.setAttribute('fill', 'none');
+        circle.setAttribute('stroke', '#484f58');
+        circle.setAttribute('stroke-width', '1.5');
+        g.appendChild(circle);
+        var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x); text.setAttribute('y', y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'central');
+        text.setAttribute('fill', '#8b949e');
+        text.setAttribute('font-size', '11');
+        text.setAttribute('font-weight', '600');
+        text.textContent = String(num);
+        g.appendChild(text);
         svg.appendChild(g);
     }
 
