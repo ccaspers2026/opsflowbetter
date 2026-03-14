@@ -4159,6 +4159,12 @@ function runMigrations() {
         markMigrationRun('v0.94.5_seed_changelog');
     }
 
+    // ── v0.94.6: Seed updated changelog data (smart button states) ──
+    if (ran.indexOf('v0.94.6_seed_changelog') === -1) {
+        OpsFlow.invalidate('opsflow_changelog');
+        markMigrationRun('v0.94.6_seed_changelog');
+    }
+
     if (changed) saveTasks(data);
 }
 

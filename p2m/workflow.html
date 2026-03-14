@@ -44,6 +44,7 @@
         /* ═══ Controls ═══ */
         .controls-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
         .btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #30363d; transition: all 0.15s; }
+        .btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
         .btn-primary { background: #238636; color: #fff; border-color: #238636; }
         .btn-primary:hover { background: #2ea043; }
         .btn-secondary { background: #21262d; color: #c9d1d9; border-color: #30363d; }
@@ -454,8 +455,39 @@
     }
 
     // ═══ SVG Rendering ═══
+    function updateButtonStates() {
+        var btnCP = document.getElementById('btn-checkpoint');
+        var btnComp = document.getElementById('btn-completion');
+        var btnNew = document.getElementById('btn-new-story');
+
+        // + Checkpoint: enabled when coding is at least in-progress (yellow/green)
+        var codingStarted = story.trunk.coding && story.trunk.coding !== 'red';
+        btnCP.disabled = !codingStarted;
+        btnCP.title = codingStarted
+            ? 'Add a checkpoint branch (commit/push/deploy/verify cycle)'
+            : 'Start coding first — nothing to checkpoint yet';
+
+        // + Completion: enabled when at least 1 checkpoint exists AND no completion branch yet
+        var hasCheckpoint = story.branches.some(function(b) { return b.type === 'checkpoint'; });
+        var hasCompletion = story.branches.some(function(b) { return b.type === 'completion'; });
+        btnComp.disabled = !hasCheckpoint || hasCompletion;
+        if (hasCompletion) btnComp.title = 'Completion branch already exists';
+        else if (!hasCheckpoint) btnComp.title = 'Need at least one checkpoint before completing';
+        else btnComp.title = 'Add a completion branch (full cycle with testing and done)';
+
+        // New Story: enabled when there are branches to archive
+        var hasBranches = story.branches.length > 0;
+        btnNew.disabled = !hasBranches;
+        btnNew.title = hasBranches
+            ? 'Archive current story to history and start fresh'
+            : 'No branches to archive yet';
+
+        // Reset All: always enabled
+    }
+
     function render() {
         autoDetect();
+        updateButtonStates();
         renderSVG();
         renderPQ();
         renderHistory();

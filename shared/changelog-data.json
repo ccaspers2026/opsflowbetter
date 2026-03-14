@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.94.6",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Workflow Dashboard — Smart Button States",
+    "items": [
+      "Action buttons now auto-enable/disable based on workflow state: +Checkpoint requires coding to be in-progress, +Completion requires at least one checkpoint and no existing completion branch, New Story requires branches to archive",
+      "Disabled buttons show at 35% opacity with contextual tooltips explaining why they're disabled (e.g. 'Start coding first — nothing to checkpoint yet')",
+      "Button states update automatically on every render cycle including auto-refresh polling"
+    ]
+  },
+  {
     "version": "v0.94.5",
     "date": "March 13, 2026",
     "tag": "UPDATE",
