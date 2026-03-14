@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.94.9",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Undo Toast on Action Queue + Discussion Close",
+    "items": [
+      "Clicking Done on action queue banner now shows 5-second undo toast instead of instant commit — prevents accidental confirmations",
+      "Close Discussion button now shows undo toast with discussion topic — can reopen within 5 seconds if clicked by mistake",
+      "Dismiss on action queue skips undo (intentional action, no safety net needed)"
+    ]
+  },
+  {
     "version": "v0.94.8",
     "date": "March 13, 2026",
     "tag": "FIX",

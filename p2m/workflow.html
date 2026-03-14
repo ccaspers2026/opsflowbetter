@@ -455,11 +455,17 @@
 
     function closeDiscussion() {
         var disc = getDiscussion();
-        if (disc) {
-            disc.status = 'closed';
-            disc.ended = Date.now();
-            OpsFlow.set(DISC_KEY, disc);
-        }
+        if (!disc || disc.status !== 'open') return;
+
+        // Save previous state for undo
+        var prevDisc = JSON.parse(JSON.stringify(disc));
+        var prevStory = JSON.parse(JSON.stringify(story));
+        var topic = disc.topic || 'discussion';
+
+        disc.status = 'closed';
+        disc.ended = Date.now();
+        OpsFlow.set(DISC_KEY, disc);
+
         // Mark the discussion branch as closed
         for (var i = story.branches.length - 1; i >= 0; i--) {
             if (story.branches[i].type === 'discussion' && !story.branches[i].closed) {
@@ -470,6 +476,13 @@
         }
         saveStory();
         render();
+
+        showUndoToast('Discussion closed: ' + topic, function() {
+            OpsFlow.set(DISC_KEY, prevDisc);
+            story = prevStory;
+            saveStory();
+            render();
+        });
     }
 
     function renderDiscussionState() {
@@ -1183,11 +1196,23 @@
     function respondToAction(response) {
         var action = OpsFlow.getLocal(ACTION_KEY);
         if (!action || !action.id) return;
+
+        // Save previous state for undo
+        var prevAction = JSON.parse(JSON.stringify(action));
+
         action.status = (response === 'dismissed') ? 'dismissed' : 'completed';
         action.response = response;
         action.updated = Date.now();
         OpsFlow.set(ACTION_KEY, action);
         renderActionBanner();
+
+        // Undo toast (skip for dismiss — that's intentional)
+        if (response !== 'dismissed') {
+            showUndoToast('Action marked ' + response, function() {
+                OpsFlow.set(ACTION_KEY, prevAction);
+                renderActionBanner();
+            });
+        }
     }
 
     function escHtml(s) {
