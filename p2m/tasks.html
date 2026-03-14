@@ -638,7 +638,25 @@
 
 <!-- ── Priority Queue (ordered) ───────────────────────────────── -->
 <div class="section">
-    <h2>&#127919; Priority Queue &mdash; Up Next <span class="count">0</span></h2>
+    <h2>&#127919; Priority Queue &mdash; Up Next <span class="count">2</span></h2>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">WFD Action Balls Framework &mdash; implement event-driven workflow balls on WFD trunk (Discussion #16)</div>
+            <div class="desc">(FEATURE) Build the Action Balls system on WFD: each ball = action point with owner (Claude/Christian), LED color, trigger, and attached instructions in KV. Start with known balls (Scan WFD, Code, Queue Commit, Update Docs, etc.), grow as we practice. Goal: new Claude reads WFD and picks up workflow without needing the doc. Update Docs ball is HIGH PRIORITY &mdash; implement first.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority high"></span>
+        <div class="content">
+            <div class="title">Automated POLL trigger &mdash; replace manual POLL with event-driven WFD refresh (Discussion #5)</div>
+            <div class="desc">(FEATURE) Design and implement an automated trigger for POLL instead of Christian manually typing POLL. Could be timer-based, event-driven (on deploy, on discussion change), or button-triggered on WFD. Discuss approach before coding.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #5 &bull; v0.97.2</div>
+        </div>
+    </div>
 </div>
 
 <!-- ── Backlog (sorted: Now → Soon → Later) ─────────────────── -->
@@ -1399,6 +1417,164 @@
             <div class="meta"><span class="tag tag-feature">UX</span> Architecture &bull; v0.71.2 &bull; Suite-wide</div>
         </div>
     </div>
+
+    <!-- ── LATER (low) — v0.97.2 WFD Action Balls (Discussion #16) ── -->
+
+    <!-- Claude-owned balls -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Scan WFD</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Read WFD state on session start &mdash; check action queue, open discussions, story diagram status. First ball in every flow. Trigger: session start or POLL command. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Scan Feedback</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Check Tester feedback for FAIL items or user annotations. Triggers after Scan WFD. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Code</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Execute the agreed plan &mdash; make code changes after GO signal. Trigger: Christian says GO. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Update Version Files</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Bump version across all 8+ pages, update changelog, tester sections, and migrations. Trigger: after Code ball completes. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Queue Commit</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Format and queue the commit message in the OpsFlow action queue on the WFD. detail field must contain full commit message (title + TYPE lines). Trigger: Christian says COMMIT. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Set Version</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Run OpsFlow.setVersion() on the live site after deploy is confirmed. Trigger: after Christian deploys and clicks Done. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Verify Deploy</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Verify the deployed version matches expected version on the live site. Check pages load, version displays correctly. Trigger: after Set Version. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Self-Test</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Run automated self-test checks against the live site after deploy verification. Trigger: after Verify Deploy (on completion flow, not checkpoint). Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Update Docs (HIGH PRIORITY)</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Update .claude-workflow.md AND APPLICATION-DESIGN.md every commit. This is the #1 recovery mechanism &mdash; stale docs = broken recovery after compaction. Trigger: every commit cycle. Owner: Claude. HIGH PRIORITY ball to implement first.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Triage Feedback</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Process tester feedback &mdash; triage into Backlog, clear feedback via migration. Trigger: after testing complete. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Lessons Learned</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Deliver Lessons Learned summary after each completed version. Captures what went well, what broke, process improvements. Trigger: after feedback triage (step 10 in flow). Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Set Done</div>
+            <div class="desc">(FEATURE) WFD action ball for Claude: Mark PQ items as Done, update story diagram status on WFD. Final Claude ball in the flow. Trigger: after Lessons Learned. Owner: Claude.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <!-- Christian-owned balls -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Commit/Push</div>
+            <div class="desc">(FEATURE) WFD action ball for Christian: Copy commit message from action queue, commit and push via VS Code. Trigger: after Claude queues commit. Owner: Christian.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Deploy</div>
+            <div class="desc">(FEATURE) WFD action ball for Christian: Deploy to GitHub Pages after push. Trigger: after Commit/Push. Owner: Christian.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Click Done on WFD</div>
+            <div class="desc">(FEATURE) WFD action ball for Christian: Click the Done button on the WFD action banner after deploy completes. Signals Claude to proceed with Set Version. Trigger: after Deploy. Owner: Christian.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Test Click-Through</div>
+            <div class="desc">(FEATURE) WFD action ball for Christian: Manual click-through testing of deployed changes using Tester page. Click PASS/FAIL on each item, then Complete Testing. Trigger: after Claude self-test. Owner: Christian.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
+
+    <!-- Decision ball -->
+    <div class="task">
+        <span class="priority low"></span>
+        <div class="content">
+            <div class="title">[WFD] Action Ball &mdash; Checkpoint or Complete? (Decision)</div>
+            <div class="desc">(FEATURE) WFD decision ball: After commit, determine if this is a checkpoint deploy (more work to do) or tasks complete (ready for full test cycle). Routes to different flow paths. Trigger: after Queue Commit. Owner: Claude asks, Christian decides.</div>
+            <div class="meta"><span class="tag tag-feature">FEATURE</span> WFD &bull; Discussion #16 &bull; v0.97.2</div>
+        </div>
+    </div>
 </div>
 
 <!-- ── Recently Completed ────────────────────────────────────── -->
@@ -2066,7 +2242,9 @@ function renderTasks() {
             }
             selectHtml += '</select>';
 
-            var pqPri = t.priority || 'medium';
+            var rawPri = t.priority || 'medium';
+            var priMap = { high: 'high', medium: 'medium', low: 'low', now: 'high', soon: 'medium', later: 'low' };
+            var pqPri = priMap[rawPri.toLowerCase()] || 'medium';
             var statusCls = t.status || 'new';
             var isActive = statusCls === 'in-progress' || statusCls === 'testing' || statusCls === 'rework';
             var editDisabled = isActive ? ' disabled' : '';
@@ -2108,9 +2286,12 @@ function renderTasks() {
     if (sections[1]) {
         // Sort only when NOT in the middle of cycling (debounce handles deferred sort)
         if (!window._skipBacklogSort) {
+            var priNormSort = { high: 'high', medium: 'medium', low: 'low', now: 'high', soon: 'medium', later: 'low' };
             var priOrder = { high: 1, medium: 2, low: 3 };
             data.backlog.sort(function(a, b) {
-                return (priOrder[a.priority || 'medium'] || 2) - (priOrder[b.priority || 'medium'] || 2);
+                var aPri = priNormSort[(a.priority || 'medium').toLowerCase()] || 'medium';
+                var bPri = priNormSort[(b.priority || 'medium').toLowerCase()] || 'medium';
+                return (priOrder[aPri] || 2) - (priOrder[bPri] || 2);
             });
             saveTasks(data); // persist sorted order
         }
@@ -2139,7 +2320,9 @@ function renderTasks() {
 
         for (var i = 0; i < filtered.length; i++) {
             var t = filtered[i];
-            var pri = t.priority || 'medium';
+            var rawBPri = t.priority || 'medium';
+            var bPriMap = { high: 'high', medium: 'medium', low: 'low', now: 'high', soon: 'medium', later: 'low' };
+            var pri = bPriMap[rawBPri.toLowerCase()] || 'medium';
             var statusCls = t.status || 'new';
             var isEditing = window._editingId === t.id;
             var taskIdLabel = t.taskNum ? formatTaskNum(t.taskNum) : '';
@@ -2376,10 +2559,11 @@ function _deferredSort() {
 function cyclePriority(id) {
     var data = loadTasks();
     if (!data) return;
+    var norm = { high: 'high', medium: 'medium', low: 'low', now: 'high', soon: 'medium', later: 'low' };
     var cycle = { high: 'medium', medium: 'low', low: 'high' };
     for (var i = 0; i < data.backlog.length; i++) {
         if (data.backlog[i].id === id) {
-            var current = data.backlog[i].priority || 'medium';
+            var current = norm[(data.backlog[i].priority || 'medium').toLowerCase()] || 'medium';
             data.backlog[i].priority = cycle[current] || 'medium';
             break;
         }
@@ -2394,10 +2578,11 @@ function cyclePriority(id) {
 function cyclePQPriority(id) {
     var data = loadTasks();
     if (!data) return;
+    var norm = { high: 'high', medium: 'medium', low: 'low', now: 'high', soon: 'medium', later: 'low' };
     var cycle = { high: 'medium', medium: 'low', low: 'high' };
     for (var i = 0; i < data.priority.length; i++) {
         if (data.priority[i].id === id) {
-            var current = data.priority[i].priority || 'medium';
+            var current = norm[(data.priority[i].priority || 'medium').toLowerCase()] || 'medium';
             data.priority[i].priority = cycle[current] || 'medium';
             break;
         }
@@ -3998,7 +4183,8 @@ function runMigrations() {
             { pattern: /Cloud Storage|R2 data cleanup|Database migration|replace localStorage/i, group: 'Infrastructure' },
             { pattern: /P2\.|P3\.|G2:|Phase 2|COGS|Material Bill/i, group: 'Pipeline' },
             { pattern: /compatible.*cell phone|Browser compat/i, group: 'QA' },
-            { pattern: /Move Tester.*Feedback.*Tasks/i, group: 'Admin' }
+            { pattern: /Move Tester.*Feedback.*Tasks/i, group: 'Admin' },
+            { pattern: /^\[WFD\]|Workflow Dashboard|Action Ball/i, group: 'WFD' }
         ];
         function assignGroup(item) {
             if (item.group) return;
@@ -4187,6 +4373,128 @@ function runMigrations() {
     if (ran.indexOf('v0.95.0_seed_changelog') === -1) {
         OpsFlow.invalidate('opsflow_changelog');
         markMigrationRun('v0.95.0_seed_changelog');
+    }
+
+    // ── v0.98.0: Set T-122 to In Progress ──
+    if (ran.indexOf('v0.98.0_t122_in_progress') === -1) {
+        for (var i = 0; i < data.priority.length; i++) {
+            if (data.priority[i].taskNum === 122) {
+                data.priority[i].status = 'in-progress';
+                changed = true;
+                break;
+            }
+        }
+        markMigrationRun('v0.98.0_t122_in_progress');
+    }
+
+    // ── v0.98.0: Fix bad priority values (T-122) — normalize NOW/SOON/LATER → high/medium/low ──
+    if (ran.indexOf('v0.98.0_fix_priority_values') === -1) {
+        var priNorm = { now: 'high', soon: 'medium', later: 'low', high: 'high', medium: 'medium', low: 'low' };
+        var allItems = (data.priority || []).concat(data.backlog || []);
+        for (var i = 0; i < allItems.length; i++) {
+            var raw = (allItems[i].priority || '').toLowerCase();
+            var mapped = priNorm[raw];
+            if (!allItems[i].priority || allItems[i].priority !== mapped) {
+                allItems[i].priority = mapped || 'medium';
+                changed = true;
+            }
+        }
+        markMigrationRun('v0.98.0_fix_priority_values');
+    }
+
+    // ── v0.97.2: Add Discussion items as PQ top priorities ──
+    if (ran.indexOf('v0.97.2_discussion_to_pq') === -1) {
+        var pqItems = [
+            {
+                id: 'pq_v0972_disc16_action_balls',
+                title: 'WFD Action Balls Framework — implement event-driven workflow balls on WFD trunk (Discussion #16)',
+                desc: 'Build the Action Balls system on WFD: each ball = action point with owner (Claude/Christian), LED color, trigger, and attached instructions in KV. Start with known balls (Scan WFD, Code, Queue Commit, Update Docs, etc.), grow as we practice. Goal: new Claude reads WFD and picks up workflow without needing the doc. Update Docs ball is HIGH PRIORITY — implement first.',
+                tag: 'FEATURE',
+                meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2',
+                priority: 'high',
+                status: 'new',
+                group: 'WFD'
+            },
+            {
+                id: 'pq_v0972_disc5_auto_poll',
+                title: 'Automated POLL trigger — replace manual POLL with event-driven WFD refresh (Discussion #5)',
+                desc: 'Design and implement an automated trigger for POLL instead of Christian manually typing POLL. Could be timer-based, event-driven (on deploy, on discussion change), or button-triggered on WFD. Discuss approach before coding.',
+                tag: 'FEATURE',
+                meta: 'WFD \u2022 Discussion #5 \u2022 v0.97.2',
+                priority: 'high',
+                status: 'new',
+                group: 'WFD'
+            }
+        ];
+        for (var p = 0; p < pqItems.length; p++) {
+            var exists = false;
+            for (var i = 0; i < data.priority.length; i++) {
+                if (data.priority[i].id === pqItems[p].id) { exists = true; break; }
+            }
+            if (!exists) data.priority.unshift(pqItems[p]);
+        }
+        changed = true;
+        markMigrationRun('v0.97.2_discussion_to_pq');
+    }
+
+    // ── v0.97.2: Add WFD Action Ball backlog items (Discussion #16) ──
+    if (ran.indexOf('v0.97.2_wfd_action_balls') === -1) {
+        var ballItems = [
+            { id: 'bl_v0972_ball_scan_wfd', title: '[WFD] Action Ball — Scan WFD', desc: 'WFD action ball for Claude: Read WFD state on session start — check action queue, open discussions, story diagram status.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_scan_feedback', title: '[WFD] Action Ball — Scan Feedback', desc: 'WFD action ball for Claude: Check Tester feedback for FAIL items or user annotations.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_code', title: '[WFD] Action Ball — Code', desc: 'WFD action ball for Claude: Execute the agreed plan after GO signal.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_update_versions', title: '[WFD] Action Ball — Update Version Files', desc: 'WFD action ball for Claude: Bump version across all pages, update changelog, tester sections, migrations.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_queue_commit', title: '[WFD] Action Ball — Queue Commit', desc: 'WFD action ball for Claude: Format and queue commit message in OpsFlow action queue. detail field = full commit message.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_set_version', title: '[WFD] Action Ball — Set Version', desc: 'WFD action ball for Claude: Run OpsFlow.setVersion() on live site after deploy confirmed.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_verify_deploy', title: '[WFD] Action Ball — Verify Deploy', desc: 'WFD action ball for Claude: Verify deployed version matches expected on live site.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_self_test', title: '[WFD] Action Ball — Self-Test', desc: 'WFD action ball for Claude: Run automated self-test checks on live site after deploy verification.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_update_docs', title: '[WFD] Action Ball — Update Docs (HIGH PRIORITY)', desc: 'WFD action ball for Claude: Update workflow.md AND APPLICATION-DESIGN.md every commit. Stale docs = broken recovery.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_triage_feedback', title: '[WFD] Action Ball — Triage Feedback', desc: 'WFD action ball for Claude: Process tester feedback — triage into Backlog, clear via migration.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_lessons_learned', title: '[WFD] Action Ball — Lessons Learned', desc: 'WFD action ball for Claude: Deliver Lessons Learned summary after each completed version.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_set_done', title: '[WFD] Action Ball — Set Done', desc: 'WFD action ball for Claude: Mark PQ items as Done, update story diagram. Final Claude ball.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_commit_push', title: '[WFD] Action Ball — Commit/Push', desc: 'WFD action ball for Christian: Copy commit msg from action queue, commit and push via VS Code.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_deploy', title: '[WFD] Action Ball — Deploy', desc: 'WFD action ball for Christian: Deploy to GitHub Pages after push.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_click_done', title: '[WFD] Action Ball — Click Done on WFD', desc: 'WFD action ball for Christian: Click Done on WFD action banner after deploy. Signals Claude to proceed.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_test_clickthrough', title: '[WFD] Action Ball — Test Click-Through', desc: 'WFD action ball for Christian: Manual click-through testing using Tester page. PASS/FAIL each item.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' },
+            { id: 'bl_v0972_ball_checkpoint_decision', title: '[WFD] Action Ball — Checkpoint or Complete? (Decision)', desc: 'WFD decision ball: After commit, determine checkpoint vs completion flow. Claude asks, Christian decides.', tag: 'FEATURE', meta: 'WFD \u2022 Discussion #16 \u2022 v0.97.2', priority: 'low', group: 'WFD' }
+        ];
+        for (var b = 0; b < ballItems.length; b++) {
+            var exists = false;
+            for (var i = 0; i < data.backlog.length; i++) {
+                if (data.backlog[i].id === ballItems[b].id) { exists = true; break; }
+            }
+            if (!exists) data.backlog.push(ballItems[b]);
+        }
+        changed = true;
+        markMigrationRun('v0.97.2_wfd_action_balls');
+    }
+
+    // ── v0.98.0: Seed tester config for priority LED fix ──
+    if (ran.indexOf('v0.98.0_seed_tester_config') === -1) {
+        OpsFlow.set('opsflow_tester_config', {
+            version: '0.98.0',
+            sections: [
+                { title: 'Priority LED Fix (T-122)', priority: 'FIX', items: [
+                    'PQ items T-106 through T-112 (Pipeline) now show priority LED (Now/Soon/Later)',
+                    'T-118 (P2 Card Definitions) shows priority LED — was missing entirely',
+                    'Clicking priority LED on formerly-broken items cycles correctly (high → medium → low)',
+                    'WFD PQ mirrors the fix — Pipeline items show LED on workflow.html too',
+                    'Existing items that already had correct priority (T-119, T-120, T-121, T-122) still work'
+                ]},
+                { title: 'Backlog Priority Sort', priority: 'FIX', items: [
+                    'Backlog items sort correctly by priority (Now first, Later last)',
+                    'No items appear with missing or broken LED in Backlog section'
+                ]},
+                { title: 'User Test', priority: 'MANUAL', items: ['User verification — annotate with findings'] }
+            ]
+        });
+        markMigrationRun('v0.98.0_seed_tester_config');
+    }
+
+    // ── v0.98.0: Invalidate changelog for new version ──
+    if (ran.indexOf('v0.98.0_seed_changelog') === -1) {
+        OpsFlow.invalidate('opsflow_changelog');
+        markMigrationRun('v0.98.0_seed_changelog');
     }
 
     if (changed) saveTasks(data);

@@ -1672,7 +1672,9 @@
             }
             selectHtml += '</select>';
 
-            var pqPri = t.priority || 'medium';
+            var rawPri = t.priority || 'medium';
+            var priMap = { high: 'high', medium: 'medium', low: 'low', now: 'high', soon: 'medium', later: 'low' };
+            var pqPri = priMap[rawPri.toLowerCase()] || 'medium';
             var statusCls = (t.status || 'new').toLowerCase().replace(/\s+/g, '-');
             var taskIdLabel = t.taskNum ? formatTaskNum(t.taskNum) : '';
             var resetBtn = (statusCls !== 'new') ? '<span class="status-reset visible" data-reset-id="' + t.id + '" title="Reset to New">&#8617;</span>' : '';
@@ -1750,10 +1752,11 @@
 
     function pqCyclePriority(id) {
         var data = pqLoadTasks(); if (!data) return;
+        var norm = { high: 'high', medium: 'medium', low: 'low', now: 'high', soon: 'medium', later: 'low' };
         var cycle = { high: 'medium', medium: 'low', low: 'high' };
         for (var i = 0; i < data.priority.length; i++) {
             if (data.priority[i].id === id) {
-                var current = data.priority[i].priority || 'medium';
+                var current = norm[(data.priority[i].priority || 'medium').toLowerCase()] || 'medium';
                 data.priority[i].priority = cycle[current] || 'medium';
                 break;
             }

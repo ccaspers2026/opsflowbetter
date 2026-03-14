@@ -1,6 +1,6 @@
 # OpsFlowBetter — Application Design Document
 **Living document — updated as the project evolves**
-**Last updated:** March 13, 2026 — v0.90.2
+**Last updated:** March 14, 2026 — v0.98.0
 
 ---
 
@@ -55,16 +55,37 @@ The PQ on the Tasks page is the shared workspace — not a task list for the hum
 ### Development Workflow
 
 ```
-1. Christian defines what to build (PQ items, discussion)
-2. Christian says GO → Claude starts coding
-3. Claude writes code, provides commit message
-4. Christian says COMMIT → reviews and pushes via Visual Studio
-5. Christian deploys → clicks Deployed badge on PQ
-6. Claude reads PQ, sees Deployed → self-tests on live site
-7. If issues → Claude sets Rework, fixes, new commit → repeat from 4
-8. All pass → Christian clicks Testing Complete
-9. Claude sets Done, delivers Lessons Learned, reviews PQ for next work
+0. Claude reads WFD FIRST — check action queue, open discussions, story state. Then read Tester feedback.
+0.5 Discussion → Christian says GO → Claude builds plan WITH embedded workflow actions
+1. Claude makes code changes (first action: set PQ item to In Progress via migration)
+2. Claude updates: version (all pages), changelog, tester sections, migrations
+3. Christian says COMMIT → Claude queues commit via OpsFlow action queue on WFD
+3.5 Claude asks: "Checkpoint deploy or tasks complete?"
+4. Claude shows DEPLOY POPUP → User commits, pushes, deploys → clicks "Done ✓" on WFD action banner
+5a. If CHECKPOINT → Claude runs OpsFlow.setVersion, verifies deploy. Resume from step 1.
+5b. If TASKS COMPLETE → Claude runs OpsFlow.setVersion, then self-tests on live site
+** EVERY COMMIT: Claude updates .claude-workflow.md AND APPLICATION-DESIGN.md **
+6. If FAILs exist → REWORK LOOP
+7. Once all items PASS → User clicks PASS/FAIL buttons + "Complete Testing"
+8. Claude processes: triages feedback → Backlog, clears feedback via migration
+9. Claude delivers LESSONS LEARNED summary
+10. Claude reviews PQ: set completed items to Done
+11. Repeat from step 0
 ```
+
+### Workflow Dashboard (WFD) — v0.93.0+
+
+The WFD (`workflow.html`) is the live command center for the dev cycle. It visualizes the entire flow as an interactive story diagram with clickable LED nodes.
+
+**Components:**
+- **Story Diagram**: SVG flowchart with LED nodes (red → yellow → green). Nodes: Start, Scan, Coding (trunk) → fork to Commit Ready, Committed, Pushed, Deployed, Verify (checkpoint/completion branch). Click nodes to cycle status.
+- **Action Queue**: Banner system for queuing commit messages. Claude queues via `opsflow_action_queue` KV key. Christian clicks "Copy Commit Msg" then "Done ✓". The `action.detail` field contains the FULL commit message (title + TYPE lines). `action.message` is just the banner headline.
+- **Discussion System**: Numbered discussion threads stored in `opsflow_discussions` KV key. Created via "+ Discussion" button. Used for async communication between Claude and Christian.
+- **Priority Queue**: Mirrors Tasks page PQ with status badges.
+
+**Layout**: Multi-row SVG with continuation markers (numbered circles ①②③) at row boundaries. Asymmetric cubic Bezier curves for fork/merge paths. Constants: NODE_R=14, NODE_SPACING=100, ROW_HEIGHT=180, MAX_ROW_WIDTH=1080.
+
+**Future — Action Balls (Discussion #16)**: Event-driven workflow steps on the WFD trunk. Each ball = action point with owner (Claude/Christian), LED color, trigger, and attached instructions in KV. Goal: replace the workflow doc with visual, compaction-proof workflow steps. 17 balls identified and in backlog.
 
 ### The Rules
 
@@ -679,6 +700,7 @@ All P2M pages live at `opsflowbetter.com/p2m/`:
 | Services | services.html | External tools tracking |
 | Admin Hub | admin.html | Single entry point to admin tools |
 | Diagrams | diagrams.html | Flow diagrams, architecture visuals |
+| Workflow | workflow.html | **Workflow Dashboard (WFD)** — live dev cycle visualization (T-119, v0.93.0+) |
 | Changelog | changelog.html | Version history |
 | Tasks | tasks.html | PQ + Backlog — the shared AI/Human dashboard |
 | Feedback | feedback.html | Standalone feedback form |
@@ -687,7 +709,7 @@ All P2M pages live at `opsflowbetter.com/p2m/`:
 
 Plus **LaunchPad** at root (`launchpad.html`) — hub with shortcuts and admin mode.
 
-**Nav structure:** User pages in top nav (Pipeline, Media Pipeline, Workshop, Services). ADMIN link leads to admin.html hub. Admin tool pages have breadcrumbs back to Admin.
+**Nav structure:** User pages in top nav (Pipeline, Media Pipeline, Workshop, Services). ADMIN link leads to admin.html hub. Admin tool pages (Tasks, Changelog, Tester, Feedback, Workflow, Diagrams) have breadcrumbs back to Admin.
 
 ---
 
@@ -710,6 +732,11 @@ Plus **LaunchPad** at root (`launchpad.html`) — hub with shortcuts and admin m
 | `opsflow_services` | Services & Integrations data |
 | `opsflow_version` | Suite version (synced to KV) |
 | `opsflow_changelog` | Changelog entries |
+| `opsflow_action_queue` | WFD action queue — single object {id, type, message, detail, status, created} |
+| `opsflow_workflow_state` | WFD story diagram state — node statuses, active story |
+| `opsflow_discussions` | WFD discussion threads — array of numbered discussions |
+| `opsflow_tester_config` | Tester sections config — seeded per version via migration |
+| `opsflow_tasks_migrations` | Migration tracking — array of migration keys already run |
 
 ### Version Management
 - Version bumped on all pages via `OpsFlow.setVersion()`
@@ -761,22 +788,26 @@ The Product Plan (v1.28) for the 45 RPM Adaptor was largely AI-generated by a pr
 
 ## 13. Backlog & Roadmap
 
-### Immediate (P1 Card Rebuild)
+### Immediate (WFD Action Balls — Discussion #16)
+- [ ] Implement WFD Action Balls framework — event-driven workflow steps on WFD trunk
+- [ ] Update Docs ball (HIGH PRIORITY) — ensures docs stay current after every commit
+- [ ] Queue Commit ball — enforces correct commit message format in action queue
+- [ ] 17 total balls identified (12 Claude, 4 Christian, 1 Decision) — all in Tasks backlog
+
+### Near-Term (P1 Card Rebuild + Infrastructure)
 - [ ] Rebuild P1 card UI — editable fields, AI Assist buttons, data flow wiring
 - [ ] P1.5 sub-card architecture — addable cards per model/variant
 - [ ] P1.3b customer validation card — optional step
 - [ ] Begin card-by-card content rebuild for 45 RPM Adaptor
-
-### Near-Term (Infrastructure)
 - [ ] Materials Catalog page — CRUD table for materials, hardware, packaging
 - [ ] Move filament data from Workshop to Materials Catalog
 - [ ] Cost Model calculation engine — shared across P1.5, P2.3, pricing
-- [ ] Update Flow diagram with revised card definitions
 
 ### Medium-Term (P2 and Beyond)
 - [ ] P2 card definitions — same rigor as P1 review
 - [ ] Wire Workshop data bridge (currently reads wrong localStorage key)
-- [ ] Admin breakout from /p2m/ to OpsFlowBetter root (T-105)
+- [ ] Template Builder — Suite-wide template definitions with field schemas
+- [ ] Forms Builder — dynamic form generation from templates
 - [ ] Connected tool integrations (evaluate and wire one at a time)
 
 ### Future
@@ -784,6 +815,7 @@ The Product Plan (v1.28) for the 45 RPM Adaptor was largely AI-generated by a pr
 - [ ] Subscription model architecture — tiered tool access
 - [ ] Multi-product support — run multiple product lines through the pipeline
 - [ ] Security layer — Admin visibility controls
+- [ ] Equipment Page — centralized equipment registry (depends on Template Builder)
 
 ---
 
@@ -794,3 +826,5 @@ The Product Plan (v1.28) for the 45 RPM Adaptor was largely AI-generated by a pr
 | March 13, 2026 | v1.0 | Initial creation. P1 card definitions, AI/Human model, data flow, cost lifecycle, industry research. Consolidated from P1 Card Review sessions. |
 | March 13, 2026 | v1.1 | P2 card definitions complete (P2.1, P2.2, P2.3, G2). DIY/Contractor fork in P2.1, QC criteria in P2.2, BOM + income math re-validation in P2.3, P1 feedback loop in G2. New backlog items added (T-113 through T-118). |
 | March 13, 2026 | v1.2 | P2 refinements: Load/stress testing with safety margins in QC. Two-level iteration tracking (major/minor — real-world: 100+ iterations on RC Plane Hanger). Scrap/waste factor in P2.3 COGS + R&D scrap tracking in P2.2. Extensible slicer profile (addable custom settings). G2 NO-GO routes to specific problem area. |
+| March 14, 2026 | v1.3 | Updated to v0.97.2. Added Workflow Dashboard (WFD) system: story diagram, action queue, discussion system. Updated Development Workflow to reflect WFD-centric flow (action queue replaces chat-based commit messages). Added 5 new localStorage keys. Added workflow.html to Pages. Updated Backlog with 17 WFD Action Balls (Discussion #16). Added WFD Action Balls as immediate priority. |
+| March 14, 2026 | v1.4 | Updated to v0.98.0. T-122 fix: Priority LED normalization — defensive mapping in all render/sort/cycle paths. |

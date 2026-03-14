@@ -1,5 +1,30 @@
 [
   {
+    "version": "v0.98.0",
+    "date": "March 14, 2026",
+    "tag": "FIX",
+    "title": "Priority LED Fix — Pipeline PQ Items (T-122)",
+    "items": [
+      "Fixed priority LED missing on Pipeline PQ items (T-106 through T-112) — items had 'NOW' stored instead of 'high', which didn't match CSS class names",
+      "T-118 (P2 Card Definitions) also fixed — had no priority field at all",
+      "Added defensive normalization in all 7 code paths that touch priority values (render, sort, cycle) across tasks.html and workflow.html",
+      "Migration normalizes all existing NOW/SOON/LATER values to high/medium/low in localStorage",
+      "17 WFD Action Ball backlog items added (Discussion #16) — future event-driven workflow steps",
+      "2 new PQ items from closed discussions: Action Balls Framework (#16), Automated POLL (#5)"
+    ]
+  },
+  {
+    "version": "v0.97.2",
+    "date": "March 14, 2026",
+    "tag": "UPDATE",
+    "title": "Continuation Markers + Discussion Textarea",
+    "items": [
+      "End-zone continuation markers pushed further right (END_MARKER_GAP=48) — at least 2x circle diameter from last node",
+      "Discussion textarea doubled: max-width 500→1000px, maxlength 500→1000 characters",
+      "Split MARKER_GAP into START_MARKER_GAP (18) and END_MARKER_GAP (48) for independent control"
+    ]
+  },
+  {
     "version": "v0.95.0",
     "date": "March 13, 2026",
     "tag": "NEW",
