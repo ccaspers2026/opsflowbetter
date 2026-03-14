@@ -870,11 +870,10 @@
     }
 
     // ═══ Smooth Path: cubic Bézier S-curves for branch rendering ═══
-    // Uses the D3 "bump" pattern: between two points at different X and Y,
-    // draws a cubic Bézier with control points at (x0, midY) and (x1, midY),
-    // producing a smooth S-curve with tangent continuity at both endpoints.
-    // Same-Y segments → straight horizontal lines.
-    // Same-X segments → straight vertical lines.
+    // Asymmetric control points ensure tangent continuity at junctions:
+    //   Fork (going DOWN): leaves trunk VERTICALLY, arrives at branch HORIZONTALLY
+    //   Merge (going UP):  leaves branch HORIZONTALLY, arrives at trunk VERTICALLY
+    // This means S-curves flow seamlessly into horizontal lines at both ends.
     function drawSmoothPath(svg, waypoints, color, opts) {
         if (waypoints.length < 2) return;
         opts = opts || {};
@@ -888,9 +887,15 @@
                 // Same row or same column: straight line
                 d += ' L ' + p1.x + ',' + p1.y;
             } else {
-                // Different X and Y: cubic Bézier S-curve
+                var midX = (p0.x + p1.x) / 2;
                 var midY = (p0.y + p1.y) / 2;
-                d += ' C ' + p0.x + ',' + midY + ' ' + p1.x + ',' + midY + ' ' + p1.x + ',' + p1.y;
+                if (p1.y > p0.y) {
+                    // Going DOWN (fork): vertical start, horizontal arrival
+                    d += ' C ' + p0.x + ',' + midY + ' ' + midX + ',' + p1.y + ' ' + p1.x + ',' + p1.y;
+                } else {
+                    // Going UP (merge): horizontal start, vertical arrival
+                    d += ' C ' + midX + ',' + p0.y + ' ' + p1.x + ',' + midY + ' ' + p1.x + ',' + p1.y;
+                }
             }
         }
 
