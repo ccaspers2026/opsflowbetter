@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html><head><style>
+body { background: #0d1117; color: #c9d1d9; font-family: sans-serif; padding: 20px; }
+h2 { color: #58a6ff; margin: 10px 0 5px; font-size: 14px; }
+svg { background: #161b22; border: 1px solid #30363d; border-radius: 6px; margin: 5px 0 15px; }
+.winner { border: 2px solid #2ea44f; }
+</style></head><body>
+<h1>Branch Curve Comparison — fork at (60,50) → branch at (120,150) → merge at (480,150) → trunk at (540,50)</h1>
+
+<!-- Test layout: trunk at Y=50, branch at Y=150, fork offset=60px, nodes at 120,220,320,420 -->
+
+<h2>1. D3 Bump (symmetric midY control points) — C x0,midY x1,midY x1,y1</h2>
+<svg width="620" height="200">
+  <line x1="0" y1="50" x2="620" y2="50" stroke="#6e7681" stroke-width="2"/>
+  <line x1="120" y1="150" x2="480" y2="150" stroke="#6e7681" stroke-width="1" stroke-dasharray="4"/>
+  <path d="M 60,50 C 60,100 120,100 120,150 L 480,150 C 480,100 540,100 540,50"
+        stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="150" r="10" fill="#2ea44f"/><circle cx="220" cy="150" r="10" fill="#2ea44f"/>
+  <circle cx="320" cy="150" r="10" fill="#d29922"/><circle cx="420" cy="150" r="10" fill="#f85149"/>
+  <text x="310" y="25" fill="#8b949e" font-size="11" text-anchor="middle">Vertical tangent at both ends — creates corner where curve meets horizontal</text>
+</svg>
+
+<h2>2. Asymmetric Cubic (vertical start → horizontal arrival) — C x0,midY midX,y1 x1,y1</h2>
+<svg width="620" height="200">
+  <line x1="0" y1="50" x2="620" y2="50" stroke="#6e7681" stroke-width="2"/>
+  <line x1="120" y1="150" x2="480" y2="150" stroke="#6e7681" stroke-width="1" stroke-dasharray="4"/>
+  <path d="M 60,50 C 60,100 90,150 120,150 L 480,150 C 510,150 540,100 540,50"
+        stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="150" r="10" fill="#2ea44f"/><circle cx="220" cy="150" r="10" fill="#2ea44f"/>
+  <circle cx="320" cy="150" r="10" fill="#d29922"/><circle cx="420" cy="150" r="10" fill="#f85149"/>
+  <text x="310" y="25" fill="#8b949e" font-size="11" text-anchor="middle">Arrives horizontal — no corner, but curve shape can look bulgy</text>
+</svg>
+
+<h2>3. Quadratic (Q at L-corner) — Q x0,y1 x1,y1</h2>
+<svg width="620" height="200">
+  <line x1="0" y1="50" x2="620" y2="50" stroke="#6e7681" stroke-width="2"/>
+  <line x1="120" y1="150" x2="480" y2="150" stroke="#6e7681" stroke-width="1" stroke-dasharray="4"/>
+  <path d="M 60,50 Q 60,150 120,150 L 480,150 Q 540,150 540,50"
+        stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="150" r="10" fill="#2ea44f"/><circle cx="220" cy="150" r="10" fill="#2ea44f"/>
+  <circle cx="320" cy="150" r="10" fill="#d29922"/><circle cx="420" cy="150" r="10" fill="#f85149"/>
+  <text x="310" y="25" fill="#8b949e" font-size="11" text-anchor="middle">Tight pipe-bend / 90-degree quarter-turn — too mechanical</text>
+</svg>
+
+<h2>4. Straight diagonal + rounded corners (r=20) — L shapes with arc</h2>
+<svg width="620" height="200">
+  <line x1="0" y1="50" x2="620" y2="50" stroke="#6e7681" stroke-width="2"/>
+  <path d="M 60,50 L 60,130 A 20,20 0 0 0 80,150 L 500,150 A 20,20 0 0 0 520,130 L 520,50"
+        stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="150" r="10" fill="#2ea44f"/><circle cx="220" cy="150" r="10" fill="#2ea44f"/>
+  <circle cx="320" cy="150" r="10" fill="#d29922"/><circle cx="420" cy="150" r="10" fill="#f85149"/>
+  <text x="310" y="25" fill="#8b949e" font-size="11" text-anchor="middle">Manhattan + arc corners — rigid/robotic, already rejected</text>
+</svg>
+
+<h2>5. Gentle arc — single cubic from fork to merge, dipping through branch level</h2>
+<svg width="620" height="200">
+  <line x1="0" y1="50" x2="620" y2="50" stroke="#6e7681" stroke-width="2"/>
+  <path d="M 60,50 C 60,180 540,180 540,50"
+        stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="150" r="10" fill="#2ea44f"/><circle cx="220" cy="150" r="10" fill="#2ea44f"/>
+  <circle cx="320" cy="150" r="10" fill="#d29922"/><circle cx="420" cy="150" r="10" fill="#f85149"/>
+  <text x="310" y="25" fill="#8b949e" font-size="11" text-anchor="middle">One flowing arc — nodes sit on the curve itself. Clean but shallow.</text>
+</svg>
+
+<h2>6. GitHub-style: gentle cubic with softer control points — C x0,y0+drop*0.8 x1,y0+drop*0.8 x1,y1</h2>
+<svg width="620" height="200">
+  <line x1="0" y1="50" x2="620" y2="50" stroke="#6e7681" stroke-width="2"/>
+  <line x1="120" y1="150" x2="480" y2="150" stroke="#6e7681" stroke-width="1" stroke-dasharray="4"/>
+  <path d="M 60,50 C 60,130 120,130 120,150 L 480,150 C 480,130 540,130 540,50"
+        stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="150" r="10" fill="#2ea44f"/><circle cx="220" cy="150" r="10" fill="#2ea44f"/>
+  <circle cx="320" cy="150" r="10" fill="#d29922"/><circle cx="420" cy="150" r="10" fill="#f85149"/>
+  <text x="310" y="25" fill="#8b949e" font-size="11" text-anchor="middle">Control points at 80% of drop — softer entry, smooth blend into horizontal</text>
+</svg>
+
+<h2>7. Two-part: straight vertical drop + arc into horizontal — like a faucet curve</h2>
+<svg width="620" height="200">
+  <line x1="0" y1="50" x2="620" y2="50" stroke="#6e7681" stroke-width="2"/>
+  <path d="M 60,50 L 60,110 C 60,150 60,150 120,150 L 480,150 C 540,150 540,150 540,110 L 540,50"
+        stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="150" r="10" fill="#2ea44f"/><circle cx="220" cy="150" r="10" fill="#2ea44f"/>
+  <circle cx="320" cy="150" r="10" fill="#d29922"/><circle cx="420" cy="150" r="10" fill="#f85149"/>
+  <text x="310" y="25" fill="#8b949e" font-size="11" text-anchor="middle">Vertical stub then smooth curve to horizontal — clear fork point</text>
+</svg>
+
+<h2>8. Reference-style diagonal: straight diagonal lines (no curve)</h2>
+<svg width="620" height="200">
+  <line x1="0" y1="50" x2="620" y2="50" stroke="#6e7681" stroke-width="2"/>
+  <line x1="120" y1="150" x2="480" y2="150" stroke="#6e7681" stroke-width="1" stroke-dasharray="4"/>
+  <path d="M 60,50 L 120,150 L 480,150 L 540,50"
+        stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="120" cy="150" r="10" fill="#2ea44f"/><circle cx="220" cy="150" r="10" fill="#2ea44f"/>
+  <circle cx="320" cy="150" r="10" fill="#d29922"/><circle cx="420" cy="150" r="10" fill="#f85149"/>
+  <text x="310" y="25" fill="#8b949e" font-size="11" text-anchor="middle">Pure straight diagonals — simple like the reference, nodes cover corners</text>
+</svg>
+
+</body></html>
