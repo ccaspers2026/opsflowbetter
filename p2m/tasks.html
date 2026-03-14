@@ -4135,6 +4135,12 @@ function runMigrations() {
         markMigrationRun('v0.94.1_seed_changelog');
     }
 
+    // ── v0.94.2: Seed updated changelog data (undo toast + nav fix) ──
+    if (ran.indexOf('v0.94.2_seed_changelog') === -1) {
+        OpsFlow.invalidate('opsflow_changelog');
+        markMigrationRun('v0.94.2_seed_changelog');
+    }
+
     if (changed) saveTasks(data);
 }
 

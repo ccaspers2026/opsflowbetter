@@ -1,5 +1,15 @@
 [
   {
+    "version": "v0.94.2",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "GUI Workflow UX \u2014 Undo Toast + Nav Fix",
+    "items": [
+      "Branch delete now instant with 5-second Undo toast bar instead of confirm dialog \u2014 faster workflow, forgiving mistakes",
+      "ADMIN nav link on workflow.html matched to other pages: 10px font, orange border-left separator, consistent style"
+    ]
+  },
+  {
     "version": "v0.94.1",
     "date": "March 13, 2026",
     "tag": "UPDATE",
