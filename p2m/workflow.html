@@ -46,8 +46,8 @@
         .btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #30363d; transition: all 0.15s; }
         .btn-primary { background: #238636; color: #fff; border-color: #238636; }
         .btn-primary:hover { background: #2ea043; }
-        .btn-secondary { background: transparent; color: #58a6ff; }
-        .btn-secondary:hover { background: #161b22; }
+        .btn-secondary { background: #21262d; color: #c9d1d9; border-color: #30363d; }
+        .btn-secondary:hover { background: #30363d; color: #e6edf3; }
         .btn-danger { background: #da3633; color: #fff; border-color: #da3633; }
         .btn-danger:hover { background: #f85149; }
         .btn-completion { background: #1f6feb; color: #fff; border-color: #1f6feb; }
@@ -101,6 +101,28 @@
         .undo-toast .undo-timer { width: 60px; height: 3px; background: #30363d; border-radius: 2px; overflow: hidden; }
         .undo-toast .undo-timer-bar { height: 100%; background: #f0883e; transition: width linear; }
         @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+        /* ═══ Action Queue Banner ═══ */
+        .action-banner { display: none; background: #161b22; border: 1px solid #1f6feb; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; animation: bannerIn 0.25s ease-out; }
+        .action-banner.visible { display: block; }
+        .action-banner-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .action-banner-icon { width: 8px; height: 8px; border-radius: 50%; background: #1f6feb; animation: pulse 1.5s ease-in-out infinite; }
+        .action-banner-label { font-size: 11px; font-weight: 600; color: #1f6feb; text-transform: uppercase; letter-spacing: 0.5px; }
+        .action-banner-time { font-size: 10px; color: #484f58; margin-left: auto; }
+        .action-banner-message { font-size: 13px; color: #e6edf3; margin-bottom: 10px; line-height: 1.5; }
+        .action-banner-detail { font-size: 12px; color: #8b949e; background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 8px 12px; margin-bottom: 10px; font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace; white-space: pre-wrap; word-break: break-all; max-height: 120px; overflow-y: auto; }
+        .action-banner-actions { display: flex; align-items: center; gap: 10px; }
+        .action-btn { padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #30363d; transition: all 0.15s; }
+        .action-btn-primary { background: #238636; color: #fff; border-color: #238636; }
+        .action-btn-primary:hover { background: #2ea043; }
+        .action-btn-copy { background: #21262d; color: #c9d1d9; }
+        .action-btn-copy:hover { background: #30363d; }
+        .action-btn-fail { background: #da3633; color: #fff; border-color: #da3633; }
+        .action-btn-fail:hover { background: #f85149; }
+        .action-btn-dismiss { background: transparent; color: #484f58; border: none; font-size: 11px; margin-left: auto; cursor: pointer; }
+        .action-btn-dismiss:hover { color: #8b949e; }
+        @keyframes bannerIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     </style>
 </head>
 <body>
@@ -140,6 +162,9 @@
                 <button class="btn btn-danger" id="btn-reset" title="Clear everything \u2014 active story and all history">Reset All</button>
             </div>
         </div>
+
+        <!-- Action Queue Banner -->
+        <div class="action-banner" id="action-banner"></div>
 
         <!-- SVG Visualization -->
         <div class="section">
@@ -407,6 +432,7 @@
         renderSVG();
         renderPQ();
         renderHistory();
+        renderActionBanner();
     }
 
     // ═══ Helper: is branch all green (collapsed)? ═══
@@ -798,6 +824,106 @@
         svg.appendChild(t);
     }
 
+    // ═══ Action Queue System ═══
+    // KV key: opsflow_action_queue
+    // Shape: { id, type, message, detail, status, options, response, created, updated }
+    // Types: commit_push, deploy_confirm, test_request, question, info
+    // Status: pending → completed | failed | dismissed
+    var ACTION_KEY = 'opsflow_action_queue';
+
+    function renderActionBanner() {
+        var banner = document.getElementById('action-banner');
+        var action = OpsFlow.getLocal(ACTION_KEY);
+        if (!action || !action.id || action.status !== 'pending') {
+            banner.classList.remove('visible');
+            banner.innerHTML = '';
+            return;
+        }
+        banner.classList.add('visible');
+
+        var timeAgo = '';
+        if (action.created) {
+            var secs = Math.floor((Date.now() - action.created) / 1000);
+            if (secs < 60) timeAgo = secs + 's ago';
+            else if (secs < 3600) timeAgo = Math.floor(secs / 60) + 'm ago';
+            else timeAgo = Math.floor(secs / 3600) + 'h ago';
+        }
+
+        var html = '<div class="action-banner-header">'
+            + '<div class="action-banner-icon"></div>'
+            + '<span class="action-banner-label">Claude requests</span>'
+            + '<span class="action-banner-time">' + timeAgo + '</span>'
+            + '</div>';
+
+        html += '<div class="action-banner-message">' + escHtml(action.message || '') + '</div>';
+
+        if (action.detail) {
+            html += '<div class="action-banner-detail" id="action-detail">' + escHtml(action.detail) + '</div>';
+        }
+
+        html += '<div class="action-banner-actions">';
+
+        if (action.type === 'commit_push' && action.detail) {
+            html += '<button class="action-btn action-btn-copy" id="action-copy" title="Copy commit message to clipboard">Copy Commit Msg</button>';
+        }
+
+        if (action.type === 'question' && action.options && action.options.length) {
+            action.options.forEach(function(opt, idx) {
+                var cls = idx === 0 ? 'action-btn-primary' : 'action-btn-copy';
+                html += '<button class="action-btn ' + cls + '" data-option="' + escHtml(opt) + '">' + escHtml(opt) + '</button>';
+            });
+        } else if (action.type === 'test_request') {
+            html += '<button class="action-btn action-btn-primary" data-respond="pass">Pass</button>';
+            html += '<button class="action-btn action-btn-fail" data-respond="fail">Fail</button>';
+        } else if (action.type !== 'info') {
+            html += '<button class="action-btn action-btn-primary" data-respond="done">Done ✓</button>';
+        }
+
+        html += '<button class="action-btn action-btn-dismiss" data-respond="dismissed">Dismiss</button>';
+        html += '</div>';
+
+        banner.innerHTML = html;
+
+        // Wire up buttons
+        var copyBtn = document.getElementById('action-copy');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(action.detail || '').then(function() {
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(function() { copyBtn.textContent = 'Copy Commit Msg'; }, 1500);
+                }).catch(function() {});
+            });
+        }
+
+        banner.querySelectorAll('[data-respond]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                respondToAction(btn.getAttribute('data-respond'));
+            });
+        });
+
+        banner.querySelectorAll('[data-option]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                respondToAction(btn.getAttribute('data-option'));
+            });
+        });
+    }
+
+    function respondToAction(response) {
+        var action = OpsFlow.getLocal(ACTION_KEY);
+        if (!action || !action.id) return;
+        action.status = (response === 'dismissed') ? 'dismissed' : 'completed';
+        action.response = response;
+        action.updated = Date.now();
+        OpsFlow.set(ACTION_KEY, action);
+        renderActionBanner();
+    }
+
+    function escHtml(s) {
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
     // ═══ PQ Render ═══
     function renderPQ() {
         var el = document.getElementById('pq-list');
@@ -852,7 +978,8 @@
         var p = JSON.stringify(OpsFlow.getLocal(PQ_KEY) || {});
         var h = JSON.stringify(OpsFlow.getLocal(HISTORY_KEY) || []);
         var v = localStorage.getItem('opsflow_version') || '';
-        return s + '|' + p + '|' + h + '|' + v;
+        var a = JSON.stringify(OpsFlow.getLocal(ACTION_KEY) || {});
+        return s + '|' + p + '|' + h + '|' + v + '|' + a;
     }
     _lastSnapshot = getStateSnapshot();
     setInterval(function() {

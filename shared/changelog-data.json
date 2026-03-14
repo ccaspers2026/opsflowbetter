@@ -1,5 +1,17 @@
 [
   {
+    "version": "v0.94.4",
+    "date": "March 13, 2026",
+    "tag": "NEW",
+    "title": "Action Queue — Interactive Workflow Dashboard",
+    "items": [
+      "Action Queue banner: Claude writes action requests to KV, the Workflow Dashboard shows them as interactive banners with buttons — no more typing 'DEPLOY COMPLETE' back and forth",
+      "Supports commit_push (with Copy Commit Msg button), deploy_confirm, test_request (Pass/Fail), question (custom options), and info action types",
+      "Dashboard polls KV every 10 seconds and picks up new actions automatically. Christian clicks a button, response writes back to KV, Claude reads it",
+      "New Story button restyled: dark fill background instead of invisible transparent-on-black"
+    ]
+  },
+  {
     "version": "v0.94.3",
     "date": "March 13, 2026",
     "tag": "UPDATE",
