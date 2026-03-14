@@ -1,5 +1,17 @@
 [
   {
+    "version": "v0.95.0",
+    "date": "March 13, 2026",
+    "tag": "NEW",
+    "title": "Multiple Discussion Chains + Textarea Input",
+    "items": [
+      "Stack unlimited discussions: click + Discussion as many times as you want, each gets its own purple banner with a Close button and dot on the trunk",
+      "Input upgraded from 80-char single line to a resizable textarea (500 char limit) — write full thoughts while waiting on processes",
+      "Each discussion is independently closeable with undo toast. Old single-discussion data auto-migrates to the new format",
+      "Enter submits, Shift+Enter for newlines, Escape cancels"
+    ]
+  },
+  {
     "version": "v0.94.9",
     "date": "March 13, 2026",
     "tag": "UPDATE",

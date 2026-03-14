@@ -146,20 +146,20 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
         /* ═══ Discussion Prompt ═══ */
-        .discussion-prompt { display: none; align-items: center; gap: 8px; margin-top: 8px; animation: bannerIn 0.2s ease-out; }
-        .discussion-prompt.visible { display: flex; }
-        .discussion-prompt input { flex: 1; background: #0d1117; border: 1px solid #8b5cf6; border-radius: 6px; padding: 6px 12px; font-size: 12px; color: #e6edf3; outline: none; max-width: 320px; }
-        .discussion-prompt input:focus { border-color: #a78bfa; box-shadow: 0 0 0 2px rgba(139,92,246,0.2); }
-        .discussion-prompt .btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; }
+        .discussion-prompt { display: none; gap: 8px; margin-top: 8px; animation: bannerIn 0.2s ease-out; }
+        .discussion-prompt.visible { display: flex; align-items: flex-end; }
+        .discussion-prompt textarea { flex: 1; background: #0d1117; border: 1px solid #8b5cf6; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #e6edf3; outline: none; max-width: 500px; min-height: 36px; max-height: 100px; resize: vertical; font-family: inherit; line-height: 1.4; }
+        .discussion-prompt textarea:focus { border-color: #a78bfa; box-shadow: 0 0 0 2px rgba(139,92,246,0.2); }
+        .discussion-prompt .btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; height: fit-content; }
 
-        /* ═══ Active Discussion Indicator ═══ */
-        .discussion-active { display: none; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; margin-bottom: 12px; }
-        .discussion-active.visible { display: flex; }
-        .discussion-active-dot { width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; animation: pulse 1.5s ease-in-out infinite; }
-        .discussion-active-label { font-size: 12px; color: #a78bfa; font-weight: 600; }
-        .discussion-active-topic { font-size: 12px; color: #c9d1d9; flex: 1; }
-        .discussion-active .btn-close-disc { padding: 4px 12px; font-size: 11px; background: #8b5cf6; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
-        .discussion-active .btn-close-disc:hover { background: #a78bfa; }
+        /* ═══ Active Discussions List ═══ */
+        .discussions-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .discussion-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; animation: bannerIn 0.2s ease-out; }
+        .discussion-item-dot { width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; animation: pulse 1.5s ease-in-out infinite; flex-shrink: 0; }
+        .discussion-item-label { font-size: 11px; color: #a78bfa; font-weight: 600; flex-shrink: 0; }
+        .discussion-item-topic { font-size: 12px; color: #c9d1d9; flex: 1; line-height: 1.4; }
+        .discussion-item .btn-close-disc { padding: 3px 10px; font-size: 10px; background: #8b5cf6; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; flex-shrink: 0; }
+        .discussion-item .btn-close-disc:hover { background: #a78bfa; }
     </style>
 </head>
 <body>
@@ -200,19 +200,14 @@
                 <button class="btn btn-danger" id="btn-reset" title="Clear everything \u2014 active story and all history">Reset All</button>
             </div>
             <div class="discussion-prompt" id="disc-prompt">
-                <input type="text" id="disc-topic" placeholder="What are we discussing?" maxlength="80">
+                <textarea id="disc-topic" placeholder="What are we discussing?" maxlength="500" rows="2"></textarea>
                 <button class="btn btn-discussion btn-sm" id="disc-start">Start</button>
                 <button class="btn btn-secondary btn-sm" id="disc-cancel">Cancel</button>
             </div>
         </div>
 
-        <!-- Active Discussion Indicator -->
-        <div class="discussion-active" id="disc-active">
-            <div class="discussion-active-dot"></div>
-            <span class="discussion-active-label">Discussion:</span>
-            <span class="discussion-active-topic" id="disc-active-topic"></span>
-            <button class="btn-close-disc" id="disc-close" title="Close discussion and resume workflow">Close Discussion</button>
-        </div>
+        <!-- Active Discussions List -->
+        <div class="discussions-list" id="disc-list"></div>
 
         <!-- Action Queue Banner -->
         <div class="action-banner" id="action-banner"></div>
@@ -415,11 +410,26 @@
         render();
     }
 
-    // ═══ Discussion Chain ═══
-    var DISC_KEY = 'opsflow_discussion';
+    // ═══ Discussion Chains (multiple) ═══
+    var DISC_KEY = 'opsflow_discussions';
 
-    function getDiscussion() {
-        return OpsFlow.getLocal(DISC_KEY) || null;
+    // Migrate old single discussion to new array format
+    (function migrateDisc() {
+        var old = OpsFlow.getLocal('opsflow_discussion');
+        if (old && old.topic) {
+            var existing = OpsFlow.getLocal(DISC_KEY) || [];
+            existing.push({ id: 'disc_migrated_' + (old.started || Date.now()), topic: old.topic, started: old.started || Date.now(), status: old.status || 'closed', ended: old.ended });
+            OpsFlow.set(DISC_KEY, existing);
+            OpsFlow.set('opsflow_discussion', null); // clear old key
+        }
+    })();
+
+    function getDiscussions() {
+        return OpsFlow.getLocal(DISC_KEY) || [];
+    }
+
+    function getOpenDiscussions() {
+        return getDiscussions().filter(function(d) { return d.status === 'open'; });
     }
 
     function showDiscPrompt() {
@@ -434,15 +444,21 @@
     function startDiscussion() {
         var topic = document.getElementById('disc-topic').value.trim();
         if (!topic) { document.getElementById('disc-topic').focus(); return; }
+
+        var discs = getDiscussions();
         var disc = {
+            id: 'disc_' + Date.now(),
             topic: topic,
             started: Date.now(),
             status: 'open'
         };
-        OpsFlow.set(DISC_KEY, disc);
-        // Also add a discussion branch to the story for visual tracking
+        discs.push(disc);
+        OpsFlow.set(DISC_KEY, discs);
+
+        // Add a discussion branch to the story for visual tracking
         story.branches.push({
             type: 'discussion',
+            discId: disc.id,
             topic: topic,
             nodes: {},
             version: '',
@@ -453,24 +469,27 @@
         render();
     }
 
-    function closeDiscussion() {
-        var disc = getDiscussion();
-        if (!disc || disc.status !== 'open') return;
-
-        // Save previous state for undo
-        var prevDisc = JSON.parse(JSON.stringify(disc));
+    function closeDiscussionById(discId) {
+        var discs = getDiscussions();
+        var prevDiscs = JSON.parse(JSON.stringify(discs));
         var prevStory = JSON.parse(JSON.stringify(story));
-        var topic = disc.topic || 'discussion';
+        var topic = '';
 
-        disc.status = 'closed';
-        disc.ended = Date.now();
-        OpsFlow.set(DISC_KEY, disc);
+        for (var i = 0; i < discs.length; i++) {
+            if (discs[i].id === discId && discs[i].status === 'open') {
+                topic = discs[i].topic || 'discussion';
+                discs[i].status = 'closed';
+                discs[i].ended = Date.now();
+                break;
+            }
+        }
+        OpsFlow.set(DISC_KEY, discs);
 
-        // Mark the discussion branch as closed
-        for (var i = story.branches.length - 1; i >= 0; i--) {
-            if (story.branches[i].type === 'discussion' && !story.branches[i].closed) {
-                story.branches[i].closed = true;
-                story.branches[i].ended = Date.now();
+        // Mark the matching discussion branch as closed
+        for (var j = 0; j < story.branches.length; j++) {
+            if (story.branches[j].type === 'discussion' && story.branches[j].discId === discId && !story.branches[j].closed) {
+                story.branches[j].closed = true;
+                story.branches[j].ended = Date.now();
                 break;
             }
         }
@@ -478,7 +497,7 @@
         render();
 
         showUndoToast('Discussion closed: ' + topic, function() {
-            OpsFlow.set(DISC_KEY, prevDisc);
+            OpsFlow.set(DISC_KEY, prevDiscs);
             story = prevStory;
             saveStory();
             render();
@@ -486,15 +505,27 @@
     }
 
     function renderDiscussionState() {
-        var disc = getDiscussion();
-        var activeEl = document.getElementById('disc-active');
-        var topicEl = document.getElementById('disc-active-topic');
-        if (disc && disc.status === 'open') {
-            activeEl.classList.add('visible');
-            topicEl.textContent = disc.topic;
-        } else {
-            activeEl.classList.remove('visible');
-        }
+        var listEl = document.getElementById('disc-list');
+        var open = getOpenDiscussions();
+        if (open.length === 0) { listEl.innerHTML = ''; return; }
+
+        var html = '';
+        open.forEach(function(disc) {
+            html += '<div class="discussion-item">'
+                + '<div class="discussion-item-dot"></div>'
+                + '<span class="discussion-item-label">Discussion:</span>'
+                + '<span class="discussion-item-topic">' + escHtml(disc.topic) + '</span>'
+                + '<button class="btn-close-disc" data-disc-id="' + disc.id + '" title="Close this discussion">Close</button>'
+                + '</div>';
+        });
+        listEl.innerHTML = html;
+
+        // Wire close buttons
+        listEl.querySelectorAll('[data-disc-id]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                closeDiscussionById(btn.getAttribute('data-disc-id'));
+            });
+        });
     }
 
     // ═══ Undo Toast System ═══
@@ -631,14 +662,13 @@
 
         // Reset All: always enabled
 
-        // + Discussion: disabled if a discussion is currently open
+        // + Discussion: always enabled — you can stack multiple
         var btnDisc = document.getElementById('btn-discussion');
-        var disc = getDiscussion();
-        var discOpen = disc && disc.status === 'open';
-        btnDisc.disabled = discOpen;
-        btnDisc.title = discOpen
-            ? 'Close the current discussion first'
-            : 'Start a discussion chain — pauses workflow while we talk through something';
+        btnDisc.disabled = false;
+        var openCount = getOpenDiscussions().length;
+        btnDisc.title = openCount > 0
+            ? openCount + ' discussion(s) open — add another anytime'
+            : 'Start a discussion chain — jot down ideas while waiting on processes';
     }
 
     function render() {
@@ -1329,9 +1359,9 @@
     document.getElementById('btn-discussion').addEventListener('click', showDiscPrompt);
     document.getElementById('disc-start').addEventListener('click', startDiscussion);
     document.getElementById('disc-cancel').addEventListener('click', hideDiscPrompt);
-    document.getElementById('disc-close').addEventListener('click', closeDiscussion);
+    // Close buttons are wired dynamically in renderDiscussionState()
     document.getElementById('disc-topic').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') startDiscussion();
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); startDiscussion(); }
         if (e.key === 'Escape') hideDiscPrompt();
     });
 

@@ -4183,6 +4183,12 @@ function runMigrations() {
         markMigrationRun('v0.94.9_seed_changelog');
     }
 
+    // ── v0.95.0: Seed updated changelog data (multi-discussion + textarea) ──
+    if (ran.indexOf('v0.95.0_seed_changelog') === -1) {
+        OpsFlow.invalidate('opsflow_changelog');
+        markMigrationRun('v0.95.0_seed_changelog');
+    }
+
     if (changed) saveTasks(data);
 }
 
