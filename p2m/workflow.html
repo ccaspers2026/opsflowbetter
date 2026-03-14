@@ -862,17 +862,16 @@
                     if (seg.node.id === 'coding') trunkCodingX = seg.x;
 
                 } else if (seg.type === 'collapsed') {
-                    // Collapsed branch: fork down, dot on sub-lane, merge back
+                    // Collapsed branch: semi-circle down, horizontal line, semi-circle up
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
                     var forkX = seg.x + 10;
                     var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
-                    drawBranchArc(svg, forkX, baseY + 4, dotX, miniY - 12, COLORS.green);
-                    drawBranchArc(svg, dotX, miniY - 12, mergeBackX, baseY + 4, COLORS.green);
+                    drawMiniBranch(svg, forkX, mergeBackX, baseY, miniY, COLORS.green);
                     drawCollapsedBranch(svg, dotX, miniY, seg.branch, seg.bIdx);
 
                 } else if (seg.type === 'expanded') {
-                    // Full expanded branch
+                    // Full expanded branch — semi-circles + horizontal line
                     var branch = seg.branch;
                     var nodeKeys = branch.type === 'completion'
                         ? CHECKPOINT_NODES.concat(COMPLETION_EXTRA).map(function(n) { return n.id; })
@@ -884,12 +883,12 @@
                     var mergeX = branchEndX + NODE_SPACING;
                     var branchColor = branch.type === 'completion' ? '#1f6feb' : COLORS.branch;
 
-                    // Branch arc down (start just below trunk to avoid crossing trunk line)
-                    drawBranchArc(svg, branchStartX - NODE_SPACING * 0.4, baseY + 6, branchStartX, branchY, branchColor);
-                    // Branch horizontal line
-                    drawLine(svg, branchStartX, branchY, branchEndX, branchY, branchColor, 2);
-                    // Merge arc back up
-                    drawBranchArc(svg, branchEndX, branchY, mergeX + NODE_SPACING * 0.4, baseY + 6, branchColor);
+                    // Semi-circle fork down, horizontal line, semi-circle merge up
+                    var forkAnchorX = branchStartX - NODE_SPACING * 0.4;
+                    var mergeAnchorX = mergeX + NODE_SPACING * 0.4;
+                    drawSemiCircle(svg, forkAnchorX, baseY, branchY, branchColor, 'down');
+                    drawLine(svg, forkAnchorX, branchY, mergeAnchorX, branchY, branchColor, 2);
+                    drawSemiCircle(svg, mergeAnchorX, branchY, baseY, branchColor, 'up');
 
                     // Branch label
                     var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (seg.bIdx + 1);
@@ -915,16 +914,20 @@
                     drawSmallDot(svg, mergeX + NODE_SPACING * 0.4, baseY, '#484f58');
 
                 } else if (seg.type === 'discussion') {
-                    // Discussion chain: fork down, purple dot on sub-lane, merge back if closed
+                    // Discussion: semi-circle down, horizontal line, semi-circle up if closed
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
                     var miniY = baseY + MINI_BRANCH_DROP;
                     var isOpen = !seg.branch.closed;
                     var PURPLE = '#8b5cf6';
                     var forkX = seg.x + 10;
                     var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
-                    drawBranchArc(svg, forkX, baseY + 4, dotX, miniY - 12, PURPLE);
-                    if (!isOpen) {
-                        drawBranchArc(svg, dotX, miniY - 12, mergeBackX, baseY + 4, PURPLE);
+                    if (isOpen) {
+                        // Open: fork down + horizontal to dot (no merge back)
+                        drawSemiCircle(svg, forkX, baseY, miniY, PURPLE, 'down');
+                        drawLine(svg, forkX, miniY, dotX, miniY, PURPLE, 2);
+                    } else {
+                        // Closed: full mini-branch (fork, horizontal, merge)
+                        drawMiniBranch(svg, forkX, mergeBackX, baseY, miniY, PURPLE);
                     }
                     drawDiscussionDot(svg, dotX, miniY, seg.branch, seg.bIdx, isOpen);
 
@@ -941,33 +944,28 @@
             });
         });
 
-        // ── Draw row connectors (routed clear of branch elements) ──
+        // ── Draw row connectors: semi-circle down, horizontal, semi-circle up ──
         for (var ri = 0; ri < rows.length - 1; ri++) {
             var thisRowY = ri * ROW_HEIGHT + LEVEL_1_Y;
             var nextRowY = (ri + 1) * ROW_HEIGHT + LEVEL_1_Y;
             var lastSeg = rows[ri].segments[rows[ri].segments.length - 1];
-            var thisRowEndX = lastSeg.x + lastSeg.width + 20; // clear past last element
-            var nextRowStartX = LEFT_PAD - 20; // start before first element of next row
+            var thisRowEndX = lastSeg.x + lastSeg.width + 20;
+            var nextRowStartX = LEFT_PAD - 20;
 
-            // Route: go right past last element → curve down below branches → sweep left → curve up to next row start
-            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            var clearanceY = thisRowY + MINI_BRANCH_DROP + 50; // well below branch dots
-            var midX = (thisRowEndX + nextRowStartX) / 2;
-            var d = 'M ' + (thisRowEndX - 20) + ',' + thisRowY
-                + ' C ' + (thisRowEndX + 30) + ',' + thisRowY
-                + ' ' + (thisRowEndX + 30) + ',' + clearanceY
-                + ' ' + midX + ',' + clearanceY
-                + ' C ' + (nextRowStartX - 30) + ',' + clearanceY
-                + ' ' + (nextRowStartX - 30) + ',' + nextRowY
-                + ' ' + (nextRowStartX + 20) + ',' + nextRowY;
-            path.setAttribute('d', d);
-            path.setAttribute('stroke', COLORS.trunk);
-            path.setAttribute('stroke-width', '2');
-            path.setAttribute('fill', 'none');
-            path.setAttribute('stroke-linecap', 'round');
-            path.setAttribute('stroke-dasharray', '6,4');
-            path.setAttribute('opacity', '0.7');
-            svg.appendChild(path);
+            var clearanceY = thisRowY + MINI_BRANCH_DROP + 50;
+            // Semi-circle down at end of this row
+            drawSemiCircle(svg, thisRowEndX, thisRowY, clearanceY, COLORS.trunk, 'down');
+            // Horizontal line across at clearance level (dashed)
+            var hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            hLine.setAttribute('x1', thisRowEndX); hLine.setAttribute('y1', clearanceY);
+            hLine.setAttribute('x2', nextRowStartX); hLine.setAttribute('y2', clearanceY);
+            hLine.setAttribute('stroke', COLORS.trunk); hLine.setAttribute('stroke-width', '2');
+            hLine.setAttribute('stroke-linecap', 'round');
+            hLine.setAttribute('stroke-dasharray', '6,4');
+            hLine.setAttribute('opacity', '0.7');
+            svg.appendChild(hLine);
+            // Semi-circle up at start of next row
+            drawSemiCircle(svg, nextRowStartX, clearanceY, nextRowY, COLORS.trunk, 'up');
         }
     }
 
@@ -1082,17 +1080,34 @@
         svg.appendChild(line);
     }
 
-    function drawBranchArc(svg, x1, y1, x2, y2, color) {
+    // Semi-circle arc: draws a half-circle from (x,y1) curving to (x,y2)
+    // direction: 'down' = fork (trunk→branch), 'up' = merge (branch→trunk)
+    function drawSemiCircle(svg, x, y1, y2, color, direction) {
+        var r = Math.abs(y2 - y1) / 2;
+        if (r < 1) return;
         var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        // Cubic bezier for smooth arc
-        var midY = (y1 + y2) / 2;
-        var d = 'M ' + x1 + ',' + y1 + ' C ' + x1 + ',' + midY + ' ' + x2 + ',' + midY + ' ' + x2 + ',' + y2;
+        // sweep-flag: 1 = clockwise for fork-down (going right), 0 for merge-up (going right)
+        var sweep = direction === 'down' ? 1 : 0;
+        var d = 'M ' + x + ',' + y1 + ' A ' + r + ',' + r + ' 0 0 ' + sweep + ' ' + x + ',' + y2;
         path.setAttribute('d', d);
         path.setAttribute('stroke', color);
         path.setAttribute('stroke-width', '2');
         path.setAttribute('fill', 'none');
         path.setAttribute('stroke-linecap', 'round');
         svg.appendChild(path);
+    }
+
+    // Draw a mini-branch: semi-circle down at fork, horizontal line, semi-circle up at merge
+    function drawMiniBranch(svg, forkX, mergeX, trunkY, branchY, color) {
+        var r = Math.abs(branchY - trunkY) / 2;
+        // Semi-circle down at fork point
+        drawSemiCircle(svg, forkX, trunkY, branchY, color, 'down');
+        // Horizontal line at branch level (from end of fork semi-circle to start of merge semi-circle)
+        if (mergeX > forkX) {
+            drawLine(svg, forkX, branchY, mergeX, branchY, color, 2);
+        }
+        // Semi-circle up at merge point
+        drawSemiCircle(svg, mergeX, branchY, trunkY, color, 'up');
     }
 
     function drawNode(svg, x, y, color, label, who, onClick, tooltip) {
