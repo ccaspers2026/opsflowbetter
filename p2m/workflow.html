@@ -53,6 +53,8 @@
         .btn-danger:hover { background: #f85149; }
         .btn-completion { background: #1f6feb; color: #fff; border-color: #1f6feb; }
         .btn-completion:hover { background: #388bfd; }
+        .btn-discussion { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
+        .btn-discussion:hover { background: #a78bfa; }
         .controls-sep { width: 1px; height: 24px; background: #21262d; }
         .cycle-label { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -142,6 +144,22 @@
         .action-btn-dismiss:hover { color: #8b949e; }
         @keyframes bannerIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* ═══ Discussion Prompt ═══ */
+        .discussion-prompt { display: none; align-items: center; gap: 8px; margin-top: 8px; animation: bannerIn 0.2s ease-out; }
+        .discussion-prompt.visible { display: flex; }
+        .discussion-prompt input { flex: 1; background: #0d1117; border: 1px solid #8b5cf6; border-radius: 6px; padding: 6px 12px; font-size: 12px; color: #e6edf3; outline: none; max-width: 320px; }
+        .discussion-prompt input:focus { border-color: #a78bfa; box-shadow: 0 0 0 2px rgba(139,92,246,0.2); }
+        .discussion-prompt .btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; }
+
+        /* ═══ Active Discussion Indicator ═══ */
+        .discussion-active { display: none; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; margin-bottom: 12px; }
+        .discussion-active.visible { display: flex; }
+        .discussion-active-dot { width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; animation: pulse 1.5s ease-in-out infinite; }
+        .discussion-active-label { font-size: 12px; color: #a78bfa; font-weight: 600; }
+        .discussion-active-topic { font-size: 12px; color: #c9d1d9; flex: 1; }
+        .discussion-active .btn-close-disc { padding: 4px 12px; font-size: 11px; background: #8b5cf6; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        .discussion-active .btn-close-disc:hover { background: #a78bfa; }
     </style>
 </head>
 <body>
@@ -176,10 +194,24 @@
             <div class="controls-bar">
                 <button class="btn btn-primary" id="btn-checkpoint" title="Add a checkpoint branch (commit/push/deploy/verify cycle)">+ Checkpoint</button>
                 <button class="btn btn-completion" id="btn-completion" title="Add a completion branch (full cycle with testing and done)">+ Completion</button>
+                <button class="btn btn-discussion" id="btn-discussion" title="Start a discussion chain — pauses workflow while we talk through something">+ Discussion</button>
                 <div class="controls-sep"></div>
                 <button class="btn btn-secondary" id="btn-new-story" title="Archive current story to history and start fresh">New Story</button>
                 <button class="btn btn-danger" id="btn-reset" title="Clear everything \u2014 active story and all history">Reset All</button>
             </div>
+            <div class="discussion-prompt" id="disc-prompt">
+                <input type="text" id="disc-topic" placeholder="What are we discussing?" maxlength="80">
+                <button class="btn btn-discussion btn-sm" id="disc-start">Start</button>
+                <button class="btn btn-secondary btn-sm" id="disc-cancel">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Active Discussion Indicator -->
+        <div class="discussion-active" id="disc-active">
+            <div class="discussion-active-dot"></div>
+            <span class="discussion-active-label">Discussion:</span>
+            <span class="discussion-active-topic" id="disc-active-topic"></span>
+            <button class="btn-close-disc" id="disc-close" title="Close discussion and resume workflow">Close Discussion</button>
         </div>
 
         <!-- Action Queue Banner -->
@@ -383,6 +415,75 @@
         render();
     }
 
+    // ═══ Discussion Chain ═══
+    var DISC_KEY = 'opsflow_discussion';
+
+    function getDiscussion() {
+        return OpsFlow.getLocal(DISC_KEY) || null;
+    }
+
+    function showDiscPrompt() {
+        document.getElementById('disc-prompt').classList.add('visible');
+        document.getElementById('disc-topic').value = '';
+        document.getElementById('disc-topic').focus();
+    }
+    function hideDiscPrompt() {
+        document.getElementById('disc-prompt').classList.remove('visible');
+    }
+
+    function startDiscussion() {
+        var topic = document.getElementById('disc-topic').value.trim();
+        if (!topic) { document.getElementById('disc-topic').focus(); return; }
+        var disc = {
+            topic: topic,
+            started: Date.now(),
+            status: 'open'
+        };
+        OpsFlow.set(DISC_KEY, disc);
+        // Also add a discussion branch to the story for visual tracking
+        story.branches.push({
+            type: 'discussion',
+            topic: topic,
+            nodes: {},
+            version: '',
+            started: Date.now()
+        });
+        saveStory();
+        hideDiscPrompt();
+        render();
+    }
+
+    function closeDiscussion() {
+        var disc = getDiscussion();
+        if (disc) {
+            disc.status = 'closed';
+            disc.ended = Date.now();
+            OpsFlow.set(DISC_KEY, disc);
+        }
+        // Mark the discussion branch as closed
+        for (var i = story.branches.length - 1; i >= 0; i--) {
+            if (story.branches[i].type === 'discussion' && !story.branches[i].closed) {
+                story.branches[i].closed = true;
+                story.branches[i].ended = Date.now();
+                break;
+            }
+        }
+        saveStory();
+        render();
+    }
+
+    function renderDiscussionState() {
+        var disc = getDiscussion();
+        var activeEl = document.getElementById('disc-active');
+        var topicEl = document.getElementById('disc-active-topic');
+        if (disc && disc.status === 'open') {
+            activeEl.classList.add('visible');
+            topicEl.textContent = disc.topic;
+        } else {
+            activeEl.classList.remove('visible');
+        }
+    }
+
     // ═══ Undo Toast System ═══
     var undoTimer = null;
     var undoToastEl = null;
@@ -442,15 +543,48 @@
         }, 5000);
     }
 
-    // ═══ Auto-detection ═══
+    // ═══ Auto-detection + PQ Status Sync ═══
     function autoDetect() {
         var tasksData = OpsFlow.getLocal(PQ_KEY);
-        var pq = (tasksData && tasksData.priorityQueue) ? tasksData.priorityQueue : [];
+        if (!tasksData) return;
+        var pq = tasksData.priorityQueue || [];
 
+        // PQ → Trunk: if any PQ item is in-progress, set coding to yellow
         var hasInProgress = pq.some(function(i) { return i.status === 'in-progress'; });
         if (hasInProgress && story.trunk.coding === 'red') {
             story.trunk.coding = 'yellow';
             saveStory();
+        }
+
+        // Trunk → PQ: derive correct PQ status from workflow state
+        var derivedStatus = null;
+        var hasCompDone = story.branches.some(function(b) {
+            return b.type === 'completion' && isBranchComplete(b);
+        });
+        var hasCheckpointDone = story.branches.some(function(b) {
+            return b.type === 'checkpoint' && isBranchComplete(b);
+        });
+
+        if (hasCompDone) derivedStatus = 'done';
+        else if (hasCheckpointDone) derivedStatus = 'deployed';
+        else if (story.trunk.coding === 'yellow' || story.trunk.coding === 'green') derivedStatus = 'in-progress';
+
+        if (derivedStatus) {
+            var changed = false;
+            var STATUS_RANK = { 'new': 0, 'discussing': 1, 'in-progress': 2, 'deployed': 3, 'testing': 4, 'done': 5 };
+            pq.forEach(function(item) {
+                var cur = (item.status || 'new').toLowerCase().replace(/\s+/g, '-');
+                var curRank = STATUS_RANK[cur] !== undefined ? STATUS_RANK[cur] : 0;
+                var newRank = STATUS_RANK[derivedStatus] !== undefined ? STATUS_RANK[derivedStatus] : 0;
+                // Only promote forward, never demote
+                if (newRank > curRank) {
+                    item.status = derivedStatus;
+                    changed = true;
+                }
+            });
+            if (changed) {
+                OpsFlow.set(PQ_KEY, tasksData);
+            }
         }
     }
 
@@ -483,11 +617,21 @@
             : 'No branches to archive yet';
 
         // Reset All: always enabled
+
+        // + Discussion: disabled if a discussion is currently open
+        var btnDisc = document.getElementById('btn-discussion');
+        var disc = getDiscussion();
+        var discOpen = disc && disc.status === 'open';
+        btnDisc.disabled = discOpen;
+        btnDisc.title = discOpen
+            ? 'Close the current discussion first'
+            : 'Start a discussion chain — pauses workflow while we talk through something';
     }
 
     function render() {
         autoDetect();
         updateButtonStates();
+        renderDiscussionState();
         renderSVG();
         renderPQ();
         renderHistory();
@@ -506,6 +650,7 @@
 
     // ═══ Helper: width a branch takes on the trunk ═══
     function branchWidth(branch) {
+        if (branch.type === 'discussion') return COLLAPSED_WIDTH; // discussions are always compact
         if (isBranchComplete(branch)) return COLLAPSED_WIDTH;
         var nodeCount = Object.keys(branch.nodes).length;
         return nodeCount * NODE_SPACING + NODE_SPACING; // nodes + merge gap
@@ -530,12 +675,22 @@
 
         // Each branch
         story.branches.forEach(function(branch, bIdx) {
-            segments.push({
-                type: isBranchComplete(branch) ? 'collapsed' : 'expanded',
-                branch: branch,
-                bIdx: bIdx,
-                width: branchWidth(branch)
-            });
+            if (branch.type === 'discussion') {
+                // Discussions always render as compact segments
+                segments.push({
+                    type: 'discussion',
+                    branch: branch,
+                    bIdx: bIdx,
+                    width: COLLAPSED_WIDTH
+                });
+            } else {
+                segments.push({
+                    type: isBranchComplete(branch) ? 'collapsed' : 'expanded',
+                    branch: branch,
+                    bIdx: bIdx,
+                    width: branchWidth(branch)
+                });
+            }
         });
 
         // Story Done node if completion exists
@@ -660,6 +815,12 @@
                     // Merge point on trunk
                     drawSmallDot(svg, mergeX + NODE_SPACING * 0.5, baseY, '#484f58');
 
+                } else if (seg.type === 'discussion') {
+                    // Discussion chain: purple dot on trunk
+                    var dotX = seg.x + COLLAPSED_WIDTH / 2;
+                    var isOpen = !seg.branch.closed;
+                    drawDiscussionDot(svg, dotX, baseY, seg.branch, seg.bIdx, isOpen);
+
                 } else if (seg.type === 'storyDone') {
                     var doneStatus = 'red';
                     var compBranch = story.branches.find(function(b) { return b.type === 'completion'; });
@@ -745,6 +906,55 @@
         g.addEventListener('click', function() {
             deleteBranchWithUndo(bIdx);
         });
+
+        svg.appendChild(g);
+    }
+
+    function drawDiscussionDot(svg, x, y, branch, bIdx, isOpen) {
+        var PURPLE = '#8b5cf6';
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('style', 'cursor:pointer;');
+
+        // Glow (pulsing if open)
+        var glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        glow.setAttribute('cx', x); glow.setAttribute('cy', y);
+        glow.setAttribute('r', isOpen ? 12 : 10);
+        glow.setAttribute('fill', PURPLE); glow.setAttribute('opacity', isOpen ? '0.35' : '0.2');
+        g.appendChild(glow);
+
+        // Circle
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x); circle.setAttribute('cy', y);
+        circle.setAttribute('r', isOpen ? 9 : 7);
+        circle.setAttribute('fill', isOpen ? PURPLE : '#6d28d9');
+        circle.setAttribute('stroke', '#0d1117'); circle.setAttribute('stroke-width', '1.5');
+        g.appendChild(circle);
+
+        // Icon: speech bubble (unicode)
+        var icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        icon.setAttribute('x', x); icon.setAttribute('y', y + (isOpen ? 4 : 3));
+        icon.setAttribute('font-size', isOpen ? '10px' : '8px'); icon.setAttribute('fill', '#fff');
+        icon.setAttribute('text-anchor', 'middle');
+        icon.setAttribute('style', 'pointer-events:none;');
+        icon.textContent = '\u2731'; // reference mark ※ — distinctive
+        g.appendChild(icon);
+
+        // Label below
+        var topicShort = (branch.topic || '').substring(0, 12);
+        if ((branch.topic || '').length > 12) topicShort += '\u2026';
+        drawText(svg, x, y + 22, isOpen ? 'Disc' : 'Disc', '8px', PURPLE, 'node-label', true);
+        drawText(svg, x, y + 32, topicShort, '7px', '#484f58', 'node-label', true);
+
+        // Tooltip
+        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        var statusText = isOpen ? 'Active discussion' : 'Closed discussion';
+        title.textContent = statusText + ': ' + (branch.topic || 'untitled');
+        g.appendChild(title);
+
+        // Click to delete (closed) or do nothing (open)
+        if (!isOpen) {
+            g.addEventListener('click', function() { deleteBranchWithUndo(bIdx); });
+        }
 
         svg.appendChild(g);
     }
@@ -1077,6 +1287,16 @@
     document.getElementById('btn-new-story').addEventListener('click', newStory);
     document.getElementById('btn-reset').addEventListener('click', resetAll);
 
+    // Discussion controls
+    document.getElementById('btn-discussion').addEventListener('click', showDiscPrompt);
+    document.getElementById('disc-start').addEventListener('click', startDiscussion);
+    document.getElementById('disc-cancel').addEventListener('click', hideDiscPrompt);
+    document.getElementById('disc-close').addEventListener('click', closeDiscussion);
+    document.getElementById('disc-topic').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') startDiscussion();
+        if (e.key === 'Escape') hideDiscPrompt();
+    });
+
     // Listen for storage changes (other tabs)
     window.addEventListener('storage', function(e) {
         if (e.key === PQ_KEY || e.key === 'opsflow_version') render();
@@ -1090,7 +1310,8 @@
         var h = JSON.stringify(OpsFlow.getLocal(HISTORY_KEY) || []);
         var v = localStorage.getItem('opsflow_version') || '';
         var a = JSON.stringify(OpsFlow.getLocal(ACTION_KEY) || {});
-        return s + '|' + p + '|' + h + '|' + v + '|' + a;
+        var d = JSON.stringify(OpsFlow.getLocal(DISC_KEY) || {});
+        return s + '|' + p + '|' + h + '|' + v + '|' + a + '|' + d;
     }
     _lastSnapshot = getStateSnapshot();
     setInterval(function() {

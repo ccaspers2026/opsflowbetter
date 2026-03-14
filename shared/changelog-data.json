@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.94.7",
+    "date": "March 13, 2026",
+    "tag": "NEW",
+    "title": "Discussion Chains + PQ Auto-Sync",
+    "items": [
+      "Discussion Chain: click + Discussion to pause workflow and start a discussion. Purple dot appears on the trunk with topic label. Close it when done and workflow resumes where you left off",
+      "PQ status auto-sync: workflow state now drives PQ item statuses automatically — coding starts marks items In Progress, checkpoint deploys mark Deployed, completion marks Done. No more manual status migrations",
+      "Discussion button disables when a discussion is already open. All buttons show contextual disabled tooltips"
+    ]
+  },
+  {
     "version": "v0.94.6",
     "date": "March 13, 2026",
     "tag": "UPDATE",
