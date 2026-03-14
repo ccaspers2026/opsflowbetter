@@ -1179,6 +1179,16 @@
         }
         banner.classList.add('visible');
 
+        // Auto-create checkpoint when commit_push action appears
+        if (action.type === 'commit_push') {
+            var cp = ensureActiveCheckpoint();
+            if (cp.nodes.commit !== 'green') {
+                cp.nodes.commit = 'green'; // Commit Ready
+                saveStory();
+                render();
+            }
+        }
+
         var timeAgo = '';
         if (action.created) {
             var secs = Math.floor((Date.now() - action.created) / 1000);
@@ -1246,12 +1256,46 @@
         });
     }
 
+    // ═══ Action → Checkpoint LED auto-sync ═══
+    function getActiveCheckpoint() {
+        for (var i = story.branches.length - 1; i >= 0; i--) {
+            if (story.branches[i].type === 'checkpoint' && !isBranchComplete(story.branches[i])) return story.branches[i];
+        }
+        return null;
+    }
+
+    function ensureActiveCheckpoint() {
+        var active = getActiveCheckpoint();
+        if (!active) {
+            var nodes = {};
+            CHECKPOINT_NODES.forEach(function(n) { nodes[n.id] = 'red'; });
+            var ver = OpsFlow.getLocal('opsflow_version') || '?';
+            active = { type: 'checkpoint', nodes: nodes, version: 'v' + ver };
+            story.branches.push(active);
+            saveStory();
+        }
+        return active;
+    }
+
+    function advanceCheckpointTo(stepId) {
+        var cp = ensureActiveCheckpoint();
+        var allSteps = CHECKPOINT_NODES.map(function(n) { return n.id; });
+        var targetIdx = allSteps.indexOf(stepId);
+        if (targetIdx === -1) return;
+        for (var i = 0; i <= targetIdx; i++) {
+            cp.nodes[allSteps[i]] = 'green';
+        }
+        saveStory();
+        render();
+    }
+
     function respondToAction(response) {
         var action = OpsFlow.getLocal(ACTION_KEY);
         if (!action || !action.id) return;
 
         // Save previous state for undo
         var prevAction = JSON.parse(JSON.stringify(action));
+        var prevStory = JSON.parse(JSON.stringify(story));
 
         action.status = (response === 'dismissed') ? 'dismissed' : 'completed';
         action.response = response;
@@ -1259,11 +1303,22 @@
         OpsFlow.set(ACTION_KEY, action);
         renderActionBanner();
 
-        // Undo toast (skip for dismiss — that's intentional)
+        // Auto-advance checkpoint LEDs based on action type + response
         if (response !== 'dismissed') {
+            if (action.type === 'commit_push') {
+                // User confirmed commit+push → advance through pushed
+                advanceCheckpointTo('pushed');
+            } else if (action.type === 'deploy_confirm') {
+                // User confirmed deploy → advance through verify (all green)
+                advanceCheckpointTo('verify');
+            }
+
             showUndoToast('Action marked ' + response, function() {
                 OpsFlow.set(ACTION_KEY, prevAction);
+                story = prevStory;
+                saveStory();
                 renderActionBanner();
+                render();
             });
         }
     }
