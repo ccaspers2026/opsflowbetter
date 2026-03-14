@@ -886,9 +886,10 @@
                     // Semi-circle fork down, horizontal line, semi-circle merge up
                     var forkAnchorX = branchStartX - NODE_SPACING * 0.4;
                     var mergeAnchorX = mergeX + NODE_SPACING * 0.4;
-                    drawSemiCircle(svg, forkAnchorX, baseY, branchY, branchColor, 'down');
-                    drawLine(svg, forkAnchorX, branchY, mergeAnchorX, branchY, branchColor, 2);
-                    drawSemiCircle(svg, mergeAnchorX, branchY, baseY, branchColor, 'up');
+                    var cornerR = 12;
+                    drawForkPath(svg, forkAnchorX, baseY, branchY, branchColor, cornerR);
+                    drawLine(svg, forkAnchorX + cornerR, branchY, mergeAnchorX - cornerR, branchY, branchColor, 2);
+                    drawMergePath(svg, mergeAnchorX, baseY, branchY, branchColor, cornerR);
 
                     // Branch label
                     var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (seg.bIdx + 1);
@@ -923,8 +924,9 @@
                     var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
                     if (isOpen) {
                         // Open: fork down + horizontal to dot (no merge back)
-                        drawSemiCircle(svg, forkX, baseY, miniY, PURPLE, 'down');
-                        drawLine(svg, forkX, miniY, dotX, miniY, PURPLE, 2);
+                        var r = 12;
+                        drawForkPath(svg, forkX, baseY, miniY, PURPLE, r);
+                        drawLine(svg, forkX + r, miniY, dotX, miniY, PURPLE, 2);
                     } else {
                         // Closed: full mini-branch (fork, horizontal, merge)
                         drawMiniBranch(svg, forkX, mergeBackX, baseY, miniY, PURPLE);
@@ -944,7 +946,7 @@
             });
         });
 
-        // ── Draw row connectors: semi-circle down, horizontal, semi-circle up ──
+        // ── Draw row connectors: rounded-corner drop, horizontal dash, rounded-corner rise ──
         for (var ri = 0; ri < rows.length - 1; ri++) {
             var thisRowY = ri * ROW_HEIGHT + LEVEL_1_Y;
             var nextRowY = (ri + 1) * ROW_HEIGHT + LEVEL_1_Y;
@@ -953,19 +955,20 @@
             var nextRowStartX = LEFT_PAD - 20;
 
             var clearanceY = thisRowY + MINI_BRANCH_DROP + 50;
-            // Semi-circle down at end of this row
-            drawSemiCircle(svg, thisRowEndX, thisRowY, clearanceY, COLORS.trunk, 'down');
-            // Horizontal line across at clearance level (dashed)
+            var cR = 16;
+            // Fork down at end of row
+            drawForkPath(svg, thisRowEndX, thisRowY, clearanceY, COLORS.trunk, cR);
+            // Dashed horizontal line at clearance level
             var hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            hLine.setAttribute('x1', thisRowEndX); hLine.setAttribute('y1', clearanceY);
-            hLine.setAttribute('x2', nextRowStartX); hLine.setAttribute('y2', clearanceY);
+            hLine.setAttribute('x1', thisRowEndX + cR); hLine.setAttribute('y1', clearanceY);
+            hLine.setAttribute('x2', nextRowStartX - cR); hLine.setAttribute('y2', clearanceY);
             hLine.setAttribute('stroke', COLORS.trunk); hLine.setAttribute('stroke-width', '2');
             hLine.setAttribute('stroke-linecap', 'round');
             hLine.setAttribute('stroke-dasharray', '6,4');
             hLine.setAttribute('opacity', '0.7');
             svg.appendChild(hLine);
-            // Semi-circle up at start of next row
-            drawSemiCircle(svg, nextRowStartX, clearanceY, nextRowY, COLORS.trunk, 'up');
+            // Merge up at start of next row
+            drawMergePath(svg, nextRowStartX, nextRowY, clearanceY, COLORS.trunk, cR);
         }
     }
 
@@ -1082,13 +1085,16 @@
 
     // Semi-circle arc: draws a half-circle from (x,y1) curving to (x,y2)
     // direction: 'down' = fork (trunk→branch), 'up' = merge (branch→trunk)
-    function drawSemiCircle(svg, x, y1, y2, color, direction) {
-        var r = Math.abs(y2 - y1) / 2;
-        if (r < 1) return;
+    // Draw a fork path: vertical drop from trunk with rounded corner to horizontal
+    // Goes from (x, trunkY) down to (x, branchY) then right, with radius-r corner
+    function drawForkPath(svg, x, trunkY, branchY, color, r) {
+        r = r || 12;
+        var drop = Math.abs(branchY - trunkY);
+        if (drop < r * 2) r = drop / 2;
         var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        // sweep-flag: 1 = clockwise for fork-down (going right), 0 for merge-up (going right)
-        var sweep = direction === 'down' ? 1 : 0;
-        var d = 'M ' + x + ',' + y1 + ' A ' + r + ',' + r + ' 0 0 ' + sweep + ' ' + x + ',' + y2;
+        var d = 'M ' + x + ',' + trunkY
+            + ' L ' + x + ',' + (branchY - r)
+            + ' A ' + r + ',' + r + ' 0 0 0 ' + (x + r) + ',' + branchY;
         path.setAttribute('d', d);
         path.setAttribute('stroke', color);
         path.setAttribute('stroke-width', '2');
@@ -1097,17 +1103,35 @@
         svg.appendChild(path);
     }
 
-    // Draw a mini-branch: semi-circle down at fork, horizontal line, semi-circle up at merge
+    // Draw a merge path: horizontal to vertical rise back to trunk with rounded corner
+    // Goes from horizontal at branchY up to (x, trunkY), with radius-r corner
+    function drawMergePath(svg, x, trunkY, branchY, color, r) {
+        r = r || 12;
+        var drop = Math.abs(branchY - trunkY);
+        if (drop < r * 2) r = drop / 2;
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        var d = 'M ' + (x - r) + ',' + branchY
+            + ' A ' + r + ',' + r + ' 0 0 0 ' + x + ',' + (branchY - r)
+            + ' L ' + x + ',' + trunkY;
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(path);
+    }
+
+    // Draw a mini-branch: fork down (rounded corner), horizontal line, merge up (rounded corner)
     function drawMiniBranch(svg, forkX, mergeX, trunkY, branchY, color) {
-        var r = Math.abs(branchY - trunkY) / 2;
-        // Semi-circle down at fork point
-        drawSemiCircle(svg, forkX, trunkY, branchY, color, 'down');
-        // Horizontal line at branch level (from end of fork semi-circle to start of merge semi-circle)
-        if (mergeX > forkX) {
-            drawLine(svg, forkX, branchY, mergeX, branchY, color, 2);
+        var r = 12;
+        drawForkPath(svg, forkX, trunkY, branchY, color, r);
+        // Horizontal line at branch level between the two corners
+        var hStart = forkX + r;
+        var hEnd = mergeX - r;
+        if (hEnd > hStart) {
+            drawLine(svg, hStart, branchY, hEnd, branchY, color, 2);
         }
-        // Semi-circle up at merge point
-        drawSemiCircle(svg, mergeX, branchY, trunkY, color, 'up');
+        drawMergePath(svg, mergeX, trunkY, branchY, color, r);
     }
 
     function drawNode(svg, x, y, color, label, who, onClick, tooltip) {
