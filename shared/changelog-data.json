@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.94.8",
+    "date": "March 13, 2026",
+    "tag": "FIX",
+    "title": "Backlog Rendering — Dynamic Groups",
+    "items": [
+      "Fixed Backlog section not showing items — was hardcoded to look for Now/Soon/Later groups but actual data uses Pipeline, AI, Architecture, Services, etc.",
+      "Groups now render dynamically from whatever group names exist in the data, sorted alphabetically with color-coded labels",
+      "Each item shows its group badge, status badge, and full description on hover"
+    ]
+  },
+  {
     "version": "v0.94.7",
     "date": "March 13, 2026",
     "tag": "NEW",

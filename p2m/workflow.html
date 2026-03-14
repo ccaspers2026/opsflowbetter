@@ -1245,25 +1245,38 @@
         var el = document.getElementById('backlog-groups');
         if (backlog.length === 0) { el.innerHTML = '<div class="empty-state">No backlog items</div>'; return; }
 
-        // Group by priority: Now, Soon, Later
-        var groups = { Now: [], Soon: [], Later: [] };
+        // Group dynamically by whatever group field items have
+        var groups = {};
+        var groupOrder = [];
         backlog.forEach(function(item) {
-            var g = item.group || 'Later';
-            if (!groups[g]) groups[g] = [];
+            var g = item.group || 'Other';
+            if (!groups[g]) { groups[g] = []; groupOrder.push(g); }
             groups[g].push(item);
         });
+        // Sort groups alphabetically
+        groupOrder.sort();
+
+        // Color map for known groups
+        var GROUP_COLORS = {
+            Pipeline: '#d29922', AI: '#8b5cf6', Architecture: '#1f6feb',
+            Infrastructure: '#f0883e', Services: '#2ea44f', UX: '#e6edf3',
+            QA: '#f85149', Media: '#388bfd', Workshop: '#a78bfa',
+            Keywords: '#58a6ff', Templates: '#8b949e'
+        };
 
         var html = '';
-        ['Now', 'Soon', 'Later'].forEach(function(groupName) {
+        groupOrder.forEach(function(groupName) {
             var items = groups[groupName];
             if (!items || items.length === 0) return;
-            html += '<div class="backlog-group-label ' + groupName.toLowerCase() + '">' + groupName + ' (' + items.length + ')</div>';
+            var gColor = GROUP_COLORS[groupName] || '#8b949e';
+            html += '<div class="backlog-group-label" style="color:' + gColor + '">' + escHtml(groupName) + ' (' + items.length + ')</div>';
             items.forEach(function(item) {
                 var title = item.title || 'Untitled';
                 var statusClass = item.status ? item.status.toLowerCase().replace(/\s+/g, '-') : '';
                 html += '<div class="backlog-item" title="' + escHtml(item.desc || title) + '">'
-                    + '<span class="backlog-item-title">' + escHtml(title) + '</span>';
-                if (item.status && item.status !== 'New') {
+                    + '<span class="backlog-item-title">' + escHtml(title) + '</span>'
+                    + '<span class="backlog-item-group" style="background:' + gColor + '20;color:' + gColor + '">' + escHtml(groupName) + '</span>';
+                if (item.status && item.status.toLowerCase() !== 'new') {
                     html += '<span class="status-badge ' + statusClass + '">' + escHtml(item.status) + '</span>';
                 }
                 html += '</div>';
