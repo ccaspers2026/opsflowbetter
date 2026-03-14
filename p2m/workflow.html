@@ -1016,8 +1016,8 @@
                     var branchEndX = seg.x + (nodeCount - 1) * NODE_SPACING;
                     var mergeX = branchEndX + NODE_SPACING;
                     var branchColor = branch.type === 'completion' ? '#1f6feb' : COLORS.branch;
-                    var forkAnchorX = branchStartX - NODE_SPACING * 0.4;
-                    var mergeAnchorX = mergeX + NODE_SPACING * 0.4;
+                    var forkAnchorX = branchStartX - NODE_SPACING;
+                    var mergeAnchorX = mergeX + NODE_SPACING;
 
                     // Register elements for collision avoidance
                     addElement(map, 'fork-exp-' + seg.bIdx, 'fork-point', forkAnchorX - 2, baseY - 2, 4, 4);
