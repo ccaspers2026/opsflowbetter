@@ -510,10 +510,13 @@
         if (open.length === 0) { listEl.innerHTML = ''; return; }
 
         var html = '';
+        var allDiscs = getDiscussions();
         open.forEach(function(disc) {
+            var num = allDiscs.indexOf(disc) + 1;
+            if (num === 0) { for (var d = 0; d < allDiscs.length; d++) { if (allDiscs[d].id === disc.id) { num = d + 1; break; } } }
             html += '<div class="discussion-item">'
                 + '<div class="discussion-item-dot"></div>'
-                + '<span class="discussion-item-label">Discussion:</span>'
+                + '<span class="discussion-item-label">Discussion #' + num + ':</span>'
                 + '<span class="discussion-item-topic">' + escHtml(disc.topic) + '</span>'
                 + '<button class="btn-close-disc" data-disc-id="' + disc.id + '" title="Close this discussion">Close</button>'
                 + '</div>';
@@ -591,7 +594,7 @@
     function autoDetect() {
         var tasksData = OpsFlow.getLocal(PQ_KEY);
         if (!tasksData) return;
-        var pq = tasksData.priorityQueue || [];
+        var pq = tasksData.priority || [];
 
         // PQ → Trunk: if any PQ item is in-progress, set coding to yellow
         var hasInProgress = pq.some(function(i) { return i.status === 'in-progress'; });
@@ -985,13 +988,16 @@
         // Label below
         var topicShort = (branch.topic || '').substring(0, 12);
         if ((branch.topic || '').length > 12) topicShort += '\u2026';
-        drawText(svg, x, y + 22, isOpen ? 'Disc' : 'Disc', '8px', PURPLE, 'node-label', true);
+        var discNum = '';
+        var allDiscs = getDiscussions();
+        for (var di = 0; di < allDiscs.length; di++) { if (allDiscs[di].id === branch.discId) { discNum = '#' + (di + 1); break; } }
+        drawText(svg, x, y + 22, 'Disc ' + discNum, '8px', PURPLE, 'node-label', true);
         drawText(svg, x, y + 32, topicShort, '7px', '#484f58', 'node-label', true);
 
         // Tooltip
         var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
         var statusText = isOpen ? 'Active discussion' : 'Closed discussion';
-        title.textContent = statusText + ': ' + (branch.topic || 'untitled');
+        title.textContent = statusText + ' ' + discNum + ': ' + (branch.topic || 'untitled');
         g.appendChild(title);
 
         // Click to delete (closed) or do nothing (open)
@@ -1255,7 +1261,7 @@
     function renderPQ() {
         var el = document.getElementById('pq-list');
         var tasksData = OpsFlow.getLocal(PQ_KEY);
-        var pq = (tasksData && tasksData.priorityQueue) ? tasksData.priorityQueue : [];
+        var pq = (tasksData && tasksData.priority) ? tasksData.priority : [];
         if (pq.length === 0) { el.innerHTML = '<div class="empty-state">No items in Priority Queue</div>'; return; }
         el.innerHTML = '';
         pq.forEach(function(item) {
