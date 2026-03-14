@@ -1077,28 +1077,26 @@
             });
         });
 
-        // Row-wrap connectors
-        for (var ri = 0; ri < rows.length - 1; ri++) {
-            var thisRowY = ri * ROW_HEIGHT + LEVEL_1_Y;
-            var nextRowY = (ri + 1) * ROW_HEIGHT + LEVEL_1_Y;
-            var lastSeg = rows[ri].segments[rows[ri].segments.length - 1];
-            var rowEndX = lastSeg.x + lastSeg.width + 20;
-            var nextStartX = LEFT_PAD - 20;
-            var clearanceY = thisRowY + MINI_BRANCH_DROP + 50;
-
-            var endEl = addElement(map, 'rowend-' + ri, 'row-end', rowEndX - 2, thisRowY - 2, 4, 4);
-            var startEl = addElement(map, 'rowstart-' + (ri + 1), 'row-start', nextStartX - 2, nextRowY - 2, 4, 4);
-            addConnector(map, endEl, 'bottom', startEl, 'top', COLORS.trunk, { clearanceY: clearanceY, dash: '6,4', opacity: 0.7 });
-        }
-
         // ── PHASE 3: Draw everything from the map ──
 
-        // 3a: Draw trunk lines
+        // 3a: Draw trunk lines + row-wrap connectors
         rows.forEach(function(row, rIdx) {
             var baseY = rIdx * ROW_HEIGHT + LEVEL_1_Y;
             var rowStartX = row.segments[0].x;
             var rowEndX = row.segments[row.segments.length - 1].x + row.segments[row.segments.length - 1].width - 20;
             drawLine(svg, rowStartX, baseY, rowEndX, baseY, COLORS.trunk, 2);
+
+            // Row-wrap: route down the right side, then left to next row start
+            if (rIdx < rows.length - 1) {
+                var nextRow = rows[rIdx + 1];
+                var nextBaseY = (rIdx + 1) * ROW_HEIGHT + LEVEL_1_Y;
+                var nextStartX = nextRow.segments[0].x;
+                drawRoutedPath(svg, [
+                    { x: rowEndX, y: baseY },
+                    { x: rowEndX, y: nextBaseY },
+                    { x: nextStartX, y: nextBaseY }
+                ], COLORS.trunk, { dash: '4,4', opacity: 0.5, radius: 20 });
+            }
         });
 
         // 3b: Draw connectors (routed paths with rounded corners)
