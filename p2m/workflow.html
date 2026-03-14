@@ -266,7 +266,8 @@
     var LEFT_PAD = 60;
     var MAX_ROW_WIDTH = 1080;
     var ROW_HEIGHT = 180;
-    var COLLAPSED_WIDTH = 60;
+    var COLLAPSED_WIDTH = 90;
+    var MINI_BRANCH_DROP = 50; // how far below trunk collapsed/discussion branches drop
 
     var COLORS = { red: '#f85149', yellow: '#d29922', green: '#2ea44f', trunk: '#30363d', branch: '#30363d' };
 
@@ -784,7 +785,9 @@
         // ── Calculate SVG dimensions ──
         var svgWidth = MAX_ROW_WIDTH + 40;
         var svgHeight = rows.length * ROW_HEIGHT + 20;
-        if (!hasExpandedBranch) svgHeight = rows.length * (LEVEL_1_Y + 70);
+        var hasCollapsedOrDisc = story.branches.length > 0;
+        if (!hasExpandedBranch && hasCollapsedOrDisc) svgHeight = rows.length * (LEVEL_1_Y + MINI_BRANCH_DROP + 60);
+        else if (!hasExpandedBranch) svgHeight = rows.length * (LEVEL_1_Y + 70);
 
         svg.setAttribute('width', svgWidth);
         svg.setAttribute('height', Math.max(svgHeight, 120));
@@ -814,9 +817,14 @@
                     if (seg.node.id === 'coding') trunkCodingX = seg.x;
 
                 } else if (seg.type === 'collapsed') {
-                    // Collapsed branch: green dot on trunk with version label
+                    // Collapsed branch: fork down, green dot on sub-lane, merge back
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
-                    drawCollapsedBranch(svg, dotX, baseY, seg.branch, seg.bIdx);
+                    var miniY = baseY + MINI_BRANCH_DROP;
+                    drawBranchArc(svg, seg.x + 5, baseY, dotX - 8, miniY, COLORS.green);
+                    drawBranchArc(svg, dotX + 8, miniY, seg.x + COLLAPSED_WIDTH - 5, baseY, COLORS.green);
+                    drawSmallDot(svg, seg.x + 5, baseY, '#484f58');
+                    drawSmallDot(svg, seg.x + COLLAPSED_WIDTH - 5, baseY, '#484f58');
+                    drawCollapsedBranch(svg, dotX, miniY, seg.branch, seg.bIdx);
 
                 } else if (seg.type === 'expanded') {
                     // Full expanded branch
@@ -862,10 +870,19 @@
                     drawSmallDot(svg, mergeX + NODE_SPACING * 0.5, baseY, '#484f58');
 
                 } else if (seg.type === 'discussion') {
-                    // Discussion chain: purple dot on trunk
+                    // Discussion chain: fork down, purple dot on sub-lane, merge back if closed
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
+                    var miniY = baseY + MINI_BRANCH_DROP;
                     var isOpen = !seg.branch.closed;
-                    drawDiscussionDot(svg, dotX, baseY, seg.branch, seg.bIdx, isOpen);
+                    var PURPLE = '#8b5cf6';
+                    drawBranchArc(svg, seg.x + 5, baseY, dotX - 8, miniY, PURPLE);
+                    drawSmallDot(svg, seg.x + 5, baseY, '#484f58');
+                    if (!isOpen) {
+                        // Closed: merge arc back up
+                        drawBranchArc(svg, dotX + 8, miniY, seg.x + COLLAPSED_WIDTH - 5, baseY, PURPLE);
+                        drawSmallDot(svg, seg.x + COLLAPSED_WIDTH - 5, baseY, '#484f58');
+                    }
+                    drawDiscussionDot(svg, dotX, miniY, seg.branch, seg.bIdx, isOpen);
 
                 } else if (seg.type === 'storyDone') {
                     var doneStatus = 'red';
