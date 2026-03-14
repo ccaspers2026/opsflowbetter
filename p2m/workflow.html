@@ -314,7 +314,7 @@
     var COLLAPSED_WIDTH = 90;
     var MINI_BRANCH_DROP = 50; // how far below trunk collapsed/discussion branches drop
 
-    var COLORS = { red: '#f85149', yellow: '#d29922', green: '#2ea44f', trunk: '#30363d', branch: '#30363d' };
+    var COLORS = { red: '#f85149', yellow: '#d29922', green: '#2ea44f', trunk: '#6e7681', branch: '#6e7681' };
 
     // Main trunk nodes
     var TRUNK_NODES = [
@@ -850,7 +850,7 @@
             var rowEndX = row.segments[row.segments.length - 1].x + row.segments[row.segments.length - 1].width - 20;
 
             // Draw row trunk line
-            drawLine(svg, rowStartX, baseY, rowEndX, baseY, COLORS.trunk, 3);
+            drawLine(svg, rowStartX, baseY, rowEndX, baseY, COLORS.trunk, 2);
 
             // Draw each segment on this row
             row.segments.forEach(function(seg) {
@@ -966,7 +966,7 @@
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke-linecap', 'round');
             path.setAttribute('stroke-dasharray', '6,4');
-            path.setAttribute('opacity', '0.5');
+            path.setAttribute('opacity', '0.7');
             svg.appendChild(path);
         }
     }
