@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.94.3",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "GUI Workflow — Tooltips, Auto-Refresh, State Seed",
+    "items": [
+      "Tooltips on all interactive elements: hover any button, SVG node, delete button, or arrowhead to see what it does",
+      "Auto-refresh polling every 10 seconds — workflow diagram updates live without needing F5, perfect for keeping on a second monitor",
+      "State seed: first load after reset now shows the correct current position (trunk progress, completed checkpoint branches) instead of blank"
+    ]
+  },
+  {
     "version": "v0.94.2",
     "date": "March 13, 2026",
     "tag": "UPDATE",

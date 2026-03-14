@@ -133,11 +133,11 @@
         <!-- Controls -->
         <div class="section">
             <div class="controls-bar">
-                <button class="btn btn-primary" id="btn-checkpoint">+ Checkpoint</button>
-                <button class="btn btn-completion" id="btn-completion">+ Completion</button>
+                <button class="btn btn-primary" id="btn-checkpoint" title="Add a checkpoint branch (commit/push/deploy/verify cycle)">+ Checkpoint</button>
+                <button class="btn btn-completion" id="btn-completion" title="Add a completion branch (full cycle with testing and done)">+ Completion</button>
                 <div class="controls-sep"></div>
-                <button class="btn btn-secondary" id="btn-new-story">New Story</button>
-                <button class="btn btn-danger" id="btn-reset">Reset All</button>
+                <button class="btn btn-secondary" id="btn-new-story" title="Archive current story to history and start fresh">New Story</button>
+                <button class="btn btn-danger" id="btn-reset" title="Clear everything \u2014 active story and all history">Reset All</button>
             </div>
         </div>
 
@@ -211,6 +211,31 @@
         { id: 'testing', label: 'Testing', who: 'Claude' },
         { id: 'done',    label: 'Done',    who: 'Auto' }
     ];
+
+    // ═══ State Seed (one-time, sets correct position after reset) ═══
+    (function seedState() {
+        var SEED_KEY = 'opsflow_wf_seed_v0943';
+        if (localStorage.getItem(SEED_KEY)) return; // already seeded
+        var existing = OpsFlow.getLocal(STATE_KEY);
+        if (existing && existing.trunk && existing.branches && existing.branches.length > 0) return; // has real data
+
+        // Set actual current position: mid-story T-119, trunk Start+Scan done, Coding active
+        // 4 completed checkpoint deploys: v0.93.1, v0.94.0, v0.94.1, v0.94.2
+        function greenNodes() { return { commit: 'green', committed: 'green', pushed: 'green', deployed: 'green', verify: 'green' }; }
+        var seed = {
+            version: OpsFlow.getLocal('opsflow_version') || '0.94.2',
+            trunk: { start: 'green', scan: 'green', coding: 'yellow' },
+            branches: [
+                { type: 'checkpoint', nodes: greenNodes(), version: 'v0.93.1' },
+                { type: 'checkpoint', nodes: greenNodes(), version: 'v0.94.0' },
+                { type: 'checkpoint', nodes: greenNodes(), version: 'v0.94.1' },
+                { type: 'checkpoint', nodes: greenNodes(), version: 'v0.94.2' }
+            ],
+            completionMerged: false
+        };
+        OpsFlow.set(STATE_KEY, seed);
+        localStorage.setItem(SEED_KEY, '1');
+    })();
 
     // ═══ State ═══
     var story = loadStory();
@@ -661,13 +686,23 @@
         svg.appendChild(path);
     }
 
-    function drawNode(svg, x, y, color, label, who, onClick) {
+    function drawNode(svg, x, y, color, label, who, onClick, tooltip) {
+        // Wrap in group for tooltip
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        // Tooltip
+        var statusWord = color === COLORS.green ? 'Complete' : color === COLORS.yellow ? 'In progress' : 'Not started';
+        var tipText = tooltip || (label + ' (' + statusWord + ') \u2014 Click to cycle LED');
+        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = tipText;
+        g.appendChild(title);
+
         // Glow
         var glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         glow.setAttribute('cx', x); glow.setAttribute('cy', y);
         glow.setAttribute('r', NODE_R + 4);
         glow.setAttribute('fill', color); glow.setAttribute('opacity', '0.2');
-        svg.appendChild(glow);
+        g.appendChild(glow);
 
         // Circle
         var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -677,22 +712,24 @@
         circle.setAttribute('stroke', '#0d1117'); circle.setAttribute('stroke-width', '2');
         circle.setAttribute('class', 'node-circle');
         if (onClick) circle.addEventListener('click', onClick);
-        svg.appendChild(circle);
+        g.appendChild(circle);
 
         // Check mark for green
         if (color === COLORS.green) {
-            drawText(svg, x, y + 4, '\u2713', '12px', '#fff', 'node-label', true);
+            drawText(g, x, y + 4, '\u2713', '12px', '#fff', 'node-label', true);
         } else if (color === COLORS.yellow) {
-            drawText(svg, x, y + 4, '\u25D0', '10px', '#fff', 'node-label', true);
+            drawText(g, x, y + 4, '\u25D0', '10px', '#fff', 'node-label', true);
         }
 
         // Label below
-        drawText(svg, x, y + NODE_R + 16, label, '11px', '#c9d1d9', 'node-label', true);
+        drawText(g, x, y + NODE_R + 16, label, '11px', '#c9d1d9', 'node-label', true);
 
         // Who label below that
         if (who) {
-            drawText(svg, x, y + NODE_R + 30, who, '9px', '#484f58', 'who-label', true);
+            drawText(g, x, y + NODE_R + 30, who, '9px', '#484f58', 'who-label', true);
         }
+
+        svg.appendChild(g);
     }
 
     function drawSmallDot(svg, x, y, color) {
@@ -704,13 +741,17 @@
     }
 
     function drawArrowhead(svg, x, y, color) {
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        var tip = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        tip.textContent = 'Story continues \u2014 add checkpoints or completion branch';
+        g.appendChild(tip);
         var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        // Spear pointing right: tip at x+10, base at x-2
         var points = (x) + ',' + (y - 6) + ' ' + (x + 12) + ',' + y + ' ' + (x) + ',' + (y + 6);
         arrow.setAttribute('points', points);
         arrow.setAttribute('fill', color);
         arrow.setAttribute('opacity', '0.5');
-        svg.appendChild(arrow);
+        g.appendChild(arrow);
+        svg.appendChild(g);
     }
 
     function drawDeleteBtn(svg, x, y, branchIdx) {
@@ -718,6 +759,9 @@
         var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.setAttribute('style', 'cursor:pointer;');
         g.setAttribute('class', 'branch-delete');
+        var tip = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        tip.textContent = 'Delete this branch (can undo for 5 seconds)';
+        g.appendChild(tip);
         var bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         bg.setAttribute('cx', x); bg.setAttribute('cy', y);
         bg.setAttribute('r', 8);
@@ -796,10 +840,29 @@
     document.getElementById('btn-new-story').addEventListener('click', newStory);
     document.getElementById('btn-reset').addEventListener('click', resetAll);
 
-    // Listen for storage changes
+    // Listen for storage changes (other tabs)
     window.addEventListener('storage', function(e) {
         if (e.key === PQ_KEY || e.key === 'opsflow_version') render();
     });
+
+    // ═══ Auto-Refresh Polling (same tab updates) ═══
+    var _lastSnapshot = '';
+    function getStateSnapshot() {
+        var s = JSON.stringify(OpsFlow.getLocal(STATE_KEY) || {});
+        var p = JSON.stringify(OpsFlow.getLocal(PQ_KEY) || {});
+        var h = JSON.stringify(OpsFlow.getLocal(HISTORY_KEY) || []);
+        var v = localStorage.getItem('opsflow_version') || '';
+        return s + '|' + p + '|' + h + '|' + v;
+    }
+    _lastSnapshot = getStateSnapshot();
+    setInterval(function() {
+        var snap = getStateSnapshot();
+        if (snap !== _lastSnapshot) {
+            _lastSnapshot = snap;
+            story = OpsFlow.getLocal(STATE_KEY) || makeBlankStory();
+            render();
+        }
+    }, 10000); // 10-second poll
 
     // ═══ Init ═══
     render();
