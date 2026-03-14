@@ -191,7 +191,7 @@
         /* ═══ Discussion Prompt ═══ */
         .discussion-prompt { display: none; gap: 8px; margin-top: 8px; animation: bannerIn 0.2s ease-out; }
         .discussion-prompt.visible { display: flex; align-items: flex-end; }
-        .discussion-prompt textarea { flex: 1; background: #0d1117; border: 1px solid #8b5cf6; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #e6edf3; outline: none; max-width: 500px; min-height: 36px; max-height: 100px; resize: vertical; font-family: inherit; line-height: 1.4; }
+        .discussion-prompt textarea { flex: 1; background: #0d1117; border: 1px solid #8b5cf6; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #e6edf3; outline: none; max-width: 1000px; min-height: 36px; max-height: 100px; resize: vertical; font-family: inherit; line-height: 1.4; }
         .discussion-prompt textarea:focus { border-color: #a78bfa; box-shadow: 0 0 0 2px rgba(139,92,246,0.2); }
         .discussion-prompt .btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; height: fit-content; }
 
@@ -243,7 +243,7 @@
                 <button class="btn btn-danger" id="btn-reset" title="Clear everything \u2014 active story and all history">Reset All</button>
             </div>
             <div class="discussion-prompt" id="disc-prompt">
-                <textarea id="disc-topic" placeholder="What are we discussing?" maxlength="500" rows="2"></textarea>
+                <textarea id="disc-topic" placeholder="What are we discussing?" maxlength="1000" rows="2"></textarea>
                 <button class="btn btn-discussion btn-sm" id="disc-start">Start</button>
                 <button class="btn btn-secondary btn-sm" id="disc-cancel">Cancel</button>
             </div>
@@ -1080,9 +1080,11 @@
         // ── PHASE 3: Draw everything from the map ──
 
         // 3a: Draw trunk lines + continuation markers between rows
-        // Marker radius = 10, gap from trunk end to marker center = 18
+        // Marker radius = 10
+        // End-zone gap pushed further right (≥2× circle diameter per Disc #14)
         var MARKER_R = 10;
-        var MARKER_GAP = 18;
+        var START_MARKER_GAP = 18;   // start-of-row gap (left side) — user says this looks fine
+        var END_MARKER_GAP = 48;     // end-of-row gap (right side) — ≥2× diameter away from last node
         rows.forEach(function(row, rIdx) {
             var baseY = rIdx * ROW_HEIGHT + LEVEL_1_Y;
             var rowStartX = row.segments[0].x;
@@ -1091,8 +1093,8 @@
             // Extend trunk to be tangent to continuation markers
             var trunkStart = rowStartX;
             var trunkEnd = rowEndX;
-            if (rIdx > 0) trunkStart = rowStartX - MARKER_GAP + MARKER_R;           // start from previous marker's right edge
-            if (rIdx < rows.length - 1) trunkEnd = rowEndX + MARKER_GAP - MARKER_R;  // end at next marker's left edge
+            if (rIdx > 0) trunkStart = rowStartX - START_MARKER_GAP + MARKER_R;         // start from previous marker's right edge
+            if (rIdx < rows.length - 1) trunkEnd = rowEndX + END_MARKER_GAP - MARKER_R;  // end at next marker's left edge
 
             drawLine(svg, trunkStart, baseY, trunkEnd, baseY, COLORS.trunk, 2);
 
@@ -1102,10 +1104,10 @@
                 var nextRow = rows[rIdx + 1];
                 var nextBaseY = (rIdx + 1) * ROW_HEIGHT + LEVEL_1_Y;
                 var nextStartX = nextRow.segments[0].x;
-                // End marker (right side of this row) — trunk touches left edge
-                drawContinuationMarker(svg, rowEndX + MARKER_GAP, baseY, markerNum);
+                // End marker (right side of this row) — pushed further right from curve intersection
+                drawContinuationMarker(svg, rowEndX + END_MARKER_GAP, baseY, markerNum);
                 // Start marker (left side of next row) — trunk touches right edge
-                drawContinuationMarker(svg, nextStartX - MARKER_GAP, nextBaseY, markerNum);
+                drawContinuationMarker(svg, nextStartX - START_MARKER_GAP, nextBaseY, markerNum);
             }
         });
 
