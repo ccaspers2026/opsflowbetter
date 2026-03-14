@@ -55,6 +55,7 @@
         .btn-completion:hover { background: #388bfd; }
         .btn-discussion { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
         .btn-discussion:hover { background: #a78bfa; }
+        .btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; }
         .controls-sep { width: 1px; height: 24px; background: #21262d; }
         .cycle-label { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -203,6 +204,10 @@
         .discussion-item-topic { font-size: 12px; color: #c9d1d9; flex: 1; line-height: 1.4; }
         .discussion-item .btn-close-disc { padding: 3px 10px; font-size: 10px; background: #8b5cf6; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; flex-shrink: 0; }
         .discussion-item .btn-close-disc:hover { background: #a78bfa; }
+
+        /* ═══ PQ Start Button ═══ */
+        .pq-start-btn { white-space: nowrap; }
+        .pq-start-btn:hover { background: #2ea043 !important; }
     </style>
 </head>
 <body>
@@ -235,12 +240,9 @@
         <!-- Controls -->
         <div class="section">
             <div class="controls-bar">
-                <button class="btn btn-primary" id="btn-checkpoint" title="Add a checkpoint branch (commit/push/deploy/verify cycle)">+ Checkpoint</button>
-                <button class="btn btn-completion" id="btn-completion" title="Add a completion branch (full cycle with testing and done)">+ Completion</button>
-                <button class="btn btn-discussion" id="btn-discussion" title="Start a discussion chain — pauses workflow while we talk through something">+ Discussion</button>
-                <div class="controls-sep"></div>
-                <button class="btn btn-secondary" id="btn-new-story" title="Archive current story to history and start fresh">New Story</button>
-                <button class="btn btn-danger" id="btn-reset" title="Clear everything \u2014 active story and all history">Reset All</button>
+                <div id="story-label" style="font-size:14px; font-weight:600; color:#e6edf3; flex:1;"></div>
+                <button class="btn btn-discussion" id="btn-discussion" title="Start a discussion chain">+ Discussion</button>
+                <button class="btn btn-danger" id="btn-reset" title="Reset active story" style="font-size:11px; padding:4px 10px;">Reset</button>
             </div>
             <div class="discussion-prompt" id="disc-prompt">
                 <textarea id="disc-topic" placeholder="What are we discussing?" maxlength="1000" rows="2"></textarea>
@@ -316,11 +318,19 @@
 
     var COLORS = { red: '#f85149', yellow: '#d29922', green: '#2ea44f', trunk: '#6e7681', branch: '#6e7681' };
 
-    // Main trunk nodes
+    // Main trunk nodes — ball-driven workflow (11 nodes)
     var TRUNK_NODES = [
-        { id: 'start',  label: 'Start',  who: 'Claude', tip: 'Claude picks up the task, reads context, and plans the work' },
-        { id: 'scan',   label: 'Scan',   who: 'Claude', tip: 'Claude reads all relevant files, checks current state, identifies what needs to change' },
-        { id: 'coding', label: 'Coding', who: 'Claude', tip: 'Claude is actively writing code — edits, new features, bug fixes' }
+        { id: 'start',    label: 'Start',        who: 'Christian', tip: 'Christian clicks Start on a PQ item to begin the story' },
+        { id: 'discuss',  label: 'Discuss',       who: 'Both',      tip: 'Both discuss the approach — back and forth until aligned' },
+        { id: 'go',       label: 'GO',            who: 'Christian', tip: 'Christian clicks GO to approve the plan and signal Claude to begin' },
+        { id: 'scan',     label: 'Scan',          who: 'Claude',    tip: 'Claude reads codebase, analyzes what needs to change, reports findings' },
+        { id: 'code',     label: 'Code',          who: 'Claude',    tip: 'Claude writes the code changes' },
+        { id: 'commit_ready', label: 'Commit Ready', who: 'Claude', tip: 'Claude finished code and prepared commit message' },
+        { id: 'commit',   label: 'Commit',        who: 'Christian', tip: 'Christian commits the code in VS Code' },
+        { id: 'push',     label: 'Push',          who: 'Christian', tip: 'Christian pushes to GitHub' },
+        { id: 'deploy',   label: 'Deploy',        who: 'Auto',      tip: 'GitHub Pages deploys automatically' },
+        { id: 'verify',   label: 'Verify',        who: 'Claude',    tip: 'Claude verifies the deploy on the live site' },
+        { id: 'done',     label: 'Done',          who: 'Both',      tip: 'Story complete — lessons learned recorded' }
     ];
 
     // Checkpoint branch template
@@ -350,7 +360,10 @@
         function greenNodes() { return { commit: 'green', committed: 'green', pushed: 'green', deployed: 'green', verify: 'green' }; }
         var seed = {
             version: OpsFlow.getLocal('opsflow_version') || '0.94.2',
-            trunk: { start: 'green', scan: 'green', coding: 'yellow' },
+            taskId: null,
+            taskTitle: null,
+            taskNum: null,
+            trunk: { start: 'red', discuss: 'red', go: 'red', scan: 'red', code: 'red', commit_ready: 'red', commit: 'red', push: 'red', deploy: 'red', verify: 'red', done: 'red' },
             branches: [
                 { type: 'checkpoint', nodes: greenNodes(), version: 'v0.93.1' },
                 { type: 'checkpoint', nodes: greenNodes(), version: 'v0.94.0' },
@@ -367,9 +380,14 @@
     var story = loadStory();
 
     function defaultStory() {
+        var trunk = {};
+        TRUNK_NODES.forEach(function(n) { trunk[n.id] = 'red'; });
         return {
-            version: OpsFlow.getLocal('opsflow_version') || '0.93.0',
-            trunk: { start: 'red', scan: 'red', coding: 'red' },
+            version: OpsFlow.getLocal('opsflow_version') || '0.98.0',
+            taskId: null,
+            taskTitle: null,
+            taskNum: null,
+            trunk: trunk,
             branches: [],  // { type: 'checkpoint'|'completion', nodes: { commit:'red', ... }, version: '' }
             completionMerged: false
         };
@@ -377,7 +395,19 @@
 
     function loadStory() {
         var s = OpsFlow.getLocal(STATE_KEY);
-        if (s && s.trunk) return s;
+        if (s && s.trunk) {
+            // Migrate from old 3-node trunk to new 11-node trunk
+            if (!s.trunk.hasOwnProperty('discuss')) {
+                // Old schema — reset to new default
+                var fresh = defaultStory();
+                fresh.taskId = s.taskId || null;
+                fresh.taskTitle = s.taskTitle || null;
+                fresh.taskNum = s.taskNum || null;
+                OpsFlow.set(STATE_KEY, fresh);
+                return fresh;
+            }
+            return s;
+        }
         return defaultStory();
     }
 
@@ -402,57 +432,40 @@
         render();
     }
 
-    function addCheckpoint() {
-        var nodes = {};
-        CHECKPOINT_NODES.forEach(function(n) { nodes[n.id] = 'red'; });
-        story.branches.push({
-            type: 'checkpoint',
-            nodes: nodes,
-            version: 'v' + (OpsFlow.getLocal('opsflow_version') || '?')
-        });
-        saveStory();
-        render();
-    }
-
-    function addCompletion() {
-        // Check if completion already exists
-        for (var i = 0; i < story.branches.length; i++) {
-            if (story.branches[i].type === 'completion') return;
+    function startStoryFromPQ(taskId) {
+        // Don't start if there's already an active story with a task
+        if (story.taskId) {
+            alert('A story is already active: ' + (story.taskTitle || 'Unknown') + '. Complete or reset it first.');
+            return;
         }
-        var nodes = {};
-        CHECKPOINT_NODES.forEach(function(n) { nodes[n.id] = 'red'; });
-        COMPLETION_EXTRA.forEach(function(n) { nodes[n.id] = 'red'; });
-        story.branches.push({
-            type: 'completion',
-            nodes: nodes,
-            version: 'v' + (OpsFlow.getLocal('opsflow_version') || '?')
-        });
-        saveStory();
-        render();
-    }
-
-    function newStory() {
-        // Log current story to history
-        var hist = OpsFlow.getLocal(HISTORY_KEY) || [];
-        if (story.branches.length > 0) {
-            hist.push({
-                version: 'v' + story.version,
-                type: story.branches.length > 0 && story.branches[story.branches.length - 1].type === 'completion' ? 'completion' : 'checkpoint',
-                checkpoints: story.branches.filter(function(b) { return b.type === 'checkpoint'; }).length,
-                timestamp: new Date().toISOString()
-            });
-            OpsFlow.set(HISTORY_KEY, hist);
+        var tasksData = OpsFlow.getLocal(PQ_KEY);
+        if (!tasksData) return;
+        var task = null;
+        for (var i = 0; i < (tasksData.priority || []).length; i++) {
+            if (tasksData.priority[i].id === taskId) { task = tasksData.priority[i]; break; }
         }
+        if (!task) return;
+
+        // Reset to fresh story tied to this task
         story = defaultStory();
+        story.taskId = taskId;
+        story.taskTitle = task.title || 'Untitled';
+        story.taskNum = task.taskNum || null;
+        story.trunk.start = 'green'; // Christian clicked Start, so Start is done
+        story.trunk.discuss = 'yellow'; // Now in Discuss phase
+
+        // Update task status to in-progress
+        task.status = 'in-progress';
+        OpsFlow.set(PQ_KEY, tasksData);
+
         saveStory();
         render();
     }
 
     function resetAll() {
-        if (!confirm('Reset the entire workflow dashboard? This clears the active story and all history.')) return;
+        if (!confirm('Reset the active story? This will clear the current workflow progress.')) return;
         story = defaultStory();
         saveStory();
-        OpsFlow.set(HISTORY_KEY, []);
         render();
     }
 
@@ -638,44 +651,29 @@
 
     // ═══ Auto-detection + PQ Status Sync ═══
     function autoDetect() {
+        // Scoped auto-detect: only affects the active story's task
+        if (!story.taskId) return;
         var tasksData = OpsFlow.getLocal(PQ_KEY);
         if (!tasksData) return;
-        var pq = tasksData.priority || [];
 
-        // PQ → Trunk: if any PQ item is in-progress, set coding to yellow
-        var hasInProgress = pq.some(function(i) { return i.status === 'in-progress'; });
-        if (hasInProgress && story.trunk.coding === 'red') {
-            story.trunk.coding = 'yellow';
-            saveStory();
+        var task = null;
+        for (var i = 0; i < (tasksData.priority || []).length; i++) {
+            if (tasksData.priority[i].id === story.taskId) { task = tasksData.priority[i]; break; }
         }
+        if (!task) return;
 
-        // Trunk → PQ: derive correct PQ status from workflow state
+        // Derive status from ball states
         var derivedStatus = null;
-        var hasCompDone = story.branches.some(function(b) {
-            return b.type === 'completion' && isBranchComplete(b);
-        });
-        var hasCheckpointDone = story.branches.some(function(b) {
-            return b.type === 'checkpoint' && isBranchComplete(b);
-        });
-
-        if (hasCompDone) derivedStatus = 'done';
-        else if (hasCheckpointDone) derivedStatus = 'deployed';
-        else if (story.trunk.coding === 'yellow' || story.trunk.coding === 'green') derivedStatus = 'in-progress';
+        if (story.trunk.done === 'green') derivedStatus = 'done';
+        else if (story.trunk.verify === 'green') derivedStatus = 'deployed';
+        else if (story.trunk.code === 'yellow' || story.trunk.code === 'green') derivedStatus = 'in-progress';
 
         if (derivedStatus) {
-            var changed = false;
             var STATUS_RANK = { 'new': 0, 'discussing': 1, 'in-progress': 2, 'deployed': 3, 'testing': 4, 'done': 5 };
-            pq.forEach(function(item) {
-                var cur = (item.status || 'new').toLowerCase().replace(/\s+/g, '-');
-                var curRank = STATUS_RANK[cur] !== undefined ? STATUS_RANK[cur] : 0;
-                var newRank = STATUS_RANK[derivedStatus] !== undefined ? STATUS_RANK[derivedStatus] : 0;
-                // Only promote forward, never demote
-                if (newRank > curRank) {
-                    item.status = derivedStatus;
-                    changed = true;
-                }
-            });
-            if (changed) {
+            var curRank = STATUS_RANK[task.status] !== undefined ? STATUS_RANK[task.status] : 0;
+            var newRank = STATUS_RANK[derivedStatus] !== undefined ? STATUS_RANK[derivedStatus] : 0;
+            if (newRank > curRank) {
+                task.status = derivedStatus;
                 OpsFlow.set(PQ_KEY, tasksData);
             }
         }
@@ -683,44 +681,27 @@
 
     // ═══ SVG Rendering ═══
     function updateButtonStates() {
-        var btnCP = document.getElementById('btn-checkpoint');
-        var btnComp = document.getElementById('btn-completion');
-        var btnNew = document.getElementById('btn-new-story');
-
-        // + Checkpoint: enabled when coding is at least in-progress (yellow/green)
-        var codingStarted = story.trunk.coding && story.trunk.coding !== 'red';
-        btnCP.disabled = !codingStarted;
-        btnCP.title = codingStarted
-            ? 'Add a checkpoint branch (commit/push/deploy/verify cycle)'
-            : 'Start coding first — nothing to checkpoint yet';
-
-        // + Completion: enabled when at least 1 checkpoint exists AND no completion branch yet
-        var hasCheckpoint = story.branches.some(function(b) { return b.type === 'checkpoint'; });
-        var hasCompletion = story.branches.some(function(b) { return b.type === 'completion'; });
-        btnComp.disabled = !hasCheckpoint || hasCompletion;
-        if (hasCompletion) btnComp.title = 'Completion branch already exists';
-        else if (!hasCheckpoint) btnComp.title = 'Need at least one checkpoint before completing';
-        else btnComp.title = 'Add a completion branch (full cycle with testing and done)';
-
-        // New Story: enabled when there are branches to archive
-        var hasBranches = story.branches.length > 0;
-        btnNew.disabled = !hasBranches;
-        btnNew.title = hasBranches
-            ? 'Archive current story to history and start fresh'
-            : 'No branches to archive yet';
-
-        // Reset All: always enabled
-
-        // + Discussion: always enabled — you can stack multiple
+        // Discussion button: always enabled
         var btnDisc = document.getElementById('btn-discussion');
-        btnDisc.disabled = false;
-        var openCount = getOpenDiscussions().length;
-        btnDisc.title = openCount > 0
-            ? openCount + ' discussion(s) open — add another anytime'
-            : 'Start a discussion chain — jot down ideas while waiting on processes';
+        if (btnDisc) {
+            btnDisc.disabled = false;
+            var openCount = getOpenDiscussions().length;
+            btnDisc.title = openCount > 0
+                ? openCount + ' discussion(s) open — add another anytime'
+                : 'Start a discussion chain — jot down ideas while waiting on processes';
+        }
     }
 
     function render() {
+        // Show story label
+        var labelEl = document.getElementById('story-label');
+        if (story.taskId) {
+            var tNum = story.taskNum ? 'T-' + story.taskNum + ': ' : '';
+            labelEl.innerHTML = '<span style="color:#58a6ff;">Active Story</span> — ' + tNum + escHtml(story.taskTitle || '');
+        } else {
+            labelEl.innerHTML = '<span style="color:#484f58;">No active story — click Start on a PQ item</span>';
+        }
+
         autoDetect();
         updateButtonStates();
         renderDiscussionState();
@@ -929,15 +910,9 @@
         story.branches.forEach(function(branch, bIdx) {
             if (branch.type === 'discussion') {
                 segments.push({ type: 'discussion', branch: branch, bIdx: bIdx, width: COLLAPSED_WIDTH });
-            } else {
-                segments.push({
-                    type: isBranchComplete(branch) ? 'collapsed' : 'expanded',
-                    branch: branch, bIdx: bIdx, width: branchWidth(branch)
-                });
             }
         });
 
-        if (hasCompletion) segments.push({ type: 'storyDone', width: NODE_SPACING });
         segments.push({ type: 'arrow', width: 50 });
 
         // Row wrapping
@@ -948,7 +923,7 @@
         for (var si = 0; si < segments.length; si++) {
             var seg = segments[si];
             var wouldOverflow = (x + seg.width) > MAX_ROW_WIDTH && currentRow.segments.length > 0;
-            if (wouldOverflow && seg.type !== 'trunk') {
+            if (wouldOverflow) {
                 currentRow.width = x - currentRow.startX;
                 rows.push(currentRow);
                 currentRow = { segments: [], startX: LEFT_PAD, width: 0 };
@@ -988,63 +963,6 @@
             row.segments.forEach(function(seg) {
                 if (seg.type === 'trunk') {
                     addElement(map, 'trunk-' + seg.node.id, 'node', seg.x - NODE_R, baseY - NODE_R, NODE_R * 2, NODE_R * 2, { seg: seg });
-                    if (seg.node.id === 'coding') trunkCodingX = seg.x;
-
-                } else if (seg.type === 'collapsed') {
-                    var dotX = seg.x + COLLAPSED_WIDTH / 2;
-                    var miniY = baseY + MINI_BRANCH_DROP;
-                    var forkX = seg.x + 10;
-                    var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
-                    // Register elements
-                    addElement(map, 'fork-cp-' + seg.bIdx, 'fork-point', forkX - 2, baseY - 2, 4, 4);
-                    addElement(map, 'dot-cp-' + seg.bIdx, 'branch-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
-                    addElement(map, 'merge-cp-' + seg.bIdx, 'merge-point', mergeBackX - 2, baseY - 2, 4, 4);
-                    // Store path: smooth S-curves through the dot center
-                    seg._branchPath = [
-                        { x: forkX, y: baseY },
-                        { x: dotX, y: miniY },
-                        { x: mergeBackX, y: baseY }
-                    ];
-
-                } else if (seg.type === 'expanded') {
-                    var branch = seg.branch;
-                    var nodeKeys = branch.type === 'completion'
-                        ? CHECKPOINT_NODES.concat(COMPLETION_EXTRA).map(function(n) { return n.id; })
-                        : CHECKPOINT_NODES.map(function(n) { return n.id; });
-                    var nodeCount = nodeKeys.length;
-                    var branchStartX = seg.x;
-                    var branchEndX = seg.x + (nodeCount - 1) * NODE_SPACING;
-                    var mergeX = branchEndX + NODE_SPACING;
-                    var branchColor = branch.type === 'completion' ? '#1f6feb' : COLORS.branch;
-                    var forkAnchorX = branchStartX - NODE_SPACING * 0.6;
-                    var mergeAnchorX = mergeX + NODE_SPACING * 0.6;
-
-                    // Register elements for collision avoidance
-                    addElement(map, 'fork-exp-' + seg.bIdx, 'fork-point', forkAnchorX - 2, baseY - 2, 4, 4);
-                    addElement(map, 'branch-line-' + seg.bIdx, 'branch-line', forkAnchorX, branchY - 1, mergeAnchorX - forkAnchorX, 2);
-                    addElement(map, 'merge-exp-' + seg.bIdx, 'merge-point', mergeAnchorX - 2, baseY - 2, 4, 4);
-
-                    // Store the full branch path as waypoints (drawn in phase 3c)
-                    // Uses offset X values so the S-curve has diagonal span
-                    seg._branchPath = [
-                        { x: forkAnchorX, y: baseY },
-                        { x: branchStartX, y: branchY },
-                        { x: mergeX, y: branchY },
-                        { x: mergeAnchorX, y: baseY }
-                    ];
-
-                    // Register branch nodes
-                    var allNodeDefs = CHECKPOINT_NODES.concat(COMPLETION_EXTRA);
-                    nodeKeys.forEach(function(nodeId, nIdx) {
-                        var nx = branchStartX + nIdx * NODE_SPACING;
-                        addElement(map, 'bnode-' + seg.bIdx + '-' + nodeId, 'branch-node', nx - NODE_R, branchY - NODE_R, NODE_R * 2, NODE_R * 2, { seg: seg, nodeId: nodeId, nIdx: nIdx });
-                    });
-
-                    // Store metadata for drawing phase
-                    seg._forkAnchorX = forkAnchorX;
-                    seg._mergeAnchorX = mergeAnchorX;
-                    seg._branchColor = branchColor;
-                    seg._nodeKeys = nodeKeys;
 
                 } else if (seg.type === 'discussion') {
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
@@ -1073,6 +991,8 @@
                             { x: mergeBackX, y: baseY }
                         ];
                     }
+                } else if (seg.type === 'storyDone') {
+                    // Done node
                 }
             });
         });
@@ -1140,54 +1060,16 @@
 
             row.segments.forEach(function(seg) {
                 if (seg.type === 'trunk') {
+                    var whoColor = '#484f58';
+                    if (seg.node.who === 'Christian') whoColor = '#58a6ff';
+                    else if (seg.node.who === 'Claude') whoColor = '#2ea44f';
+                    else if (seg.node.who === 'Both') whoColor = '#e0e0e0';
+                    else if (seg.node.who === 'Auto') whoColor = '#484f58';
+
                     var color = COLORS[story.trunk[seg.node.id] || 'red'];
-                    drawNode(svg, seg.x, baseY, color, seg.node.label, seg.node.who, function() {
+                    drawNode(svg, seg.x, baseY, color, seg.node.label, seg.node.who, whoColor, function() {
                         cycleTrunkNode(seg.node.id);
                     }, seg.node.tip);
-
-                } else if (seg.type === 'collapsed') {
-                    var dotX = seg.x + COLLAPSED_WIDTH / 2;
-                    var miniY = baseY + MINI_BRANCH_DROP;
-                    // Draw the branch path: smooth S-curves
-                    if (seg._branchPath) {
-                        drawSmoothPath(svg, seg._branchPath, COLORS.green);
-                    }
-                    drawCollapsedBranch(svg, dotX, miniY, seg.branch, seg.bIdx);
-
-                } else if (seg.type === 'expanded') {
-                    var branch = seg.branch;
-                    var branchColor = seg._branchColor;
-                    var nodeKeys = seg._nodeKeys;
-                    var branchStartX = seg.x;
-                    var branchEndX = seg.x + (nodeKeys.length - 1) * NODE_SPACING;
-
-                    // Draw the full branch path: smooth S-curves
-                    if (seg._branchPath) {
-                        drawSmoothPath(svg, seg._branchPath, branchColor);
-                    }
-
-                    // Branch label
-                    var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (seg.bIdx + 1);
-                    if (branch.version) labelText += ' (' + branch.version + ')';
-                    var labelCenterX = branchStartX + (branchEndX - branchStartX) / 2;
-                    drawText(svg, labelCenterX, branchY - 28, labelText, '10px', branch.type === 'completion' ? '#58a6ff' : '#484f58', 'branch-label');
-
-                    // Delete button
-                    drawDeleteBtn(svg, branchEndX + 14, branchY - 32, seg.bIdx);
-
-                    // Branch nodes
-                    var allNodeDefs = CHECKPOINT_NODES.concat(COMPLETION_EXTRA);
-                    nodeKeys.forEach(function(nodeId, nIdx) {
-                        var nx = branchStartX + nIdx * NODE_SPACING;
-                        var nodeDef = allNodeDefs.find(function(n) { return n.id === nodeId; });
-                        var ncolor = COLORS[branch.nodes[nodeId] || 'red'];
-                        drawNode(svg, nx, branchY, ncolor, nodeDef ? nodeDef.label : nodeId, nodeDef ? nodeDef.who : '', (function(bi, ni) {
-                            return function() { cycleBranchNode(bi, ni); };
-                        })(seg.bIdx, nodeId), nodeDef ? nodeDef.tip : '');
-                    });
-
-                    // Merge dot on trunk
-                    drawSmallDot(svg, seg._mergeAnchorX, baseY, '#484f58');
 
                 } else if (seg.type === 'discussion') {
                     var dotX = seg.x + COLLAPSED_WIDTH / 2;
@@ -1205,62 +1087,13 @@
                     var compBranch = story.branches.find(function(b) { return b.type === 'completion'; });
                     if (compBranch && compBranch.nodes['done'] === 'green') doneStatus = 'green';
                     else if (compBranch && compBranch.nodes['testing'] !== 'red') doneStatus = 'yellow';
-                    drawNode(svg, seg.x, baseY, COLORS[doneStatus], 'Story Done', 'Auto', function() {}, 'Story is fully complete — all tasks done, tested, and deployed');
+                    drawNode(svg, seg.x, baseY, COLORS[doneStatus], 'Story Done', 'Auto', '#484f58', function() {}, 'Story is fully complete — all tasks done, tested, and deployed');
 
                 } else if (seg.type === 'arrow') {
                     drawArrowhead(svg, seg.x, baseY, '#484f58');
                 }
             });
         });
-    }
-
-    // ═══ Collapsed branch: green dot with version tooltip ═══
-    function drawCollapsedBranch(svg, x, y, branch, bIdx) {
-        // Small green checkmark dot on the trunk
-        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('style', 'cursor:pointer;');
-
-        // Glow
-        var glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        glow.setAttribute('cx', x); glow.setAttribute('cy', y);
-        glow.setAttribute('r', 10);
-        glow.setAttribute('fill', COLORS.green); glow.setAttribute('opacity', '0.25');
-        g.appendChild(glow);
-
-        // Circle
-        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', x); circle.setAttribute('cy', y);
-        circle.setAttribute('r', 7);
-        circle.setAttribute('fill', COLORS.green);
-        circle.setAttribute('stroke', '#0d1117'); circle.setAttribute('stroke-width', '1.5');
-        g.appendChild(circle);
-
-        // Checkmark
-        var check = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        check.setAttribute('x', x); check.setAttribute('y', y + 3);
-        check.setAttribute('font-size', '8px'); check.setAttribute('fill', '#fff');
-        check.setAttribute('text-anchor', 'middle');
-        check.setAttribute('style', 'pointer-events:none;');
-        check.textContent = '\u2713';
-        g.appendChild(check);
-
-        // Version label below
-        var label = branch.version || '';
-        var labelType = branch.type === 'completion' ? 'Done' : 'CP';
-        drawText(svg, x, y + 20, labelType, '8px', '#2ea44f', 'node-label', true);
-        drawText(svg, x, y + 30, label, '8px', '#484f58', 'node-label', true);
-
-        // Tooltip on hover: show branch details
-        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.textContent = (branch.type === 'completion' ? 'Completion' : 'Checkpoint') + ' ' + label + ' \u2014 All steps complete';
-        g.appendChild(title);
-
-        // Click to delete with undo
-        g.addEventListener('click', function() {
-            deleteBranchWithUndo(bIdx);
-        });
-
-        svg.appendChild(g);
     }
 
     function drawDiscussionDot(svg, x, y, branch, bIdx, isOpen) {
@@ -1325,7 +1158,7 @@
         svg.appendChild(line);
     }
 
-    function drawNode(svg, x, y, color, label, who, onClick, tooltip) {
+    function drawNode(svg, x, y, color, label, who, whoColor, onClick, tooltip) {
         // Wrap in group for tooltip
         var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
@@ -1367,7 +1200,7 @@
 
         // Who label below that
         if (who) {
-            drawText(g, x, y + NODE_R + 30, who, '9px', '#484f58', 'who-label', true);
+            drawText(g, x, y + NODE_R + 30, who, '9px', whoColor || '#484f58', 'who-label', true);
         }
 
         svg.appendChild(g);
@@ -1414,39 +1247,6 @@
         arrow.setAttribute('fill', color);
         arrow.setAttribute('opacity', '0.5');
         g.appendChild(arrow);
-        svg.appendChild(g);
-    }
-
-    function drawDeleteBtn(svg, x, y, branchIdx) {
-        // Small X button above the branch label
-        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('style', 'cursor:pointer;');
-        g.setAttribute('class', 'branch-delete');
-        var tip = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        tip.textContent = 'Delete this branch (can undo for 5 seconds)';
-        g.appendChild(tip);
-        var bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        bg.setAttribute('cx', x); bg.setAttribute('cy', y);
-        bg.setAttribute('r', 8);
-        bg.setAttribute('fill', '#21262d');
-        bg.setAttribute('stroke', '#484f58');
-        bg.setAttribute('stroke-width', '1');
-        g.appendChild(bg);
-        var txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        txt.setAttribute('x', x); txt.setAttribute('y', y + 4);
-        txt.setAttribute('font-size', '11px');
-        txt.setAttribute('fill', '#f85149');
-        txt.setAttribute('text-anchor', 'middle');
-        txt.setAttribute('font-weight', 'bold');
-        txt.setAttribute('style', 'pointer-events:none;');
-        txt.textContent = '\u00D7';
-        g.appendChild(txt);
-        g.addEventListener('click', function() {
-            deleteBranchWithUndo(branchIdx);
-        });
-        // Hover effect
-        g.addEventListener('mouseenter', function() { bg.setAttribute('fill', '#da3633'); txt.setAttribute('fill', '#fff'); });
-        g.addEventListener('mouseleave', function() { bg.setAttribute('fill', '#21262d'); txt.setAttribute('fill', '#f85149'); });
         svg.appendChild(g);
     }
 
@@ -1689,6 +1489,16 @@
             html += '<div class="meta"><span class="tag">' + escHtml((t.tag || 'FEATURE').toUpperCase()) + '</span>' + groupTag + ' ' + escHtml(t.meta || '') + '</div>';
             html += '</div>';
             html += '<div class="task-actions">';
+
+            // Add Start Story button if no active story
+            var startBtn = '';
+            if (!story.taskId) {
+                startBtn = '<button class="btn btn-primary btn-sm pq-start-btn" data-start-id="' + t.id + '" title="Start a story for this task" style="font-size:10px;padding:3px 8px;margin-right:6px;">Start Story</button>';
+            } else if (story.taskId === t.id) {
+                startBtn = '<span style="font-size:10px;color:#2ea44f;font-weight:600;margin-right:6px;">● ACTIVE</span>';
+            }
+            html += startBtn;
+
             html += '<button class="btn-demote" data-demote-id="' + t.id + '" title="Move to Backlog">&darr; Backlog</button>';
             html += '</div>';
             html += '</div>';
@@ -1710,6 +1520,14 @@
         });
         el.querySelectorAll('[data-demote-id]').forEach(function(btn) {
             btn.addEventListener('click', function() { pqDemote(btn.getAttribute('data-demote-id')); });
+        });
+
+        // Wire Start Story buttons
+        el.querySelectorAll('.pq-start-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                startStoryFromPQ(btn.getAttribute('data-start-id'));
+            });
         });
     }
 
@@ -1884,9 +1702,6 @@
     });
 
     // ═══ Event Listeners ═══
-    document.getElementById('btn-checkpoint').addEventListener('click', addCheckpoint);
-    document.getElementById('btn-completion').addEventListener('click', addCompletion);
-    document.getElementById('btn-new-story').addEventListener('click', newStory);
     document.getElementById('btn-reset').addEventListener('click', resetAll);
 
     // Discussion controls
@@ -1920,7 +1735,7 @@
         var snap = getStateSnapshot();
         if (snap !== _lastSnapshot) {
             _lastSnapshot = snap;
-            story = OpsFlow.getLocal(STATE_KEY) || makeBlankStory();
+            story = OpsFlow.getLocal(STATE_KEY) || defaultStory();
             render();
         }
     }, 10000); // 10-second poll
