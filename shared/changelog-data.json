@@ -1,5 +1,16 @@
 [
   {
+    "version": "v0.94.5",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Workflow Dashboard — Meaningful Tooltips + Collapsible Backlog",
+    "items": [
+      "Tooltips now explain what each node actually means instead of generic 'Click to cycle LED' — hover any node to understand the process",
+      "Backlog section added to Workflow Dashboard — collapsed by default, click to expand. Shows items grouped by priority (Now/Soon/Later) with status badges",
+      "All workflow data (PQ, Backlog, Active Story, History) now visible in one page — no tab-hopping needed"
+    ]
+  },
+  {
     "version": "v0.94.4",
     "date": "March 13, 2026",
     "tag": "NEW",
