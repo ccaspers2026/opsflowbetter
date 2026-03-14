@@ -4067,6 +4067,28 @@ function runMigrations() {
         markMigrationRun('v0.92.0_seed_tester_config');
     }
 
+    // ── v0.93.1: Update T-119 status to In Progress (SVG rebuild) ──
+    if (ran.indexOf('v0.93.1_t119_in_progress') === -1) {
+        if (data.priorityQueue) {
+            for (var i = 0; i < data.priorityQueue.length; i++) {
+                if (data.priorityQueue[i].title && data.priorityQueue[i].title.indexOf('T-119') !== -1) {
+                    data.priorityQueue[i].status = 'in-progress';
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        markMigrationRun('v0.93.1_t119_in_progress');
+    }
+
+    // ── v0.93.1: Seed updated changelog data ──
+    if (ran.indexOf('v0.93.1_seed_changelog') === -1) {
+        // Changelog will be seeded from JSON file on next page load
+        // Just invalidate the cache so it refreshes
+        OpsFlow.invalidate('opsflow_changelog');
+        markMigrationRun('v0.93.1_seed_changelog');
+    }
+
     if (changed) saveTasks(data);
 }
 

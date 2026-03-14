@@ -1,5 +1,18 @@
 [
   {
+    "version": "v0.93.1",
+    "date": "March 13, 2026",
+    "tag": "UPDATE",
+    "title": "Workflow Dashboard SVG Rebuild \u2014 Branch/Merge Visualization",
+    "items": [
+      "Complete SVG rebuild of workflow.html \u2014 replaces linear div-based pipeline with dynamic branch/merge visualization inspired by git branch diagrams",
+      "Main trunk (Level 1): Start \u2192 Scan \u2192 Coding with Story Done endpoint. Checkpoint branches (Level 2) fork off coding with 5 nodes each, merge back to trunk",
+      "Completion branches extend with Testing \u2192 Done nodes before merging. Visual distinction: blue strokes for completion, orange for checkpoints",
+      "Click any node circle to cycle red \u2192 yellow \u2192 green. +Checkpoint, +Completion, New Story, and Reset All buttons",
+      "Auto-detection from PQ data: in-progress items light Coding, deployed items light branch nodes. State persists to opsflow_workflow_state in localStorage/KV"
+    ]
+  },
+  {
     "version": "v0.93.0",
     "date": "March 13, 2026",
     "tag": "FEATURE",

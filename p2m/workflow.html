@@ -3,500 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <title>Workflow Dashboard - OpsFlowBetter</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background: #0d1117;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
-
-        /* Navigation Styles */
-        .suite-nav {
-            display: flex;
-            align-items: center;
-            font-size: 12px;
-            background: #0d1117;
-            border-bottom: 1px solid #21262d;
-            padding: 8px 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 9999;
-        }
-
-        .suite-nav .suite-home {
-            display: flex;
-            align-items: center;
-            margin-right: 16px;
-            text-decoration: none;
-            flex-shrink: 0;
-            font-size: 14px;
-            font-weight: 800;
-        }
-
-        .suite-nav .suite-home:hover {
-            opacity: 0.8;
-            text-decoration: none;
-        }
-
-        .suite-nav .brand-ops {
-            color: #e6edf3;
-        }
-
-        .suite-nav .brand-flow {
-            color: #3b82f6;
-        }
-
-        .suite-nav .brand-better {
-            color: #8b5cf6;
-        }
-
-        .suite-nav .p2m-links {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex: 1;
-            justify-content: center;
-        }
-
-        .p2m-link {
-            color: #8b949e;
-            text-decoration: none;
-            padding: 2px 6px;
-        }
-
-        .p2m-link:hover {
-            color: #e6edf3;
-        }
-
-        .p2m-link.current {
-            color: #e6edf3;
-            font-weight: 600;
-        }
-
-        .nav-sep {
-            color: #30363d;
-        }
-
-        .p2m-admin-label {
-            color: #f0883e !important;
-            font-weight: 600;
-            margin-left: 12px;
-        }
-
-        /* Main Layout */
-        main {
-            margin-top: 45px;
-            padding: 32px 20px;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Breadcrumb */
-        .breadcrumb {
-            font-size: 12px;
-            color: #8b949e;
-            margin-bottom: 16px;
-        }
-
-        .breadcrumb a {
-            color: #58a6ff;
-            text-decoration: none;
-        }
-
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-
-        .breadcrumb span {
-            margin: 0 4px;
-        }
-
-        /* Page Header */
-        .page-header {
-            margin-bottom: 32px;
-        }
-
-        .page-header h1 {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .page-header .version {
-            font-size: 11px;
-            color: #8b949e;
-            background: #161b22;
-            padding: 2px 6px;
-            border-radius: 3px;
-            display: inline-block;
-            margin-left: 8px;
-        }
-
-        .page-header .tagline {
-            font-size: 14px;
-            color: #8b949e;
-            margin-top: 4px;
-        }
-
-        /* Section Container */
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #e6edf3;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Cycle Type Toggle */
-        .cycle-type-toggle {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 24px;
-            padding: 12px;
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 6px;
-            width: fit-content;
-        }
-
-        .radio-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .radio-group input[type="radio"] {
-            cursor: pointer;
-        }
-
-        .radio-group label {
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        /* LED Pipeline */
-        .led-pipeline {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: flex-start;
-            margin-bottom: 24px;
-        }
-
-        .pipeline-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-            flex: 0 1 auto;
-        }
-
-        .pipeline-step:not(:last-child)::after {
-            content: "→";
-            position: absolute;
-            right: -18px;
-            top: 20px;
-            color: #30363d;
-            font-size: 18px;
-        }
-
-        @media (max-width: 1200px) {
-            .pipeline-step:not(:last-child)::after {
-                right: -20px;
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .led-pipeline {
-                gap: 16px;
-            }
-
-            .pipeline-step {
-                flex: 0 1 calc(50% - 6px);
-            }
-
-            .pipeline-step:not(:last-child)::after {
-                right: auto;
-                bottom: -18px;
-                top: auto;
-                content: "↓";
-                font-size: 16px;
-            }
-        }
-
-        .step-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding: 12px;
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 6px;
-            min-width: 100px;
-            text-align: center;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .step-card:hover:not(.disabled) {
-            border-color: #30363d;
-            background: #0d1117;
-        }
-
-        .step-card.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .step-card.disabled:hover {
-            border-color: #21262d;
-            background: #161b22;
-        }
-
-        .led-indicator {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .led-indicator.red {
-            background: #f85149;
-            color: #fff;
-            box-shadow: 0 0 12px rgba(248, 81, 73, 0.5);
-        }
-
-        .led-indicator.yellow {
-            background: #d29922;
-            color: #fff;
-            box-shadow: 0 0 12px rgba(210, 153, 34, 0.5);
-        }
-
-        .led-indicator.green {
-            background: #2ea44f;
-            color: #fff;
-            box-shadow: 0 0 12px rgba(46, 164, 79, 0.5);
-        }
-
-        .step-name {
-            font-size: 12px;
-            font-weight: 600;
-            color: #e6edf3;
-        }
-
-        .step-who {
-            font-size: 11px;
-            color: #8b949e;
-            background: #0d1117;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
-
-        /* PQ Section */
-        .pq-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .pq-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-
-        .pq-item-title {
-            flex: 1;
-            color: #e6edf3;
-        }
-
-        .status-badge {
-            display: inline-block;
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-weight: 600;
-        }
-
-        .status-badge.pending {
-            background: #3b434b;
-            color: #8b949e;
-        }
-
-        .status-badge.in-progress {
-            background: rgba(210, 153, 34, 0.2);
-            color: #d29922;
-        }
-
-        .status-badge.deployed {
-            background: rgba(46, 164, 79, 0.2);
-            color: #2ea44f;
-        }
-
-        .status-badge.testing {
-            background: rgba(88, 166, 255, 0.2);
-            color: #58a6ff;
-        }
-
-        .status-badge.done {
-            background: rgba(46, 164, 79, 0.2);
-            color: #2ea44f;
-        }
-
-        /* Cycle History */
-        .cycle-history {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .history-entry {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 6px;
-            font-size: 12px;
-        }
-
-        .history-version {
-            font-weight: 600;
-            color: #58a6ff;
-            min-width: 50px;
-        }
-
-        .history-type {
-            background: #3b434b;
-            color: #8b949e;
-            padding: 2px 6px;
-            border-radius: 3px;
-            min-width: 80px;
-            text-align: center;
-            font-size: 11px;
-        }
-
-        .history-time {
-            color: #8b949e;
-            margin-left: auto;
-            font-size: 11px;
-        }
-
-        /* Button Styles */
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            background: #238636;
-            color: #fff;
-            border: 1px solid #1f6feb;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn:hover {
-            background: #2ea043;
-            border-color: #58a6ff;
-        }
-
-        .btn.secondary {
-            background: transparent;
-            color: #58a6ff;
-            border: 1px solid #30363d;
-        }
-
-        .btn.secondary:hover {
-            background: #161b22;
-            border-color: #58a6ff;
-        }
-
-        .btn.danger {
-            background: #da3633;
-            border-color: #f85149;
-        }
-
-        .btn.danger:hover {
-            background: #f85149;
-            border-color: #f0883e;
-        }
-
-        /* Empty State */
-        .empty-state {
-            padding: 32px;
-            text-align: center;
-            color: #8b949e;
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 6px;
-        }
-
-        .empty-state p {
-            font-size: 14px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            main {
-                padding: 20px 16px;
-                margin-top: 50px;
-            }
-
-            .page-header h1 {
-                font-size: 24px;
-            }
-
-            .section-title {
-                font-size: 14px;
-            }
-
-            .led-pipeline {
-                gap: 20px;
-            }
-        }
+            background: #0d1117; color: #e0e0e0; line-height: 1.6;
+        }
+
+        /* ═══ Nav (shared) ═══ */
+        .suite-nav { display: flex; align-items: center; font-size: 12px; background: #0d1117; border-bottom: 1px solid #21262d; padding: 8px 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 9999; }
+        .suite-nav .suite-home { display: flex; align-items: center; margin-right: 16px; text-decoration: none; flex-shrink: 0; font-size: 14px; font-weight: 800; }
+        .suite-nav .suite-home:hover { opacity: 0.8; text-decoration: none; }
+        .suite-nav .brand-ops { color: #e6edf3; }
+        .suite-nav .brand-flow { color: #3b82f6; }
+        .suite-nav .brand-better { color: #8b5cf6; }
+        .suite-nav .p2m-links { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; }
+        .p2m-link { color: #8b949e; text-decoration: none; padding: 2px 6px; }
+        .p2m-link:hover { color: #e6edf3; }
+        .p2m-link.current { color: #e6edf3; font-weight: 600; }
+        .nav-sep { color: #30363d; }
+        .p2m-admin-label { color: #f0883e !important; font-weight: 600; margin-left: 12px; }
+
+        /* ═══ Layout ═══ */
+        main { margin-top: 45px; padding: 24px 20px; max-width: 1400px; margin-left: auto; margin-right: auto; }
+        .breadcrumb { font-size: 12px; color: #8b949e; margin-bottom: 12px; }
+        .breadcrumb a { color: #58a6ff; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .page-header { margin-bottom: 24px; }
+        .page-header h1 { font-size: 28px; font-weight: 600; }
+        .page-header .version { font-size: 11px; color: #8b949e; background: #161b22; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-left: 8px; }
+        .page-header .tagline { font-size: 13px; color: #8b949e; margin-top: 4px; }
+
+        .section { margin-bottom: 32px; }
+        .section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #e6edf3; }
+
+        /* ═══ Controls ═══ */
+        .controls-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+        .btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #30363d; transition: all 0.15s; }
+        .btn-primary { background: #238636; color: #fff; border-color: #238636; }
+        .btn-primary:hover { background: #2ea043; }
+        .btn-secondary { background: transparent; color: #58a6ff; }
+        .btn-secondary:hover { background: #161b22; }
+        .btn-danger { background: #da3633; color: #fff; border-color: #da3633; }
+        .btn-danger:hover { background: #f85149; }
+        .btn-completion { background: #1f6feb; color: #fff; border-color: #1f6feb; }
+        .btn-completion:hover { background: #388bfd; }
+        .controls-sep { width: 1px; height: 24px; background: #21262d; }
+        .cycle-label { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ═══ SVG Canvas ═══ */
+        .svg-container { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 16px; overflow-x: auto; overflow-y: hidden; }
+        .svg-container svg { display: block; }
+        /* SVG node hover */
+        .svg-container svg .node-circle { cursor: pointer; transition: filter 0.15s; }
+        .svg-container svg .node-circle:hover { filter: brightness(1.3); }
+        .svg-container svg .node-label { pointer-events: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .svg-container svg .who-label { pointer-events: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .svg-container svg .branch-label { pointer-events: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+        /* ═══ Legend ═══ */
+        .legend { display: flex; gap: 16px; margin-top: 12px; font-size: 11px; color: #8b949e; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .legend-dot.red { background: #f85149; }
+        .legend-dot.yellow { background: #d29922; }
+        .legend-dot.green { background: #2ea44f; }
+
+        /* ═══ PQ & History ═══ */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+        .pq-list, .cycle-history { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+        .pq-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #0d1117; border: 1px solid #21262d; border-radius: 4px; font-size: 12px; }
+        .pq-item-title { flex: 1; color: #c9d1d9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status-badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; white-space: nowrap; }
+        .status-badge.new { background: #3b434b; color: #8b949e; }
+        .status-badge.discussing { background: rgba(136,132,216,0.2); color: #8884d8; }
+        .status-badge.in-progress { background: rgba(210,153,34,0.2); color: #d29922; }
+        .status-badge.deployed { background: rgba(130,80,223,0.2); color: #a371f7; }
+        .status-badge.testing { background: rgba(88,166,255,0.2); color: #58a6ff; }
+        .status-badge.rework { background: rgba(248,81,73,0.2); color: #f85149; }
+        .status-badge.done { background: rgba(46,164,79,0.2); color: #2ea44f; }
+        .history-entry { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #0d1117; border: 1px solid #21262d; border-radius: 4px; font-size: 11px; }
+        .history-version { font-weight: 600; color: #58a6ff; min-width: 55px; }
+        .history-type { background: #3b434b; color: #8b949e; padding: 2px 6px; border-radius: 3px; font-size: 10px; }
+        .history-type.completion { background: rgba(31,111,235,0.2); color: #58a6ff; }
+        .history-time { color: #484f58; margin-left: auto; }
+        .empty-state { padding: 24px; text-align: center; color: #484f58; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -519,312 +113,457 @@
 
     <main>
         <div class="breadcrumb">
-            <a href="admin.html">Admin</a>
-            <span>›</span>
-            <span>Workflow</span>
+            <a href="admin.html">Admin</a> <span style="margin:0 4px;">&rsaquo;</span> Workflow
         </div>
 
         <div class="page-header">
-            <h1>
-                Workflow Dashboard
-                <span class="version" id="version-span">v1</span>
-            </h1>
-            <p class="tagline">Dev cycle tracking — coding to production</p>
+            <h1>Workflow Dashboard <span class="version suite-ver"></span></h1>
+            <p class="tagline">Dev cycle tracking &mdash; coding to production</p>
         </div>
 
-        <!-- Cycle Type Toggle -->
+        <!-- Controls -->
         <div class="section">
-            <div class="cycle-type-toggle">
-                <div class="radio-group">
-                    <input type="radio" id="cycle-checkpoint" name="cycle-type" value="checkpoint" checked>
-                    <label for="cycle-checkpoint">Checkpoint</label>
-                </div>
-                <div class="radio-group">
-                    <input type="radio" id="cycle-completion" name="cycle-type" value="completion">
-                    <label for="cycle-completion">Completion</label>
-                </div>
+            <div class="controls-bar">
+                <button class="btn btn-primary" id="btn-checkpoint">+ Checkpoint</button>
+                <button class="btn btn-completion" id="btn-completion">+ Completion</button>
+                <div class="controls-sep"></div>
+                <button class="btn btn-secondary" id="btn-new-story">New Story</button>
+                <button class="btn btn-danger" id="btn-reset">Reset All</button>
             </div>
         </div>
 
-        <!-- Active Cycle Section -->
+        <!-- SVG Visualization -->
         <div class="section">
-            <h2 class="section-title">Active Cycle</h2>
-            <div class="led-pipeline" id="led-pipeline">
-                <!-- Steps will be generated by JavaScript -->
+            <h2 class="section-title">Active Story</h2>
+            <div class="svg-container" id="svg-container">
+                <svg id="workflow-svg" xmlns="http://www.w3.org/2000/svg"></svg>
             </div>
-            <div class="btn-group">
-                <button class="btn danger" id="reset-cycle-btn">Reset Cycle</button>
-            </div>
-        </div>
-
-        <!-- Current PQ Section -->
-        <div class="section">
-            <h2 class="section-title">Current Priority Queue</h2>
-            <div class="pq-list" id="pq-list">
-                <div class="empty-state">
-                    <p>No items in Priority Queue</p>
-                </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-dot red"></div> Not started</div>
+                <div class="legend-item"><div class="legend-dot yellow"></div> In progress</div>
+                <div class="legend-item"><div class="legend-dot green"></div> Complete</div>
+                <div class="legend-item" style="margin-left:12px;color:#484f58;">Click any node to cycle its LED</div>
             </div>
         </div>
 
-        <!-- Cycle History -->
-        <div class="section">
-            <h2 class="section-title">Cycle History</h2>
-            <div class="cycle-history" id="cycle-history">
-                <div class="empty-state">
-                    <p>No completed cycles yet</p>
-                </div>
+        <!-- PQ + History side by side -->
+        <div class="two-col">
+            <div class="section">
+                <h2 class="section-title">Priority Queue</h2>
+                <div class="pq-list" id="pq-list"></div>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Cycle History</h2>
+                <div class="cycle-history" id="cycle-history"></div>
             </div>
         </div>
     </main>
 
     <script src="../shared/opsflow-sync.js"></script>
     <script>
-        // Initialize OpsFlow
-        OpsFlow.init();
+    OpsFlow.init();
 
-        // Step definitions
-        const STEPS = [
-            { id: 'scan', name: 'Scan', who: 'Claude', order: 1 },
-            { id: 'coding', name: 'Coding', who: 'Claude', order: 2 },
-            { id: 'commit-ready', name: 'Commit Ready', who: 'Claude', order: 3 },
-            { id: 'committed', name: 'Committed', who: 'Christian', order: 4 },
-            { id: 'pushed', name: 'Pushed', who: 'Christian', order: 5 },
-            { id: 'deployed', name: 'Deployed', who: 'Auto', order: 6 },
-            { id: 'verify', name: 'Verify', who: 'Christian', order: 7 },
-            { id: 'testing', name: 'Testing', who: 'Auto', order: 8 },
-            { id: 'done', name: 'Done', who: 'Auto', order: 9 }
-        ];
+    // ═══ Constants ═══
+    var STATE_KEY = 'opsflow_workflow_state';
+    var HISTORY_KEY = 'opsflow_workflow_cycles';
+    var PQ_KEY = 'opsflow_tasks_v2';
 
-        // Storage keys
-        const STATE_KEY = 'opsflow_workflow_state';
-        const HISTORY_KEY = 'opsflow_workflow_cycles';
-        const PQ_KEY = 'opsflow_tasks_v2';
+    // SVG layout constants
+    var NODE_R = 14;
+    var NODE_SPACING = 100;
+    var LEVEL_1_Y = 50;
+    var LEVEL_2_Y = 150;
+    var LEVEL_3_Y = 250;
+    var LEFT_PAD = 60;
+    var BRANCH_CURVE = 30;
 
-        // Application state
-        let currentState = {};
-        let cycleType = 'checkpoint';
+    var COLORS = { red: '#f85149', yellow: '#d29922', green: '#2ea44f', trunk: '#30363d', branch: '#30363d' };
 
-        // Initialize state
-        function initializeState() {
-            const stored = OpsFlow.getLocal(STATE_KEY);
-            if (stored) {
-                currentState = stored;
-            } else {
-                STEPS.forEach(step => {
-                    currentState[step.id] = 'red';
-                });
-                saveState();
-            }
+    // Main trunk nodes
+    var TRUNK_NODES = [
+        { id: 'start',  label: 'Start',  who: 'Claude' },
+        { id: 'scan',   label: 'Scan',   who: 'Claude' },
+        { id: 'coding', label: 'Coding', who: 'Claude' }
+        // Completion and Done are added dynamically when a completion branch exists
+    ];
+
+    // Checkpoint branch template
+    var CHECKPOINT_NODES = [
+        { id: 'commit',  label: 'Commit Ready', who: 'Claude' },
+        { id: 'committed', label: 'Committed',  who: 'Christian' },
+        { id: 'pushed',  label: 'Pushed',       who: 'Christian' },
+        { id: 'deployed', label: 'Deployed',    who: 'Auto' },
+        { id: 'verify',  label: 'Verify',       who: 'Claude' }
+    ];
+
+    // Completion branch template (extends checkpoint + adds testing)
+    var COMPLETION_EXTRA = [
+        { id: 'testing', label: 'Testing', who: 'Claude' },
+        { id: 'done',    label: 'Done',    who: 'Auto' }
+    ];
+
+    // ═══ State ═══
+    var story = loadStory();
+
+    function defaultStory() {
+        return {
+            version: OpsFlow.getLocal('opsflow_version') || '0.93.0',
+            trunk: { start: 'red', scan: 'red', coding: 'red' },
+            branches: [],  // { type: 'checkpoint'|'completion', nodes: { commit:'red', ... }, version: '' }
+            completionMerged: false
+        };
+    }
+
+    function loadStory() {
+        var s = OpsFlow.getLocal(STATE_KEY);
+        if (s && s.trunk) return s;
+        return defaultStory();
+    }
+
+    function saveStory() {
+        OpsFlow.set(STATE_KEY, story);
+    }
+
+    // ═══ Actions ═══
+    function cycleTrunkNode(nodeId) {
+        var c = story.trunk[nodeId] || 'red';
+        story.trunk[nodeId] = c === 'red' ? 'yellow' : c === 'yellow' ? 'green' : 'red';
+        saveStory();
+        render();
+    }
+
+    function cycleBranchNode(branchIdx, nodeId) {
+        var b = story.branches[branchIdx];
+        if (!b) return;
+        var c = b.nodes[nodeId] || 'red';
+        b.nodes[nodeId] = c === 'red' ? 'yellow' : c === 'yellow' ? 'green' : 'red';
+        saveStory();
+        render();
+    }
+
+    function addCheckpoint() {
+        var nodes = {};
+        CHECKPOINT_NODES.forEach(function(n) { nodes[n.id] = 'red'; });
+        story.branches.push({
+            type: 'checkpoint',
+            nodes: nodes,
+            version: 'v' + (OpsFlow.getLocal('opsflow_version') || '?')
+        });
+        saveStory();
+        render();
+    }
+
+    function addCompletion() {
+        // Check if completion already exists
+        for (var i = 0; i < story.branches.length; i++) {
+            if (story.branches[i].type === 'completion') return;
         }
+        var nodes = {};
+        CHECKPOINT_NODES.forEach(function(n) { nodes[n.id] = 'red'; });
+        COMPLETION_EXTRA.forEach(function(n) { nodes[n.id] = 'red'; });
+        story.branches.push({
+            type: 'completion',
+            nodes: nodes,
+            version: 'v' + (OpsFlow.getLocal('opsflow_version') || '?')
+        });
+        saveStory();
+        render();
+    }
 
-        // Save state to localStorage
-        function saveState() {
-            OpsFlow.set(STATE_KEY, currentState);
-        }
-
-        // Cycle LED through colors: red → yellow → green → red
-        function cycleLED(stepId) {
-            const step = STEPS.find(s => s.id === stepId);
-            if (cycleType === 'checkpoint' && (step.order === 8 || step.order === 9)) {
-                return; // Don't allow cycling for testing/done in checkpoint mode
-            }
-
-            const current = currentState[stepId] || 'red';
-            const colors = ['red', 'yellow', 'green'];
-            const currentIndex = colors.indexOf(current);
-            const nextIndex = (currentIndex + 1) % colors.length;
-            currentState[stepId] = colors[nextIndex];
-            saveState();
-            render();
-        }
-
-        // Auto-detect LED states based on PQ and system state
-        function autoDetectStates() {
-            const tasksData = OpsFlow.getLocal(PQ_KEY);
-            const pq = (tasksData && tasksData.priorityQueue) ? tasksData.priorityQueue : [];
-
-            // Check for in-progress items → set Coding to yellow
-            const hasInProgress = pq.some(item => item.status === 'in-progress');
-            if (hasInProgress && currentState['coding'] === 'red') {
-                currentState['coding'] = 'yellow';
-                saveState();
-            }
-
-            // Check for deployed items → set Deployed to green
-            const hasDeployed = pq.some(item => item.status === 'deployed');
-            if (hasDeployed && currentState['deployed'] !== 'green') {
-                currentState['deployed'] = 'green';
-                saveState();
-            }
-
-            // Check for testing items → set Testing to yellow
-            const hasTesting = pq.some(item => item.status === 'testing');
-            if (hasTesting && currentState['testing'] === 'red') {
-                currentState['testing'] = 'yellow';
-                saveState();
-            }
-        }
-
-        // Render the LED pipeline
-        function renderPipeline() {
-            const pipeline = document.getElementById('led-pipeline');
-            pipeline.innerHTML = '';
-
-            STEPS.forEach(step => {
-                const isDisabled = cycleType === 'checkpoint' && (step.order === 8 || step.order === 9);
-                const status = currentState[step.id] || 'red';
-
-                const card = document.createElement('div');
-                card.className = `step-card ${isDisabled ? 'disabled' : ''}`;
-                if (!isDisabled) {
-                    card.addEventListener('click', () => cycleLED(step.id));
-                }
-
-                const led = document.createElement('div');
-                led.className = `led-indicator ${status}`;
-                led.textContent = status === 'red' ? '○' : status === 'yellow' ? '◐' : '✓';
-
-                const name = document.createElement('div');
-                name.className = 'step-name';
-                name.textContent = step.name;
-
-                const who = document.createElement('div');
-                who.className = 'step-who';
-                who.textContent = step.who;
-
-                card.appendChild(led);
-                card.appendChild(name);
-                card.appendChild(who);
-
-                pipeline.appendChild(card);
-            });
-        }
-
-        // Render PQ items
-        function renderPQ() {
-            const pqContainer = document.getElementById('pq-list');
-            const tasksData = OpsFlow.getLocal(PQ_KEY);
-            const pqData = (tasksData && tasksData.priorityQueue) ? tasksData.priorityQueue : [];
-
-            if (pqData.length === 0) {
-                pqContainer.innerHTML = '<div class="empty-state"><p>No items in Priority Queue</p></div>';
-                return;
-            }
-
-            pqContainer.innerHTML = '';
-            pqData.forEach(item => {
-                const statusClass = item.status ? item.status.toLowerCase().replace(/\s+/g, '-') : 'pending';
-                const pqItem = document.createElement('div');
-                pqItem.className = 'pq-item';
-                pqItem.innerHTML = `
-                    <span class="pq-item-title">${item.title || 'Untitled'}</span>
-                    <span class="status-badge ${statusClass}">${item.status || 'Pending'}</span>
-                `;
-                pqContainer.appendChild(pqItem);
-            });
-        }
-
-        // Render cycle history
-        function renderHistory() {
-            const historyContainer = document.getElementById('cycle-history');
-            const history = OpsFlow.getLocal(HISTORY_KEY) || [];
-
-            if (history.length === 0) {
-                historyContainer.innerHTML = '<div class="empty-state"><p>No completed cycles yet</p></div>';
-                return;
-            }
-
-            historyContainer.innerHTML = '';
-            const sortedHistory = [...history].reverse();
-            sortedHistory.slice(0, 20).forEach(entry => {
-                const time = new Date(entry.timestamp);
-                const timeStr = time.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                });
-
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-entry';
-                historyItem.innerHTML = `
-                    <span class="history-version">${entry.version}</span>
-                    <span class="history-type">${entry.type === 'completion' ? 'Completion' : 'Checkpoint'}</span>
-                    <span class="history-time">${timeStr}</span>
-                `;
-                historyContainer.appendChild(historyItem);
-            });
-        }
-
-        // Update version span
-        function updateVersion() {
-            const versionSpan = document.getElementById('version-span');
-            const versionNum = OpsFlow.getLocal('opsflow_version') || 1;
-            versionSpan.textContent = `v${versionNum}`;
-        }
-
-        // Main render function
-        function render() {
-            updateVersion();
-            renderPipeline();
-            renderPQ();
-            renderHistory();
-        }
-
-        // Reset cycle
-        document.getElementById('reset-cycle-btn').addEventListener('click', () => {
-            // Reset all LEDs to red
-            STEPS.forEach(step => {
-                currentState[step.id] = 'red';
-            });
-            saveState();
-
-            // Log the cycle completion
-            const history = OpsFlow.getLocal(HISTORY_KEY) || [];
-            const versionNum = OpsFlow.getLocal('opsflow_version') || 1;
-            history.push({
-                version: `v${versionNum}`,
-                type: cycleType,
+    function newStory() {
+        // Log current story to history
+        var hist = OpsFlow.getLocal(HISTORY_KEY) || [];
+        if (story.branches.length > 0) {
+            hist.push({
+                version: 'v' + story.version,
+                type: story.branches.length > 0 && story.branches[story.branches.length - 1].type === 'completion' ? 'completion' : 'checkpoint',
+                checkpoints: story.branches.filter(function(b) { return b.type === 'checkpoint'; }).length,
                 timestamp: new Date().toISOString()
             });
-            OpsFlow.set(HISTORY_KEY, history);
-
-            render();
-        });
-
-        // Cycle type toggle
-        document.getElementById('cycle-checkpoint').addEventListener('change', (e) => {
-            if (e.target.checked) {
-                cycleType = 'checkpoint';
-                render();
-            }
-        });
-
-        document.getElementById('cycle-completion').addEventListener('change', (e) => {
-            if (e.target.checked) {
-                cycleType = 'completion';
-                render();
-            }
-        });
-
-        // Listen for storage changes (PQ updates, version changes)
-        window.addEventListener('storage', (e) => {
-            if (e.key === PQ_KEY || e.key === 'opsflow_version') {
-                autoDetectStates();
-                render();
-            }
-        });
-
-        // Also check on page load
-        window.addEventListener('load', () => {
-            autoDetectStates();
-            render();
-        });
-
-        // Initialize
-        initializeState();
-        autoDetectStates();
+            OpsFlow.set(HISTORY_KEY, hist);
+        }
+        story = defaultStory();
+        saveStory();
         render();
+    }
+
+    function resetAll() {
+        if (!confirm('Reset the entire workflow dashboard? This clears the active story and all history.')) return;
+        story = defaultStory();
+        saveStory();
+        OpsFlow.set(HISTORY_KEY, []);
+        render();
+    }
+
+    // ═══ Auto-detection ═══
+    function autoDetect() {
+        var tasksData = OpsFlow.getLocal(PQ_KEY);
+        var pq = (tasksData && tasksData.priorityQueue) ? tasksData.priorityQueue : [];
+
+        var hasInProgress = pq.some(function(i) { return i.status === 'in-progress'; });
+        if (hasInProgress && story.trunk.coding === 'red') {
+            story.trunk.coding = 'yellow';
+            saveStory();
+        }
+    }
+
+    // ═══ SVG Rendering ═══
+    function render() {
+        autoDetect();
+        renderSVG();
+        renderPQ();
+        renderHistory();
+    }
+
+    function renderSVG() {
+        var svg = document.getElementById('workflow-svg');
+        svg.innerHTML = '';
+
+        // Calculate dimensions
+        var trunkNodeCount = 3; // start, scan, coding
+        var hasCompletion = story.branches.some(function(b) { return b.type === 'completion'; });
+        if (hasCompletion) trunkNodeCount += 1; // + "Done" node at end of trunk
+
+        var maxBranchNodes = 0;
+        story.branches.forEach(function(b) {
+            var count = Object.keys(b.nodes).length;
+            if (count > maxBranchNodes) maxBranchNodes = count;
+        });
+
+        var branchCount = story.branches.length;
+        // Width: trunk + space for all branches laid out horizontally
+        var totalBranchWidth = 0;
+        story.branches.forEach(function(b) {
+            totalBranchWidth += Object.keys(b.nodes).length * NODE_SPACING + NODE_SPACING;
+        });
+
+        var trunkWidth = trunkNodeCount * NODE_SPACING;
+        var svgWidth = Math.max(LEFT_PAD + trunkWidth + totalBranchWidth + 60, 600);
+        var svgHeight = branchCount > 0 ? LEVEL_2_Y + 70 : LEVEL_1_Y + 70;
+        // If any completion branch exists with testing, add level 3 space
+        if (hasCompletion) svgHeight = LEVEL_2_Y + 70;
+
+        svg.setAttribute('width', svgWidth);
+        svg.setAttribute('height', svgHeight);
+        svg.setAttribute('viewBox', '0 0 ' + svgWidth + ' ' + svgHeight);
+
+        // ── Draw trunk line ──
+        var trunkStartX = LEFT_PAD;
+        var trunkEndX = LEFT_PAD + (trunkNodeCount - 1) * NODE_SPACING;
+
+        // Extend trunk through all branch merge points
+        var lastMergeX = trunkEndX;
+        var branchX = trunkEndX + NODE_SPACING; // first branch starts after coding node
+        story.branches.forEach(function(b) {
+            var nodeCount = Object.keys(b.nodes).length;
+            var mergeX = branchX + (nodeCount - 1) * NODE_SPACING + NODE_SPACING;
+            if (mergeX > lastMergeX) lastMergeX = mergeX;
+            branchX = mergeX + NODE_SPACING * 0.5;
+        });
+
+        if (hasCompletion) {
+            // Done node at the end
+            lastMergeX += NODE_SPACING;
+        }
+
+        // Main trunk line
+        drawLine(svg, trunkStartX, LEVEL_1_Y, lastMergeX, LEVEL_1_Y, COLORS.trunk, 3);
+
+        // ── Draw trunk nodes ──
+        var trunkPositions = {};
+        TRUNK_NODES.forEach(function(node, i) {
+            var x = trunkStartX + i * NODE_SPACING;
+            trunkPositions[node.id] = x;
+            var color = COLORS[story.trunk[node.id] || 'red'];
+            drawNode(svg, x, LEVEL_1_Y, color, node.label, node.who, function() {
+                cycleTrunkNode(node.id);
+            });
+        });
+
+        // ── Draw branches ──
+        branchX = trunkPositions['coding'] + NODE_SPACING;
+
+        story.branches.forEach(function(branch, bIdx) {
+            var nodeKeys = branch.type === 'completion'
+                ? CHECKPOINT_NODES.concat(COMPLETION_EXTRA).map(function(n) { return n.id; })
+                : CHECKPOINT_NODES.map(function(n) { return n.id; });
+            var nodeCount = nodeKeys.length;
+
+            var branchStartX = branchX;
+            var branchEndX = branchX + (nodeCount - 1) * NODE_SPACING;
+            var mergeX = branchEndX + NODE_SPACING;
+
+            // Branch arc down from trunk
+            drawBranchArc(svg, branchStartX - NODE_SPACING * 0.5, LEVEL_1_Y, branchStartX, LEVEL_2_Y, branch.type === 'completion' ? '#1f6feb' : COLORS.branch);
+
+            // Branch horizontal line
+            drawLine(svg, branchStartX, LEVEL_2_Y, branchEndX, LEVEL_2_Y, branch.type === 'completion' ? '#1f6feb' : COLORS.branch, 2);
+
+            // Merge arc back up to trunk
+            drawBranchArc(svg, branchEndX, LEVEL_2_Y, mergeX + NODE_SPACING * 0.5, LEVEL_1_Y, branch.type === 'completion' ? '#1f6feb' : COLORS.branch);
+
+            // Branch label
+            var labelText = branch.type === 'completion' ? 'Completion' : 'Checkpoint ' + (bIdx + 1);
+            if (branch.version) labelText += ' (' + branch.version + ')';
+            drawText(svg, branchStartX + (branchEndX - branchStartX) / 2, LEVEL_2_Y - 28, labelText, '10px', branch.type === 'completion' ? '#58a6ff' : '#484f58', 'branch-label');
+
+            // Branch nodes
+            var allNodeDefs = CHECKPOINT_NODES.concat(COMPLETION_EXTRA);
+            nodeKeys.forEach(function(nodeId, nIdx) {
+                var x = branchStartX + nIdx * NODE_SPACING;
+                var nodeDef = allNodeDefs.find(function(n) { return n.id === nodeId; });
+                var color = COLORS[branch.nodes[nodeId] || 'red'];
+                drawNode(svg, x, LEVEL_2_Y, color, nodeDef ? nodeDef.label : nodeId, nodeDef ? nodeDef.who : '', (function(bi, ni) {
+                    return function() { cycleBranchNode(bi, ni); };
+                })(bIdx, nodeId));
+            });
+
+            // Merge point on trunk (small dot)
+            drawLine(svg, trunkPositions['coding'], LEVEL_1_Y, mergeX + NODE_SPACING * 0.5, LEVEL_1_Y, COLORS.trunk, 3);
+            drawSmallDot(svg, mergeX + NODE_SPACING * 0.5, LEVEL_1_Y, '#484f58');
+
+            branchX = mergeX + NODE_SPACING;
+        });
+
+        // Done node on trunk if completion exists
+        if (hasCompletion) {
+            var doneX = lastMergeX;
+            var doneStatus = 'red';
+            // Check if the completion branch's done node is green
+            var compBranch = story.branches.find(function(b) { return b.type === 'completion'; });
+            if (compBranch && compBranch.nodes['done'] === 'green') doneStatus = 'green';
+            else if (compBranch && compBranch.nodes['testing'] !== 'red') doneStatus = 'yellow';
+
+            drawNode(svg, doneX, LEVEL_1_Y, COLORS[doneStatus], 'Story Done', 'Auto', function() {});
+        }
+    }
+
+    // ── SVG Drawing Helpers ──
+    function drawLine(svg, x1, y1, x2, y2, color, width) {
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+        line.setAttribute('stroke', color); line.setAttribute('stroke-width', width || 2);
+        line.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(line);
+    }
+
+    function drawBranchArc(svg, x1, y1, x2, y2, color) {
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        // Cubic bezier for smooth arc
+        var midY = (y1 + y2) / 2;
+        var d = 'M ' + x1 + ',' + y1 + ' C ' + x1 + ',' + midY + ' ' + x2 + ',' + midY + ' ' + x2 + ',' + y2;
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(path);
+    }
+
+    function drawNode(svg, x, y, color, label, who, onClick) {
+        // Glow
+        var glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        glow.setAttribute('cx', x); glow.setAttribute('cy', y);
+        glow.setAttribute('r', NODE_R + 4);
+        glow.setAttribute('fill', color); glow.setAttribute('opacity', '0.2');
+        svg.appendChild(glow);
+
+        // Circle
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x); circle.setAttribute('cy', y);
+        circle.setAttribute('r', NODE_R);
+        circle.setAttribute('fill', color);
+        circle.setAttribute('stroke', '#0d1117'); circle.setAttribute('stroke-width', '2');
+        circle.setAttribute('class', 'node-circle');
+        if (onClick) circle.addEventListener('click', onClick);
+        svg.appendChild(circle);
+
+        // Check mark for green
+        if (color === COLORS.green) {
+            drawText(svg, x, y + 4, '\u2713', '12px', '#fff', 'node-label', true);
+        } else if (color === COLORS.yellow) {
+            drawText(svg, x, y + 4, '\u25D0', '10px', '#fff', 'node-label', true);
+        }
+
+        // Label below
+        drawText(svg, x, y + NODE_R + 16, label, '11px', '#c9d1d9', 'node-label', true);
+
+        // Who label below that
+        if (who) {
+            drawText(svg, x, y + NODE_R + 30, who, '9px', '#484f58', 'who-label', true);
+        }
+    }
+
+    function drawSmallDot(svg, x, y, color) {
+        var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', x); dot.setAttribute('cy', y);
+        dot.setAttribute('r', 4);
+        dot.setAttribute('fill', color);
+        svg.appendChild(dot);
+    }
+
+    function drawText(svg, x, y, text, fontSize, color, className, centered) {
+        var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', x); t.setAttribute('y', y);
+        t.setAttribute('font-size', fontSize);
+        t.setAttribute('fill', color);
+        if (className) t.setAttribute('class', className);
+        if (centered) t.setAttribute('text-anchor', 'middle');
+        t.textContent = text;
+        svg.appendChild(t);
+    }
+
+    // ═══ PQ Render ═══
+    function renderPQ() {
+        var el = document.getElementById('pq-list');
+        var tasksData = OpsFlow.getLocal(PQ_KEY);
+        var pq = (tasksData && tasksData.priorityQueue) ? tasksData.priorityQueue : [];
+        if (pq.length === 0) { el.innerHTML = '<div class="empty-state">No items in Priority Queue</div>'; return; }
+        el.innerHTML = '';
+        pq.forEach(function(item) {
+            var statusClass = item.status ? item.status.toLowerCase().replace(/\s+/g, '-') : 'new';
+            var div = document.createElement('div');
+            div.className = 'pq-item';
+            div.innerHTML = '<span class="pq-item-title">' + (item.title || 'Untitled') + '</span><span class="status-badge ' + statusClass + '">' + (item.status || 'new') + '</span>';
+            el.appendChild(div);
+        });
+    }
+
+    // ═══ History Render ═══
+    function renderHistory() {
+        var el = document.getElementById('cycle-history');
+        var hist = OpsFlow.getLocal(HISTORY_KEY) || [];
+        if (hist.length === 0) { el.innerHTML = '<div class="empty-state">No completed cycles yet</div>'; return; }
+        el.innerHTML = '';
+        var sorted = hist.slice().reverse().slice(0, 20);
+        sorted.forEach(function(entry) {
+            var t = new Date(entry.timestamp);
+            var timeStr = t.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + t.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            var div = document.createElement('div');
+            div.className = 'history-entry';
+            div.innerHTML = '<span class="history-version">' + (entry.version || '?') + '</span>'
+                + '<span class="history-type ' + (entry.type || '') + '">' + (entry.type === 'completion' ? 'Completion' : 'Checkpoint') + '</span>'
+                + (entry.checkpoints ? '<span style="color:#484f58;font-size:10px;">' + entry.checkpoints + ' checkpoints</span>' : '')
+                + '<span class="history-time">' + timeStr + '</span>';
+            el.appendChild(div);
+        });
+    }
+
+    // ═══ Event Listeners ═══
+    document.getElementById('btn-checkpoint').addEventListener('click', addCheckpoint);
+    document.getElementById('btn-completion').addEventListener('click', addCompletion);
+    document.getElementById('btn-new-story').addEventListener('click', newStory);
+    document.getElementById('btn-reset').addEventListener('click', resetAll);
+
+    // Listen for storage changes
+    window.addEventListener('storage', function(e) {
+        if (e.key === PQ_KEY || e.key === 'opsflow_version') render();
+    });
+
+    // ═══ Init ═══
+    render();
     </script>
+    <script>OpsFlow.init();</script>
 </body>
 </html>
