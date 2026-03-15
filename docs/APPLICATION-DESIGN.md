@@ -1,6 +1,6 @@
 # OpsFlowBetter — Application Design Document
 **Living document — updated as the project evolves**
-**Last updated:** March 14, 2026 — v0.98.0
+**Last updated:** March 15, 2026 — v1.0.0
 
 ---
 
@@ -38,19 +38,16 @@ This project is built by a human/AI team. The AI is not a tool that runs in the 
 
 ### Communication Protocol: The Priority Queue (PQ)
 
-The PQ on the Tasks page is the shared workspace — not a task list for the human, but a **two-way communication dashboard**. Status badges ARE the conversation:
+The PQ lives on the **WFD (Workflow Dashboard) PQ tab** (v1.0.0) — the single management page for all project tracking. PQ status badges are **read-only** and driven by the WFD ball flow via `autoDetect()`.
 
-| Status | Who Sets It | What It Means |
-|--------|------------|---------------|
+| Status | Driven By | What It Means |
+|--------|-----------|---------------|
 | New | System | Task created, not started |
-| Discussing | Claude | Active discussion/planning |
-| In Progress | Claude | Claude is coding |
-| Deployed | Christian | Code is pushed and live — signal for Claude to proceed |
-| Testing | Claude | Self-testing in progress |
-| Rework | Claude | Fix needed — Claude sets this BEFORE fixing (communication for the observer) |
-| Done | Claude | ONLY after Christian confirms Testing Complete |
+| In Progress | Ball flow | Start button clicked, Code ball active |
+| Deployed | Ball flow | Verify ball green |
+| Done | Ball flow | Done ball green |
 
-**Key insight:** PQ badges replace chat messages for status communication. Christian clicks Deployed instead of typing "DEPLOY COMPLETE." Claude reads the PQ and picks up. Minimal narration, maximum signal.
+**Key insight (v1.0.0):** The WFD ball-driven workflow IS the status communication. No manual clicking of status badges. Christian says "DEPLOY COMPLETE" and Claude advances the balls. The balls drive the PQ status automatically.
 
 ### Development Workflow
 
@@ -75,25 +72,30 @@ The PQ on the Tasks page is the shared workspace — not a task list for the hum
 
 ### Workflow Dashboard (WFD) — v0.93.0+
 
-The WFD (`workflow.html`) is the live command center for the dev cycle. It visualizes the entire flow as an interactive story diagram with clickable LED nodes.
+The WFD (`workflow.html`) is the **primary workflow interface** (v1.0.0). It consolidates story tracking, PQ, Backlog, Feedback, and History into a single tabbed page with an interactive ball-driven flow diagram.
 
-**Components:**
-- **Story Diagram**: SVG flowchart with LED nodes (red → yellow → green). Nodes: Start, Scan, Coding (trunk) → fork to Commit Ready, Committed, Pushed, Deployed, Verify (checkpoint/completion branch). Click nodes to cycle status.
-- **Action Queue**: Banner system for queuing commit messages. Claude queues via `opsflow_action_queue` KV key. Christian clicks "Copy Commit Msg" then "Done ✓". The `action.detail` field contains the FULL commit message (title + TYPE lines). `action.message` is just the banner headline.
-- **Discussion System**: Numbered discussion threads stored in `opsflow_discussions` KV key. Created via "+ Discussion" button. Used for async communication between Claude and Christian.
-- **Priority Queue**: Mirrors Tasks page PQ with status badges.
+**5-Tab Layout (v1.0.0 — T-132):**
+- **Story tab**: SVG ball diagram showing 11-ball trunk (Start → Discuss → GO → Scan → Code → Commit Ready → Commit → Push → Deploy → Verify → Done). Each ball has an owner (Christian/Claude/Both/Auto) and state (red/yellow/green).
+- **PQ tab**: Priority Queue with Start Story buttons, read-only status badges driven by ball flow, Backlog demote buttons.
+- **Backlog tab**: All backlog items grouped by category with "↑ PQ" promote buttons.
+- **Feedback tab**: Feedback form (category, priority, story tag, text) with Promote and Remove buttons. Replaces the old Discussion system.
+- **History tab**: Cycle history entries.
 
-**Layout**: Multi-row SVG with continuation markers (numbered circles ①②③) at row boundaries. Asymmetric cubic Bezier curves for fork/merge paths. Constants: NODE_R=14, NODE_SPACING=100, ROW_HEIGHT=180, MAX_ROW_WIDTH=1080.
+**Key components:**
+- **Action Queue**: Banner system for commit messages. Claude queues via `opsflow_action_queue`. Christian clicks "Copy Commit Msg" then "Done ✓". `action.detail` = full commit message; `action.message` = banner headline.
+- **Feedback System (replaces Discussions)**: Feedback items with optional story tagging. Story-tagged items block the Done ball. Promote sends to Backlog with category→tag mapping.
 
-**Future — Action Balls (Discussion #16)**: Event-driven workflow steps on the WFD trunk. Each ball = action point with owner (Claude/Christian), LED color, trigger, and attached instructions in KV. Goal: replace the workflow doc with visual, compaction-proof workflow steps. 17 balls identified and in backlog.
+**Layout**: Multi-row SVG with continuation markers (numbered circles ①②③). Constants: NODE_R=14, NODE_SPACING=100, ROW_HEIGHT=180, MAX_ROW_WIDTH=1080.
 
 ### The Rules
 
+- **No work without a story.** Every piece of work ties to a PQ item. Christian clicks Start.
 - **Claude does NOT start coding until Christian says GO.** Discussion is free. Premature execution is expensive.
 - **Claude does NOT commit.** Christian reviews and pushes all code.
 - **Claude does NOT decide GO/NO-GO on products.** Claude presents evidence, Christian decides.
-- **Claude sets Rework BEFORE fixing** — it's communication for the observer.
-- **Deployed means "your turn"** — Claude reads PQ and proceeds without requiring chat.
+- **Scope discipline.** New items during a story → Feedback item. Never code out of scope.
+- **"YELLOW DONE" command.** Christian says this to advance current yellow ball to green and next to yellow.
+- **Claude does not remove Feedback items.** Christian decides when to Promote or Remove.
 
 ### AI Assist Within the Product
 
@@ -700,10 +702,10 @@ All P2M pages live at `opsflowbetter.com/p2m/`:
 | Services | services.html | External tools tracking |
 | Admin Hub | admin.html | Single entry point to admin tools |
 | Diagrams | diagrams.html | Flow diagrams, architecture visuals |
-| Workflow | workflow.html | **Workflow Dashboard (WFD)** — live dev cycle visualization (T-119, v0.93.0+) |
+| Workflow | workflow.html | **Workflow Dashboard (WFD)** — primary interface with 5 tabs: Story, PQ, Backlog, Feedback, History (v1.0.0) |
 | Changelog | changelog.html | Version history |
-| Tasks | tasks.html | PQ + Backlog — the shared AI/Human dashboard |
-| Feedback | feedback.html | Standalone feedback form |
+| Tasks | tasks.html | **DEPRECATED (v1.0.0)** — PQ/Backlog consolidated into WFD |
+| Feedback | feedback.html | **DEPRECATED (v1.0.0)** — Feedback consolidated into WFD Feedback tab |
 | Tester | tester.html | Self-test checklist |
 | Materials Catalog | TBD | New page — materials, hardware, packaging costs |
 
@@ -733,8 +735,8 @@ Plus **LaunchPad** at root (`launchpad.html`) — hub with shortcuts and admin m
 | `opsflow_version` | Suite version (synced to KV) |
 | `opsflow_changelog` | Changelog entries |
 | `opsflow_action_queue` | WFD action queue — single object {id, type, message, detail, status, created} |
-| `opsflow_workflow_state` | WFD story diagram state — node statuses, active story |
-| `opsflow_discussions` | WFD discussion threads — array of numbered discussions |
+| `opsflow_workflow_state` | WFD story diagram state — 11 trunk ball states, active story, checkpoint branches |
+| `opsflow_feedback` | Feedback items — array of {id, category, priority, text, storyTaskId, storyTaskNum, version, timestamp} |
 | `opsflow_tester_config` | Tester sections config — seeded per version via migration |
 | `opsflow_tasks_migrations` | Migration tracking — array of migration keys already run |
 
@@ -788,11 +790,17 @@ The Product Plan (v1.28) for the 45 RPM Adaptor was largely AI-generated by a pr
 
 ## 13. Backlog & Roadmap
 
-### Immediate (WFD Action Balls — Discussion #16)
-- [ ] Implement WFD Action Balls framework — event-driven workflow steps on WFD trunk
-- [ ] Update Docs ball (HIGH PRIORITY) — ensures docs stay current after every commit
-- [ ] Queue Commit ball — enforces correct commit message format in action queue
-- [ ] 17 total balls identified (12 Claude, 4 Christian, 1 Decision) — all in Tasks backlog
+### Immediate (WFD Improvements — v1.0.0 Feedback)
+- [ ] Feedback edit feature — edit items before Promoting
+- [ ] Feedback title field — flows through Backlog/PQ (currently text-only)
+- [ ] Story tag dropdown fix — don't show completed story as option
+- [ ] "Active Story" → "Story Done" label when Done=green
+- [ ] Remove Reset button — Start on PQ auto-resets
+- [ ] Image/screenshot attachments on Feedback (leverage R2 storage)
+- [ ] SVG layout fix — checkpoint #1 label overlaps Done ball
+- [ ] T-129: Done blocked until story-tagged Feedback Promoted or Removed
+- [ ] T-131: Action queue clears on Reset/Done
+- [ ] T-130: Verify ball runs Tester page
 
 ### Near-Term (P1 Card Rebuild + Infrastructure)
 - [ ] Rebuild P1 card UI — editable fields, AI Assist buttons, data flow wiring
@@ -828,3 +836,4 @@ The Product Plan (v1.28) for the 45 RPM Adaptor was largely AI-generated by a pr
 | March 13, 2026 | v1.2 | P2 refinements: Load/stress testing with safety margins in QC. Two-level iteration tracking (major/minor — real-world: 100+ iterations on RC Plane Hanger). Scrap/waste factor in P2.3 COGS + R&D scrap tracking in P2.2. Extensible slicer profile (addable custom settings). G2 NO-GO routes to specific problem area. |
 | March 14, 2026 | v1.3 | Updated to v0.97.2. Added Workflow Dashboard (WFD) system: story diagram, action queue, discussion system. Updated Development Workflow to reflect WFD-centric flow (action queue replaces chat-based commit messages). Added 5 new localStorage keys. Added workflow.html to Pages. Updated Backlog with 17 WFD Action Balls (Discussion #16). Added WFD Action Balls as immediate priority. |
 | March 14, 2026 | v1.4 | Updated to v0.98.0. T-122 fix: Priority LED normalization — defensive mapping in all render/sort/cycle paths. |
+| March 15, 2026 | v1.5 | Updated to v1.0.0. T-132: Page Consolidation — WFD now has 5-tab layout (Story, PQ, Backlog, Feedback, History). Discussion system replaced by Feedback with story tagging. Tasks page and Feedback page deprecated. PQ status badges read-only (driven by ball flow). Updated Pages table, localStorage keys (removed opsflow_discussions, added opsflow_feedback), WFD section rewritten, Rules updated with scope discipline and YELLOW DONE command. Backlog/Roadmap updated with 10 immediate WFD improvement items from Feedback. |
