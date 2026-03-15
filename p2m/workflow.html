@@ -464,6 +464,18 @@
 
     function resetAll() {
         if (!confirm('Reset the active story? This will clear the current workflow progress.')) return;
+        // Close any open discussions tied to this story
+        if (story.branches && story.branches.length > 0) {
+            var discs = getDiscussions();
+            story.branches.forEach(function(b) {
+                if (b.type === 'discussion' && b.discId) {
+                    for (var i = 0; i < discs.length; i++) {
+                        if (discs[i].id === b.discId) { discs[i].status = 'closed'; break; }
+                    }
+                }
+            });
+            OpsFlow.set(DISC_KEY, discs);
+        }
         story = defaultStory();
         saveStory();
         render();
@@ -501,6 +513,11 @@
     }
 
     function startDiscussion() {
+        if (story.trunk && story.trunk.done === 'green') {
+            alert('Story is complete (Done ball is green). No new discussions allowed.');
+            hideDiscPrompt();
+            return;
+        }
         var topic = document.getElementById('disc-topic').value.trim();
         if (!topic) { document.getElementById('disc-topic').focus(); return; }
 
@@ -681,14 +698,18 @@
 
     // ═══ SVG Rendering ═══
     function updateButtonStates() {
-        // Discussion button: always enabled
         var btnDisc = document.getElementById('btn-discussion');
         if (btnDisc) {
-            btnDisc.disabled = false;
-            var openCount = getOpenDiscussions().length;
-            btnDisc.title = openCount > 0
-                ? openCount + ' discussion(s) open — add another anytime'
-                : 'Start a discussion chain — jot down ideas while waiting on processes';
+            var storyDone = story.trunk && story.trunk.done === 'green';
+            btnDisc.disabled = storyDone;
+            if (storyDone) {
+                btnDisc.title = 'Story complete — no new discussions';
+            } else {
+                var openCount = getOpenDiscussions().length;
+                btnDisc.title = openCount > 0
+                    ? openCount + ' discussion(s) open — add another anytime'
+                    : 'Start a discussion chain — jot down ideas while waiting on processes';
+            }
         }
     }
 
@@ -1477,14 +1498,14 @@
             var pqPri = priMap[rawPri.toLowerCase()] || 'medium';
             var statusCls = (t.status || 'new').toLowerCase().replace(/\s+/g, '-');
             var taskIdLabel = t.taskNum ? formatTaskNum(t.taskNum) : '';
-            var resetBtn = (statusCls !== 'new') ? '<span class="status-reset visible" data-reset-id="' + t.id + '" title="Reset to New">&#8617;</span>' : '';
+            // Status reset button removed — WFD ball flow owns status
             var groupTag = t.group ? '<span class="group-tag">' + escHtml(t.group) + '</span>' : '';
 
             html += '<div class="pq-task">';
             html += '<div class="order-num">' + selectHtml + '</div>';
             html += '<span class="priority ' + pqPri + '" data-pri-id="' + t.id + '" title="Click to change priority"></span>';
             html += '<div class="content">';
-            html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + escHtml(t.title || 'Untitled') + '<span class="status-badge ' + statusCls + '" data-status-id="' + t.id + '" title="Click to cycle status"></span>' + resetBtn + '</div>';
+            html += '<div class="title">' + (taskIdLabel ? '<span class="task-id">' + taskIdLabel + '</span>' : '') + escHtml(t.title || 'Untitled') + '<span class="status-badge ' + statusCls + '" title="Status driven by WFD ball flow"></span></div>';
             if (t.desc) html += '<div class="desc">' + escHtml(t.desc) + '</div>';
             html += '<div class="meta"><span class="tag">' + escHtml((t.tag || 'FEATURE').toUpperCase()) + '</span>' + groupTag + ' ' + escHtml(t.meta || '') + '</div>';
             html += '</div>';
@@ -1509,12 +1530,7 @@
         el.querySelectorAll('.pq-order-select').forEach(function(sel) {
             sel.addEventListener('change', function() { pqReorder(sel.getAttribute('data-pq-id'), sel.value); });
         });
-        el.querySelectorAll('[data-status-id]').forEach(function(badge) {
-            badge.addEventListener('click', function() { pqCycleStatus(badge.getAttribute('data-status-id')); });
-        });
-        el.querySelectorAll('[data-reset-id]').forEach(function(btn) {
-            btn.addEventListener('click', function(e) { e.stopPropagation(); pqResetStatus(btn.getAttribute('data-reset-id')); });
-        });
+        // Status badge click-to-cycle and reset removed — WFD ball flow owns status
         el.querySelectorAll('[data-pri-id]').forEach(function(pri) {
             pri.addEventListener('click', function() { pqCyclePriority(pri.getAttribute('data-pri-id')); });
         });

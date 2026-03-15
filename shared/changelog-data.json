@@ -1,5 +1,18 @@
 [
   {
+    "version": "v0.99.1",
+    "date": "March 14, 2026",
+    "tag": "FIX",
+    "title": "WFD Done/Reset/Freeze & Read-Only Status (T-125)",
+    "items": [
+      "PQ status badge is now read-only — no more click-to-cycle. Status is driven entirely by the WFD ball flow via autoDetect()",
+      "Removed status reset button from PQ cards — WFD is the single source of truth for task status",
+      "Done ball freezes the story: Discussion button disabled, new branches blocked when Done is green",
+      "Reset now closes all open discussions tied to the story before clearing",
+      "First story (T-125) run end-to-end through the new ball-driven WFD system"
+    ]
+  },
+  {
     "version": "v0.99.0",
     "date": "March 14, 2026",
     "tag": "FEATURE",
