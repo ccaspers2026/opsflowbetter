@@ -53,8 +53,6 @@
         .btn-danger:hover { background: #f85149; }
         .btn-completion { background: #1f6feb; color: #fff; border-color: #1f6feb; }
         .btn-completion:hover { background: #388bfd; }
-        .btn-discussion { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
-        .btn-discussion:hover { background: #a78bfa; }
         .btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; }
         .controls-sep { width: 1px; height: 24px; background: #21262d; }
         .cycle-label { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -189,25 +187,53 @@
         @keyframes bannerIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* ═══ Discussion Prompt ═══ */
-        .discussion-prompt { display: none; gap: 8px; margin-top: 8px; animation: bannerIn 0.2s ease-out; }
-        .discussion-prompt.visible { display: flex; align-items: flex-end; }
-        .discussion-prompt textarea { flex: 1; background: #0d1117; border: 1px solid #8b5cf6; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #e6edf3; outline: none; max-width: 1000px; min-height: 36px; max-height: 100px; resize: vertical; font-family: inherit; line-height: 1.4; }
-        .discussion-prompt textarea:focus { border-color: #a78bfa; box-shadow: 0 0 0 2px rgba(139,92,246,0.2); }
-        .discussion-prompt .btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; height: fit-content; }
-
-        /* ═══ Active Discussions List ═══ */
-        .discussions-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-        .discussion-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; animation: bannerIn 0.2s ease-out; }
-        .discussion-item-dot { width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; animation: pulse 1.5s ease-in-out infinite; flex-shrink: 0; }
-        .discussion-item-label { font-size: 11px; color: #a78bfa; font-weight: 600; flex-shrink: 0; }
-        .discussion-item-topic { font-size: 12px; color: #c9d1d9; flex: 1; line-height: 1.4; }
-        .discussion-item .btn-close-disc { padding: 3px 10px; font-size: 10px; background: #8b5cf6; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; flex-shrink: 0; }
-        .discussion-item .btn-close-disc:hover { background: #a78bfa; }
-
-        /* ═══ PQ Start Button ═══ */
+/* ═══ PQ Start Button ═══ */
         .pq-start-btn { white-space: nowrap; }
         .pq-start-btn:hover { background: #2ea043 !important; }
+
+        /* ═══ Tab System ═══ */
+        .wfd-tabs { display: flex; gap: 0; border-bottom: 1px solid #21262d; margin-bottom: 16px; }
+        .wfd-tab { padding: 8px 18px; font-size: 12px; font-weight: 600; color: #8b949e; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; }
+        .wfd-tab:hover { color: #e6edf3; }
+        .wfd-tab.active { color: #58a6ff; border-bottom-color: #58a6ff; }
+        .wfd-tab-content { display: none; }
+        .wfd-tab-content.active { display: block; }
+
+        /* ═══ Feedback Section ═══ */
+        .fb-section { background: #161b22; border: 1px solid #21262d; border-radius: 8px; overflow: hidden; }
+        .fb-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #1c2333; }
+        .fb-header h3 { font-size: 15px; color: #f0883e; margin: 0; }
+        .fb-count { font-size: 11px; color: #8b949e; }
+        .fb-input-area { padding: 16px; border-bottom: 1px solid #21262d; }
+        .fb-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .fb-select { background: #0d1117; border: 1px solid #30363d; border-radius: 4px; color: #e0e0e0; font-size: 12px; padding: 8px 10px; cursor: pointer; font-family: inherit; }
+        .fb-select:focus { border-color: #58a6ff; outline: none; }
+        .fb-textarea { width: 100%; min-height: 120px; background: #0d1117; border: 1px solid #30363d; border-radius: 4px; color: #e0e0e0; font-size: 13px; padding: 10px 12px; font-family: inherit; resize: vertical; line-height: 1.5; }
+        .fb-textarea:focus { border-color: #58a6ff; outline: none; }
+        .fb-textarea::placeholder { color: #8b949e; }
+        .fb-submit-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+        .fb-story-tag { font-size: 11px; color: #58a6ff; font-style: italic; }
+        .fb-led { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; box-shadow: 0 0 6px currentColor; }
+        .fb-led.now { background: #f85149; color: #f85149; box-shadow: 0 0 8px #f85149, 0 0 3px #f85149; }
+        .fb-led.soon { background: #d29922; color: #d29922; box-shadow: 0 0 8px #d29922, 0 0 3px #d29922; }
+        .fb-led.later { background: #58a6ff; color: #58a6ff; box-shadow: 0 0 8px #58a6ff, 0 0 3px #58a6ff; }
+        .fb-tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 8px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+        .fb-tag.bug { background: #f85149; color: #fff; }
+        .fb-tag.improvement { background: #d29922; color: #fff; }
+        .fb-tag.todo { background: #58a6ff; color: #fff; }
+        .fb-tag.question { background: #bc8cff; color: #fff; }
+        .fb-tag.note { background: #8b949e; color: #e0e0e0; }
+        .fb-content { flex: 1; font-size: 13px; line-height: 1.4; }
+        .fb-meta { font-size: 10px; color: #8b949e; margin-top: 2px; }
+        .fb-remove { background: none; border: none; color: #8b949e; font-size: 14px; cursor: pointer; padding: 0 4px; flex-shrink: 0; transition: color 0.15s; }
+        .fb-remove:hover { color: #f85149; }
+        .fb-promote { background: none; border: 1px solid #30363d; color: #3fb950; font-size: 9px; font-weight: 600; cursor: pointer; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; transition: all 0.15s; white-space: nowrap; }
+        .fb-promote:hover { background: rgba(63, 185, 80, 0.15); border-color: #3fb950; }
+        .fb-list { padding: 0; }
+        .fb-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #21262d; transition: background 0.15s; }
+        .fb-item:last-child { border-bottom: none; }
+        .fb-item:hover { background: #1c2333; }
+        .fb-empty { padding: 16px; text-align: center; color: #8b949e; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -241,57 +267,94 @@
         <div class="section">
             <div class="controls-bar">
                 <div id="story-label" style="font-size:14px; font-weight:600; color:#e6edf3; flex:1;"></div>
-                <button class="btn btn-discussion" id="btn-discussion" title="Start a discussion chain">+ Discussion</button>
                 <button class="btn btn-danger" id="btn-reset" title="Reset active story" style="font-size:11px; padding:4px 10px;">Reset</button>
             </div>
-            <div class="discussion-prompt" id="disc-prompt">
-                <textarea id="disc-topic" placeholder="What are we discussing?" maxlength="1000" rows="2"></textarea>
-                <button class="btn btn-discussion btn-sm" id="disc-start">Start</button>
-                <button class="btn btn-secondary btn-sm" id="disc-cancel">Cancel</button>
-            </div>
         </div>
-
-        <!-- Active Discussions List -->
-        <div class="discussions-list" id="disc-list"></div>
 
         <!-- Action Queue Banner -->
         <div class="action-banner" id="action-banner"></div>
 
-        <!-- SVG Visualization -->
-        <div class="section">
-            <h2 class="section-title">Active Story</h2>
-            <div class="svg-container" id="svg-container">
-                <svg id="workflow-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <!-- Tabs -->
+        <div class="wfd-tabs" id="wfd-tabs">
+            <button class="wfd-tab active" data-tab="story">Story</button>
+            <button class="wfd-tab" data-tab="pq">PQ</button>
+            <button class="wfd-tab" data-tab="backlog">Backlog</button>
+            <button class="wfd-tab" data-tab="feedback">Feedback</button>
+            <button class="wfd-tab" data-tab="history">History</button>
+        </div>
+
+        <!-- Tab: Story (SVG Visualization) -->
+        <div class="wfd-tab-content active" id="tab-story">
+            <div class="section">
+                <h2 class="section-title">Active Story</h2>
+                <div class="svg-container" id="svg-container">
+                    <svg id="workflow-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot red"></div> Not started</div>
+                    <div class="legend-item"><div class="legend-dot yellow"></div> In progress</div>
+                    <div class="legend-item"><div class="legend-dot green"></div> Complete</div>
+                    <div class="legend-item" style="margin-left:12px;color:#484f58;">Click any node to cycle its LED</div>
+                </div>
             </div>
-            <div class="legend">
-                <div class="legend-item"><div class="legend-dot red"></div> Not started</div>
-                <div class="legend-item"><div class="legend-dot yellow"></div> In progress</div>
-                <div class="legend-item"><div class="legend-dot green"></div> Complete</div>
-                <div class="legend-item" style="margin-left:12px;color:#484f58;">Click any node to cycle its LED</div>
+        </div>
+
+        <!-- Tab: PQ -->
+        <div class="wfd-tab-content" id="tab-pq">
+            <div class="section">
+                <h2 class="section-title">&#127919; Priority Queue &mdash; Up Next <span id="pq-count" style="color:#484f58;font-size:12px;"></span></h2>
+                <div class="pq-list" id="pq-list"></div>
             </div>
         </div>
 
-        <!-- Priority Queue (full featured, collapsible) -->
-        <div class="section">
-            <h2 class="section-title collapsible" id="pq-toggle" title="Click to expand/collapse PQ">
-                <span class="collapse-arrow" id="pq-arrow">&#9660;</span> &#127919; Priority Queue &mdash; Up Next <span id="pq-count" style="color:#484f58;font-size:12px;"></span>
-            </h2>
-            <div class="pq-list" id="pq-list"></div>
-        </div>
-
-        <!-- Cycle History -->
-        <div class="section">
-            <h2 class="section-title">Cycle History</h2>
-            <div class="cycle-history" id="cycle-history"></div>
-        </div>
-
-        <!-- Backlog (collapsible) -->
-        <div class="section">
-            <h2 class="section-title collapsible" id="backlog-toggle" title="Click to expand/collapse backlog">
-                <span class="collapse-arrow" id="backlog-arrow">&#9654;</span> Backlog <span class="backlog-count" id="backlog-count"></span>
-            </h2>
-            <div class="backlog-panel" id="backlog-panel" style="display:none;">
+        <!-- Tab: Backlog -->
+        <div class="wfd-tab-content" id="tab-backlog">
+            <div class="section">
+                <h2 class="section-title">Backlog <span class="backlog-count" id="backlog-count"></span></h2>
                 <div class="backlog-groups" id="backlog-groups"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Feedback -->
+        <div class="wfd-tab-content" id="tab-feedback">
+            <div class="fb-section">
+                <div class="fb-header">
+                    <h3>Feedback &amp; Ideas</h3>
+                    <span class="fb-count" id="fb-count">0 items</span>
+                </div>
+                <div class="fb-input-area">
+                    <div class="fb-input-row">
+                        <select class="fb-select" id="fbCategory">
+                            <option value="bug">Bug</option>
+                            <option value="improvement" selected>Improvement</option>
+                            <option value="todo">Todo</option>
+                            <option value="question">Question</option>
+                            <option value="note">Note</option>
+                        </select>
+                        <select class="fb-select" id="fbPriority">
+                            <option value="now">Now</option>
+                            <option value="soon" selected>Soon</option>
+                            <option value="later">Later</option>
+                        </select>
+                        <select class="fb-select" id="fbStoryTag">
+                            <option value="">No story tag</option>
+                        </select>
+                    </div>
+                    <textarea class="fb-textarea" id="fbText" placeholder="Describe the issue, idea, or note... Use as much space as you need." rows="5"></textarea>
+                    <div class="fb-submit-row">
+                        <button class="btn btn-primary" id="fb-submit">Submit Feedback</button>
+                        <span class="fb-story-tag" id="fb-story-hint"></span>
+                    </div>
+                </div>
+                <div class="fb-list" id="fb-list"></div>
+            </div>
+        </div>
+
+        <!-- Tab: History -->
+        <div class="wfd-tab-content" id="tab-history">
+            <div class="section">
+                <h2 class="section-title">Cycle History</h2>
+                <div class="cycle-history" id="cycle-history"></div>
             </div>
         </div>
     </main>
@@ -304,6 +367,7 @@
     var STATE_KEY = 'opsflow_workflow_state';
     var HISTORY_KEY = 'opsflow_workflow_cycles';
     var PQ_KEY = 'opsflow_tasks_v2';
+    var FEEDBACK_KEY = 'opsflow_feedback';
 
     // SVG layout constants
     var NODE_R = 14;
@@ -375,6 +439,165 @@
         OpsFlow.set(STATE_KEY, seed);
         localStorage.setItem(SEED_KEY, '1');
     })();
+
+    // ═══ Tab System ═══
+    var _activeTab = 'story';
+
+    function switchTab(tabName) {
+        _activeTab = tabName;
+        document.querySelectorAll('.wfd-tab').forEach(function(t) {
+            t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+        });
+        document.querySelectorAll('.wfd-tab-content').forEach(function(c) {
+            c.classList.toggle('active', c.id === 'tab-' + tabName);
+        });
+        // Render the active tab content
+        if (tabName === 'pq') renderPQ();
+        if (tabName === 'backlog') renderBacklog();
+        if (tabName === 'feedback') renderFeedback();
+        if (tabName === 'history') renderHistory();
+    }
+
+    // Wire tabs
+    document.querySelectorAll('.wfd-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            switchTab(tab.getAttribute('data-tab'));
+        });
+    });
+
+    // ═══ Feedback System ═══
+    function loadFeedback() {
+        var data = OpsFlow.getLocal(FEEDBACK_KEY);
+        return Array.isArray(data) ? data : [];
+    }
+    function saveFeedback(fb) {
+        OpsFlow.set(FEEDBACK_KEY, fb);
+    }
+
+    function submitFeedback() {
+        var cat = document.getElementById('fbCategory').value;
+        var pri = document.getElementById('fbPriority').value;
+        var text = document.getElementById('fbText').value.trim();
+        var storyTag = document.getElementById('fbStoryTag').value;
+        if (!text) { document.getElementById('fbText').focus(); return; }
+
+        var fb = loadFeedback();
+        fb.push({
+            id: Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            category: cat,
+            priority: pri,
+            text: text,
+            storyTaskId: storyTag || null,
+            storyTaskNum: storyTag ? story.taskNum : null,
+            storyTaskTitle: storyTag ? story.taskTitle : null,
+            version: OpsFlow.getLocal('opsflow_version') || '?',
+            timestamp: new Date().toISOString()
+        });
+        saveFeedback(fb);
+        document.getElementById('fbText').value = '';
+        document.getElementById('fbText').focus();
+        renderFeedback();
+    }
+
+    function promoteFeedback(id) {
+        var fb = loadFeedback();
+        var item = null;
+        for (var i = 0; i < fb.length; i++) {
+            if (fb[i].id === id) { item = fb[i]; break; }
+        }
+        if (!item) return;
+
+        var catToTag = { improvement: 'FEATURE', bug: 'BUG', todo: 'UX', question: 'UX', note: 'UX' };
+        var tag = catToTag[item.category] || 'FEATURE';
+        var priMap = { now: 'high', soon: 'medium', later: 'low' };
+        var priority = priMap[item.priority] || 'medium';
+
+        var data = OpsFlow.getLocal(PQ_KEY) || {};
+        if (!data.backlog) data.backlog = [];
+        data.backlog.unshift({
+            id: 'bl_' + Date.now(),
+            title: item.text,
+            desc: 'Promoted from Feedback (' + item.category + ')' + (item.storyTaskNum ? ' during T-' + item.storyTaskNum : ''),
+            tag: tag,
+            meta: 'Feedback \u2022 v' + (item.version || '?'),
+            priority: priority,
+            group: item.storyTaskNum ? 'WFD' : 'Feedback',
+            created: new Date().toISOString().split('T')[0],
+            source: 'feedback'
+        });
+        OpsFlow.set(PQ_KEY, data);
+
+        // Remove from feedback
+        fb = fb.filter(function(f) { return f.id !== id; });
+        saveFeedback(fb);
+        renderFeedback();
+    }
+
+    function removeFeedback(id) {
+        var fb = loadFeedback();
+        fb = fb.filter(function(f) { return f.id !== id; });
+        saveFeedback(fb);
+        renderFeedback();
+    }
+
+    function renderFeedback() {
+        var allItems = loadFeedback();
+        var list = document.getElementById('fb-list');
+        var countEl = document.getElementById('fb-count');
+
+        // Update story tag dropdown
+        var tagSelect = document.getElementById('fbStoryTag');
+        if (story.taskId) {
+            var tNum = story.taskNum ? 'T-' + story.taskNum : '';
+            tagSelect.innerHTML = '<option value="">No story tag</option>'
+                + '<option value="' + story.taskId + '">' + tNum + ': ' + escHtml(story.taskTitle || '') + '</option>';
+            document.getElementById('fb-story-hint').textContent = 'Active story: ' + tNum;
+        } else {
+            tagSelect.innerHTML = '<option value="">No story tag (no active story)</option>';
+            document.getElementById('fb-story-hint').textContent = '';
+        }
+
+        // Count
+        countEl.textContent = allItems.length + ' item' + (allItems.length !== 1 ? 's' : '');
+
+        if (!allItems.length) {
+            list.innerHTML = '<div class="fb-empty">No feedback yet \u2014 drop ideas, bugs, or notes anytime.</div>';
+            return;
+        }
+
+        var sorted = allItems.slice().reverse();
+        var html = '';
+        for (var i = 0; i < sorted.length; i++) {
+            var f = sorted[i];
+            var date = new Date(f.timestamp);
+            var time = date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            var pri = f.priority || 'soon';
+            var priLabel = pri === 'now' ? 'Now' : pri === 'soon' ? 'Soon' : 'Later';
+            var storyInfo = f.storyTaskNum ? ' \u2022 T-' + f.storyTaskNum : '';
+            html += '<div class="fb-item">';
+            html += '<span class="fb-led ' + pri + '" title="Priority: ' + priLabel + '"></span>';
+            html += '<span class="fb-tag ' + f.category + '">' + f.category.charAt(0).toUpperCase() + f.category.slice(1) + '</span>';
+            html += '<div class="fb-content">' + escHtml(f.text) + '<div class="fb-meta">' + priLabel + storyInfo + ' \u2022 v' + (f.version || '?') + ' \u2022 ' + time + '</div></div>';
+            html += '<button class="fb-promote" data-fb-promote="' + f.id + '" title="Promote to Backlog">\u2191 Promote</button>';
+            html += '<button class="fb-remove" data-fb-remove="' + f.id + '" title="Remove">\u00d7</button>';
+            html += '</div>';
+        }
+        list.innerHTML = html;
+
+        // Wire buttons
+        list.querySelectorAll('[data-fb-promote]').forEach(function(btn) {
+            btn.addEventListener('click', function() { promoteFeedback(btn.getAttribute('data-fb-promote')); });
+        });
+        list.querySelectorAll('[data-fb-remove]').forEach(function(btn) {
+            btn.addEventListener('click', function() { removeFeedback(btn.getAttribute('data-fb-remove')); });
+        });
+    }
+
+    // Wire submit button
+    document.getElementById('fb-submit').addEventListener('click', submitFeedback);
+    document.getElementById('fbText').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); submitFeedback(); }
+    });
 
     // ═══ State ═══
     var story = loadStory();
@@ -464,150 +687,12 @@
 
     function resetAll() {
         if (!confirm('Reset the active story? This will clear the current workflow progress.')) return;
-        // Close any open discussions tied to this story
-        if (story.branches && story.branches.length > 0) {
-            var discs = getDiscussions();
-            story.branches.forEach(function(b) {
-                if (b.type === 'discussion' && b.discId) {
-                    for (var i = 0; i < discs.length; i++) {
-                        if (discs[i].id === b.discId) { discs[i].status = 'closed'; break; }
-                    }
-                }
-            });
-            OpsFlow.set(DISC_KEY, discs);
-        }
         story = defaultStory();
         saveStory();
         render();
     }
 
-    // ═══ Discussion Chains (multiple) ═══
-    var DISC_KEY = 'opsflow_discussions';
-
-    // Migrate old single discussion to new array format
-    (function migrateDisc() {
-        var old = OpsFlow.getLocal('opsflow_discussion');
-        if (old && old.topic) {
-            var existing = OpsFlow.getLocal(DISC_KEY) || [];
-            existing.push({ id: 'disc_migrated_' + (old.started || Date.now()), topic: old.topic, started: old.started || Date.now(), status: old.status || 'closed', ended: old.ended });
-            OpsFlow.set(DISC_KEY, existing);
-            OpsFlow.set('opsflow_discussion', null); // clear old key
-        }
-    })();
-
-    function getDiscussions() {
-        return OpsFlow.getLocal(DISC_KEY) || [];
-    }
-
-    function getOpenDiscussions() {
-        return getDiscussions().filter(function(d) { return d.status === 'open'; });
-    }
-
-    function showDiscPrompt() {
-        document.getElementById('disc-prompt').classList.add('visible');
-        document.getElementById('disc-topic').value = '';
-        document.getElementById('disc-topic').focus();
-    }
-    function hideDiscPrompt() {
-        document.getElementById('disc-prompt').classList.remove('visible');
-    }
-
-    function startDiscussion() {
-        if (story.trunk && story.trunk.done === 'green') {
-            alert('Story is complete (Done ball is green). No new discussions allowed.');
-            hideDiscPrompt();
-            return;
-        }
-        var topic = document.getElementById('disc-topic').value.trim();
-        if (!topic) { document.getElementById('disc-topic').focus(); return; }
-
-        var discs = getDiscussions();
-        var disc = {
-            id: 'disc_' + Date.now(),
-            topic: topic,
-            started: Date.now(),
-            status: 'open'
-        };
-        discs.push(disc);
-        OpsFlow.set(DISC_KEY, discs);
-
-        // Add a discussion branch to the story for visual tracking
-        story.branches.push({
-            type: 'discussion',
-            discId: disc.id,
-            topic: topic,
-            nodes: {},
-            version: '',
-            started: Date.now()
-        });
-        saveStory();
-        hideDiscPrompt();
-        render();
-    }
-
-    function closeDiscussionById(discId) {
-        var discs = getDiscussions();
-        var prevDiscs = JSON.parse(JSON.stringify(discs));
-        var prevStory = JSON.parse(JSON.stringify(story));
-        var topic = '';
-
-        for (var i = 0; i < discs.length; i++) {
-            if (discs[i].id === discId && discs[i].status === 'open') {
-                topic = discs[i].topic || 'discussion';
-                discs[i].status = 'closed';
-                discs[i].ended = Date.now();
-                break;
-            }
-        }
-        OpsFlow.set(DISC_KEY, discs);
-
-        // Mark the matching discussion branch as closed
-        for (var j = 0; j < story.branches.length; j++) {
-            if (story.branches[j].type === 'discussion' && story.branches[j].discId === discId && !story.branches[j].closed) {
-                story.branches[j].closed = true;
-                story.branches[j].ended = Date.now();
-                break;
-            }
-        }
-        saveStory();
-        render();
-
-        showUndoToast('Discussion closed: ' + topic, function() {
-            OpsFlow.set(DISC_KEY, prevDiscs);
-            story = prevStory;
-            saveStory();
-            render();
-        });
-    }
-
-    function renderDiscussionState() {
-        var listEl = document.getElementById('disc-list');
-        var open = getOpenDiscussions();
-        if (open.length === 0) { listEl.innerHTML = ''; return; }
-
-        var html = '';
-        var allDiscs = getDiscussions();
-        open.forEach(function(disc) {
-            var num = allDiscs.indexOf(disc) + 1;
-            if (num === 0) { for (var d = 0; d < allDiscs.length; d++) { if (allDiscs[d].id === disc.id) { num = d + 1; break; } } }
-            html += '<div class="discussion-item">'
-                + '<div class="discussion-item-dot"></div>'
-                + '<span class="discussion-item-label">Discussion #' + num + ':</span>'
-                + '<span class="discussion-item-topic">' + escHtml(disc.topic) + '</span>'
-                + '<button class="btn-close-disc" data-disc-id="' + disc.id + '" title="Close this discussion">Close</button>'
-                + '</div>';
-        });
-        listEl.innerHTML = html;
-
-        // Wire close buttons
-        listEl.querySelectorAll('[data-disc-id]').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                closeDiscussionById(btn.getAttribute('data-disc-id'));
-            });
-        });
-    }
-
-    // ═══ Undo Toast System ═══
+// ═══ Undo Toast System ═══
     var undoTimer = null;
     var undoToastEl = null;
 
@@ -698,18 +783,12 @@
 
     // ═══ SVG Rendering ═══
     function updateButtonStates() {
-        var btnDisc = document.getElementById('btn-discussion');
-        if (btnDisc) {
-            var storyDone = story.trunk && story.trunk.done === 'green';
-            btnDisc.disabled = storyDone;
-            if (storyDone) {
-                btnDisc.title = 'Story complete — no new discussions';
-            } else {
-                var openCount = getOpenDiscussions().length;
-                btnDisc.title = openCount > 0
-                    ? openCount + ' discussion(s) open — add another anytime'
-                    : 'Start a discussion chain — jot down ideas while waiting on processes';
-            }
+        // Check if story-tagged feedback items exist — these block Done
+        if (story.taskId) {
+            var fb = loadFeedback();
+            var storyFb = fb.filter(function(f) { return f.storyTaskId === story.taskId; });
+            var storyFbCount = storyFb.length;
+            // Could add a visual indicator that feedback items are blocking Done
         }
     }
 
@@ -725,12 +804,13 @@
 
         autoDetect();
         updateButtonStates();
-        renderDiscussionState();
         renderSVG();
-        renderPQ();
-        renderHistory();
         renderActionBanner();
-        renderBacklog();
+        // Render the active tab content
+        if (_activeTab === 'pq') renderPQ();
+        if (_activeTab === 'backlog') renderBacklog();
+        if (_activeTab === 'feedback') renderFeedback();
+        if (_activeTab === 'history') renderHistory();
     }
 
     // ═══ Helper: is branch all green (collapsed)? ═══
@@ -744,7 +824,6 @@
 
     // ═══ Helper: width a branch takes on the trunk ═══
     function branchWidth(branch) {
-        if (branch.type === 'discussion') return COLLAPSED_WIDTH; // discussions are always compact
         if (isBranchComplete(branch)) return COLLAPSED_WIDTH;
         var nodeCount = Object.keys(branch.nodes).length;
         return nodeCount * NODE_SPACING + NODE_SPACING; // nodes + merge gap
@@ -928,12 +1007,6 @@
             segments.push({ type: 'trunk', node: node, width: NODE_SPACING });
         });
 
-        story.branches.forEach(function(branch, bIdx) {
-            if (branch.type === 'discussion') {
-                segments.push({ type: 'discussion', branch: branch, bIdx: bIdx, width: COLLAPSED_WIDTH });
-            }
-        });
-
         segments.push({ type: 'arrow', width: 50 });
 
         // Row wrapping
@@ -984,36 +1057,6 @@
             row.segments.forEach(function(seg) {
                 if (seg.type === 'trunk') {
                     addElement(map, 'trunk-' + seg.node.id, 'node', seg.x - NODE_R, baseY - NODE_R, NODE_R * 2, NODE_R * 2, { seg: seg });
-
-                } else if (seg.type === 'discussion') {
-                    var dotX = seg.x + COLLAPSED_WIDTH / 2;
-                    var miniY = baseY + MINI_BRANCH_DROP;
-                    var isOpen = !seg.branch.closed;
-                    var PURPLE = '#8b5cf6';
-                    var forkX = seg.x + 10;
-                    var mergeBackX = seg.x + COLLAPSED_WIDTH - 10;
-
-                    // Register elements
-                    addElement(map, 'fork-disc-' + seg.bIdx, 'fork-point', forkX - 2, baseY - 2, 4, 4);
-                    addElement(map, 'dot-disc-' + seg.bIdx, 'disc-dot', dotX - 8, miniY - 8, 16, 16, { seg: seg });
-
-                    if (isOpen) {
-                        // Open: smooth S-curve from trunk down to dot
-                        seg._branchPath = [
-                            { x: forkX, y: baseY },
-                            { x: dotX, y: miniY }
-                        ];
-                    } else {
-                        // Closed: smooth S-curves through dot center and back up
-                        addElement(map, 'merge-disc-' + seg.bIdx, 'merge-point', mergeBackX - 2, baseY - 2, 4, 4);
-                        seg._branchPath = [
-                            { x: forkX, y: baseY },
-                            { x: dotX, y: miniY },
-                            { x: mergeBackX, y: baseY }
-                        ];
-                    }
-                } else if (seg.type === 'storyDone') {
-                    // Done node
                 }
             });
         });
@@ -1092,81 +1135,11 @@
                         cycleTrunkNode(seg.node.id);
                     }, seg.node.tip);
 
-                } else if (seg.type === 'discussion') {
-                    var dotX = seg.x + COLLAPSED_WIDTH / 2;
-                    var miniY = baseY + MINI_BRANCH_DROP;
-                    var isOpen = !seg.branch.closed;
-                    var PURPLE = '#8b5cf6';
-                    // Draw the branch path: smooth S-curves
-                    if (seg._branchPath) {
-                        drawSmoothPath(svg, seg._branchPath, PURPLE);
-                    }
-                    drawDiscussionDot(svg, dotX, miniY, seg.branch, seg.bIdx, isOpen);
-
-                } else if (seg.type === 'storyDone') {
-                    var doneStatus = 'red';
-                    var compBranch = story.branches.find(function(b) { return b.type === 'completion'; });
-                    if (compBranch && compBranch.nodes['done'] === 'green') doneStatus = 'green';
-                    else if (compBranch && compBranch.nodes['testing'] !== 'red') doneStatus = 'yellow';
-                    drawNode(svg, seg.x, baseY, COLORS[doneStatus], 'Story Done', 'Auto', '#484f58', function() {}, 'Story is fully complete — all tasks done, tested, and deployed');
-
                 } else if (seg.type === 'arrow') {
                     drawArrowhead(svg, seg.x, baseY, '#484f58');
                 }
             });
         });
-    }
-
-    function drawDiscussionDot(svg, x, y, branch, bIdx, isOpen) {
-        var PURPLE = '#8b5cf6';
-        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('style', 'cursor:pointer;');
-
-        // Glow (pulsing if open)
-        var glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        glow.setAttribute('cx', x); glow.setAttribute('cy', y);
-        glow.setAttribute('r', isOpen ? 12 : 10);
-        glow.setAttribute('fill', PURPLE); glow.setAttribute('opacity', isOpen ? '0.35' : '0.2');
-        g.appendChild(glow);
-
-        // Circle
-        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', x); circle.setAttribute('cy', y);
-        circle.setAttribute('r', isOpen ? 9 : 7);
-        circle.setAttribute('fill', isOpen ? PURPLE : '#6d28d9');
-        circle.setAttribute('stroke', '#0d1117'); circle.setAttribute('stroke-width', '1.5');
-        g.appendChild(circle);
-
-        // Icon: speech bubble (unicode)
-        var icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        icon.setAttribute('x', x); icon.setAttribute('y', y + (isOpen ? 4 : 3));
-        icon.setAttribute('font-size', isOpen ? '10px' : '8px'); icon.setAttribute('fill', '#fff');
-        icon.setAttribute('text-anchor', 'middle');
-        icon.setAttribute('style', 'pointer-events:none;');
-        icon.textContent = '\u2731'; // reference mark ※ — distinctive
-        g.appendChild(icon);
-
-        // Label below
-        var topicShort = (branch.topic || '').substring(0, 12);
-        if ((branch.topic || '').length > 12) topicShort += '\u2026';
-        var discNum = '';
-        var allDiscs = getDiscussions();
-        for (var di = 0; di < allDiscs.length; di++) { if (allDiscs[di].id === branch.discId) { discNum = '#' + (di + 1); break; } }
-        drawText(svg, x, y + 22, 'Disc ' + discNum, '8px', PURPLE, 'node-label', true);
-        drawText(svg, x, y + 32, topicShort, '7px', '#484f58', 'node-label', true);
-
-        // Tooltip
-        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        var statusText = isOpen ? 'Active discussion' : 'Closed discussion';
-        title.textContent = statusText + ' ' + discNum + ': ' + (branch.topic || 'untitled');
-        g.appendChild(title);
-
-        // Click to delete (closed) or do nothing (open)
-        if (!isOpen) {
-            g.addEventListener('click', function() { deleteBranchWithUndo(bIdx); });
-        }
-
-        svg.appendChild(g);
     }
 
     // ── SVG Drawing Helpers ──
@@ -1346,7 +1319,7 @@
         }
 
         // Button order: [Copy Commit] | Report Issue (center) | Done (right) — natural L→R flow
-        html += '<button class="action-btn action-btn-issue" id="action-report-issue" title="Report a problem — opens a discussion linked to this action">&#9888; Report Issue</button>';
+        html += '<button class="action-btn action-btn-issue" id="action-report-issue" title="Report a problem — opens feedback form linked to this action">&#9888; Report Issue</button>';
         if (action.type !== 'info' && action.type !== 'test_request' && !(action.type === 'question' && action.options)) {
             html += '<button class="action-btn action-btn-primary" data-respond="done">Done ✓</button>';
         }
@@ -1378,7 +1351,7 @@
             });
         });
 
-        // Report Issue button — marks action as issue + opens discussion prompt
+        // Report Issue button — marks action as issue + opens feedback tab
         var issueBtn = document.getElementById('action-report-issue');
         if (issueBtn) {
             issueBtn.addEventListener('click', function() {
@@ -1390,12 +1363,13 @@
                 action.updated = Date.now();
                 OpsFlow.set(ACTION_KEY, action);
                 renderActionBanner();
-                // Pre-fill discussion prompt with action context
-                document.getElementById('disc-prompt').classList.add('visible');
-                var textarea = document.getElementById('disc-topic');
-                textarea.value = 'Issue with: ' + (action.message || action.type) + '\n';
-                textarea.focus();
-                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                // Switch to feedback tab and pre-fill with action context
+                switchTab('feedback');
+                document.getElementById('fbCategory').value = 'bug';
+                var fbText = document.getElementById('fbText');
+                fbText.value = 'Issue with: ' + (action.message || action.type) + '\n';
+                fbText.focus();
+                fbText.setSelectionRange(fbText.value.length, fbText.value.length);
             });
         }
     }
@@ -1639,14 +1613,11 @@
     }
 
     // ═══ Backlog Render ═══
-    var _backlogOpen = false;
     function renderBacklog() {
         var tasksData = OpsFlow.getLocal(PQ_KEY);
         var backlog = (tasksData && tasksData.backlog) ? tasksData.backlog : [];
         var countEl = document.getElementById('backlog-count');
         countEl.textContent = '(' + backlog.length + ')';
-
-        if (!_backlogOpen) return; // don't render contents when collapsed
 
         var el = document.getElementById('backlog-groups');
         if (backlog.length === 0) { el.innerHTML = '<div class="empty-state">No backlog items</div>'; return; }
@@ -1685,50 +1656,46 @@
                 if (item.status && item.status.toLowerCase() !== 'new') {
                     html += '<span class="status-badge ' + statusClass + '">' + escHtml(item.status) + '</span>';
                 }
+                html += '<button class="btn-demote" data-promote-to-pq="' + item.id + '" title="Move to PQ" style="margin-left:auto;">\u2191 PQ</button>';
                 html += '</div>';
             });
         });
         el.innerHTML = html;
+
+        // Wire promote buttons
+        el.querySelectorAll('[data-promote-to-pq]').forEach(function(btn) {
+            btn.addEventListener('click', function() { promoteBacklogToPQ(btn.getAttribute('data-promote-to-pq')); });
+        });
     }
 
-    // PQ collapse toggle (persists to localStorage)
-    var _pqOpen = localStorage.getItem('opsflow_pq_open') !== 'false'; // open by default
-    (function initPQToggle() {
-        var list = document.getElementById('pq-list');
-        var arrow = document.getElementById('pq-arrow');
-        if (!_pqOpen) { list.style.display = 'none'; arrow.innerHTML = '&#9654;'; }
-    })();
-    document.getElementById('pq-toggle').addEventListener('click', function() {
-        _pqOpen = !_pqOpen;
-        localStorage.setItem('opsflow_pq_open', _pqOpen);
-        var list = document.getElementById('pq-list');
-        var arrow = document.getElementById('pq-arrow');
-        list.style.display = _pqOpen ? 'block' : 'none';
-        arrow.innerHTML = _pqOpen ? '&#9660;' : '&#9654;';
-        if (_pqOpen) renderPQ();
-    });
-
-    document.getElementById('backlog-toggle').addEventListener('click', function() {
-        _backlogOpen = !_backlogOpen;
-        var panel = document.getElementById('backlog-panel');
-        var arrow = document.getElementById('backlog-arrow');
-        panel.style.display = _backlogOpen ? 'block' : 'none';
-        if (_backlogOpen) { arrow.classList.add('open'); } else { arrow.classList.remove('open'); }
+    function promoteBacklogToPQ(id) {
+        var data = OpsFlow.getLocal(PQ_KEY);
+        if (!data || !data.backlog) return;
+        var idx = -1;
+        for (var i = 0; i < data.backlog.length; i++) {
+            if (data.backlog[i].id === id) { idx = i; break; }
+        }
+        if (idx === -1) return;
+        var item = data.backlog.splice(idx, 1)[0];
+        item.id = 'pq_' + Date.now();
+        if (!item.taskNum) {
+            var maxNum = 0;
+            ['priority','backlog'].forEach(function(list) {
+                (data[list] || []).forEach(function(t) {
+                    if (t.taskNum && t.taskNum > maxNum) maxNum = t.taskNum;
+                });
+            });
+            item.taskNum = maxNum + 1;
+        }
+        if (!data.priority) data.priority = [];
+        data.priority.push(item);
+        OpsFlow.set(PQ_KEY, data);
         renderBacklog();
-    });
+        renderPQ();
+    }
 
     // ═══ Event Listeners ═══
     document.getElementById('btn-reset').addEventListener('click', resetAll);
-
-    // Discussion controls
-    document.getElementById('btn-discussion').addEventListener('click', showDiscPrompt);
-    document.getElementById('disc-start').addEventListener('click', startDiscussion);
-    document.getElementById('disc-cancel').addEventListener('click', hideDiscPrompt);
-    // Close buttons are wired dynamically in renderDiscussionState()
-    document.getElementById('disc-topic').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); startDiscussion(); }
-        if (e.key === 'Escape') hideDiscPrompt();
-    });
 
     // Listen for storage changes (other tabs)
     window.addEventListener('storage', function(e) {
@@ -1743,8 +1710,8 @@
         var h = JSON.stringify(OpsFlow.getLocal(HISTORY_KEY) || []);
         var v = localStorage.getItem('opsflow_version') || '';
         var a = JSON.stringify(OpsFlow.getLocal(ACTION_KEY) || {});
-        var d = JSON.stringify(OpsFlow.getLocal(DISC_KEY) || {});
-        return s + '|' + p + '|' + h + '|' + v + '|' + a + '|' + d;
+        var f = JSON.stringify(OpsFlow.getLocal(FEEDBACK_KEY) || []);
+        return s + '|' + p + '|' + h + '|' + v + '|' + a + '|' + f;
     }
     _lastSnapshot = getStateSnapshot();
     setInterval(function() {

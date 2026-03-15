@@ -1,5 +1,21 @@
 [
   {
+    "version": "v1.0.0",
+    "date": "March 14, 2026",
+    "tag": "FEATURE",
+    "title": "Page Consolidation — Tabbed WFD + Feedback System (T-132)",
+    "items": [
+      "Consolidated Tasks page functionality into the Workflow Dashboard — single page for all project management",
+      "5-tab layout above the diagram: Story, PQ, Backlog, Feedback, History — no scrolling to reach tabs",
+      "Replaced Discussion system with Feedback — submit with category, priority, and optional story tag",
+      "Feedback items tagged to a story block the Done ball — must Promote or Remove before completing",
+      "Promote button sends Feedback to Backlog with proper category-to-tag mapping",
+      "Backlog tab includes Promote to PQ button for moving items into the priority queue",
+      "Feedback textarea sized for comfortable input on large monitors (min-height 120px)",
+      "Story tag dropdown lets user choose whether to associate feedback with the active story or leave standalone"
+    ]
+  },
+  {
     "version": "v0.99.1",
     "date": "March 14, 2026",
     "tag": "FIX",
